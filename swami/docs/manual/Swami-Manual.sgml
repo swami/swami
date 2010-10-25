@@ -1,0 +1,41 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
+
+<ARTICLE ID="INDEX">
+
+<!-- Header -->
+
+<ARTHEADER>
+
+  <TITLE>Swami Manual</TITLE>
+
+  <AUTHOR>
+     <FIRSTNAME>Josh</FIRSTNAME>
+     <SURNAME>Green</SURNAME>
+     <AFFILIATION>
+        <ADDRESS>
+           <EMAIL>jgreen@users.sourceforge.net</EMAIL>
+        </ADDRESS>
+     </AFFILIATION>
+  </AUTHOR>
+
+  <REVHISTORY>
+    <REVISION>
+      <REVNUMBER>0.1</REVNUMBER>
+      <DATE>2001-02-01</DATE>
+      <AUTHORINITIALS>jmg</AUTHORINITIALS>
+      <REVREMARK>
+        Initial document created
+      </REVREMARK>
+    </REVISION>
+  </REVHISTORY>
+
+  <ABSTRACT>
+    <PARA>
+      This is the Swami manual. It contains information on using Swami and
+      some brief info on patch files and MIDI as well as links to other
+      information resources.
+    </PARA>
+  </ABSTRACT>
+
+</ARTHEADER>
+

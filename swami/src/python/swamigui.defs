@@ -1,0 +1,2699 @@
+;; -*- scheme -*-
+; object definitions ...
+(define-object Bar
+  (in-module "Swamigui")
+  (parent "GnomeCanvasGroup")
+  (c-name "SwamiguiBar")
+  (gtype-id "SWAMIGUI_TYPE_BAR")
+)
+
+(define-object BarPtr
+  (in-module "Swamigui")
+  (parent "GnomeCanvasGroup")
+  (c-name "SwamiguiBarPtr")
+  (gtype-id "SWAMIGUI_TYPE_BAR_PTR")
+)
+
+(define-object CanvasMod
+  (in-module "Swamigui")
+  (parent "GObject")
+  (c-name "SwamiguiCanvasMod")
+  (gtype-id "SWAMIGUI_TYPE_CANVAS_MOD")
+)
+
+(define-object ControlAdj
+  (in-module "Swamigui")
+  (parent "SwamiControl")
+  (c-name "SwamiguiControlAdj")
+  (gtype-id "SWAMIGUI_TYPE_CONTROL_ADJ")
+)
+
+(define-object ControlMidiKey
+  (in-module "Swamigui")
+  (parent "SwamiControlMidi")
+  (c-name "SwamiguiControlMidiKey")
+  (gtype-id "SWAMIGUI_TYPE_CONTROL_MIDI_KEY")
+)
+
+(define-object ItemMenu
+  (in-module "Swamigui")
+  (parent "GtkMenu")
+  (c-name "SwamiguiItemMenu")
+  (gtype-id "SWAMIGUI_TYPE_ITEM_MENU")
+)
+
+(define-object Knob
+  (in-module "Swamigui")
+  (parent "GtkDrawingArea")
+  (c-name "SwamiguiKnob")
+  (gtype-id "SWAMIGUI_TYPE_KNOB")
+)
+
+(define-object LoopFinder
+  (in-module "Swamigui")
+  (parent "GtkVBox")
+  (c-name "SwamiguiLoopFinder")
+  (gtype-id "SWAMIGUI_TYPE_LOOP_FINDER")
+)
+
+(define-object Menu
+  (in-module "Swamigui")
+  (parent "GtkVBox")
+  (c-name "SwamiguiMenu")
+  (gtype-id "SWAMIGUI_TYPE_MENU")
+)
+
+(define-object ModEdit
+  (in-module "Swamigui")
+  (parent "GtkScrolledWindow")
+  (c-name "SwamiguiModEdit")
+  (gtype-id "SWAMIGUI_TYPE_MOD_EDIT")
+)
+
+(define-object MultiSave
+  (in-module "Swamigui")
+  (parent "GtkDialog")
+  (c-name "SwamiguiMultiSave")
+  (gtype-id "SWAMIGUI_TYPE_MULTI_SAVE")
+)
+
+(define-object NoteSelector
+  (in-module "Swamigui")
+  (parent "GtkSpinButton")
+  (c-name "SwamiguiNoteSelector")
+  (gtype-id "SWAMIGUI_TYPE_NOTE_SELECTOR")
+)
+
+(define-object Panel
+  (in-module "Swamigui")
+  (c-name "SwamiguiPanel")
+  (gtype-id "SWAMIGUI_TYPE_PANEL")
+)
+
+(define-object PanelSF2Gen
+  (in-module "Swamigui")
+  (parent "GtkScrolledWindow")
+  (c-name "SwamiguiPanelSF2Gen")
+  (gtype-id "SWAMIGUI_TYPE_PANEL_SF2_GEN")
+)
+
+(define-object PanelSelector
+  (in-module "Swamigui")
+  (parent "GtkNotebook")
+  (c-name "SwamiguiPanelSelector")
+  (gtype-id "SWAMIGUI_TYPE_PANEL_SELECTOR")
+)
+
+(define-object Paste
+  (in-module "Swamigui")
+  (parent "GObject")
+  (c-name "SwamiguiPaste")
+  (gtype-id "SWAMIGUI_TYPE_PASTE")
+)
+
+(define-object Piano
+  (in-module "Swamigui")
+  (parent "GnomeCanvasGroup")
+  (c-name "SwamiguiPiano")
+  (gtype-id "SWAMIGUI_TYPE_PIANO")
+)
+
+(define-object Pref
+  (in-module "Swamigui")
+  (parent "GtkDialog")
+  (c-name "SwamiguiPref")
+  (gtype-id "SWAMIGUI_TYPE_PREF")
+)
+
+(define-object Prop
+  (in-module "Swamigui")
+  (parent "GtkScrolledWindow")
+  (c-name "SwamiguiProp")
+  (gtype-id "SWAMIGUI_TYPE_PROP")
+)
+
+(define-object PythonView
+  (in-module "Swamigui")
+  (parent "GtkVBox")
+  (c-name "SwamiguiPythonView")
+  (gtype-id "SWAMIGUI_TYPE_PYTHON_VIEW")
+)
+
+(define-object Root
+  (in-module "Swamigui")
+  (parent "SwamiRoot")
+  (c-name "SwamiguiRoot")
+  (gtype-id "SWAMIGUI_TYPE_ROOT")
+)
+
+(define-object SampleCanvas
+  (in-module "Swamigui")
+  (parent "GnomeCanvasItem")
+  (c-name "SwamiguiSampleCanvas")
+  (gtype-id "SWAMIGUI_TYPE_SAMPLE_CANVAS")
+)
+
+(define-object SampleEditor
+  (in-module "Swamigui")
+  (parent "GtkHBox")
+  (c-name "SwamiguiSampleEditor")
+  (gtype-id "SWAMIGUI_TYPE_SAMPLE_EDITOR")
+)
+
+(define-object SpectrumCanvas
+  (in-module "Swamigui")
+  (parent "GnomeCanvasItem")
+  (c-name "SwamiguiSpectrumCanvas")
+  (gtype-id "SWAMIGUI_TYPE_SPECTRUM_CANVAS")
+)
+
+(define-object SpinScale
+  (in-module "Swamigui")
+  (parent "GtkHBox")
+  (c-name "SwamiguiSpinScale")
+  (gtype-id "SWAMIGUI_TYPE_SPIN_SCALE")
+)
+
+(define-object Splits
+  (in-module "Swamigui")
+  (parent "GtkVBox")
+  (c-name "SwamiguiSplits")
+  (gtype-id "SWAMIGUI_TYPE_SPLITS")
+)
+
+(define-object Statusbar
+  (in-module "Swamigui")
+  (parent "GtkFrame")
+  (c-name "SwamiguiStatusbar")
+  (gtype-id "SWAMIGUI_TYPE_STATUSBAR")
+)
+
+(define-object Tree
+  (in-module "Swamigui")
+  (parent "GtkVBox")
+  (c-name "SwamiguiTree")
+  (gtype-id "SWAMIGUI_TYPE_TREE")
+)
+
+(define-object TreeStore
+  (in-module "Swamigui")
+  (parent "GtkTreeStore")
+  (c-name "SwamiguiTreeStore")
+  (gtype-id "SWAMIGUI_TYPE_TREE_STORE")
+)
+
+(define-object TreeStorePatch
+  (in-module "Swamigui")
+  (parent "SwamiguiTreeStore")
+  (c-name "SwamiguiTreeStorePatch")
+  (gtype-id "SWAMIGUI_TYPE_TREE_STORE_PATCH")
+)
+
+;; Enumerations and flags ...
+
+(define-enum BarPtrType
+  (in-module "Swamigui")
+  (c-name "SwamiguiBarPtrType")
+  (gtype-id "SWAMIGUI_TYPE_BAR_PTR_TYPE")
+  (values
+    '("position" "SWAMIGUI_BAR_PTR_POSITION")
+    '("range" "SWAMIGUI_BAR_PTR_RANGE")
+  )
+)
+
+(define-enum CanvasModType
+  (in-module "Swamigui")
+  (c-name "SwamiguiCanvasModType")
+  (gtype-id "SWAMIGUI_TYPE_CANVAS_MOD_TYPE")
+  (values
+    '("snap-zoom" "SWAMIGUI_CANVAS_MOD_SNAP_ZOOM")
+    '("wheel-zoom" "SWAMIGUI_CANVAS_MOD_WHEEL_ZOOM")
+    '("snap-scroll" "SWAMIGUI_CANVAS_MOD_SNAP_SCROLL")
+    '("wheel-scroll" "SWAMIGUI_CANVAS_MOD_WHEEL_SCROLL")
+  )
+)
+
+(define-enum CanvasModAxis
+  (in-module "Swamigui")
+  (c-name "SwamiguiCanvasModAxis")
+  (gtype-id "SWAMIGUI_TYPE_CANVAS_MOD_AXIS")
+  (values
+    '("x" "SWAMIGUI_CANVAS_MOD_X")
+    '("y" "SWAMIGUI_CANVAS_MOD_Y")
+  )
+)
+
+(define-flags CanvasModFlags
+  (in-module "Swamigui")
+  (c-name "SwamiguiCanvasModFlags")
+  (gtype-id "SWAMIGUI_TYPE_CANVAS_MOD_FLAGS")
+  (values
+    '("enabled" "SWAMIGUI_CANVAS_MOD_ENABLED")
+  )
+)
+
+(define-flags CanvasModActions
+  (in-module "Swamigui")
+  (c-name "SwamiguiCanvasModActions")
+  (gtype-id "SWAMIGUI_TYPE_CANVAS_MOD_ACTIONS")
+  (values
+    '("zoom-x" "SWAMIGUI_CANVAS_MOD_ZOOM_X")
+    '("zoom-y" "SWAMIGUI_CANVAS_MOD_ZOOM_Y")
+    '("scroll-x" "SWAMIGUI_CANVAS_MOD_SCROLL_X")
+    '("scroll-y" "SWAMIGUI_CANVAS_MOD_SCROLL_Y")
+  )
+)
+
+(define-enum ControlRank
+  (in-module "Swamigui")
+  (c-name "SwamiguiControlRank")
+  (gtype-id "SWAMIGUI_TYPE_CONTROL_RANK")
+  (values
+    '("lowest" "SWAMIGUI_CONTROL_RANK_LOWEST")
+    '("low" "SWAMIGUI_CONTROL_RANK_LOW")
+    '("normal" "SWAMIGUI_CONTROL_RANK_NORMAL")
+    '("high" "SWAMIGUI_CONTROL_RANK_HIGH")
+    '("highest" "SWAMIGUI_CONTROL_RANK_HIGHEST")
+  )
+)
+
+(define-enum ControlFlags
+  (in-module "Swamigui")
+  (c-name "SwamiguiControlFlags")
+  (gtype-id "SWAMIGUI_TYPE_CONTROL_FLAGS")
+  (values
+    '("ctrl" "SWAMIGUI_CONTROL_CTRL")
+    '("view" "SWAMIGUI_CONTROL_VIEW")
+    '("no-create" "SWAMIGUI_CONTROL_NO_CREATE")
+  )
+)
+
+(define-flags ControlObjectFlags
+  (in-module "Swamigui")
+  (c-name "SwamiguiControlObjectFlags")
+  (gtype-id "SWAMIGUI_TYPE_CONTROL_OBJECT_FLAGS")
+  (values
+    '("no-labels" "SWAMIGUI_CONTROL_OBJECT_NO_LABELS")
+    '("no-sort" "SWAMIGUI_CONTROL_OBJECT_NO_SORT")
+    '("prop-labels" "SWAMIGUI_CONTROL_OBJECT_PROP_LABELS")
+  )
+)
+
+(define-flags ItemMenuFlags
+  (in-module "Swamigui")
+  (c-name "SwamiguiItemMenuFlags")
+  (gtype-id "SWAMIGUI_TYPE_ITEM_MENU_FLAGS")
+  (values
+    '("inactive" "SWAMIGUI_ITEM_MENU_INACTIVE")
+    '("plugin" "SWAMIGUI_ITEM_MENU_PLUGIN")
+  )
+)
+
+(define-enum PasteStatus
+  (in-module "Swamigui")
+  (c-name "SwamiguiPasteStatus")
+  (gtype-id "SWAMIGUI_TYPE_PASTE_STATUS")
+  (values
+    '("normal" "SWAMIGUI_PASTE_NORMAL")
+    '("error" "SWAMIGUI_PASTE_ERROR")
+    '("unhandled" "SWAMIGUI_PASTE_UNHANDLED")
+    '("conflict" "SWAMIGUI_PASTE_CONFLICT")
+    '("cancel" "SWAMIGUI_PASTE_CANCEL")
+  )
+)
+
+(define-flags PasteDecision
+  (in-module "Swamigui")
+  (c-name "SwamiguiPasteDecision")
+  (gtype-id "SWAMIGUI_TYPE_PASTE_DECISION")
+  (values
+    '("no-decision" "SWAMIGUI_PASTE_NO_DECISION")
+    '("skip" "SWAMIGUI_PASTE_SKIP")
+    '("changed" "SWAMIGUI_PASTE_CHANGED")
+    '("replace" "SWAMIGUI_PASTE_REPLACE")
+  )
+)
+
+(define-enum QuitConfirm
+  (in-module "Swamigui")
+  (c-name "SwamiguiQuitConfirm")
+  (gtype-id "SWAMIGUI_TYPE_QUIT_CONFIRM")
+  (values
+    '("always" "SWAMIGUI_QUIT_CONFIRM_ALWAYS")
+    '("unsaved" "SWAMIGUI_QUIT_CONFIRM_UNSAVED")
+    '("never" "SWAMIGUI_QUIT_CONFIRM_NEVER")
+  )
+)
+
+(define-enum SampleEditorStatus
+  (in-module "Swamigui")
+  (c-name "SwamiguiSampleEditorStatus")
+  (gtype-id "SWAMIGUI_TYPE_SAMPLE_EDITOR_STATUS")
+  (values
+    '("normal" "SWAMIGUI_SAMPLE_EDITOR_NORMAL")
+    '("init" "SWAMIGUI_SAMPLE_EDITOR_INIT")
+    '("update" "SWAMIGUI_SAMPLE_EDITOR_UPDATE")
+  )
+)
+
+(define-flags SampleEditorMarkerFlags
+  (in-module "Swamigui")
+  (c-name "SwamiguiSampleEditorMarkerFlags")
+  (gtype-id "SWAMIGUI_TYPE_SAMPLE_EDITOR_MARKER_FLAGS")
+  (values
+    '("single" "SWAMIGUI_SAMPLE_EDITOR_MARKER_SINGLE")
+    '("view" "SWAMIGUI_SAMPLE_EDITOR_MARKER_VIEW")
+    '("size" "SWAMIGUI_SAMPLE_EDITOR_MARKER_SIZE")
+  )
+)
+
+(define-enum SampleEditorMarkerId
+  (in-module "Swamigui")
+  (c-name "SwamiguiSampleEditorMarkerId")
+  (gtype-id "SWAMIGUI_TYPE_SAMPLE_EDITOR_MARKER_ID")
+  (values
+    '("selection" "SWAMIGUI_SAMPLE_EDITOR_MARKER_ID_SELECTION")
+    '("loop-find-start" "SWAMIGUI_SAMPLE_EDITOR_MARKER_ID_LOOP_FIND_START")
+    '("loop-find-end" "SWAMIGUI_SAMPLE_EDITOR_MARKER_ID_LOOP_FIND_END")
+  )
+)
+
+(define-enum SplitsMode
+  (in-module "Swamigui")
+  (c-name "SwamiguiSplitsMode")
+  (gtype-id "SWAMIGUI_TYPE_SPLITS_MODE")
+  (values
+    '("note" "SWAMIGUI_SPLITS_NOTE")
+    '("velocity" "SWAMIGUI_SPLITS_VELOCITY")
+  )
+)
+
+(define-enum SplitsStatus
+  (in-module "Swamigui")
+  (c-name "SwamiguiSplitsStatus")
+  (gtype-id "SWAMIGUI_TYPE_SPLITS_STATUS")
+  (values
+    '("normal" "SWAMIGUI_SPLITS_NORMAL")
+    '("init" "SWAMIGUI_SPLITS_INIT")
+    '("mode" "SWAMIGUI_SPLITS_MODE")
+    '("update" "SWAMIGUI_SPLITS_UPDATE")
+  )
+)
+
+(define-flags SplitsMoveFlags
+  (in-module "Swamigui")
+  (c-name "SwamiguiSplitsMoveFlags")
+  (gtype-id "SWAMIGUI_TYPE_SPLITS_MOVE_FLAGS")
+  (values
+    '("ranges" "SWAMIGUI_SPLITS_MOVE_RANGES")
+    '("param1" "SWAMIGUI_SPLITS_MOVE_PARAM1")
+  )
+)
+
+(define-enum StatusbarPos
+  (in-module "Swamigui")
+  (c-name "SwamiguiStatusbarPos")
+  (gtype-id "SWAMIGUI_TYPE_STATUSBAR_POS")
+  (values
+    '("left" "SWAMIGUI_STATUSBAR_POS_LEFT")
+    '("right" "SWAMIGUI_STATUSBAR_POS_RIGHT")
+  )
+)
+
+(define-enum StatusbarTimeout
+  (in-module "Swamigui")
+  (c-name "SwamiguiStatusbarTimeout")
+  (gtype-id "SWAMIGUI_TYPE_STATUSBAR_TIMEOUT")
+  (values
+    '("default" "SWAMIGUI_STATUSBAR_TIMEOUT_DEFAULT")
+    '("forever" "SWAMIGUI_STATUSBAR_TIMEOUT_FOREVER")
+  )
+)
+
+
+;; From SwamiguiBar.h
+
+(define-function swamigui_bar_get_type
+  (c-name "swamigui_bar_get_type")
+  (return-type "GType")
+)
+
+(define-method create_pointer
+  (of-object "SwamiguiBar")
+  (c-name "swamigui_bar_create_pointer")
+  (return-type "none")
+  (parameters
+    '("const-char*" "id")
+    '("const-char*" "first_property_name")
+  )
+  (varargs #t)
+)
+
+(define-method add_pointer
+  (of-object "SwamiguiBar")
+  (c-name "swamigui_bar_add_pointer")
+  (return-type "none")
+  (parameters
+    '("SwamiguiBarPtr*" "barptr")
+    '("const-char*" "id")
+  )
+)
+
+(define-method get_pointer
+  (of-object "SwamiguiBar")
+  (c-name "swamigui_bar_get_pointer")
+  (return-type "GnomeCanvasItem*")
+  (parameters
+    '("const-char*" "id")
+  )
+)
+
+(define-method set_pointer_position
+  (of-object "SwamiguiBar")
+  (c-name "swamigui_bar_set_pointer_position")
+  (return-type "none")
+  (parameters
+    '("const-char*" "id")
+    '("int" "position")
+  )
+)
+
+(define-method set_pointer_range
+  (of-object "SwamiguiBar")
+  (c-name "swamigui_bar_set_pointer_range")
+  (return-type "none")
+  (parameters
+    '("const-char*" "id")
+    '("int" "start")
+    '("int" "end")
+  )
+)
+
+(define-method get_pointer_order
+  (of-object "SwamiguiBar")
+  (c-name "swamigui_bar_get_pointer_order")
+  (return-type "int")
+  (parameters
+    '("const-char*" "id")
+  )
+)
+
+(define-method set_pointer_order
+  (of-object "SwamiguiBar")
+  (c-name "swamigui_bar_set_pointer_order")
+  (return-type "none")
+  (parameters
+    '("const-char*" "id")
+    '("int" "pos")
+  )
+)
+
+(define-method raise_pointer_to_top
+  (of-object "SwamiguiBar")
+  (c-name "swamigui_bar_raise_pointer_to_top")
+  (return-type "none")
+  (parameters
+    '("const-char*" "id")
+  )
+)
+
+(define-method lower_pointer_to_bottom
+  (of-object "SwamiguiBar")
+  (c-name "swamigui_bar_lower_pointer_to_bottom")
+  (return-type "none")
+  (parameters
+    '("const-char*" "id")
+  )
+)
+
+
+
+;; From SwamiguiBarPtr.h
+
+(define-function swamigui_bar_ptr_get_type
+  (c-name "swamigui_bar_ptr_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_bar_ptr_new
+  (c-name "swamigui_bar_ptr_new")
+  (is-constructor-of "SwamiguiBarPtr")
+  (return-type "GnomeCanvasItem*")
+)
+
+
+
+;; From SwamiguiCanvasMod.h
+
+(define-function swamigui_canvas_mod_get_type
+  (c-name "swamigui_canvas_mod_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_canvas_mod_new
+  (c-name "swamigui_canvas_mod_new")
+  (is-constructor-of "SwamiguiCanvasMod")
+  (return-type "SwamiguiCanvasMod*")
+)
+
+(define-method set_vars
+  (of-object "SwamiguiCanvasMod")
+  (c-name "swamigui_canvas_mod_set_vars")
+  (return-type "none")
+  (parameters
+    '("SwamiguiCanvasModAxis" "axis")
+    '("SwamiguiCanvasModType" "type")
+    '("double" "mult")
+    '("double" "power")
+    '("double" "ofs")
+  )
+)
+
+(define-method get_vars
+  (of-object "SwamiguiCanvasMod")
+  (c-name "swamigui_canvas_mod_get_vars")
+  (return-type "none")
+  (parameters
+    '("SwamiguiCanvasModAxis" "axis")
+    '("SwamiguiCanvasModType" "type")
+    '("double*" "mult")
+    '("double*" "power")
+    '("double*" "ofs")
+  )
+)
+
+(define-method handle_event
+  (of-object "SwamiguiCanvasMod")
+  (c-name "swamigui_canvas_mod_handle_event")
+  (return-type "gboolean")
+  (parameters
+    '("GdkEvent*" "event")
+  )
+)
+
+
+
+;; From SwamiguiControl.h
+
+(define-function swamigui_control_new
+  (c-name "swamigui_control_new")
+  (is-constructor-of "SwamiguiControl")
+  (return-type "SwamiControl*")
+  (parameters
+    '("GType" "type")
+  )
+)
+
+(define-function swamigui_control_new_for_widget
+  (c-name "swamigui_control_new_for_widget")
+  (return-type "SwamiControl*")
+  (parameters
+    '("GObject*" "widget")
+  )
+)
+
+(define-function swamigui_control_new_for_widget_full
+  (c-name "swamigui_control_new_for_widget_full")
+  (return-type "SwamiControl*")
+  (parameters
+    '("GObject*" "widget")
+    '("GType" "value_type")
+    '("GParamSpec*" "pspec")
+    '("SwamiguiControlFlags" "flags")
+  )
+)
+
+(define-function swamigui_control_lookup
+  (c-name "swamigui_control_lookup")
+  (return-type "SwamiControl*")
+  (parameters
+    '("GObject*" "widget")
+  )
+)
+
+(define-function swamigui_control_prop_connect_widget
+  (c-name "swamigui_control_prop_connect_widget")
+  (return-type "none")
+  (parameters
+    '("GObject*" "object")
+    '("const-char*" "propname")
+    '("GObject*" "widget")
+  )
+)
+
+(define-function swamigui_control_create_widget
+  (c-name "swamigui_control_create_widget")
+  (return-type "GObject*")
+  (parameters
+    '("GType" "widg_type")
+    '("GType" "value_type")
+    '("GParamSpec*" "pspec")
+    '("SwamiguiControlFlags" "flags")
+  )
+)
+
+(define-function swamigui_control_set_queue
+  (c-name "swamigui_control_set_queue")
+  (return-type "none")
+  (parameters
+    '("SwamiControl*" "control")
+  )
+)
+
+(define-function swamigui_control_register
+  (c-name "swamigui_control_register")
+  (return-type "none")
+  (parameters
+    '("GType" "widg_type")
+    '("GType" "value_type")
+    '("SwamiguiControlHandler" "handler")
+    '("guint" "flags")
+  )
+)
+
+(define-function swamigui_control_unregister
+  (c-name "swamigui_control_unregister")
+  (return-type "none")
+  (parameters
+    '("GType" "widg_type")
+    '("GType" "value_type")
+  )
+)
+
+(define-function swamigui_control_glade_prop_connect
+  (c-name "swamigui_control_glade_prop_connect")
+  (return-type "none")
+  (parameters
+    '("GtkWidget*" "widget")
+    '("GObject*" "obj")
+  )
+)
+
+(define-function swamigui_control_get_alias_value_type
+  (c-name "swamigui_control_get_alias_value_type")
+  (return-type "GType")
+  (parameters
+    '("GType" "type")
+  )
+)
+
+
+
+;; From SwamiguiControlAdj.h
+
+(define-function swamigui_control_adj_get_type
+  (c-name "swamigui_control_adj_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_control_adj_new
+  (c-name "swamigui_control_adj_new")
+  (is-constructor-of "SwamiguiControlAdj")
+  (return-type "SwamiguiControlAdj*")
+  (parameters
+    '("GtkAdjustment*" "adj")
+  )
+)
+
+(define-method set
+  (of-object "SwamiguiControlAdj")
+  (c-name "swamigui_control_adj_set")
+  (return-type "none")
+  (parameters
+    '("GtkAdjustment*" "adj")
+  )
+)
+
+(define-method block_changes
+  (of-object "SwamiguiControlAdj")
+  (c-name "swamigui_control_adj_block_changes")
+  (return-type "none")
+)
+
+(define-method unblock_changes
+  (of-object "SwamiguiControlAdj")
+  (c-name "swamigui_control_adj_unblock_changes")
+  (return-type "none")
+)
+
+
+
+;; From SwamiguiControlMidiKey.h
+
+(define-function swamigui_control_midi_key_get_type
+  (c-name "swamigui_control_midi_key_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_control_midi_key_new
+  (c-name "swamigui_control_midi_key_new")
+  (is-constructor-of "SwamiguiControlMidiKey")
+  (return-type "SwamiguiControlMidiKey*")
+)
+
+(define-method press
+  (of-object "SwamiguiControlMidiKey")
+  (c-name "swamigui_control_midi_key_press")
+  (return-type "none")
+  (parameters
+    '("guint" "key")
+  )
+)
+
+(define-method release
+  (of-object "SwamiguiControlMidiKey")
+  (c-name "swamigui_control_midi_key_release")
+  (return-type "none")
+  (parameters
+    '("guint" "key")
+  )
+)
+
+(define-method set_lower
+  (of-object "SwamiguiControlMidiKey")
+  (c-name "swamigui_control_midi_key_set_lower")
+  (return-type "none")
+  (parameters
+    '("const-guint*" "keys")
+    '("guint" "count")
+  )
+)
+
+(define-method set_upper
+  (of-object "SwamiguiControlMidiKey")
+  (c-name "swamigui_control_midi_key_set_upper")
+  (return-type "none")
+  (parameters
+    '("const-guint*" "keys")
+    '("guint" "count")
+  )
+)
+
+
+
+;; From SwamiguiDnd.h
+
+
+
+;; From SwamiguiItemMenu.h
+
+(define-function swamigui_item_menu_get_type
+  (c-name "swamigui_item_menu_get_type")
+  (return-type "GType")
+  (parameters
+  )
+)
+
+(define-function swamigui_item_menu_new
+  (c-name "swamigui_item_menu_new")
+  (is-constructor-of "SwamiguiItemMenu")
+  (return-type "SwamiguiItemMenu*")
+  (parameters
+  )
+)
+
+(define-method add
+  (of-object "SwamiguiItemMenu")
+  (c-name "swamigui_item_menu_add")
+  (return-type "GtkWidget*")
+  (parameters
+    '("const-SwamiguiItemMenuInfo*" "info")
+    '("const-char*" "action_id")
+  )
+)
+
+(define-method add_registered_info
+  (of-object "SwamiguiItemMenu")
+  (c-name "swamigui_item_menu_add_registered_info")
+  (return-type "GtkWidget*")
+  (parameters
+    '("const-char*" "action_id")
+  )
+)
+
+(define-method generate
+  (of-object "SwamiguiItemMenu")
+  (c-name "swamigui_item_menu_generate")
+  (return-type "none")
+)
+
+(define-function swamigui_register_item_menu_action
+  (c-name "swamigui_register_item_menu_action")
+  (return-type "none")
+  (parameters
+    '("char*" "action_id")
+    '("SwamiguiItemMenuInfo*" "info")
+    '("SwamiguiItemMenuHandler" "handler")
+  )
+)
+
+(define-function swamigui_lookup_item_menu_action
+  (c-name "swamigui_lookup_item_menu_action")
+  (return-type "gboolean")
+  (parameters
+    '("const-char*" "action_id")
+    '("SwamiguiItemMenuInfo**" "info")
+    '("SwamiguiItemMenuHandler*" "handler")
+  )
+)
+
+(define-function swamigui_register_item_menu_include_type
+  (c-name "swamigui_register_item_menu_include_type")
+  (return-type "none")
+  (parameters
+    '("const-char*" "action_id")
+    '("GType" "type")
+    '("gboolean" "derived")
+  )
+)
+
+(define-function swamigui_register_item_menu_exclude_type
+  (c-name "swamigui_register_item_menu_exclude_type")
+  (return-type "none")
+  (parameters
+    '("const-char*" "action_id")
+    '("GType" "type")
+    '("gboolean" "derived")
+  )
+)
+
+(define-function swamigui_test_item_menu_type
+  (c-name "swamigui_test_item_menu_type")
+  (return-type "gboolean")
+  (parameters
+    '("const-char*" "action_id")
+    '("GType" "type")
+  )
+)
+
+(define-function swamigui_test_item_menu_include_type
+  (c-name "swamigui_test_item_menu_include_type")
+  (return-type "gboolean")
+  (parameters
+    '("const-char*" "action_id")
+    '("GType" "type")
+  )
+)
+
+(define-function swamigui_test_item_menu_exclude_type
+  (c-name "swamigui_test_item_menu_exclude_type")
+  (return-type "gboolean")
+  (parameters
+    '("const-char*" "action_id")
+    '("GType" "type")
+  )
+)
+
+(define-method get_selection_single
+  (of-object "SwamiguiItemMenu")
+  (c-name "swamigui_item_menu_get_selection_single")
+  (return-type "GObject*")
+)
+
+(define-method get_selection
+  (of-object "SwamiguiItemMenu")
+  (c-name "swamigui_item_menu_get_selection")
+  (return-type "IpatchList*")
+)
+
+(define-method handler_single
+  (of-object "SwamiguiItemMenu")
+  (c-name "swamigui_item_menu_handler_single")
+  (return-type "none")
+  (parameters
+    '("const-char*" "action_id")
+  )
+)
+
+(define-method handler_multi
+  (of-object "SwamiguiItemMenu")
+  (c-name "swamigui_item_menu_handler_multi")
+  (return-type "none")
+  (parameters
+    '("const-char*" "action_id")
+  )
+)
+
+(define-method handler_single_all
+  (of-object "SwamiguiItemMenu")
+  (c-name "swamigui_item_menu_handler_single_all")
+  (return-type "none")
+  (parameters
+    '("const-char*" "action_id")
+  )
+)
+
+(define-method handler_multi_all
+  (of-object "SwamiguiItemMenu")
+  (c-name "swamigui_item_menu_handler_multi_all")
+  (return-type "none")
+  (parameters
+    '("const-char*" "action_id")
+  )
+)
+
+
+
+;; From SwamiguiKnob.h
+
+(define-function swamigui_knob_get_type
+  (c-name "swamigui_knob_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_knob_new
+  (c-name "swamigui_knob_new")
+  (is-constructor-of "SwamiguiKnob")
+  (return-type "GtkWidget*")
+)
+
+(define-method get_adjustment
+  (of-object "SwamiguiKnob")
+  (c-name "swamigui_knob_get_adjustment")
+  (return-type "GtkAdjustment*")
+)
+
+
+
+;; From SwamiguiLoopFinder.h
+
+(define-function swamigui_loop_finder_get_type
+  (c-name "swamigui_loop_finder_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_loop_finder_new
+  (c-name "swamigui_loop_finder_new")
+  (is-constructor-of "SwamiguiLoopFinder")
+  (return-type "GtkWidget*")
+)
+
+
+
+;; From SwamiguiMenu.h
+
+(define-function swamigui_menu_get_type
+  (c-name "swamigui_menu_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_menu_new
+  (c-name "swamigui_menu_new")
+  (is-constructor-of "SwamiguiMenu")
+  (return-type "GtkWidget*")
+)
+
+
+
+;; From SwamiguiModEdit.h
+
+(define-function swamigui_mod_edit_get_type
+  (c-name "swamigui_mod_edit_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_mod_edit_new
+  (c-name "swamigui_mod_edit_new")
+  (is-constructor-of "SwamiguiModEdit")
+  (return-type "GtkWidget*")
+)
+
+(define-method set_selection
+  (of-object "SwamiguiModEdit")
+  (c-name "swamigui_mod_edit_set_selection")
+  (return-type "none")
+  (parameters
+    '("IpatchList*" "selection")
+  )
+)
+
+
+
+;; From SwamiguiMultiSave.h
+
+(define-function swamigui_multi_save_get_type
+  (c-name "swamigui_multi_save_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_multi_save_new
+  (c-name "swamigui_multi_save_new")
+  (is-constructor-of "SwamiguiMultiSave")
+  (return-type "GtkWidget*")
+  (parameters
+    '("char*" "title")
+    '("char*" "message")
+    '("guint" "flags")
+  )
+)
+
+(define-method set_selection
+  (of-object "SwamiguiMultiSave")
+  (c-name "swamigui_multi_save_set_selection")
+  (return-type "none")
+  (parameters
+    '("IpatchList*" "selection")
+  )
+)
+
+
+
+;; From SwamiguiNoteSelector.h
+
+(define-function swamigui_note_selector_get_type
+  (c-name "swamigui_note_selector_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_note_selector_new
+  (c-name "swamigui_note_selector_new")
+  (is-constructor-of "SwamiguiNoteSelector")
+  (return-type "GtkWidget*")
+  (parameters
+  )
+)
+
+
+
+;; From SwamiguiPanel.h
+
+(define-function swamigui_panel_get_type
+  (c-name "swamigui_panel_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_panel_type_get_info
+  (c-name "swamigui_panel_type_get_info")
+  (return-type "none")
+  (parameters
+    '("GType" "type")
+    '("char**" "label")
+    '("char**" "blurb")
+    '("char**" "stockid")
+  )
+)
+
+(define-function swamigui_panel_type_check_selection
+  (c-name "swamigui_panel_type_check_selection")
+  (return-type "gboolean")
+  (parameters
+    '("GType" "type")
+    '("IpatchList*" "selection")
+    '("GType*" "selection_types")
+  )
+)
+
+(define-function swamigui_panel_get_types_in_selection
+  (c-name "swamigui_panel_get_types_in_selection")
+  (return-type "GType*")
+  (parameters
+    '("IpatchList*" "selection")
+  )
+)
+
+
+
+;; From SwamiguiPanelSelector.h
+
+(define-function swamigui_get_panel_selector_types
+  (c-name "swamigui_get_panel_selector_types")
+  (return-type "GType*")
+)
+
+(define-function swamigui_register_panel_selector_type
+  (c-name "swamigui_register_panel_selector_type")
+  (return-type "none")
+  (parameters
+    '("GType" "panel_type")
+    '("int" "order")
+  )
+)
+
+(define-function swamigui_panel_selector_get_type
+  (c-name "swamigui_panel_selector_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_panel_selector_new
+  (c-name "swamigui_panel_selector_new")
+  (is-constructor-of "SwamiguiPanelSelector")
+  (return-type "GtkWidget*")
+)
+
+(define-method set_selection
+  (of-object "SwamiguiPanelSelector")
+  (c-name "swamigui_panel_selector_set_selection")
+  (return-type "none")
+  (parameters
+    '("IpatchList*" "items")
+  )
+)
+
+(define-method get_selection
+  (of-object "SwamiguiPanelSelector")
+  (c-name "swamigui_panel_selector_get_selection")
+  (return-type "IpatchList*")
+)
+
+
+
+;; From SwamiguiPanelSF2Gen.h
+
+(define-function swamigui_panel_sf2_gen_get_type
+  (c-name "swamigui_panel_sf2_gen_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_panel_sf2_gen_new
+  (c-name "swamigui_panel_sf2_gen_new")
+  (is-constructor-of "SwamiguiPanelSf2Gen")
+  (return-type "GtkWidget*")
+)
+
+
+
+;; From SwamiguiPaste.h
+
+(define-function swamigui_paste_get_type
+  (c-name "swamigui_paste_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_paste_new
+  (c-name "swamigui_paste_new")
+  (is-constructor-of "SwamiguiPaste")
+  (return-type "SwamiguiPaste*")
+)
+
+(define-method process
+  (of-object "SwamiguiPaste")
+  (c-name "swamigui_paste_process")
+  (return-type "gboolean")
+)
+
+(define-method set_items
+  (of-object "SwamiguiPaste")
+  (c-name "swamigui_paste_set_items")
+  (return-type "none")
+  (parameters
+    '("IpatchItem*" "dstitem")
+    '("GList*" "srcitems")
+  )
+)
+
+(define-method get_conflict_items
+  (of-object "SwamiguiPaste")
+  (c-name "swamigui_paste_get_conflict_items")
+  (return-type "none")
+  (parameters
+    '("IpatchItem**" "src")
+    '("IpatchItem**" "dest")
+  )
+)
+
+(define-method set_conflict_items
+  (of-object "SwamiguiPaste")
+  (c-name "swamigui_paste_set_conflict_items")
+  (return-type "none")
+  (parameters
+    '("IpatchItem*" "src")
+    '("IpatchItem*" "dest")
+  )
+)
+
+(define-method push_state
+  (of-object "SwamiguiPaste")
+  (c-name "swamigui_paste_push_state")
+  (return-type "none")
+  (parameters
+    '("gpointer" "state")
+  )
+)
+
+(define-method pop_state
+  (of-object "SwamiguiPaste")
+  (c-name "swamigui_paste_pop_state")
+  (return-type "gpointer")
+)
+
+
+
+;; From SwamiguiPiano.h
+
+(define-function swamigui_piano_get_type
+  (c-name "swamigui_piano_get_type")
+  (return-type "GType")
+)
+
+(define-method note_on
+  (of-object "SwamiguiPiano")
+  (c-name "swamigui_piano_note_on")
+  (return-type "none")
+  (parameters
+    '("int" "note")
+    '("int" "velocity")
+  )
+)
+
+(define-method note_off
+  (of-object "SwamiguiPiano")
+  (c-name "swamigui_piano_note_off")
+  (return-type "none")
+  (parameters
+    '("int" "note")
+    '("int" "velocity")
+  )
+)
+
+(define-method pos_to_note
+  (of-object "SwamiguiPiano")
+  (c-name "swamigui_piano_pos_to_note")
+  (return-type "int")
+  (parameters
+    '("double" "x")
+    '("double" "y")
+    '("int*" "velocity")
+    '("gboolean*" "isblack")
+  )
+)
+
+(define-method note_to_pos
+  (of-object "SwamiguiPiano")
+  (c-name "swamigui_piano_note_to_pos")
+  (return-type "double")
+  (parameters
+    '("int" "note")
+    '("int" "edge")
+    '("gboolean" "realnote")
+    '("gboolean*" "isblack")
+  )
+)
+
+
+
+;; From SwamiguiPref.h
+
+(define-function swamigui_register_pref_handler
+  (c-name "swamigui_register_pref_handler")
+  (return-type "none")
+  (parameters
+    '("const-char*" "name")
+    '("const-char*" "icon")
+    '("int" "order")
+    '("SwamiguiPrefHandler" "handler")
+  )
+)
+
+(define-function swamigui_pref_get_type
+  (c-name "swamigui_pref_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_pref_new
+  (c-name "swamigui_pref_new")
+  (is-constructor-of "SwamiguiPref")
+  (return-type "GtkWidget*")
+)
+
+
+
+;; From SwamiguiProp.h
+
+(define-function swamigui_register_prop_glade_widg
+  (c-name "swamigui_register_prop_glade_widg")
+  (return-type "none")
+  (parameters
+    '("GType" "objtype")
+    '("const-char*" "name")
+  )
+)
+
+(define-function swamigui_register_prop_handler
+  (c-name "swamigui_register_prop_handler")
+  (return-type "none")
+  (parameters
+    '("GType" "objtype")
+    '("SwamiguiPropHandler" "handler")
+  )
+)
+
+(define-function swamigui_prop_get_type
+  (c-name "swamigui_prop_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_prop_new
+  (c-name "swamigui_prop_new")
+  (is-constructor-of "SwamiguiProp")
+  (return-type "GtkWidget*")
+)
+
+(define-method set_selection
+  (of-object "SwamiguiProp")
+  (c-name "swamigui_prop_set_selection")
+  (return-type "none")
+  (parameters
+    '("IpatchList*" "selection")
+  )
+)
+
+
+
+;; From SwamiguiPythonView.h
+
+(define-function swamigui_python_view_get_type
+  (c-name "swamigui_python_view_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_python_view_new
+  (c-name "swamigui_python_view_new")
+  (is-constructor-of "SwamiguiPythonView")
+  (return-type "GtkWidget*")
+  (parameters
+  )
+)
+
+
+
+;; From SwamiguiRoot.h
+
+(define-function swamigui_init
+  (c-name "swamigui_init")
+  (return-type "none")
+  (parameters
+    '("int*" "argc")
+    '("char**[]" "argv")
+  )
+)
+
+(define-function swamigui_root_get_type
+  (c-name "swamigui_root_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_root_new
+  (c-name "swamigui_root_new")
+  (is-constructor-of "SwamiguiRoot")
+  (return-type "SwamiguiRoot*")
+)
+
+(define-method activate
+  (of-object "SwamiguiRoot")
+  (c-name "swamigui_root_activate")
+  (return-type "none")
+)
+
+(define-method quit
+  (of-object "SwamiguiRoot")
+  (c-name "swamigui_root_quit")
+  (return-type "none")
+)
+
+(define-function swamigui_get_root
+  (c-name "swamigui_get_root")
+  (return-type "SwamiguiRoot*")
+  (parameters
+    '("gpointer" "gobject")
+  )
+)
+
+(define-method save_prefs
+  (of-object "SwamiguiRoot")
+  (c-name "swamigui_root_save_prefs")
+  (return-type "gboolean")
+)
+
+(define-method load_prefs
+  (of-object "SwamiguiRoot")
+  (c-name "swamigui_root_load_prefs")
+  (return-type "gboolean")
+)
+
+
+
+;; From SwamiguiSampleCanvas.h
+
+(define-function swamigui_sample_canvas_get_type
+  (c-name "swamigui_sample_canvas_get_type")
+  (return-type "GType")
+)
+
+(define-method set_sample
+  (of-object "SwamiguiSampleCanvas")
+  (c-name "swamigui_sample_canvas_set_sample")
+  (return-type "none")
+  (parameters
+    '("IpatchSampleData*" "sample")
+  )
+)
+
+(define-method xpos_to_sample
+  (of-object "SwamiguiSampleCanvas")
+  (c-name "swamigui_sample_canvas_xpos_to_sample")
+  (return-type "int")
+  (parameters
+    '("int" "xpos")
+    '("int*" "onsample")
+  )
+)
+
+(define-method sample_to_xpos
+  (of-object "SwamiguiSampleCanvas")
+  (c-name "swamigui_sample_canvas_sample_to_xpos")
+  (return-type "int")
+  (parameters
+    '("int" "index")
+    '("int*" "inview")
+  )
+)
+
+
+
+;; From SwamiguiSampleEditor.h
+
+(define-function swamigui_sample_editor_get_type
+  (c-name "swamigui_sample_editor_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_sample_editor_new
+  (c-name "swamigui_sample_editor_new")
+  (is-constructor-of "SwamiguiSampleEditor")
+  (return-type "GtkWidget*")
+)
+
+(define-method zoom_ofs
+  (of-object "SwamiguiSampleEditor")
+  (c-name "swamigui_sample_editor_zoom_ofs")
+  (return-type "none")
+  (parameters
+    '("double" "zoom_amt")
+    '("double" "zoom_xpos")
+  )
+)
+
+(define-method scroll_ofs
+  (of-object "SwamiguiSampleEditor")
+  (c-name "swamigui_sample_editor_scroll_ofs")
+  (return-type "none")
+  (parameters
+    '("int" "sample_ofs")
+  )
+)
+
+(define-method loop_zoom
+  (of-object "SwamiguiSampleEditor")
+  (c-name "swamigui_sample_editor_loop_zoom")
+  (return-type "none")
+  (parameters
+    '("double" "zoom_amt")
+  )
+)
+
+(define-method set_selection
+  (of-object "SwamiguiSampleEditor")
+  (c-name "swamigui_sample_editor_set_selection")
+  (return-type "none")
+  (parameters
+    '("IpatchList*" "items")
+  )
+)
+
+(define-method get_selection
+  (of-object "SwamiguiSampleEditor")
+  (c-name "swamigui_sample_editor_get_selection")
+  (return-type "IpatchList*")
+)
+
+(define-function swamigui_sample_editor_register_handler
+  (c-name "swamigui_sample_editor_register_handler")
+  (return-type "none")
+  (parameters
+    '("SwamiguiSampleEditorHandler" "handler")
+    '("SwamiguiPanelCheckFunc" "check_func")
+  )
+)
+
+(define-function swamigui_sample_editor_unregister_handler
+  (c-name "swamigui_sample_editor_unregister_handler")
+  (return-type "none")
+  (parameters
+    '("SwamiguiSampleEditorHandler" "handler")
+  )
+)
+
+(define-method reset
+  (of-object "SwamiguiSampleEditor")
+  (c-name "swamigui_sample_editor_reset")
+  (return-type "none")
+)
+
+(define-method get_loop_controls
+  (of-object "SwamiguiSampleEditor")
+  (c-name "swamigui_sample_editor_get_loop_controls")
+  (return-type "none")
+  (parameters
+    '("SwamiControl**" "loop_start")
+    '("SwamiControl**" "loop_end")
+  )
+)
+
+(define-method add_track
+  (of-object "SwamiguiSampleEditor")
+  (c-name "swamigui_sample_editor_add_track")
+  (return-type "int")
+  (parameters
+    '("IpatchSampleData*" "sample")
+    '("gboolean" "right_chan")
+  )
+)
+
+(define-method get_track_info
+  (of-object "SwamiguiSampleEditor")
+  (c-name "swamigui_sample_editor_get_track_info")
+  (return-type "gboolean")
+  (parameters
+    '("guint" "track")
+    '("IpatchSampleData**" "sample")
+    '("SwamiguiSampleCanvas**" "sample_view")
+    '("SwamiguiSampleCanvas**" "loop_view")
+  )
+)
+
+(define-method remove_track
+  (of-object "SwamiguiSampleEditor")
+  (c-name "swamigui_sample_editor_remove_track")
+  (return-type "none")
+  (parameters
+    '("guint" "track")
+  )
+)
+
+(define-method remove_all_tracks
+  (of-object "SwamiguiSampleEditor")
+  (c-name "swamigui_sample_editor_remove_all_tracks")
+  (return-type "none")
+)
+
+(define-method add_marker
+  (of-object "SwamiguiSampleEditor")
+  (c-name "swamigui_sample_editor_add_marker")
+  (return-type "guint")
+  (parameters
+    '("guint" "flags")
+    '("SwamiControl**" "start")
+    '("SwamiControl**" "end")
+  )
+)
+
+(define-method get_marker_info
+  (of-object "SwamiguiSampleEditor")
+  (c-name "swamigui_sample_editor_get_marker_info")
+  (return-type "gboolean")
+  (parameters
+    '("guint" "marker")
+    '("guint*" "flags")
+    '("GnomeCanvasItem**" "start_line")
+    '("GnomeCanvasItem**" "end_line")
+    '("SwamiControl**" "start_ctrl")
+    '("SwamiControl**" "end_ctrl")
+  )
+)
+
+(define-method set_marker
+  (of-object "SwamiguiSampleEditor")
+  (c-name "swamigui_sample_editor_set_marker")
+  (return-type "none")
+  (parameters
+    '("guint" "marker")
+    '("guint" "start")
+    '("guint" "end")
+  )
+)
+
+(define-method remove_marker
+  (of-object "SwamiguiSampleEditor")
+  (c-name "swamigui_sample_editor_remove_marker")
+  (return-type "none")
+  (parameters
+    '("guint" "marker")
+  )
+)
+
+(define-method remove_all_markers
+  (of-object "SwamiguiSampleEditor")
+  (c-name "swamigui_sample_editor_remove_all_markers")
+  (return-type "none")
+)
+
+(define-method show_marker
+  (of-object "SwamiguiSampleEditor")
+  (c-name "swamigui_sample_editor_show_marker")
+  (return-type "none")
+  (parameters
+    '("guint" "marker")
+    '("gboolean" "show_marker")
+  )
+)
+
+(define-method set_loop_types
+  (of-object "SwamiguiSampleEditor")
+  (c-name "swamigui_sample_editor_set_loop_types")
+  (return-type "none")
+  (parameters
+    '("int*" "types")
+    '("gboolean" "loop_play_btn")
+  )
+)
+
+(define-method set_active_loop_type
+  (of-object "SwamiguiSampleEditor")
+  (c-name "swamigui_sample_editor_set_active_loop_type")
+  (return-type "none")
+  (parameters
+    '("int" "type")
+  )
+)
+
+
+
+;; From SwamiguiSpectrumCanvas.h
+
+(define-function swamigui_spectrum_canvas_get_type
+  (c-name "swamigui_spectrum_canvas_get_type")
+  (return-type "GType")
+)
+
+(define-method set_data
+  (of-object "SwamiguiSpectrumCanvas")
+  (c-name "swamigui_spectrum_canvas_set_data")
+  (return-type "none")
+  (parameters
+    '("double*" "spectrum")
+    '("guint" "size")
+    '("SwamiguiSpectrumDestroyNotify" "notify")
+  )
+)
+
+(define-method pos_to_spectrum
+  (of-object "SwamiguiSpectrumCanvas")
+  (c-name "swamigui_spectrum_canvas_pos_to_spectrum")
+  (return-type "int")
+  (parameters
+    '("int" "xpos")
+  )
+)
+
+(define-method spectrum_to_pos
+  (of-object "SwamiguiSpectrumCanvas")
+  (c-name "swamigui_spectrum_canvas_spectrum_to_pos")
+  (return-type "int")
+  (parameters
+    '("int" "index")
+  )
+)
+
+
+
+;; From SwamiguiSpinScale.h
+
+(define-function swamigui_spin_scale_get_type
+  (c-name "swamigui_spin_scale_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_spin_scale_new
+  (c-name "swamigui_spin_scale_new")
+  (is-constructor-of "SwamiguiSpinScale")
+  (return-type "GtkWidget*")
+)
+
+(define-method set_order
+  (of-object "SwamiguiSpinScale")
+  (c-name "swamigui_spin_scale_set_order")
+  (return-type "none")
+  (parameters
+    '("gboolean" "scale_first")
+  )
+)
+
+
+
+;; From SwamiguiSplits.h
+
+(define-function swamigui_splits_get_type
+  (c-name "swamigui_splits_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_splits_new
+  (c-name "swamigui_splits_new")
+  (is-constructor-of "SwamiguiSplits")
+  (return-type "GtkWidget*")
+)
+
+(define-method set_mode
+  (of-object "SwamiguiSplits")
+  (c-name "swamigui_splits_set_mode")
+  (return-type "none")
+  (parameters
+    '("SwamiguiSplitsMode" "mode")
+  )
+)
+
+(define-method set_width
+  (of-object "SwamiguiSplits")
+  (c-name "swamigui_splits_set_width")
+  (return-type "none")
+  (parameters
+    '("int" "width")
+  )
+)
+
+(define-method set_selection
+  (of-object "SwamiguiSplits")
+  (c-name "swamigui_splits_set_selection")
+  (return-type "none")
+  (parameters
+    '("IpatchList*" "items")
+  )
+)
+
+(define-method get_selection
+  (of-object "SwamiguiSplits")
+  (c-name "swamigui_splits_get_selection")
+  (return-type "IpatchList*")
+)
+
+(define-method select_items
+  (of-object "SwamiguiSplits")
+  (c-name "swamigui_splits_select_items")
+  (return-type "none")
+  (parameters
+    '("GList*" "items")
+  )
+)
+
+(define-method select_all
+  (of-object "SwamiguiSplits")
+  (c-name "swamigui_splits_select_all")
+  (return-type "none")
+)
+
+(define-method unselect_all
+  (of-object "SwamiguiSplits")
+  (c-name "swamigui_splits_unselect_all")
+  (return-type "none")
+)
+
+(define-function swamigui_splits_register_handler
+  (c-name "swamigui_splits_register_handler")
+  (return-type "none")
+  (parameters
+    '("SwamiguiSplitsHandler" "handler")
+  )
+)
+
+(define-function swamigui_splits_unregister_handler
+  (c-name "swamigui_splits_unregister_handler")
+  (return-type "none")
+  (parameters
+    '("SwamiguiSplitsHandler" "handler")
+  )
+)
+
+(define-method insert
+  (of-object "SwamiguiSplits")
+  (c-name "swamigui_splits_insert")
+  (return-type "SwamiguiSplitsEntry*")
+  (parameters
+    '("GObject*" "item")
+    '("int" "index")
+  )
+)
+
+(define-method lookup_entry
+  (of-object "SwamiguiSplits")
+  (c-name "swamigui_splits_lookup_entry")
+  (return-type "SwamiguiSplitsEntry*")
+  (parameters
+    '("GObject*" "item")
+  )
+)
+
+(define-method remove
+  (of-object "SwamiguiSplits")
+  (c-name "swamigui_splits_remove")
+  (return-type "none")
+  (parameters
+    '("GObject*" "item")
+  )
+)
+
+(define-method remove_all
+  (of-object "SwamiguiSplits")
+  (c-name "swamigui_splits_remove_all")
+  (return-type "none")
+)
+
+(define-method set_span_range
+  (of-object "SwamiguiSplits")
+  (c-name "swamigui_splits_set_span_range")
+  (return-type "none")
+  (parameters
+    '("GObject*" "item")
+    '("int" "low")
+    '("int" "high")
+  )
+)
+
+(define-method set_root_note
+  (of-object "SwamiguiSplits")
+  (c-name "swamigui_splits_set_root_note")
+  (return-type "none")
+  (parameters
+    '("GObject*" "item")
+    '("int" "val")
+  )
+)
+
+(define-method get_span_control
+  (of-object "SwamiguiSplitsEntry")
+  (c-name "swamigui_splits_entry_get_span_control")
+  (return-type "SwamiControl*")
+)
+
+(define-method get_root_note_control
+  (of-object "SwamiguiSplitsEntry")
+  (c-name "swamigui_splits_entry_get_root_note_control")
+  (return-type "SwamiControl*")
+)
+
+(define-method get_index
+  (of-object "SwamiguiSplitsEntry")
+  (c-name "swamigui_splits_entry_get_index")
+  (return-type "int")
+)
+
+
+
+;; From SwamiguiStatusbar.h
+
+(define-function swamigui_statusbar_get_type
+  (c-name "swamigui_statusbar_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_statusbar_new
+  (c-name "swamigui_statusbar_new")
+  (is-constructor-of "SwamiguiStatusbar")
+  (return-type "GtkWidget*")
+)
+
+(define-method add
+  (of-object "SwamiguiStatusbar")
+  (c-name "swamigui_statusbar_add")
+  (return-type "guint")
+  (parameters
+    '("const-char*" "group")
+    '("int" "timeout")
+    '("guint" "pos")
+    '("GtkWidget*" "widg")
+  )
+)
+
+(define-method remove
+  (of-object "SwamiguiStatusbar")
+  (c-name "swamigui_statusbar_remove")
+  (return-type "none")
+  (parameters
+    '("guint" "id")
+    '("const-char*" "group")
+  )
+)
+
+(define-method printf
+  (of-object "SwamiguiStatusbar")
+  (c-name "swamigui_statusbar_printf")
+  (return-type "none")
+  (parameters
+    '("const-char*" "format")
+  )
+  (varargs #t)
+)
+
+(define-function swamigui_statusbar_msg_label_new
+  (c-name "swamigui_statusbar_msg_label_new")
+  (is-constructor-of "SwamiguiStatusbarMsgLabel")
+  (return-type "GtkWidget*")
+  (parameters
+    '("const-char*" "label")
+    '("guint" "maxlen")
+  )
+)
+
+(define-function swamigui_statusbar_msg_progress_new
+  (c-name "swamigui_statusbar_msg_progress_new")
+  (is-constructor-of "SwamiguiStatusbarMsgProgress")
+  (return-type "GtkWidget*")
+  (parameters
+    '("const-char*" "label")
+    '("SwamiguiStatusbarCloseFunc" "close")
+  )
+)
+
+(define-method msg_set_timeout
+  (of-object "SwamiguiStatusbar")
+  (c-name "swamigui_statusbar_msg_set_timeout")
+  (return-type "none")
+  (parameters
+    '("guint" "id")
+    '("const-char*" "group")
+    '("int" "timeout")
+  )
+)
+
+(define-method msg_set_label
+  (of-object "SwamiguiStatusbar")
+  (c-name "swamigui_statusbar_msg_set_label")
+  (return-type "none")
+  (parameters
+    '("guint" "id")
+    '("const-char*" "group")
+    '("const-char*" "label")
+  )
+)
+
+(define-method msg_set_progress
+  (of-object "SwamiguiStatusbar")
+  (c-name "swamigui_statusbar_msg_set_progress")
+  (return-type "none")
+  (parameters
+    '("guint" "id")
+    '("const-char*" "group")
+    '("double" "val")
+  )
+)
+
+
+
+;; From SwamiguiTree.h
+
+(define-function swamigui_tree_get_type
+  (c-name "swamigui_tree_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_tree_new
+  (c-name "swamigui_tree_new")
+  (is-constructor-of "SwamiguiTree")
+  (return-type "GtkWidget*")
+  (parameters
+    '("IpatchList*" "stores")
+  )
+)
+
+(define-method set_store_list
+  (of-object "SwamiguiTree")
+  (c-name "swamigui_tree_set_store_list")
+  (return-type "none")
+  (parameters
+    '("IpatchList*" "list")
+  )
+)
+
+(define-method get_store_list
+  (of-object "SwamiguiTree")
+  (c-name "swamigui_tree_get_store_list")
+  (return-type "IpatchList*")
+)
+
+(define-method set_selected_store
+  (of-object "SwamiguiTree")
+  (c-name "swamigui_tree_set_selected_store")
+  (return-type "none")
+  (parameters
+    '("SwamiguiTreeStore*" "store")
+  )
+)
+
+(define-method get_selected_store
+  (of-object "SwamiguiTree")
+  (c-name "swamigui_tree_get_selected_store")
+  (return-type "SwamiguiTreeStore*")
+)
+
+(define-method get_selection_single
+  (of-object "SwamiguiTree")
+  (c-name "swamigui_tree_get_selection_single")
+  (return-type "GObject*")
+)
+
+(define-method get_selection
+  (of-object "SwamiguiTree")
+  (c-name "swamigui_tree_get_selection")
+  (return-type "IpatchList*")
+)
+
+(define-method clear_selection
+  (of-object "SwamiguiTree")
+  (c-name "swamigui_tree_clear_selection")
+  (return-type "none")
+)
+
+(define-method set_selection
+  (of-object "SwamiguiTree")
+  (c-name "swamigui_tree_set_selection")
+  (return-type "none")
+  (parameters
+    '("IpatchList*" "list")
+  )
+)
+
+(define-method spotlight_item
+  (of-object "SwamiguiTree")
+  (c-name "swamigui_tree_spotlight_item")
+  (return-type "none")
+  (parameters
+    '("GObject*" "item")
+  )
+)
+
+(define-method search_set_start
+  (of-object "SwamiguiTree")
+  (c-name "swamigui_tree_search_set_start")
+  (return-type "none")
+  (parameters
+    '("GObject*" "start")
+  )
+)
+
+(define-method search_set_text
+  (of-object "SwamiguiTree")
+  (c-name "swamigui_tree_search_set_text")
+  (return-type "none")
+  (parameters
+    '("const-char*" "text")
+  )
+)
+
+(define-method search_set_visible
+  (of-object "SwamiguiTree")
+  (c-name "swamigui_tree_search_set_visible")
+  (return-type "none")
+  (parameters
+    '("gboolean" "visible")
+  )
+)
+
+(define-method search_next
+  (of-object "SwamiguiTree")
+  (c-name "swamigui_tree_search_next")
+  (return-type "none")
+)
+
+(define-method search_prev
+  (of-object "SwamiguiTree")
+  (c-name "swamigui_tree_search_prev")
+  (return-type "none")
+)
+
+
+
+;; From SwamiguiTreeStore.h
+
+(define-function swamigui_tree_store_get_type
+  (c-name "swamigui_tree_store_get_type")
+  (return-type "GType")
+)
+
+(define-method insert
+  (of-object "SwamiguiTreeStore")
+  (c-name "swamigui_tree_store_insert")
+  (return-type "none")
+  (parameters
+    '("GObject*" "item")
+    '("const-char*" "label")
+    '("char*" "icon")
+    '("GtkTreeIter*" "parent")
+    '("int" "pos")
+    '("GtkTreeIter*" "out_iter")
+  )
+)
+
+(define-method insert_before
+  (of-object "SwamiguiTreeStore")
+  (c-name "swamigui_tree_store_insert_before")
+  (return-type "none")
+  (parameters
+    '("GObject*" "item")
+    '("const-char*" "label")
+    '("char*" "icon")
+    '("GtkTreeIter*" "parent")
+    '("GtkTreeIter*" "sibling")
+    '("GtkTreeIter*" "out_iter")
+  )
+)
+
+(define-method insert_after
+  (of-object "SwamiguiTreeStore")
+  (c-name "swamigui_tree_store_insert_after")
+  (return-type "none")
+  (parameters
+    '("GObject*" "item")
+    '("const-char*" "label")
+    '("char*" "icon")
+    '("GtkTreeIter*" "parent")
+    '("GtkTreeIter*" "sibling")
+    '("GtkTreeIter*" "out_iter")
+  )
+)
+
+(define-method change
+  (of-object "SwamiguiTreeStore")
+  (c-name "swamigui_tree_store_change")
+  (return-type "none")
+  (parameters
+    '("GObject*" "item")
+    '("const-char*" "label")
+    '("char*" "icon")
+  )
+)
+
+(define-method remove
+  (of-object "SwamiguiTreeStore")
+  (c-name "swamigui_tree_store_remove")
+  (return-type "none")
+  (parameters
+    '("GObject*" "item")
+  )
+)
+
+(define-method move_before
+  (of-object "SwamiguiTreeStore")
+  (c-name "swamigui_tree_store_move_before")
+  (return-type "none")
+  (parameters
+    '("GObject*" "item")
+    '("GtkTreeIter*" "position")
+  )
+)
+
+(define-method move_after
+  (of-object "SwamiguiTreeStore")
+  (c-name "swamigui_tree_store_move_after")
+  (return-type "none")
+  (parameters
+    '("GObject*" "item")
+    '("GtkTreeIter*" "position")
+  )
+)
+
+(define-method item_get_node
+  (of-object "SwamiguiTreeStore")
+  (c-name "swamigui_tree_store_item_get_node")
+  (return-type "gboolean")
+  (parameters
+    '("GObject*" "item")
+    '("GtkTreeIter*" "iter")
+  )
+)
+
+(define-method node_get_item
+  (of-object "SwamiguiTreeStore")
+  (c-name "swamigui_tree_store_node_get_item")
+  (return-type "GObject*")
+  (parameters
+    '("GtkTreeIter*" "iter")
+  )
+)
+
+(define-method add
+  (of-object "SwamiguiTreeStore")
+  (c-name "swamigui_tree_store_add")
+  (return-type "none")
+  (parameters
+    '("GObject*" "item")
+  )
+)
+
+(define-method changed
+  (of-object "SwamiguiTreeStore")
+  (c-name "swamigui_tree_store_changed")
+  (return-type "none")
+  (parameters
+    '("GObject*" "item")
+  )
+)
+
+
+
+;; From SwamiguiTreeStorePatch.h
+
+(define-function swamigui_tree_store_patch_get_type
+  (c-name "swamigui_tree_store_patch_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_tree_store_patch_new
+  (c-name "swamigui_tree_store_patch_new")
+  (is-constructor-of "SwamiguiTreeStorePatch")
+  (return-type "SwamiguiTreeStorePatch*")
+)
+
+(define-method patch_item_add
+  (of-object "SwamiguiTreeStore")
+  (c-name "swamigui_tree_store_patch_item_add")
+  (return-type "none")
+  (parameters
+    '("GObject*" "item")
+  )
+)
+
+(define-method patch_item_changed
+  (of-object "SwamiguiTreeStore")
+  (c-name "swamigui_tree_store_patch_item_changed")
+  (return-type "none")
+  (parameters
+    '("GObject*" "item")
+  )
+)
+
+
+
+;; From builtin_enums.h
+
+(define-function swamigui_bar_ptr_type_get_type
+  (c-name "swamigui_bar_ptr_type_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_canvas_mod_type_get_type
+  (c-name "swamigui_canvas_mod_type_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_canvas_mod_axis_get_type
+  (c-name "swamigui_canvas_mod_axis_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_canvas_mod_flags_get_type
+  (c-name "swamigui_canvas_mod_flags_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_canvas_mod_actions_get_type
+  (c-name "swamigui_canvas_mod_actions_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_control_rank_get_type
+  (c-name "swamigui_control_rank_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_control_flags_get_type
+  (c-name "swamigui_control_flags_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_control_object_flags_get_type
+  (c-name "swamigui_control_object_flags_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_item_menu_flags_get_type
+  (c-name "swamigui_item_menu_flags_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_paste_status_get_type
+  (c-name "swamigui_paste_status_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_paste_decision_get_type
+  (c-name "swamigui_paste_decision_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_quit_confirm_get_type
+  (c-name "swamigui_quit_confirm_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_sample_editor_status_get_type
+  (c-name "swamigui_sample_editor_status_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_sample_editor_marker_flags_get_type
+  (c-name "swamigui_sample_editor_marker_flags_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_sample_editor_marker_id_get_type
+  (c-name "swamigui_sample_editor_marker_id_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_splits_mode_get_type
+  (c-name "swamigui_splits_mode_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_splits_status_get_type
+  (c-name "swamigui_splits_status_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_splits_move_flags_get_type
+  (c-name "swamigui_splits_move_flags_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_statusbar_pos_get_type
+  (c-name "swamigui_statusbar_pos_get_type")
+  (return-type "GType")
+)
+
+(define-function swamigui_statusbar_timeout_get_type
+  (c-name "swamigui_statusbar_timeout_get_type")
+  (return-type "GType")
+)
+
+
+
+;; From help.h
+
+(define-function swamigui_help_about
+  (c-name "swamigui_help_about")
+  (return-type "none")
+)
+
+(define-function swamigui_help_swamitips_create
+  (c-name "swamigui_help_swamitips_create")
+  (return-type "none")
+  (parameters
+    '("SwamiguiRoot*" "root")
+  )
+)
+
+
+
+;; From icons.h
+
+(define-function swamigui_icon_get_category_icon
+  (c-name "swamigui_icon_get_category_icon")
+  (return-type "char*")
+  (parameters
+    '("int" "category")
+  )
+)
+
+
+
+;; From patch_funcs.h
+
+(define-function swamigui_load_files
+  (c-name "swamigui_load_files")
+  (return-type "none")
+  (parameters
+    '("SwamiguiRoot*" "root")
+  )
+)
+
+(define-function swamigui_save_files
+  (c-name "swamigui_save_files")
+  (return-type "none")
+  (parameters
+    '("IpatchList*" "item_list")
+    '("gboolean" "saveas")
+  )
+)
+
+(define-function swamigui_close_files
+  (c-name "swamigui_close_files")
+  (return-type "none")
+  (parameters
+    '("IpatchList*" "item_list")
+  )
+)
+
+(define-function swamigui_delete_items
+  (c-name "swamigui_delete_items")
+  (return-type "none")
+  (parameters
+    '("IpatchList*" "item_list")
+  )
+)
+
+(define-function swamigui_wtbl_load_patch
+  (c-name "swamigui_wtbl_load_patch")
+  (return-type "none")
+  (parameters
+    '("IpatchItem*" "item")
+  )
+)
+
+(define-function swamigui_new_item
+  (c-name "swamigui_new_item")
+  (return-type "none")
+  (parameters
+    '("IpatchItem*" "parent_hint")
+    '("GType" "type")
+  )
+)
+
+(define-function swamigui_goto_link_item
+  (c-name "swamigui_goto_link_item")
+  (return-type "none")
+  (parameters
+    '("IpatchItem*" "item")
+    '("SwamiguiTree*" "tree")
+  )
+)
+
+(define-function swamigui_load_samples
+  (c-name "swamigui_load_samples")
+  (return-type "none")
+  (parameters
+    '("IpatchItem*" "parent_hint")
+  )
+)
+
+(define-function swamigui_export_samples
+  (c-name "swamigui_export_samples")
+  (return-type "none")
+  (parameters
+    '("IpatchList*" "samples")
+  )
+)
+
+(define-function swamigui_copy_items
+  (c-name "swamigui_copy_items")
+  (return-type "none")
+  (parameters
+    '("IpatchList*" "items")
+  )
+)
+
+(define-function swamigui_paste_items
+  (c-name "swamigui_paste_items")
+  (return-type "none")
+  (parameters
+    '("IpatchItem*" "dstitem")
+    '("GList*" "items")
+  )
+)
+
+
+
+;; From splash.h
+
+(define-function swamigui_splash_display
+  (c-name "swamigui_splash_display")
+  (return-type "none")
+  (parameters
+    '("guint" "timeout")
+  )
+)
+
+(define-function swamigui_splash_kill
+  (c-name "swamigui_splash_kill")
+  (return-type "gboolean")
+)
+
+
+
+;; From swami_python.h
+
+(define-function swamigui_python_set_output_func
+  (c-name "swamigui_python_set_output_func")
+  (return-type "none")
+  (parameters
+    '("SwamiguiPythonOutputFunc" "func")
+  )
+)
+
+(define-function swamigui_python_set_root
+  (c-name "swamigui_python_set_root")
+  (return-type "none")
+)
+
+(define-function swamigui_python_is_initialized
+  (c-name "swamigui_python_is_initialized")
+  (return-type "gboolean")
+)
+
+
+
+;; From util.h
+
+(define-function swamigui_util_init
+  (c-name "swamigui_util_init")
+  (return-type "none")
+)
+
+(define-function swamigui_util_unit_rgba_color_get_type
+  (c-name "swamigui_util_unit_rgba_color_get_type")
+  (return-type "guint")
+)
+
+(define-function swamigui_util_canvas_line_set
+  (c-name "swamigui_util_canvas_line_set")
+  (return-type "none")
+  (parameters
+    '("GnomeCanvasItem*" "item")
+    '("double" "x1")
+    '("double" "y1")
+    '("double" "x2")
+    '("double" "y2")
+  )
+)
+
+(define-function swamigui_util_quick_popup
+  (c-name "swamigui_util_quick_popup")
+  (return-type "GtkWidget*")
+  (parameters
+    '("gchar*" "msg")
+    '("gchar*" "btn1")
+  )
+  (varargs #t)
+)
+
+(define-function swamigui_util_lookup_unique_dialog
+  (c-name "swamigui_util_lookup_unique_dialog")
+  (return-type "GtkWidget*")
+  (parameters
+    '("gchar*" "strkey")
+    '("gint" "key2")
+  )
+)
+
+(define-function swamigui_util_register_unique_dialog
+  (c-name "swamigui_util_register_unique_dialog")
+  (return-type "gboolean")
+  (parameters
+    '("GtkWidget*" "dialog")
+    '("gchar*" "strkey")
+    '("gint" "key2")
+  )
+)
+
+(define-function swamigui_util_unregister_unique_dialog
+  (c-name "swamigui_util_unregister_unique_dialog")
+  (return-type "none")
+  (parameters
+    '("GtkWidget*" "dialog")
+  )
+)
+
+(define-function swamigui_util_activate_unique_dialog
+  (c-name "swamigui_util_activate_unique_dialog")
+  (return-type "gboolean")
+  (parameters
+    '("gchar*" "strkey")
+    '("gint" "key2")
+  )
+)
+
+(define-function swamigui_util_waitfor_widget_action
+  (c-name "swamigui_util_waitfor_widget_action")
+  (return-type "gpointer")
+  (parameters
+    '("GtkWidget*" "widg")
+  )
+)
+
+(define-function swamigui_util_widget_action
+  (c-name "swamigui_util_widget_action")
+  (return-type "none")
+  (parameters
+    '("GtkWidget*" "cbwidg")
+    '("gpointer" "value")
+  )
+)
+
+(define-function swamigui_util_glade_create
+  (c-name "swamigui_util_glade_create")
+  (return-type "GtkWidget*")
+  (parameters
+    '("const-char*" "name")
+  )
+)
+
+(define-function swamigui_util_glade_lookup
+  (c-name "swamigui_util_glade_lookup")
+  (return-type "GtkWidget*")
+  (parameters
+    '("GtkWidget*" "widget")
+    '("const-char*" "name")
+  )
+)
+
+(define-function swamigui_util_glade_lookup_nowarn
+  (c-name "swamigui_util_glade_lookup_nowarn")
+  (return-type "GtkWidget*")
+  (parameters
+    '("GtkWidget*" "widget")
+    '("const-char*" "name")
+  )
+)
+
+(define-function swamigui_util_option_menu_index
+  (c-name "swamigui_util_option_menu_index")
+  (return-type "int")
+  (parameters
+    '("GtkWidget*" "opmenu")
+  )
+)
+
+(define-function swamigui_util_str_crlf2lf
+  (c-name "swamigui_util_str_crlf2lf")
+  (return-type "char*")
+  (parameters
+    '("char*" "str")
+  )
+)
+
+(define-function swamigui_util_str_lf2crlf
+  (c-name "swamigui_util_str_lf2crlf")
+  (return-type "char*")
+  (parameters
+    '("char*" "str")
+  )
+)
+
+(define-function swamigui_util_substrcmp
+  (c-name "swamigui_util_substrcmp")
+  (return-type "int")
+  (parameters
+    '("char*" "sub")
+    '("char*" "str")
+  )
+)
+
+

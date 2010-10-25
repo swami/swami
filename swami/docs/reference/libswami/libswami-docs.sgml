@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+               "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+[
+  <!ENTITY % local.common.attrib "xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'">
+]>
+<book id="index">
+  <bookinfo>
+    <title>libswami Reference Manual</title>
+    <releaseinfo>
+      For libswami 2.0.0.
+      The latest version of this documentation can be found on-line at
+      <ulink role="online-location" url="http://swami.sourceforge.net/api/libswami/index.html">http://swami.sourceforge.net/api/libswami/</ulink>.
+    </releaseinfo>
+  </bookinfo>
+
+  <chapter>
+    <title>General</title>
+    <xi:include href="xml/version.xml"/>
+    <xi:include href="xml/libswami.xml"/>
+    <xi:include href="xml/SwamiRoot.xml"/>
+    <xi:include href="xml/SwamiContainer.xml"/>
+    <xi:include href="xml/SwamiObject.xml"/>
+    <xi:include href="xml/SwamiParam.xml"/>
+    <xi:include href="xml/SwamiPlugin.xml"/>
+    <xi:include href="xml/SwamiPropTree.xml"/>
+    <xi:include href="xml/SwamiMidiDevice.xml"/>
+    <xi:include href="xml/SwamiWavetbl.xml"/>
+  </chapter>
+  <chapter>
+    <title>Type independent control/event network</title>
+    <xi:include href="xml/SwamiControl.xml"/>
+    <xi:include href="xml/SwamiControlEvent.xml"/>
+    <xi:include href="xml/SwamiControlFunc.xml"/>
+    <xi:include href="xml/SwamiControlHub.xml"/>
+    <xi:include href="xml/SwamiControlMidi.xml"/>
+    <xi:include href="xml/SwamiControlProp.xml"/>
+    <xi:include href="xml/SwamiControlQueue.xml"/>
+    <xi:include href="xml/SwamiControlValue.xml"/>
+    <xi:include href="xml/SwamiEvent_ipatch.xml"/>
+    <xi:include href="xml/SwamiMidiEvent.xml"/>
+  </chapter>
+  <chapter>
+    <title>Misc</title>
+    <xi:include href="xml/SwamiLoopFinder.xml"/>
+    <xi:include href="xml/SwamiLoopResults.xml"/>
+    <xi:include href="xml/SwamiLock.xml"/>
+    <xi:include href="xml/SwamiLog.xml"/>
+    <xi:include href="xml/util.xml"/>
+  </chapter>
+  <chapter id="object-tree">
+    <title>Object Hierarchy</title>
+     <xi:include href="xml/tree_index.sgml"/>
+  </chapter>
+  <index id="api-index-full">
+    <title>API Index</title>
+    <xi:include href="xml/api-index-full.xml"><xi:fallback /></xi:include>
+  </index>
+
+  <xi:include href="xml/annotation-glossary.xml"><xi:fallback /></xi:include>
+</book>

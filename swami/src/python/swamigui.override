@@ -1,0 +1,72 @@
+/* -*- Mode: C -*-
+ *
+ * swamigui.override - Function override for SwamiGUI python binding
+ *
+ * Swami
+ * Copyright (C) 1999-2002 Josh Green <jgreen@users.sourceforge.net>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA
+ */
+%%
+headers
+#include <Python.h>
+#include "pygobject.h"
+#include <libinstpatch/libinstpatch.h>
+#include <libswami/libswami.h>
+#include <swamigui/swamigui.h>
+#include "swamigui_missing.h"
+%%
+modulename SwamiGui
+%%
+import gobject.GObject as PyGObject_Type
+import ipatch.Container as PyIpatchContainer_Type
+import ipatch.Item as PyIpatchItem_Type
+import ipatch.List as PyIpatchList_Type
+import ipatch.Sample as PyIpatchSample_Type
+import swami.Control as PySwamiControl_Type
+import swami.ControlMidi as PySwamiControlMidi_Type
+import swami.Root as PySwamiRoot_Type
+import gtk.Adjustment as PyGtkAdjustment_Type
+import gtk.Container as PyGtkContainer_Type
+import gtk.Dialog as PyGtkDialog_Type
+import gtk.Window as PyGtkWindow_Type
+import gtk.Widget as PyGtkWidget_Type
+import gtk.VBox as PyGtkVBox_Type
+import gtk.EventBox as PyGtkEventBox_Type
+import gtk.VPaned as PyGtkVPaned_Type
+import gtk.ScrolledWindow as PyGtkScrolledWindow_Type
+import gtk.HBox as PyGtkHBox_Type
+import gtk.HPaned as PyGtkHPaned_Type
+import gtk.MenuBar as PyGtkMenuBar_Type
+import gtk.Menu as PyGtkMenu_Type
+import gtk.SpinButton as PyGtkSpinButton_Type
+import gtk.Toolbar as PyGtkToolbar_Type
+import gtk.TreeStore as PyGtkTreeStore_Type
+import gtk.Notebook as PyGtkNotebook_Type
+import gtk.Frame as PyGtkFrame_Type
+import gtk.DrawingArea as PyGtkDrawingArea_Type
+%%
+ignore-glob
+  *_get_type
+%%
+override swamigui_get_root kwargs
+static PyObject *
+_wrap_swamigui_get_root (PyObject *self, PyObject *args,
+			 PyObject *kwargs)
+{
+    /* pygobject_new handles NULL checking */
+    return pygobject_new((GObject *)swamigui_root);
+}

@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+               "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+[
+  <!ENTITY % local.common.attrib "xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'">
+]>
+<book id="index">
+  <bookinfo>
+    <title>swamigui Reference Manual</title>
+    <releaseinfo>
+      For swamigui 2.0.0
+      The latest version of this documentation can be found on-line at
+      <ulink role="online-location" url="http://swami.sourceforge.net/api/swamigui/index.html">http://swami.sourceforge.net/api/swamigui/</ulink>.
+    </releaseinfo>
+  </bookinfo>
+
+  <chapter>
+    <title>General</title>
+    <xi:include href="xml/SwamiguiItemMenu.xml"/>
+    <xi:include href="xml/SwamiguiPaste.xml"/>
+    <xi:include href="xml/SwamiguiRoot.xml"/>
+    <xi:include href="xml/SwamiguiTreeStore.xml"/>
+    <xi:include href="xml/SwamiguiTreeStorePatch.xml"/>
+  </chapter>
+  <chapter>
+    <title>Controls</title>
+    <xi:include href="xml/SwamiguiControl.xml"/>
+    <xi:include href="xml/SwamiguiControlAdj.xml"/>
+    <xi:include href="xml/SwamiguiControlMidiKey.xml"/>
+    <xi:include href="xml/SwamiguiNoteSelector.xml"/>
+    <xi:include href="xml/SwamiguiSpinScale.xml"/>
+  </chapter>
+  <chapter>
+    <title>Canvas items and related</title>
+    <xi:include href="xml/SwamiguiBar.xml"/>
+    <xi:include href="xml/SwamiguiBarPtr.xml"/>
+    <xi:include href="xml/SwamiguiPiano.xml"/>
+    <xi:include href="xml/SwamiguiSampleCanvas.xml"/>
+    <xi:include href="xml/SwamiguiSpectrumCanvas.xml"/>
+    <xi:include href="xml/SwamiguiCanvasMod.xml"/>
+  </chapter>
+  <chapter>
+    <title>GUI Widgets</title>
+    <xi:include href="xml/SwamiguiKnob.xml"/>
+    <xi:include href="xml/SwamiguiLoopFinder.xml"/>
+    <xi:include href="xml/SwamiguiMenu.xml"/>
+    <xi:include href="xml/SwamiguiModEdit.xml"/>
+    <xi:include href="xml/SwamiguiMultiSave.xml"/>
+    <xi:include href="xml/SwamiguiPanel.xml"/>
+    <xi:include href="xml/SwamiguiPanelSelector.xml"/>
+    <xi:include href="xml/SwamiguiPanelSF2Gen.xml"/>
+    <xi:include href="xml/SwamiguiPanelSF2GenEnv.xml"/>
+    <xi:include href="xml/SwamiguiPanelSF2GenMisc.xml"/>
+    <xi:include href="xml/SwamiguiPref.xml"/>
+    <xi:include href="xml/SwamiguiProp.xml"/>
+    <xi:include href="xml/SwamiguiPythonView.xml"/>
+    <xi:include href="xml/SwamiguiSampleEditor.xml"/>
+    <xi:include href="xml/SwamiguiSplits.xml"/>
+    <xi:include href="xml/SwamiguiStatusbar.xml"/>
+    <xi:include href="xml/SwamiguiTree.xml"/>
+    <xi:include href="xml/icon-combo.xml"/>
+    <xi:include href="xml/combo-box.xml"/>
+  </chapter>
+  <chapter>
+    <title>Misc</title>
+    <xi:include href="xml/help.xml"/>
+    <xi:include href="xml/icons.xml"/>
+    <xi:include href="xml/patch_funcs.xml"/>
+    <xi:include href="xml/splash.xml"/>
+    <xi:include href="xml/util.xml"/>
+    <xi:include href="xml/SwamiguiDnd.xml"/>
+    <xi:include href="xml/swami_python.xml"/>
+  </chapter>
+  <chapter id="object-tree">
+    <title>Object Hierarchy</title>
+     <xi:include href="xml/tree_index.sgml"/>
+  </chapter>
+  <index id="api-index-full">
+    <title>API Index</title>
+    <xi:include href="xml/api-index-full.xml"><xi:fallback /></xi:include>
+  </index>
+
+  <xi:include href="xml/annotation-glossary.xml"><xi:fallback /></xi:include>
+</book>

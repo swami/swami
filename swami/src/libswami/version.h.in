@@ -1,0 +1,36 @@
+/*
+ * version.h - Swami version information
+ *
+ * Swami
+ * Copyright (C) 1999-2002 Josh Green
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA or point your web browser to http://www.gnu.org.
+ *
+ * To contact the author of this program:
+ * Email: Josh Green <jgreen@users.sourceforge.net>
+ * Swami homepage: http://swami.sourceforge.net
+ */
+#ifndef __SWAMI_VERSION_H__
+#define __SWAMI_VERSION_H__
+
+#define SWAMI_VERSION       @SWAMI_VERSION@
+#define SWAMI_VERSION_MAJOR @SWAMI_VERSION_MAJOR@
+#define SWAMI_VERSION_MINOR @SWAMI_VERSION_MINOR@
+#define SWAMI_VERSION_MICRO @SWAMI_VERSION_MICRO@
+
+void    swami_version     (guint *major, guint *minor, guint *micro);
+
+#endif /* __SWAMI_VERSION_H__ */

@@ -1,0 +1,3 @@
+LIBRARY fluidsynth.dll
+EXPORTS
+swami_plugin_info DATA

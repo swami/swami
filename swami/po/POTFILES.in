@@ -1,0 +1,22 @@
+# List of source files containing translatable strings.
+# Each source file that has gettext translatable strings should be listed here
+src/libswami/SwamiObject.c
+src/libswami/SwamiPlugin.c
+src/libswami/SwamiRoot.c
+src/libswami/SwamiWavetbl.c
+src/swamigui/glade_strings.c
+src/swamigui/help.c
+src/swamigui/main.c
+src/swamigui/patch_funcs.c
+src/swamigui/SwamiguiItemMenu.c
+src/swamigui/SwamiguiMenu.c
+src/swamigui/SwamiguiModEdit.c
+src/swamigui/SwamiguiMultiList.c
+src/swamigui/SwamiguiPaste.c
+src/swamigui/SwamiguiPiano.c
+src/swamigui/SwamiguiProp.c
+src/swamigui/SwamiguiRoot.c
+src/swamigui/SwamiguiSampleCanvas.c
+src/swamigui/SwamiguiSampleEditor.c
+src/swamigui/util.c
+src/swamigui/widgets/icon-combo.c

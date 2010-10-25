@@ -1,0 +1,1379 @@
+2008-10-13  Josh Green  <jgreen@users.sourceforge.net>
+	* src/python/swami.defs: Fixed libswami Python binding.
+	* src/swamigui/SwamiguiSplits.c: Fixed crash bug with span Middle click
+	  move operation (thanks to Ebrahim Mayat for reporting this).  Fixed
+	  Middle click move status bar updates.
+
+2008-10-11  Josh Green  <jgreen@users.sourceforge.net>
+	* README.OSX: Update from Ebrahim Mayat.
+	* src/swamigui/swami-2.glade: Re-saved swami-2.glade using glade 3.4.5.
+
+2008-10-05  Josh Green  <jgreen@users.sourceforge.net>
+	* src/swamigui/SwamiguiSplits.c: Added support for moving multiple
+	  selected spans and root notes (depending on move mode).
+
+2008-09-26  Josh Green  <jgreen@users.sourceforge.net>
+	* src/swamigui/SwamiguiSplits.c: Added ALT click drag functionality for
+	  setting low span handle, root note or upper span handle depending on
+	  mouse button pressed.  Improved drag logic.
+
+2008-09-25  Josh Green  <jgreen@users.sourceforge.net>
+	* po/POTFILES.in: Patch from Henry Kroll to remove a couple of files
+	  which were recently deleted.
+	* src/libswami/SwamiObject.c: Removed some unused functions.
+	* src/swamigui/SwamiguiSplits.c: Now using GTK for widget construction,
+	  added root note indicators, now using anti-aliased canvases, combined
+	  several instances of width/height item resize code into a single
+	  function called swamigui_splits_update_entries(), now using buttons
+	  for Note/Velocity mode selection instead of a notebook, placed a
+	  "Shift Mode" drop down widget for future selection of what items
+	  get shifted with the middle mouse button (spans, root notes or both),
+	  SwamiguiSplitsEntry replaced SplitBag and is now part of the public
+	  API (although private), span and root note controls now only created
+	  when the appropriate API function is called to get its control, likely
+	  some other improvements.
+	* src/swamigui/swami-2.glade: Added SwamiguiSplits widget.
+
+2008-08-18  Josh Green  <jgreen@users.sourceforge.net>
+	* Removed SwamiguiHPaned.[ch], SwamiguiVPaned.[ch], SwamiguiLayout.[ch],
+	  SwamiguiSelector.[ch], SwamiguiSwitcher.[ch], SwamiguiTreeStorePref.[ch]
+	  as they weren't providing necessary functionality.
+	* configure.ac: Required glib and gobject version now set to 2.12.
+	* src/glade/Makefile.am: Removed libgladeswamigui (just uses libswamigui now).
+	* src/glade/swamigui.xml: Set library to "swamigui-2.0" other minor changes.
+	* src/libswami/SwamiControl.c: (swami_control_sync_spec): Now returns
+	  boolean value to indicate if conversion was successful.
+	* src/libswami/SwamiParam.c: (swami_param_type_has_limits): New function.
+	  (swami_param_convert_new): No longer prints conversion errors.
+	  (swami_param_type_transformable): New function.
+	  (swami_param_type_transformable_value): New function.
+	* src/libswami/swami_priv.h: Removed macros related to older glib support.
+	* src/libswami/value_transform.c: New file which contains additional GValue
+	  conversion functions (string to int and string to double currently).
+	* src/plugins/fluidsynth.c: Removed "reverb-enable" and "chorus-enable"
+	  properties, since they are now dynamically created as FluidSynth settings
+	  properties.  Enumeration strings are introspected and a "<prop>-options"
+	  property is installed.  String enumeration types "yes/no" are created as
+	  standard boolean properties.
+	* src/plugins/fluidsynth_gui.c: Added FluidSynth preferences.  Updated
+	  "reverb-enable" and "chorus-enable" to new property names
+	  "synth-reverb-active" and "synth-chorus-active".
+	* src/swamigui/SwamiguiControl.c:
+	  (swamigui_control_new_for_widget_full): Flags and enum types are reduced
+	  to G_TYPE_FLAGS and G_TYPE_ENUM during widget handler comparison.
+	  Improved widget handler comparison to find best match.
+	  (swamigui_control_glade_prop_connect): Allow for ":blah" postfix to
+	  auto glade property names to work around duplicate glade names.
+	* src/swamigui/SwamiguiControl_widgets.c: Added GtkComboBoxEntry handler,
+	  GtkFileChooserButton handler and GtkComboBox handlers (string, enum and gtype).
+	  (adjustment_control_handler): "digits" now assigned and "spec-changed" watched
+	  under the property conditions.
+	  (entry_control_handler): Control parameter spec conversion now performed.
+	* src/swamigui/SwamiguiMenu.c: Added Python script editor to Tools menu.  Some
+	  i18n updates.  Added FluidSynth restart item until it is managed by the
+	  FluidSynth plugin.
+	* src/swamigui/SwamiguiModEdit.c: Removed "item" property, now using only
+	  "item-selection" parameter and supports generic IpatchSF2ModItem interface.
+	* src/swamigui/SwamiguiMultiList.c: Renamed swamigui_multi_list_set_items() to
+	  swamigui_multi_list_set_selection().
+	* src/swamigui/SwamiguiPanelSelector.c: Renamed swamigui_panel_selector_set_items()
+	  and swamigui_panel_selector_get_items() to swamigui_panel_selector_set_selection()
+	  and swamigui_panel_selector_get_selection().
+	* src/swamigui/SwamiguiPref.[ch]: New preferences registration and widget.
+	* src/swamigui/SwamiguiRoot.c: Added default piano key mapping strings,
+	  Now using a prop handler function for IpatchSF2 types to provide custom
+	  creation date functionality (push button for current date).  Added
+	  glade_module_register_widgets() function, so libswamigui can be used
+	  as a glade module.  Removed "layout" parameter.  Added main_window
+	  field to SwamiguiRoot.  Updated swamigui_root_init() code to create
+	  wavetable device, create main window, display splash image if enabled
+	  and swami tips.
+	  (swamigui_root_create_main_window): Code in
+	  swamigui_create_default_session() moved here.  Removed pref_store
+	  field from SwamiguiRoot object and added main_window, tree, splits,
+	  panel_selector and wavetbl.
+	* src/swamigui/SwamiguiSampleEditor.c: Renamed
+	  swamigui_sample_editor_set_items() to
+	  swamigui_sample_editor_set_selection() and
+	  swamigui_sample_editor_get_items() to swamigui_sample_editor_get_selection().
+	* src/swamigui/SwamiguiSplits.c: Renamed swamigui_splits_set_items()
+	  to swamigui_splits_set_selection(), swamigui_splits_get_items() to
+	  swamigui_splits_get_selection() and swamigui_splits_set_selection() to
+	  swamigui_splits_select_items().
+	* src/swamigui/util.c: Added swamigui_util_glade_lookup_nowarn() to
+	  not warn if a Glade widget can't be found.
+	* src/swamigui/swami-2.glade: Lots of GUI changes.  New preferences
+	  interfaces, more interfaces using PROP:: style widget/property
+	  auto connection.
+
+2008-03-31  Josh Green  <jgreen@users.sourceforge.net>
+	* autogen.sh: Added gtkdocize.
+	* configure.ac: Now requiring librsvg-2.0 >= 2.8 and GTK_DOC_CHECK(1.9).
+	* Makefile.am: Added glade sub directory (Swami widgets in glade!).
+	* plugins/Makefile.am: Now building fluidsynth_gui.c.
+	* plugins/fftune_gui.c: Now implements SwamiguiPanel interface.
+	* plugins/fluidsynth.c: Removed left over disabled fixed modulators,
+	  reverb and chorus names are now character arrays, reverb and chorus
+	  now reverb_params and chorus_params, added reverb_presets and
+	  chorus_presets arrays and default presets for both, added
+	  reverb-enable and reverb-preset properties (removed reverb-mode),
+	  added chorus-enable and chorus-preset (removed chorus-mode),
+	  lots of other changes to reverb/chorus parameters and presets.
+	* plugins/fluidsynth_gui.c: New FluidSynth GUI with knobs.
+	* src/swamigui/SwamiguiControl.c: Removed
+	  swamigui_control_object_create_widgets(),
+	  swamigui_control_object_connect_widgets(),
+	  swamigui_control_object_disconnect_widgets() and related functions.
+	  Added swamigui_control_glade_prop_connect() which basically replaces
+	  above functions, but allows custom glade interfaces whose widgets
+	  are automatically connected to object properties.
+	* src/swamigui/SwamiguiKnob.[ch]: New SVG based cairo knob widget.
+	* src/swamigui/SwamiguiMenu.c: Added place holder for preferences.
+	* src/swamigui/SwamiguiModEdit.c: Now implements SwamiguiPanel interface,
+	  updated to GtkComboBox widgets.
+	* src/swamigui/SwamiguiPanel.c: Renamed swamigui_panel_get_info() to
+	  swamigui_panel_type_get_info(), renamed swamigui_panel_test() to
+	  swamigui_panel_type_check_selection(), added
+	  swamigui_panel_get_types_in_selection() helper function.
+	* src/swamigui/SwamiguiPanel.h: Added SwamiguiPanelCheckFunc method
+	  function definition.
+	* src/swamigui/SwamiguiPanelSelector.[ch]: New panel selector notebook
+	  widget.  Yeeeeee haaa!
+	* src/swamigui/SwamiguiProp.[ch]: More useful now as it has a registry
+	  for Glade widgets or handler functions to create interfaces for
+	  specific object types.
+	* src/swamigui/SwamiguiRoot.c: New FluidSynth interface loaded, some
+	  layout changes of main window.
+	* src/swamigui/SwamiguiSampleEditor.[ch]: Implements SwamiguiPanel
+	  interface now.  swamigui_sample_editor_register_handler() now takes
+	  a SwamiguiPanelCheckFunc() for determining when an item selection is
+	  valid for a given sample editor handler.
+	* src/swamigui/SwamiguiSplits.[ch]: Updated to support any item type
+	  with a "note-range" or "velocity-range" property.
+	* src/swamigui/swami-2.glade: Lots of GUI changes.
+	* src/swamigui/images/knob.svg: New Knob SVG image.
+	* src/glade: New directory for Swami glade catalog widgets (use Swami
+	  widgets directly in Glade).
+	* src/glade/glade-swamigui.c: Init function of libswamigui.
+	* src/glade/swamigui.xml: Glade catalog description file (only
+	  SwamiguiKnob is defined for the moment).
+
+2007-12-02  Josh Green  <jgreen@users.sourceforge.net>
+	* configure.ac: Removed detection for libxml (will use glib XML functions),
+	  removed --enable-build-dir option and added --enable-developer as a
+	  replacement which will also include other developer functionality.
+	* swami.anjuta: New Anjuta project file.
+	* swami.prj: Removed old Anjuta project file.
+	* src/libswami/SwamiXml.[ch]: Removed, will be replaced by libinstpatch
+	  XML object pickling.  Also removed all XML interfaces from other objects.
+	* src/libswami/SwamiXmlObject.[ch]: Removed and probably not needed.
+	* src/libswami/SwamiLog.h: Added SWAMI_ERROR_IO.
+	* src/libswami/SwamiRoot.c (swami_root_patch_load): Added err parameter.
+	  (swami_root_patch_save): Added err parameter.
+	* src/python/Makefile.am: Added separate targets for swami.c and
+	  swamigui.c and include appropriate PyGtk .def dependencies.
+	* src/python/swamigui.override: Added additional import dependencies.
+	* src/swamigui/SwamiguiMultiSave.[ch]: Added new multi-file save dialog.
+	* src/swamigui/help.c (swamigui_help_about): Ticket #38 - Can now close
+	  the about dialog.
+	* src/swamigui/patch_funcs.c: Using new multi file save dialog for
+	  saving patch files, added _() i18n macro to some strings.
+
+2007-05-10  Josh Green  <jgreen@users.sourceforge.net>
+	* Default value for GType properties is now G_TYPE_NONE.
+	* src/libswami/swami_priv.h: Added GTYPE_PARAM_SUPPORT for checking
+	  existence of GType GParamSpec support (glib 2.10.0).
+	* src/swamigui/SwamiguiRoot.c: Fixed issue with storage of GType in
+	  "default-patch-type" property of SwamiguiRoot, which would affect
+	  64 bit platforms.  Now using GType GParamSpec if available
+	  (Glib 2.10.0) with fallback to gulong (instead of guint).
+	* src/swamigui/SwamiguiTree.c: Added conditional for use of GTK 2.10.0
+	  only function gdk_atom_intern_static_string().
+
+2007-04-20  Josh Green  <jgreen@users.sourceforge.net>
+	* configure.ac: Added --disable-python configure option.
+	* swami-2.png: Updated with new blurry feature of Inkscape, to give some
+	  software edge effects.
+	* src/swamigui/SwamiguiDnd.h: Changed SWAMIGUI_DND_WIDGET_INFO and
+	  SWAMIGUI_DND_WIDGET_NAME to SWAMIGUI_DND_OBJECT_INFO and
+	  SWAMIGUI_DND_OBJECT_NAME respectively, since they will be used for
+	  passing arbitrary GObject's within Swami.
+	* src/swamigui/SwamiguiSampleEditor.c: Added buttons for sample cut,
+	  crop and new from selection.  Added selection support using marker 0.
+	  Initial function stubs are there for sample operation buttons, but
+	  don't do anything yet.  Added swamigui_sample_editor_set_marker()
+	  function.
+	* src/swamigui/SwamiguiStatusbar.c: Added "default-timeout" property
+	  which is used for messages which use the
+	  SWAMIGUI_STATUSBAR_TIMEOUT_DEFAULT value.  Added
+	  swamigui_statusbar_printf() for added convenience in sending
+	  executed operation status messages to status bar.
+	* src/swamigui/SwamiguiTree.c: Added support for paste operations
+	  using drag and drop and high level tree DnD API.  Unfortunately this
+	  doesn't currently support multiple item drag and drop, so only 1 item
+	  at a time can be pasted using this method (plan to hack in code to
+	  implement custom multi-item drag and drop, or wait for GTK support).
+
+2007-03-21  Josh Green  <jgreen@users.sourceforge.net>
+	* src/swamigui/SwamiguiSampleEditor.c: Moved zoom/scroll canvas
+	  functionality to a new separate object SwamiguiCanvasMod.  Loop
+	  cross section viewer is now also zoomable.  Added
+	  swamigui_sample_editor_loop_zoom() function to set zoom of loop view.
+	* src/swamigui/SwamiguiTree.c: When item selection is assigned to tree
+	  it now expands all parents of selected items and makes the first item
+	  in view.
+	* src/swamigui/patch_funcs.c: swamigui_new_item() now sets new item
+	  as current selection.  swamigui_cb_load_samples_response() now sets
+	  current item selection to added samples.
+	* src/swamigui/SwamiguiItemMenu_actions.c: "copy" action now excluded
+	  for virtual container types.  "load-samples" not available for
+	  virtual containers containing samples. "new" available only for
+	  instrument and program categories now.
+	* src/swamigui/SwamiguiRoot.c: Tree "selection" now connected
+	  bi-directionally to swamigui_root "selection".
+	* src/swamigui/marshals.list: New file, marshals for GUI.
+	* src/swamigui/SwamiguiCanvasMod.[ch]: New canvas zoom/scroll modulator
+	  object, so canvas zoom/scroll can be managed in a centralized fashion.
+	  New features include: mouse wheel scrolling, acceleration curve
+	  equations for wheel and snap zoom/scrolling, smooth wheel operation
+	  (scrolling continues for a short time after last wheel event).
+	* src/libswami/SwamiPropTree.c: Properties in prop tree now connected
+	  bi-directionally when supported.
+
+2007-02-18  Josh Green  <jgreen@users.sourceforge.net>
+	* src/swamigui/icons.c: Fixed setting of window default icon name.
+	* src/swamigui/SwamiguiRoot.c: Making sure that we are calling all
+	  GUI get_type functions, adding of selector options is handled better
+	  for optional components, added global enable variables for Python
+	  and plugins so command line arguments can disable them.
+	* src/swamigui/SwamiguiItemMenu.c: Moved one time init stuff to an
+	  internal init function instead of the class initializer.
+	* src/swamigui/swami_python.c: Added swamigui_python_is_initialized()
+	  to check if Python binding is active.
+	* src/swamigui/main.c: Added -y switch to disable Python binding,
+	  plugin disable switch -p should now be working.
+
+2007-02-15  Josh Green  <jgreen@users.sourceforge.net>
+	* Modified many version sensitive file names to include 2.0 version
+	  indicator so future major revisions can be parallel installable
+	  (including swami-0.9.xx).
+	* src/plugins/fluidsynth.c: Added initial real time effect control
+	  support (currently only works with IpatchSF2Sample items), locking
+	  of wavetable object was moved to FluidSynth driver instead of
+	  SwamiWavetbl for finer control.
+	* src/swamigui/SwamiguiSampleEditor.c: New range based markers in a
+	  bar above sample view, sample loop finder now integrated with sample
+	  viewer, started sample selection support (not yet finished).
+	* src/swamigui/SwamiguiLoopFinder.[ch]: Now only the GUI portion of the
+	  finder.  The smarts have been moved to libswami.
+	* src/swamigui/icons.c: Added loop none/standard/release icons, removed
+	  swami icon (moved to top source folder).
+	* src/swamigui/util.c: Added swamigui_util_unit_rgba_color_get_type()
+	  to create a new unit type for guint properties to indicate they are
+	  RGBA color values (SWAMIGUI_UNIT_RGBA_COLOR).
+	* src/swamigui/SwamiguiSampleCanvas.c: Properties for color values of
+	  sample canvas.  Modified swamigui_sample_canvas_xpos_to_sample()
+	  and swamigui_sample_canvas_sample_to_xpos() to still return a value
+	  but also return info on whether the calculated value is valid.
+	* src/swamigui/SwamiguiPiano.c: Added properties for colors.
+	* src/swamigui/SwamiguiControl.c: Simplified parameters of
+	  swamigui_control_new_for_widget() and created
+	  swamigui_control_new_for_widget_full() with the previous set.  Added
+	  new swamigui_control_prop_connect_widget() function.
+        * src/swamigui/swami_python.c: Now calling PySys_SetArgv() in
+	  _swamigui_python_init() function.
+	* src/libswami/SwamiWavetbl.c: Locking of SwamiWavetbl object removed
+	  from most class functions.  Its up to the derived class to do its
+	  own locking (more flexible).
+	* src/libswami/SwamiControlProp.c: Added new
+	  swami_control_prop_connect_to_control() and
+	  swami_control_prop_connect_from_control() for added convenience.
+	* src/libswami/SwamiLoopFinder.[ch]: Separated from GUI and moved to
+	  its own stand alone object.	  
+
+2007-01-09  Josh Green  <jgreen@users.sourceforge.net>
+	* src/swamigui/SwamiguiSampleEditor.c: Speeded up zoom/scroll quite a
+	  bit, should be controllable via properties/prefs, fixed problem where
+	  zoom value of sample view was quite screwed up on initial display,
+	  removed "goto loop end point" buttons (will replace with a canvas
+	  loop scrolly thingy).
+	* src/swamigui/SwamiguiTree.c: Added way cool search feature, not yet
+	  finished though.
+	* src/swamigui/SwamiguiMenu.c: Setting recent chooser limit to
+	  unlimited since the list gets truncated before being filtered (bug
+	  in GTK?).
+	* src/swamigui/SwamiguiStatusbar.[ch]: A new statusbar!
+	* src/swamigui/SwamiguiProp.c: Now displays "Item not selected" if
+	  property interface is being used but no item is active, fixed an issue
+	  with the GtkAdjustment related SwamiControl in
+	  SwamiguiControl_widgets.c which broke ranges of scale widgets.
+	* src/swamigui/SwamiguiPiano.c: Re-worked drawing routines and such
+	  so that each key has an equal amount of active space (so that the
+	  spans don't look so funky), now sends statusbar info to indicate
+	  what note is being played or the mouse is over (including velocity).
+	* src/swamigui/SwamiguiSpans.c: Spans are now equal distant for each
+	  note, sending statusbar messages to show current span range (on
+	  mouse over and when setting/moving).
+	* src/swamigui/SwamiguiItemMenu_actions.c: Added Find and Find Next
+	  item menu options and hot keys.
+	* src/swamigui/SwamiguiRoot.c: A little hack to get root "selection"
+	  property to always be set to a IpatchList selection (even if its
+	  empty) so that the "origin" object is availabe (SwamiguiTree for
+	  example), statusbar getting visiously packed.
+	* src/swamigui/SwamiguiRoot.h: Added "statusbar" to SwamiguiRoot
+	  instance.
+	* src/swamigui/SwamiguiControl_widgets.c: GtkAdjustment GParamSpec
+	  wasn't being handled correctly, breaking SwamiguiProp scale widgets.
+	* src/libswami/util.c: Changed swami_util_midi_note_to_str() to use
+	  octave -2 for the first C (as Rosegarden does).  Forgot to update
+	  swami_util_midi_str_to_note though, added to TODO list.
+
+2006-12-28  Josh Green  <jgreen@users.sourceforge.net>
+	* src/swamigui/SwamiguiMenu.c: Patch icons are now being used for
+	  New.. menu items.
+	* src/swamigui/SwamiguiTreeStorePatch.c: Implemented a work around
+	  for SwamiContainer, since it can contain children of different item
+	  types.
+	* src/swamigui/SwamiguiPiano.c: Fixed bug which caused mouse grab to
+	  not be released when playing the piano with the mouse off the right
+	  hand side.
+	* src/swamigui/SwamiguiSplits.c: Velocity mode of the splits widget
+	  appears to be working, fixed bug which caused default handler to
+	  not initialize correctly in some cases.
+
+2006-12-22  Josh Green  <jgreen@users.sourceforge.net>
+	* Lots of envelope icons added in src/swamigui/images.
+	* src/swamigui/SwamiguiPanelSF2Gen.[ch]: New - SoundFont generator
+	  control interface (oooo puuurrrtty! ;)
+	* src/swamigui/SwamiguiGenGraph.[ch]: Killed, it will be replaced with a
+	  generic envelope graph editor.
+	* src/swamigui/SwamiguiGenView.[ch]: Murdered, will replace with a generic
+	  property view.
+	* src/swamigui/SwamiguiGenCtrl.[ch]: Replaced by SwamiguiPanelSF2Gen.[ch].
+	* src/libswami/SwamiStateItem.[ch]: Moving to libInstPatch.
+	* src/libswami/SwamiStateGroup.[ch]: Moving to libInstPatch.
+	* src/libswami/SwamiState_types.[ch]: Moving to libInstPatch.
+	* src/libswami/SwamiState.[ch]: Moving to libInstPatch.
+	* src/libswami/SwamiControlProp.c: New and improved!  Updates for
+	  new IpatchItem notify system.
+	* src/swamigui/SwamiguiPanel.c: Actually does something now!
+	* src/swamigui/icons.[ch]: New envelope icons!
+	* src/swamigui/SwamiguiTreeStorePatch.c: Various bug fixes that were causing
+	  items to not be inserted correctly for container sorted items.
+	* src/swamigui/SwamiguiSplits.c: Beginning of tabbed interface for
+	  note and velocity range switching (not done).
+	* src/swamigui/SwamiguiRoot.c: Updated for changes to property/container
+	  notify system (moved to libinstpatch).
+	* src/swamigui/SwamiguiSpinScale.c: Some improvements.
+	* src/libswami/SwamiControl.c: Lots of new goodies to make things more
+	  complicated and fun including new value transform functions for
+	  converting values for a specific connection,
+	  swami_control_connect_item_prop() for ultra convenient property
+	  connections (with unit conversion!), lots of other crazy crap, I
+	  sure hope SwamiControl doesn't become more of a nightmare than it is!
+	  Still, it does kick some ass.
+
+	* Tons of other cool improvements and changes which I don't feel like
+	  writing about..
+
+2006-08-31  Josh Green  <jgreen@users.sourceforge.net>
+	* src/swamigui/SwamiguiTree.c: Added external file drag and drop support
+	  TO the instrument tree.
+	* src/swamigui/SwamiguiMenu.c: Changes to recent manager list in menu
+	  (not sure what exactly, but seems to be working well ;).
+	* src/swamigui/icons.h: Reminded by Ebrahim Mayat that OS X does not
+	  like variables declared in headers without extern (causes duplicate
+	  symbols error during link).
+	* src/swamigui/SwamiguiDnd.h: Added new SWAMIGUI_DND_URI_INFO type
+	  for use in external file drag and drop.
+
+2006-07-10  Josh Green  <jgreen@users.sourceforge.net>
+	* src/plugins/fluidsynth.c: Reverb and Chorus parameters now update
+	  synth.
+	* src/swamigui/SwamiguiSampleEditor.c: Removed vertical scaling range
+	  control and related non-functioning code.
+	* src/swamigui/SwamiguiTree.c: Right click menu can now be popped via
+	  keyboard (popup_menu GtkWidget method hooked), private function
+	  swamigui_tree_real_set_store() added to assign active tree store,
+	  right click on item not part of list causes right clicked item to
+	  become selected, swamigui_tree_get_selection_single() no longer adds
+	  a reference to the returned item (the single threaded GUI policy),
+	  removed rclick_item field and corresponding functions, tree now
+	  assigns itself as the origin (swami_object_set_origin) on its
+	  selection property.
+	* src/swamigui/SwamiguiMenu.c: Recent file chooser sub menu added,
+	  removed global Edit menu, removed global "Save" menu item, added
+	  "New <Type>" menu item and the New menu item creates the default or
+	  last patch type created, added "Save All" menu item, removed other
+	  inactive code.
+	* src/swamigui/icons.c: Icons got severely WORKED over!  New icons for
+	  DLS, Gig, SoundFont, FFTune GUI and Modulator junction, also a new
+	  Swami desktop icon which is now assigned to the main window
+	  (gtk_window_set_default_icon).  Most other icons replaced by
+	  newer sexier versions.  Starting to look fucking awesome now!
+	  Swami, if you weren't a computer program I'd.. ;)
+	* src/swamigui/SwamiguiTreeStore.c: Renamed
+	  swamigui_tree_store_node_peek_item()
+	  to swamigui_tree_store_node_get_item() since the default GUI policy
+	  is to not reference returned objects.
+	* src/swamigui/patch_funcs.c: Opened files are now added to recent
+	  files manager (Gtk+ 2.10.0+ support only currently).
+	* src/swamigui/SwamiguiItemMenu_actions.c: Added key bindings to menu
+	  actions, for right click item menu actions which require the active
+	  tree the origin is fetched with swami_object_get_origin() and other
+	  updates to conform to new SwamiguiItemMenu changes.
+	* src/swamigui/SwamiguiRoot.c: Added "selection-origin" property,
+	  icons in SwamiguiSelector re-arranged, "icon" IpatchTypeProp set for
+	  supported patch types, item menu accelerators assigned to main window.
+	* src/swamigui/SwamiguiItemMenu.c: Keyboard accelerator code updated,
+	  right click item and menu no longer passed to action handlers to
+	  make item menu more generic (to be used by splits view for example),
+	  and also since the actions can be initiated by key presses.
+	* src/swamigui/main.c: Swami can now except URI style file names
+	  (added for support for recent files subsystem).
+	* src/libswami/SwamiRoot.c (swami_root_patch_load): Item is now returned
+	  via a pointer instead of the return value, to make it optional and
+	  remove the necessity of unreferencing it by the caller.
+	* src/libswami/SwamiObject.c: Added swami_object_set_origin()/get to be
+	  able to assign an "origin" object to objects such as IpatchList
+	  item selections.
+
+2006-05-08  Josh Green  <jgreen@users.sourceforge.net>
+	* Functions with 'ref' in the name renamed.
+	* src/plugins/fluidsynth.c: Added "modulators" property for assigning
+	  session modulators to FluidSynth instance which get applied to voice
+	  caches.  If an invalid temporary item is selected, the previous
+	  sounding item remains.
+	* Improved Python binding generation (pulls in ipatch.defs).
+	* src/swamigui/SwamiguiGenGraph.c: Fixes/improvements to envelope
+	  graph, including MVC updates.
+	* src/swamigui/SwamiguiTree.c: Right click on a non-selected item now
+	  clears selection before selecting new item.
+	* src/swamigui/SwamiguiPythonView.c: Added loading of scripts from
+	  "scripts" directory in Swami config directory (currently hard coded
+	  path: FIXME!).
+	* src/swamigui/patch_funcs.c (swamigui_new_item): Items can now also
+	  be created using a IpatchVirtualContainer parent hint and will also
+	  use any "virtual-child-conform-func" type property to make new item
+	  conform to virtual container.
+	* src/swamigui/SwamiguiMenu_actions.c: "New item" menu action updated
+	  to handle virtual containers also.
+	* src/swamigui/SwamiguiModEdit.c: Updated to handle editing of any
+	  object which contains a "modulators" property and do so in a MVC
+	  fashion.
+	* src/swamigui/main.c: Added "-r" option to run Python scripts on
+	  startup.
+	* src/libswami/SwamiControlProp.c: Added
+	  swami_control_prop_connect_objects for connecting two object
+	  properties together.
+	* src/libswami/SwamiRoot.c: Added "patch-root" property.  Renamed
+	  swami_patch_load_ref to swami_root_patch_load and swami_patch_save
+	  to swami_root_patch_save.
+
+2006-04-15  Josh Green  <jgreen@users.sourceforge.net>
+	* gtk-doc updates.
+	* Removed builtin_enums.[ch] and marshals.[ch] which are now being
+	  auto generated always.
+
+2006-04-12  Josh Green  <jgreen@users.sourceforge.net>
+	* src/python/swami.defs: No longer auto generated.
+	* src/python/swamigui.defs: No longer auto generated.
+	* src/swamigui/SwamiguiBar.[ch]: New canvas item bar for pointers and
+	  ranges (not yet functional).
+	* src/swamigui/SwamiguiBarPtr.[ch]: New canvas item which defines a
+	  pointer or range to be added to a SwamiguiBar canvas item (not yet
+	  functional).
+	* src/libswami/SwamiWavetbl.[ch]: Added check_update_item, update_item,
+	  and realtime_effect methods and related C functions.
+	* src/libswami/libswami.c: Changed patch property change callback
+	  system: properties are now specified by GParamSpec instead of property
+	  name, wild card callbacks can be added for item and or property.
+	* src/libswami/libswami.h: Changed SwamiPatchPropCallback to include
+	  SwamiEventPropChange parameter to save one from having to retrieve it.
+	* src/plugins/fluidsynth.c: Added patch property change monitoring and
+	  check_update_item and update_item methods for refreshing voice
+	  cache of active instruments.
+	* src/swamigui/SwamiguiPythonView.[ch]: Widget is now generated with
+	  glade, scripts can now be execute in full, toggle for line by line
+	  execution.
+	* src/swamigui/swami_python.[ch] (swamigui_python_set_root): Function
+	  called by SwamiguiRoot to assign to the "swamigui.root" variable so
+	  it is availabe to Python scripts.
+
+2006-03-15  Josh Green  <jgreen@users.sourceforge.net>
+	* Updated gtk-doc build files and now disabled by default.
+	* src/swamigui/SwamiguiControl.c (swamigui_control_object_create_widgets):
+	  Added hack for read only label controls to make them left justified.
+	* src/swamigui/SwamiguiLoopFinder.c: Added a revert button to revert
+	  loop settings to the original values.
+	* src/swamigui/SwamiguiRoot.c: Root "selection" property now connected to
+	  "item-selection" property of SwamiguiSwitcher objects.
+	* src/swamigui/SwamiguiSampleEditor.c: Start and end loop spin buttons
+	  now functional.
+	* src/swamigui/patch_funcs.c (swamigui_new_item): Fixed creation of
+	  new IpatchBase types.
+
+2006-03-11  Luis Garrido  <luisgarrido@users.sourceforge.net>
+	* Autolooper: much more optimization and even better handling of 
+	  local maxima.
+
+2006-03-10  Josh Green  <jgreen@users.sourceforge.net>
+	* src/swamigui/SwamiguiLoopFinder.c: Some minor bug fixes and
+	  optimizations.
+
+2006-03-10  Luis Garrido  <luisgarrido@users.sourceforge.net>
+	* Autolooper: some optimization and better handling of local maxima.
+
+2006-03-09  Josh Green  <jgreen@users.sourceforge.net>
+	* src/libswami/SwamiContainer.[ch]: Created new object type for
+	  IpatchItem container root.
+	* src/libswami/SwamiRoot.c: No longer derived from IpatchItem.
+	  Patch tree root is now a separate object.
+	* src/libswami/SwamiControl.c: More detailed control debug messages.
+	* src/libswami/SwamiControlProp.c: Now re-transmitting all set value
+	  events to connected outputs.
+	* src/swamigui/SwamiguiControlMidiKey.c: Using key snooper functionality
+	  of GTK main loop, instead of a widget.
+	* src/swamigui/SwamiguiLoopFinder.c: Algorithm run in a separate thread
+	  making the GUI much more responsive, many other GUI improvements
+	  including min loop size parameter.
+	* src/swamigui/SwamiguiRoot.c: Added "selection-single" property and
+	  sending notify events for "selection" and visa-versa, swamigui_root
+	  "selection" and "selection-single" are now being used to connect
+	  other interfaces via controls.
+	* src/swamigui/SwamiguiSampleEditor.c: Better loop finder button.
+
+2006-03-08  Luis Garrido  <luisgarrido@users.sourceforge.net>
+	* Added first version of functional autolooper code.
+
+2006-03-07  Josh Green  <jgreen@users.sourceforge.net>
+
+	* src/swamigui/SwamiguiLoopFinder.[ch]: New loop finder dialog widget.
+	Awaiting loop finder algorithm code from Luis Garrido.
+	* src/swamigui/SwamiguiSampleEditor.c: Removed recently added loop
+	finder widgets and added Find button for loop finder dialog.
+	* src/swamigui/help.c: Now using GtkAboutDialog for about.
+	* src/swamigui/util.c: Removed call to gtk_window_set_wmclass as its
+	not recommended anymore.
+
+2006-03-04  Josh Green  <jgreen@users.sourceforge.net>
+
+	* src/plugins/fluidsynth.c: Added FluidSynth MIDI router callback to
+	pass events to FluidSynth (from MIDI driver) to Swami control network,
+	now tracking channel bank and preset numbers and restoring when Synth
+	is restarted, temporary item is not cleared when closed and is restored
+	when restarted, bug fixes to close and finalize.
+	* src/swamigui/SwamiguiItemMenu_actions.c: Added a "Restart Driver"
+	option for SwamiWavetbl devices.
+
+2006-03-03  Josh Green  <jgreen@users.sourceforge.net>
+
+	* src/swamigui/SwamiguiSampleEditor.c: Started adding loop finder
+	GUI components and loop start/end goto and spin buttons.
+	* src/swamigui/SwamiguiMenu.c: Forgot to add edit menu action again.
+
+2006-03-03  Josh Green  <jgreen@users.sourceforge.net>
+
+	* src/swamigui/SwamiguiPanel.c: New interface "panel" registry, not yet
+	  being used.
+	* src/swamigui/SwamiguiTreeStorePatch.c: Split off instrument tree store
+	  specific code to a sub class.
+	* src/swamigui/SwamiguiTreeStorePref.c: New preferences tree store.
+	* src/libswami/SwamiControlProp.c: Added swami_ref_prop_control_from_name
+	  and swami_ref_prop_control_from_pspec to allow for SwamiControlProp
+	  sharing for a given object property.
+	* src/libswami/SwamiPropTree.c: Converted GMemChunk stuff to new GSlice
+	  with backwards compatible defines.
+	* src/libswami/SwamiRoot.h: Changed add_object signal to object_add.
+	* src/libswami/swami_priv.h: Added GSlice backward compatible defines
+	  and removed PREALLOC defines since they are likely useless with new
+	  GSlice memory allocator.
+	* src/libswami/util.c: Converted GMemChunk related code to GSlice.
+	* src/plugins/fluidsynth.c: All FluidSynth properties now dynamically
+	  created, removed static properties now being handled dynamically.
+	* src/swamigui/SwamiguiControl.c (swamigui_control_object_create_widgets):
+	  Checking for IPATCH_PARAM_HIDE flag in property GParamSpecs to not
+	  show certain properties in user interfaces.
+	* src/swamigui/SwamiguiMenu.c: Now using swamigui_root "selection"
+	  property for edit menu actions.
+	* src/swamigui/SwamiguiRoot.c: Changed tree-store property to
+	  tree-store-list which is now a list of tree stores.  Removed
+	  tree-focus property and added a "selection" property.  Now creating
+	  the preferences tree store.
+	* src/swamigui/SwamiguiTree.c: Changed to a notebook to allow for
+	  multiple tree interfaces (instrument and preferences currently).
+	* src/swamigui/SwamiguiTreeStore.c: All instrument tree specific code
+	  moved to SwamiguiTreeStorePatch.c, now an abstract base class.	
+
+2006-01-20  Josh Green  <jgreen@users.sourceforge.net>
+
+	* src/swamigui/SwamiguiSampleEditor.c: Fixes to object finalization.
+	* src/swamigui/patch_funcs.c: Removed old rotten mass of smelly yucky
+	stuff that was the paste system and put a nice new shiney one in its
+	place.  Ohh, did I mention it kicks ass?  Probably still many bugs to
+	fix.. "But we don't care, we still want the money Lebowski!"
+
+2005-11-25  Josh Green  <jgreen@users.sourceforge.net>
+
+	* src/libswami/SwamiRoot.c: Modified swami_patch_load_ref and
+	swami_patch_save to use new IpatchConverter convenience functions.
+	* src/plugins/fluidsynth.c: Modified for new IpatchConverter system.
+
+2005-11-05  Josh Green  <jgreen@users.sourceforge.net>
+
+	* src/swamigui/SwamiguiNoteSelector.[ch]: New MIDI note selector widget.
+	* src/plugins/fftune_gui.[ch]: GUI frontend for FFTune plugin.
+	* intl: removed.
+	* src/libswami/SwamiControl.c: Don't allow more connections than can
+	be handled to a control at swami_control_connect() time.
+	* src/libswami/SwamiControlProp.c: Removed direct calling of get_property
+	and set_property functions, since it probably isn't supported.
+	* src/libswami/SwamiEvent_ipatch.c: Fixed some finalize bugs with
+	prop change event, and allow empty value now.
+	* src/libswami/SwamiParam.c: Removed extra parameters, now superseded
+	by IpatchParamProp.
+	* src/libswami/SwamiRoot.c: Added a "sample-format" parameter to set
+	the default sample export format.
+	* src/libswami/util.c: Added swami_util_midi_note_to_str() and
+	swami_util_midi_str_to_note() for converting between MIDI note numbers
+	and ASCII strings.
+	* src/plugins/fftune.[ch]: Now kicks ass, and actually works to some
+	extent :)  Interface is accomplished completely through properties
+	and signals.
+	* src/plugins/fftune_gui.[ch]: Yes, there is now a GUI for FFTune!
+	* src/swamigui/SwamiguiControl.c:
+	new swamigui_control_object_disconnect_widgets() function, now doing
+	some crude aliasing to make more property types be controllable by
+	GUI widgets.
+	* src/swamigui/SwamiguiProp.c: Updates to the properties control
+	widget, works "mo' betta now".
+	* src/swamigui/SwamiguiRoot.c: Added a "main-window" property and
+	property changes are now handled to some extent.
+	* src/swamigui/SwamiguiSpectrumCanvas.[ch]: Lots of bug fixes, i.e.,
+	actually works now!
+	* src/swamigui/SwamiguiTreeStore.c: Property changes handled somewhat,
+	no auto-re-sorting though, yet.
+	* src/swamigui/patch_funcs.c: Removed swamigui_item_properties()
+	because it was lame and no longer needed.  Added sample export function.
+
+2005-10-15  gettextize  <bug-gnu-gettext@gnu.org>
+
+	* Makefile.am (SUBDIRS): Remove intl.
+
+2005-09-18  Josh Green  <jgreen@users.sourceforge.net>
+
+	Applied Win32 build patch from Keishi Suenaga.
+	Fixed a build error with python binding.
+
+2005-08-17  Josh Green  <jgreen@users.sourceforge.net>
+
+        src/swamigui/SwamiguiControl_widgets.c: Fixed some bugs where
+        IPATCH_ITEM_WLOCK/UNLOCK was being used instead of
+        SWAMI_LOCK_WRITE/UNLOCK.
+        src/swamigui/SwamiguiRoot.c: Added "icon" and "open-icon" type
+        properties.
+        src/swamigui/SwamiguiTree.c: Fixes to right click menu handling which
+        was causing item reference leaks.
+        src/swamigui/ifaces/SwamiguiItem_DLS2.c: Modified to handle new
+        DLS "percussion" property.
+        configure.ac: Removed src/swamish/Makefile from AC_OUTPUT, thanks to
+        Pieter Penninckx for reporting this.
+
+2005-06-24  Josh Green  <jgreen@users.sourceforge.net>
+
+	src/libswami/SwamiControl.c: Controls now added to a global list for
+	periodic expired event cleanup, swami_control_do_event_expiration
+	added for this purpose.
+	src/libswami/SwamiControlProp.c: Fixes to finalization and referencing.
+	src/libswami/SwamiPropTree.c: Fixes to finalization and referencing.
+	src/libswami/SwamiRoot.c: Fixes to finalization.
+	src/libswami/libswami.c: Timeout added for expiring inactive control
+	events.
+	src/plugins/fluidsynth.c: Converted to IpatchSF2VoiceCache system.
+	src/swamigui/SwamiguiControl_widgets.c: Fixes to finalization and
+	referencing.
+	src/swamigui/SwamiguiLayout.c: Fixes to finalization and referencing.
+	src/swamigui/SwamiguiMenu.c: Now using gtk_ui_manager for menus.
+	src/swamigui/SwamiguiRoot.c: Fixes to finalization and referencing.
+	src/swamigui/SwamiguiSplits.c: "item-selection" property now readable.
+	src/swamigui/SwamiguiTree.c: Disabled new interactive search feature,
+	fixes to finalization.
+	src/swamigui/SwamiguiTreeStore.c: Fixes to finalization.
+	src/swamigui/main.c: Updated command line text output.
+	src/swamigui/ifaces/SwamiguiSplits_DLS2.c: Some bug fixes and added
+	custom tests for Gig files.
+	src/swamigui/ifaces/SwamiguiSplits_SF2.c: Some bug fixes.
+
+2005-05-06  Josh Green  <jgreen@users.sourceforge.net>
+
+	Removed dependency on popt.  Updated copyright year and license to
+	indicate only Version 2 of the GPL can be used (to avoid any 
+	possible future corruptions of the GPL).  Added an "object-add"
+	signal to SwamiRoot which is emitted when an object is added.
+	Splash is now conditionally built. Renamed swami_control_new_for_object
+	to swami_control_new_for_widget and swami_control_create_object to
+	swami_control_create_widget. Added
+	swamigui_control_object_create_widgets and
+	swamigui_control_object_connect_widgets for creating and connecting,
+	respectively, GUI controls to a GObject's properties. Improved
+	reference handling and item locking for SwamiguiControlAdj and
+	SwamiguiControl_widgets. SwamiguiMenu now has a "New .." menu item
+	which allows for selection of what type of object to create.
+	SwamiguiProp will now automatically create a property editor if no
+	SwamiguiItem prop method exists and now allows GObject items.  Added
+	a "default-patch-type" property for setting the default File->New
+	patch type. SwamiguiTree now responds to "selection" set property.
+	Sample importing now works and in a generic way. Started Copy/Paste
+	clipboard style item paste (not done yet). Continuing work on swamish
+	(not wroking yet). SwamiguiSplits syncing to tree item selection, but
+	not the other way yet. Added a center horizontal line to
+	SwamiguiSampleEditor. Probably other stuff too :)
+
+2004-12-14  Josh Green  <jgreen@users.sourceforge.net>
+
+	Some documentation updates, other stuffs..
+
+	* src/plugins/fftune.[ch]: Updated for fftw3 and new IpatchSample
+	interface.
+	* src/plugins/FFTuneGui.[ch]: Starting to implement the FFTune GUI
+	yeeeha!
+        * src/swamigui/SwamiguiSpectrumCanvas.[ch]: New fequency spectrum
+	canvas, completely untested :)
+	* src/swamigui/SwamiguiControl.[ch]: GUI object can now be configured
+	without creating the SwamiControl and GParamSpecs are used for
+	configuring GUI objects.
+	* src/swamigui/SwamiguiControl_widgets.c: Updated for changes in
+	SwamiControl.c.
+	* src/swamigui/SwamiguiSplits.c: Now sizes to an absolute minimum or
+	the width of the view whatever is largest.
+	
+2004-11-19  Josh Green  <jgreen@users.sourceforge.net>
+
+	* src/plugins/fluidsynth.c: Samples are now converted to 16 bit
+	mono and native host endian if necessary.
+
+2004-11-08  Josh Green  <jgreen@users.sourceforge.net>
+
+	* configure.ac: PyGtk codegen dir now fetched with pkg-config.
+	* src/python/Makefile.am: PyGtk codegen dir now fetched with pkg-config.
+
+2004-11-07  Josh Green  <jgreen@users.sourceforge.net>
+
+	* src/swamigui/Makefile.am: Added swami.glade to EXTRA_DIST.
+	* src/swamigui/SwamiguiSampleCanvas.c: Updated for new sample format
+	channel routing.
+	* src/swamigui/ifaces/SwamiguiSampleEditor_DLS2.c: Loop points are
+	now working for DLS and GigaSampler and stereo support added.
+	* src/swamigui/ifaces/SwamiguiSplits_DLS2.c: Key split controls added
+	for DLS2 regions.
+
+2004-11-03  Josh Green  <jgreen@users.sourceforge.net>
+
+	* configure.ac: Micro versions (*.*.M) removed from PKG_CONFIG tests,
+	thanks to Ebrahim Mayat for pointing out that this breaks the fftw
+	test on Mac OS X.
+	* src/swamigui/SwamiguiRoot.c: ALSA sequencer plugin is now tested for
+	before being created.
+	* src/swamigui/Makefile.am: Swamigui is now built as an installed 
+	shared library, swami.glade and header files are now installed.
+	* src/libswami/Makefile.am: Header files now get installed.
+	* ac_python_devel.m4: Uses -lSystem on Darwin instead of -lutil, thanks
+	to Ebrahim Mayat for reporting this.
+
+2004-10-28  Josh Green  <jgreen@users.sourceforge.net>
+
+	Massive rename of SwamiUi to swamigui to comply with mixed case naming
+	conventions used by PyGtk, etc.
+	
+	* src/libswami/SwamiControl.c: Added a new function
+	swami_control_get_connections(), added event debugging code, queue
+	test_func virtual functions are now called to determine if an event
+	should be queued or not.
+	* src/libswami/SwamiControlProp.c: Fixed a signal disconnect bug.
+	* src/libswami/SwamiControlQueue.c: Added
+	swami_control_queue_set_test_func() for setting a queue test function.
+	* src/libswami/SwamiWavetbl.c: Renamed swami_wavetbl_init_driver to
+	swami_wavetbl_open, renamed swami_wavetbl_close_driver to
+	swami_wavetbl_close including method names.
+	* src/swamigui/patch_funcs.c: Updated file open dialog to use new
+	GTK 2.4 file dialog.
+	* src/swamigui/SwamiguiSampleEditor.c: Many improvements including
+	loop viewer is now working, sample view markers functional, multiple
+	tracks can now be added, many bug fixes.
+	* src/swamigui/SwamiguiSplits.c: Re-wrote splits canvas widget to use
+	rectangles for the span areas and include vertical lines for the end
+	points.
+	* src/swamigui/SwamiguiSpan.[ch]: Removed, no longer needed.
+	* src/swamigui/ifaces/SwamiguiSampleEditor_SF2.c: Updated for latest
+	changes to sample editor.
+	* src/swamigui/ifaces/SwamiguiSplits_SF2.c: Updated for latest changes
+	to splits widget.
+	* src/plugins/alsaseq.c: New ALSA sequencer MIDI source/sink.
+
+2004-09-17  Josh Green  <jgreen@users.sourceforge.net>
+
+	Release: 1.0.0beta-20040917
+	Massive rename of SwamiUi -> Swamigui.
+	Cleaned up Python checks in configure.ac (hopefully).
+        API documentation updates.
+	Python binding now functional for libswami and swamigui!
+	Renaming of some widgets to fit case naming conventions.
+	* src/swamigui/SwamiguiSampleCanvas.c: CTRL-key zooming and SHIFT-key
+	scrolling in sample view.
+	* src/swamigui/SwamiguiPythonView.[ch]: New Python editor/shell widget,
+	in other words, yeeeeeeha!
+
+2004-09-04  Josh Green  <jgreen@users.sourceforge.net>
+
+	* src/libswami/SwamiRoot.c (swami_patch_save): Updated to use new
+	patch object conversion system, so any patch format that has an object
+	to file converter should save now.
+	* src/swamigui/SwamiUiSampleCanvas.c: Re-wrote draw routines to use
+	new IpatchSampleTransform object system and other improvements (code
+	not as ugly and perhaps faster and less buggy?).
+	* src/swamigui/SwamiUiSampleEditor.c: Sample zoom is now clamped to
+	sane values.
+
+2004-07-14  Josh Green  <jgreen@users.sourceforge.net>
+
+	Removed unused plugins and src/include files (each src directory
+	now has its own i18n.h). SwamiMidiEvent now structure boxed type
+	rather than an object. Updated patch object load routine to use
+	new converter system. Updated i18n support in all src/ directories
+	so each one now has its own gettext domain. More fixes to
+	SwamiUiSplits in regards to destroying and finalization.
+
+2004-07-06  Josh Green  <jgreen@users.sourceforge.net>
+
+	Fixes to po and intl gettext stuff and other build problems.
+	Some changes to python binding, although its probably not working yet.
+	gtk-doc documentation now pretty nice - doc updates throughout code.
+	* src/libswami/SwamiControl.c: Some changes to handling of GValue
+	GBoxed and GObject based GParamSpecs.
+	* src/libswami/SwamiControlProp.c: Changes to handling of GValue
+	GBoxed and GObject based GParamSpecs.
+	* src/libswami/SwamiObject.c: Moved some more functions from
+	SwamiRoot.c.
+	* src/libswami/SwamiParam.c (swami_param_type_from_value_type):
+	Now handles GBoxed and GValue derived value types.
+	* src/libswami/SwamiRoot.c: Moved some functions to SwamiObject.c.
+	* src/swamigui/SwamiUiControl.c: Renamed swamiui_control_create to
+	swamiui_control_new_for_type and added a swamiui_control_new
+	function for ultra convenience.
+	* src/swamigui/SwamiUiPiano.c: Moved code in "destroy" handler to
+	"finalize" handler, since it was causing a crash (destroy called
+	multiple times).
+	* src/swamigui/SwamiUiRoot.c: Added more items to the switcher
+	object including tree and splits editor. Also added some new icons
+	for these. A "store" value is now set at the root of the
+	property tree to assign itself to new tree objects (a HACK?)
+	* src/swamigui/SwamiUiSplits.c: SwamiControls are now being
+	created for splits and SF2 interface is now using them.
+	* src/swamigui/SwamiUiTree.c: Added a "store" property for tree
+	store which automatically gets set for new tree objects by
+	SwamiUiRoot property tree.
+	
+2004-07-02  Josh Green  <jgreen@users.sourceforge.net>
+
+	Release: 1.0.0beta-20040703
+	Lots of changes, I'll do my best to include them here. Lots of
+	changes to SwamiControl and friends; SwamiRoot split out into
+	SwamiRoot, SwamiObject and SwamiParam; new controls including PC
+	MIDI keyboard, event hub, and GTK control widgets; new undo/redo
+	state types based on control events; FluidSynth plugin is working
+	again; a vertical and horizontal pane splitting widget; properties
+	widget updates to patch interfaces. Lots of cool things are
+	starting to work and come together.
+
+2003-08-06  Josh Green  <jgreen@users.sourceforge.net>
+
+	GigaSampler loading and synthesis support. FluidSynth plugin now
+	working again. Modified IpatchSF2Voices interface to abstract samples
+	away from IpatchSF2Sample. Created SwamiControlMidi for MIDI controls
+	and added interfaces to FluidSynth plugin and SwamiUiPiano. Fixed some
+	bugs in IpatchRiffParser related to odd chunk sizes. SwamiRoot object
+	lookup functions now search recursively through tree.
+
+2003-07-28  Josh Green  <jgreen@users.sourceforge.net>
+
+	Removed old SoundFont loader and implemented new IpatchRiffParser
+	based one. Many updates to IpatchRiffParser. Added IpatchFileBuf
+	functionality for parsing data in an endian safe fashion. Added
+	SwamiEvent as a base object for events in the SwamiControl network.
+	SwamiEventValue for value update propagations. SwamiMidiEvent for
+	MIDI events. SwamiMidiDevice to take the place of removed SwamiMidi.
+	SwamiUiControlAdj to connect GtkAdjustment into the SwamiControl
+	network. SwamiUiSample is a new GnomeCanvas item sample display.
+	SwamiUiSampleEditor takes the place of the removed SwamiUiSampleViewer.
+	SwamiUiSpan is a GnomeCanvas item span widget which replaces
+	widgets/keyspan.[ch]. SwamiUiSplits replaces the SwamiUiSpanWin widget.
+	ifaces/SwamiUiDLS2Dummy.[ch] for DLS dummy tree items.
+	ifaces/SwamiUiSampleEditor* for interfaces to new sample editor.
+	ifaces/SwamiUiSplits* for interfaces for new splits widget.
+	Lots of other junk.
+
+2003-06-24  gettextize  <bug-gnu-gettext@gnu.org>
+
+	* Makefile.am (SUBDIRS): Add m4.
+	(ACLOCAL_AMFLAGS): New variable.
+	* configure.ac (AC_OUTPUT): Add m4/Makefile.
+
+2003-06-24  Josh Green  <jgreen@users.sourceforge.net>
+	Can't remember, its been way too long since last commit. Lots of
+	stuff though, re-writing GUI widgets and making them more pluggable,
+	etc. Whos checking the ChangeLog anyways :)
+
+2003-03-05  Josh Green  <jgreen@users.sourceforge.net>
+
+	*: DLS objects are now almost complete, DLS loader is compiling,
+	memchunks in libinstpatch now being properly locked, a GValue control
+	interface and a few objects were added to libswami as well as the
+	beginning of a property tree system and GValue stack based virtual
+	machine, "Preset number" changed to "program number" to coincide
+	with terminology with other patch formats.
+
+2003-02-24  Josh Green  <jgreen@users.sourceforge.net>
+
+	* : DLS loader is taking shape, changes and additions to RIFF parser,
+	IpatchDLS2 object in the works, SwamiXmlObject created to store raw
+	XML state data, GUI moved from src/gui/ to src/swamigui/ to help
+	global GUI header install, now using libglade although not fully
+	migrated yet, ipatch_sf2_find_free_preset annexed in favor of a
+	ipatch_base_find_unused_midi_locale method, SoundFont item make unique
+	and add unique functionality moved to IpatchContainer, added a
+	remove method to IpatchItem to handle removes of item and all
+	dependencies (IpatchSF2Sample and IpatchSF2Inst methods implemented),
+	fixed some bugs in IpatchSF2 duplicate method, added "rate" property
+	to IpatchSampleData, removed SwamiConfig system entirely (config vars
+	are now handled by object properties), added type and instance ranking
+	to SwamiRoot, added a "create_midi" method to SwamiWavetbl to allow
+	a wavetable object to create MIDI objects to control itself, many
+	additions and changes to XML state system, GUI layout is now attempting
+	to save/restore itself (not working yet), probably many other things.
+
+2003-01-24  Josh Green  <jgreen@users.sourceforge.net>
+
+	* : Extreme rapeage! New RIFF parser object in libInstPatch,
+	started DLS2 objects and loader, a SwamiUiItem interface created
+	to ease adaption of new patch formats (handles labels and pixmaps,
+	adding, removing and updating GUI tree store, action menus,
+	paste routines, property create, verify and commit), all SoundFont
+	SwamiUiItem interface methods put in SwamiUiItem_SF2.c with paste
+	routines in SwamiUiPaste_SF2.c, tree store abstracted from GUI tree,
+	SwamiItem renamed to SwamiLock to reflect its real purpose,
+	FluidSynth plugin updated for recent CVS changes, a new paste object
+	created to handle paste operations, many things still broken :)
+
+2002-12-18  Josh Green  <jgreen@users.sourceforge.net>
+
+	* : libInstPatch API doc updates, split IpatchSampleStore types out
+	to individual files, split IpatchSF2File to its own file, all for
+	documentation purposes. Changed many functions related to modulator
+	lists. Added a SF2 voices interface to convert patch items to
+	SF2 voices for synthesis (and created these interfaces for standard
+	SF2 items). FluidSynth plugin is now working again and making noises
+	:) Moved IpatchSampleStore flags into IpatchItem flags field.
+
+2002-12-12  Josh Green  <jgreen@users.sourceforge.net>
+
+	* : Lots of API renaming including changing SoundFont based objects
+	with SF in the name to SF2 (to be able to distinguish from other
+	versions of SoundFont should they be added), IPatch->Ipatch,
+	and SwamiUI->SwamiUi. Also SwamiObject was renamed to SwamiRoot and
+	SwamiUIObject to SwamiUiRoot. Python support being worked on
+	(its now functioning but not complete). SwamiUiGenView
+	and SwamiUiGenCtrl are now smarter in how they update themselves
+	to improve performance. Also these objects now listen to generator
+	change events. Piano to keyboard key mapping preferences converted to
+	GtkTreeView. Fixed SwamiUiGenGraph object. SwamiXml.[ch] interface
+	added for new XML based state save/restore system. Ported some changes
+	from GTK1.2 branch including changes to Piano and Keyspan widget.
+	Removed improper use of depricated gtk_widget_set_usize (now using
+	gtk_entry_set_width_chars where appropriate).
+
+2002-12-03  Josh Green  <jgreen@users.sourceforge.net>
+
+	* : Devel branch checked in. TONS of changes including GUI is now
+	GTK2 based, libInstPatch has been completely re-written using GObject,
+	Swami undo/redo state history and queues, gtk-docs being built and
+	many other things. Lots of bugs, so lets get this show on the road!
+
+2002-07-17  Josh Green  <jgreen@users.sourceforge.net>
+
+	* : FLAC plugin compressor is working (not enabled or tested yet) and
+	configure option added, separated iiwusynth GUI stuff to
+	wavetbl_iiwusynth_gui.c, GenGraph object is now functioning and usable,
+	added 'patch-load' signal to SwamiUIObject so loading of files can
+	be hooked, added a macro and routine to run a separate GUI init
+	function in plugins and fixed some stuff with libinstpatch lowlevel
+	chunk routines and reporting of file position.
+
+2002-07-08  Josh Green  <jgreen@users.sourceforge.net>
+
+	* : Gettext support re-enabled, converting to gtk-doc for API docs,
+	plugin system is now working, a new gtk-canvas based SwamiUIGenGraph
+	object for graphing generator controls, libInstPatch now using
+	glib, new functionality for SoundFont lowlevel chunk routines, a FLAC
+	based plugin is in the works, some fixes to passing of modulators to
+	iiwusynth, blah blah blah blah.. Too long since last update.
+
+2002-06-08  Josh Green  <jgreen@users.sourceforge.net>
+
+	* : Many new routines dealing with modulator lists in libInstPatch and
+	also added modulator layering to sfont_item_foreach_voice. Modulator
+	editor now works and modulators are loaded into iiwusynth (not tested).
+	Chorus parameter controls added to iiwusynth control dialog and
+	enabling/disabling chorus/reverb doesn't require restart of drivers
+	any more. Fixed keyspan widget grabbing for SwamiUISpanWin.
+
+2002-06-06  Josh Green  <jgreen@users.sourceforge.net>
+
+	* : Updated documentation and added 2002 to copyright string.
+	Moved libsoundfont into src/libinstpatch and renamed soundfont.h
+	header to instpatch.h. Also split view menu radio buttons out into
+	individual callbacks again due to a problem with Glade.
+
+2002-06-04  Josh Green  <jgreen@users.sourceforge.net>
+
+	* Makefile.am: Disabled gettext support (temporary)
+	* README: Updated for Swami (was the Smurf README).
+	* configure.in: Removed gettext support (temporary)
+	* src/gui/Makefile.am: Removed gettext support (temporary)
+	* src/gui/SwamiUIModEdit.c: Its actually somewhat working now. Will
+	display available modulators and load controls. Doesn't edit anything
+	yet though. A pixmap combo box was added for selecting source control
+	transform functions. Two option menus are used for selecting
+	destination generator, one being the group the generator is part of
+	and the other is filled with the generators for the selected group,
+	which can then be selected.
+	* src/gui/SwamiUIObject.c: Moved lack of plugin support hackery to
+	SwamiUIObject instead of SwamiObject. "Plugins" are now being
+	statically linked into swami binary.
+	* src/gui/pixmap.c: Pixmaps added for modulator transform functions.
+	* src/gui/pixmap.h: Pixmaps added for modulator transform functions.
+	* src/gui/pixmaps/Makefile.am: More pixmaps.
+	* src/gui/widgets/Makefile.am: combo-box.[ch] and pixmap-combo.[ch]
+	widgets added and modified from libgal.
+	* src/gui/widgets/combo-box.c: New widget taken and modified from
+	libgal. A popup combo box widget.
+	* src/gui/widgets/pixmap-combo.c: A widget that uses combo-box to
+	display a table of pixmaps for selection. Currently used in modulator
+	editor.
+	* src/include/Makefile.am: Added missing entries for some header files.
+	* src/libswami/Makefile.am: Removed linking of "plugins" into libswami
+	which was causing some breakage for some users. Now being linked into
+	swami binary.
+	* src/libswami/SwamiObject.c: Removed "plugin" loading hackery.
+	* src/libswami/SwamiPlugin.c: Plugin code ripped and modified from
+	gstreamer, not yet being used.
+	* src/libswami/SwamiPlugin.h: Plugin code ripped and modified from
+	gstreamer, not yet being used.
+
+2002-05-31  Josh Green  <jgreen@users.sourceforge.net>
+
+	* acinclude.m4: Removed comments that contained "AM_PATH_ALSA" as
+	aclocal assumed that we were using it (how appalling!)
+	* src/gui/SwamiUIGenCtrl.c: (cb_ctrl_value_change): Updated for changed
+	function prototype for real time generator control.
+	* src/gui/menutbar.c: (swamiui_menu_cb_lowpane_select),
+	(swamiui_tbar_new), (tbar_cb_lower_view_button_toggled),
+	(tbar_cb_piano_mode_button_toggled),
+	(swamiui_tbar_set_lowpane_togbtn),
+	(swamiui_tbar_set_piano_mode_togbtn): Fixed menu view radio buttons and
+	now have an icon for the not as yet working modulator editor.
+	* src/gui/pixmap.c: Added a new pixmap.
+	* src/libswami/SwamiWavetbl.c: (swami_wavetbl_set_gen_realtime):
+	Changed realtime generator control function prototype to use an SFItem
+	as the layer rather than an index.
+	* src/libswami/SwamiWavetbl.h: Changed prototype for
+	swami_wavetbl_set_gen_realtime.
+	* src/plugins/wavetbl_iiwusynth.c: (wavetbl_iiwusynth_register),
+	(wavetbl_iiwusynth_init), (sfloader_preset_noteon),
+	(sfloader_temp_preset_noteon), (sfloader_preset_foreach_voice),
+	(wavetbl_iiwusynth_set_gen_realtime),
+	(swamiui_wavetbl_iiwusynth_create_controls): Removed old inadequate
+	real time generator control and implemented a routine to re-layer an
+	audible and update changed voices. Only works for most recent note in
+	temporary audible.
+
+2002-05-28  Josh Green  <jgreen@users.sourceforge.net>
+
+	* src/gui/SwamiUIObject.c: Quit confirmation works now. Add selected
+	files in multi file selection dialog works for patch file loading.
+	Selecting zones in tree selects them in spanwin as well (not the other
+	way around yet though).
+	* src/gui/SwamiUISpanWin.c: Virtual piano key table is now loaded
+	and saved from preferences. Fixed stuck notes problem.
+	* src/gui/menutbar.c: (swamiui_menu_cb_save): Enabled Save and Save As
+	options on main menu.
+	* src/gui/pref.c: Re-enabled virtual piano key table configuration.
+	* src/gui/widgets/piano.c: Fixed piano widget so it won't emit
+	note on/off events for keys that are already in that state.
+	* src/gui/SwamiUIProp.c: Added instrument zone properties for setting
+	Root key override, exclusive class, fixed note, and fixed velocity
+	generators.
+
+2002-05-27  Josh Green  <jgreen@users.sourceforge.net>
+
+	* autogen.sh: Added '--add-missing --copy' switches to automake to
+	fix problems with missing files and automake 1.5.
+	* configure.in: Changed version to "0.9pre1".
+	* src/gui/Makefile.am: Removed SwamiUISelector.[ch], added pref.[ch],
+	SwamiUIModEdit.[ch] and item_paste.[ch].
+	* src/gui/SwamiUIGenCtrl.c: Patch item is now set explicitly with
+	swamiui_genctrl_set_item and removed use of SwamiUISelector. Added
+	generator default toggle buttons to unset generators and re-structured
+	code a bit.
+	* src/gui/SwamiUIGenView.c: Patch item is now set explicitly with
+	swamiui_genview_set_item and removed use of SwamiUISelector.
+	* src/gui/SwamiUIMidiCtrl.c: New routine
+	swamiui_midictrl_midi_update_all which sends values of all controls to
+	MIDI driver. Now using 0-15 for channel value sent to MIDI driver.
+	* src/gui/SwamiUIObject.c: Changed many SwamiConfig variable key names
+	and removed a few. Using a new object registration system to associate
+	child objects to main SwamiUIObject. Added new modulator editor to
+	GUI, not operation yet though. Open files routine now uses multi
+	file selection widget to open multiple files. Multi file close dialog
+	now functions properly. Sample load dialog now uses multi file
+	selection widget and samples are named properly.
+	* src/gui/SwamiUIObject.h: Removed child widget pointers from
+	SwamiUIObject, use child registration system instead.
+	* src/gui/SwamiUIProp.c: (sync_widget_to_property): Fixed some problems
+	with handling of NULL strings for some property values. Fixed some
+	bugs relating to setting properties on items not in Swami tree.
+	Comment field of SFData items now converts newlines.
+	* src/gui/SwamiUISampleView.c: Renamed swamiui_sampleview_set_sfitem
+	to swamiui_sampleview_set_item as well as the sfitem field of the
+	SwamiUISampleView object to item.
+	* src/gui/SwamiUISelector.c: Removed from CVS, bad idea.
+	* src/gui/SwamiUISelector.h: Removed from CVS, bad idea.
+	* src/gui/SwamiUISpanWin.c: More renaming of 'sfitem' to 'item' and
+	setting item to an invalid type now the same as setting to NULL. Added
+	'select-zone' and 'unselect-zone' signals for keyspan list selection.
+	Rootkey ptrstrip now works (have to select keyspan though).
+	* src/gui/SwamiUITree.c: Fixed a bug in preset add routine related to
+	faulty iteration over GtkCTree nodes causing failure. Renamed
+	swamiui_tree_get_selection_complete to
+	swamiui_tree_get_selection_rclick. Now using a hash table for
+	item->ctree_node lookups in preparation for multiple trees and to
+	free up the user_data field of items. Added test for single selected
+	item on 'tree-row-unselect' signal, might remove though as it causes
+	unselect/select widget weirdness.
+	* src/gui/SwamiUITreeMenu.c: Right click 'R' and Multi item 'M' menu
+	items now use different, and proper, tree selection fetch routines.
+	Added paste routines and removed un-implemented right click menu items.
+	* src/gui/main.c: Swami will now accept sound font file names on the
+	command line, which it will load.
+	* src/gui/menutbar.c: Menu radio button under 'View' now work and
+	are synchronized with the toolbar buttons. Green light toggle button
+	now being used again, it stops and starts iiwusynth.
+	* src/gui/pref.c: Added to CVS. Most preferences work now.
+	* src/gui/pref.h: Added to CVS.
+	* src/gui/util.c: New routine swamiui_util_option_menu_index.
+	Modified swamiui_util_lookup_widget to work with regular glade widgets.
+	Renamed some of the unused string utility functions.
+	* src/include/gobject2gtk.h: Fixed G_OBJECT to work correctly. Added
+	GTK based g_object_get and g_object_get_valist handlers.
+	* src/libswami/SwamiAudiofile.c: Fixed a bug with initial parameter
+	settings and changed a config variable.
+	* src/libswami/SwamiConfig.c: Fixed a file handle leak.
+	* src/libswami/SwamiMidi.c: Fixed bug where class was accessed before
+	it was created.
+	* src/libswami/SwamiObject.c: Added a flag to SFItem for toplevel
+	patch objects which indicates whether they are active and part of the
+	Swami tree and should emit signals. This allows property set routines
+	to be used for items which aren't in Swami's tree without causing
+	problems. Some SwamiConfig variables added. Child registration
+	functions renamed. The swami_item_new routine now accepts a variable
+	argument list of properties to set on the new item. "software"
+	property of SoundFonts is now intialized for new items and set for
+	saved ones.
+	* src/libswami/SwamiWavetbl.c: An 'active' property added which allows
+	the querying of the active state of a wavetable driver. Fixed bug where
+	class was accessed before it was created. Added 'set_gen_realtime'
+	function type for wavetable drivers.
+	* src/libswami/gobject2gtk.c: Many changes to fix G_OBJECT macro.
+	Added g2g_object_get_valist and g2g_object_get handlers.
+	* src/plugins/wavetbl_iiwusynth.c: SwamiConfig variables added.
+	Driver preferences now working. MIDI driver now closes when
+	Wavetable driver does. SWAMI_MIDI_BEND_RANGE now handled.
+	Update for change in iiwusynth.h, rename of iiwu_voice_start to
+	iiwu_synth_start_voice. iiwusynth control dialog hacked and works
+	for setting reverb, chorus and master gain settings. Some trace code
+	for real time generators which is currently non-operative.
+	* src/gui/SwamiUIModEdit.c: Added to build, modulator edit widget.
+	* src/gui/SwamiUIModEdit.h: Added to build.
+	* src/gui/item_paste.c: Added to build, item paste routines.
+	* src/gui/item_paste.h: Added to build.
+	* src/gui/widgets/multi_filesel.c: Added to build, multi file selection
+	widget.
+	* src/gui/widgets/multi_filesel.h: Added to build.
+
+2002-04-30  Josh Green  <jgreen@users.sourceforge.net>
+
+	* src/gui/Makefile.am: Build flags for audiofile
+	* src/gui/SwamiUIMidiCtrl.c: (swamiui_midictrl_init),
+	(send_midi_event), (set_piano_octave):
+	Fixed initial MIDI spin button control bug and piano octave setting
+	now works.
+	* src/gui/SwamiUIMultiList.c: (swamiui_multilist_init),
+	(swamiui_multilist_new), (swamiui_multilist_set_selection),
+	(destroynotify_unref_items), (swamiui_multilist_new_listbtn),
+	(cb_listbtn_clicked):
+	Adding more helpful stuff to the multi item list object, including
+	routines to help with referencing a list of items and a routine to
+	create list buttons.
+	* src/gui/SwamiUIObject.c: (swamiui_object_init),
+	(swamiui_open_files), (swamiui_cb_open_files_okay),
+	(swamiui_close_files), (swamiui_save_files), (cb_save_files_ok),
+	(cb_save_files_browse), (cb_save_files_browse_ok),
+	(swamiui_delete_items), (swamiui_wtbl_load_patch),
+	(swamiui_item_properties), (swamiui_new_item),
+	(swamiui_goto_zone_refitem), (swamiui_load_sample),
+	(swamiui_cb_load_sample_okay), (swamiui_cb_paste_items):
+	Some routine renaming away from sound font centric to more generic
+	"patch" names. Changes to SwamiUITreeMenuCallback routines so that
+	they are no longer callback specific. Save file multi item dialog
+	implemented. Sample loading dialog implemented.
+	* src/gui/SwamiUISpanWin.c: (swamiui_spanwin_set_mode),
+	(swamiui_spanwin_set_sfitem), (swamiui_spanwin_update),
+	(swamiui_spanwin_piano_set_octave):
+	Added a routine to set the piano octave. Spans now update correctly
+	on mode SpanWin mode change.
+	* src/gui/SwamiUITreeMenu.c: (swamiui_treemenu_class_init),
+	(swamiui_treemenu_activate), (treemenu_cb_selection_done),
+	(swamiui_cb_wtbl_load_patch), (swamiui_cb_new_item),
+	(swamiui_cb_goto_zone_refitem), (swamiui_cb_load_sample):
+	Created a SwamiUITreeMenuCallback type to handle all menu callbacks.
+	Updated callback handlers to use the new more specific non-callback
+	functions and wrote wrappers where necessary.
+	* src/libswami/Makefile.am: Added SwamiAudiofile.[ch] to the build.
+	* src/libswami/SwamiAudiofile.c: (swami_audiofile_class_init),
+	(swami_audiofile_driver_register_info),
+	(swami_audiofile_select_driver), (find_driver_id_GCompareFunc),
+	(swami_audiofile_get_driver_info), (swami_audiofile_init_driver),
+	(swami_audiofile_load_sampledata), (swami_audiofile_init_sample),
+	(swami_audiofile_open), (audiofile_okay), (swami_audiofile_close),
+	(swami_audiofile_read):
+	Audiofile loading is now working, a lot done (tired, must go to sleep).
+	* src/libswami/SwamiObject.c: (swami_object_init),
+	(swami_patch_load), (swami_patch_save), (swami_get_patch_list),
+	(swami_item_insert), (swami_item_insert_before), (swami_item_new),
+	(item_get_property):
+	More renaming away from sound font centric routines to generic "patch"
+	names. New routine `swami_patch_save' to save patch files.
+
+2002-04-12  Josh Green  <jgreen@users.sourceforge.net>
+
+	* Makefile.am: Removed libltdl from automake SUBDIRS.
+	* acinclude.m4: Removed unused macros left over from Smurf and added
+	two new ones `AM_PATH_LIBSOUNDFONT' and `AM_PATH_IIWUSYNTH'.
+	* autogen.sh: Removed build generation stuff for libswami as it is now
+	one unified autoconf/automake build.
+	* configure.in: Massive build changes, now a unified build system
+	for libswami and gui. Should be cleaner with more checks for required
+	libraries.
+	* libltdl/*: Removed libltdl library, decided to use GModule.
+	* src/gui/Makefile.am: Build changes, fixed splash_png.c generation,
+	hopefully.
+	* src/gui/SwamiUIObject.c: SwamiUITreeMenu activate callbacks now
+	pass SwamiUITree object as the first parameter, so updated callbacks.
+	(swamiui_cb_new_item): New SwamiUITreeMenu callback function to create
+	a new item.
+	(swamiui_cb_goto_zone_refitem): New SwamiUITreeMenu callback function
+	to goto a zone's referenced item.
+	* src/gui/SwamiUITree.c (swamiui_tree_init, tree_cb_item_prop_change):
+	SFItem property change updates now update SwamiUITree.
+	(swamiui_tree_freeze): Bug (bad cut and paste) that thawed instead of
+	froze.
+	(swamiui_tree_add_sfont, swamiui_tree_add_preset)
+	(swamiui_tree_add_inst, swamiui_tree_add_sample): Now using
+	`swami_item_get_formatted_name' to generate node labels for items.
+	(swamiui_tree_item_set_pixmap): New function to set a pixmap in the
+	first column of a SwamiUITree by sound font item. Was previously
+	private and called `set_node_label'.
+	* src/gui/SwamiUITreeMenu.c: Added an entry for SFITEM_SAMPLE_DATA
+	to rmu_menus which caused the wrong menu options to be displayed for
+	certain item types. Added callbacks for `New <item>' and `Goto <item>'
+	menu entries.
+	(swamiui_treemenu_activate): Now passing SwamiUITree object as the
+	first parameter to menu item callbacks.
+	* src/gui/help.c (swamiui_help_about): Commented out unused
+	COMPILE_OPTIONS variable which will most likely be handled differently
+	when the plugin system works.
+	* src/gui/swami.glade: Added a couple of buttons to the Sample
+	properties widget to allow selection of SampleData from a file or
+	another sample, although neither is working yet.
+	* src/gui/widgets/Makefile.am: Added GTK_CFLAGS to INCLUDES.
+	* src/libswami/Makefile.am: Updated to be a part of the unified build
+	system, as libswami is no longer built with a separate autoconf.
+	* src/libswami/SwamiAudiofile.c: Minor changes, still not working yet.
+	(swami_audiofile_load_into_sampledata): New function to create an
+	SFSampleData object and load a sample into it.
+	* src/libswami/SwamiObject.c:
+	(swami_object_class_init): Added ITEM_PROP_CHANGE signal which is
+	emitted when an SFItem's property is changed.
+	(swami_item_new, new_item_unique_name): New function to create a
+	unique SFItem and add it to the SwamiObject sound font tree.
+	(swami_item_get_formatted_name): Updated to return formatted names
+	suitable for SwamiUITree nodes.
+	(swami_item_set_valist, swami_item_set_property, item_set_property):
+	Updated to emit ITEM_PROP_CHANGE signal.
+	* src/libswami/acinclude.m4: Removed, libswami now built from top.
+	* src/libswami/configure.in: Removed, libswami now built from top.
+	* src/libswami/marshals.c: Added to build. For custom signal
+	marshallers.
+	* src/libswami/marshals.h: Added to build.
+	* src/plugins/Makefile.am: Statically compiling plugins for now until
+	the plugin system works.
+
+2002-04-07  Josh Green  <jgreen@users.sourceforge.net>
+
+	* src/gui/Makefile.am: Added SwamiUIProp.[ch] to the build.
+	* src/gui/SwamiUIObject.c: Added multi sound font item properties
+	dialog.
+	* src/gui/SwamiUIProp.c: Properties object now working.
+	* src/gui/SwamiUISampleView.c: Update for swami_item_get/set
+	function renames.
+	* src/gui/SwamiUISpanWin.c: Update for swami_item_get/set function
+	renames.
+	* src/gui/SwamiUITreeMenu.c: Enabled menu item for item `Properties'.
+	* src/include/gobject2gtk.h: GValue strings are now dynamically
+	allocated and freed on g_value_unset.
+	* src/libswami/SwamiConfig.c:
+	Fixed a bug where string config variables were set to static string
+	values as defaults. Only occured when no config files
+	present (caused segfault when opening a sound font file).
+	* src/libswami/SwamiObject.c:
+	Shortened swami_item_get/set_property functions to
+	swami_item_get/set, i.e. removed "property".
+	* src/libswami/SwamiObject.h: Rename of swami item get/set
+	property functions.
+	* src/libswami/gobject2gtk.c: Added g2g_value_unset to handle free
+	of string values.
+	* src/plugins/wavetbl_iiwusynth.c: Synchronized with iiwusynth header
+	file which renamed all sfloader "delete" functions to "free".
+
+2002-04-01  Josh Green  <jgreen@users.sourceforge.net>
+
+	* src/gui/Makefile.am: Added SwamiUISampleView.[ch] to the build.
+	* src/gui/SwamiUISampleView.c: Added to CVS.
+	* src/gui/SwamiUISampleView.h: Added to CVS.
+	* src/gui/SwamiUIObject.c:
+	Added sample view to interface. Created a swami_object variable to
+	simplify things, don't need to cast swamiui_object anymore.
+	* src/gui/SwamiUIProp.c: Messing with properties object,
+	not functional yet.
+	* src/gui/SwamiUISpanWin.c:
+	Spans window implimented as a GtkList with a hack to allow KeySpan
+	widget to grab mouse, still has some problems.
+	* src/gui/SwamiUITree.h: Changed *_LAST enums to *_COUNT.
+	* src/gui/util.h: Added RGB2GDK macro.
+	* src/gui/widgets/keyspan.c:
+	Synchronized with changes from Smurf, which adds some friendliness
+	to the span widget.
+	* src/gui/widgets/ptrstrip.c: Changed GtkPSPtr to PtrStripPointer.
+	* src/gui/widgets/samview.c: Changed GtkSVMark to SamViewMark.
+	* src/libswami/SwamiObject.c: Added more properties to SFSample items.
+	* src/plugins/wavetbl_iiwusynth.c:
+	Updated to use new libsoundfont sample storage management.

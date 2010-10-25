@@ -1,0 +1,25 @@
+SWAMI-2.0 Installation on Mac OS X.5.5 (Leopard)
+
+Requirements:
+
+- fluidsynth
+
+- fink package distribution <http://www.finkproject.org/download/index.php?phpLang=en>
+
+- X11.app, X11SDK.pkg, OpenGLSDK.pkg and QuickTimeSDK.pkg (Leopard Install DVD)
+
+- fink packages: cairo, gtk+2, gtk+2-dev, audiofile, flac, gettext, intltool, libtool14, 
+libgnomecanvas2-dev, libxml2, pygtk2-py24-dev, pkgconfig, libart2, libglade2, 
+pango1-xft2-ft219-dev, fftw3 and gtksourceview 
+for example: "$ fink install gtk+2-dev"
+
+libinstpatch: configure && make && sudo make install:
+
+$ PKG_CONFIG_PATH=/usr/local/lib/pkgconfig ./configure "LDFLAGS=-L/usr/local/lib -L/sw/lib" "CFLAGS=-I/usr/local/include -I/sw/include"
+
+SWAMI: configure && make && sudo make install
+
+Ebrahim Mayat <emayat at users dot sourceforge dot net>
+Josh Green <jgreen at users dot sourceforge dot net>
+
+Last updated: 9th October, 2008

@@ -1,0 +1,35 @@
+# List of source files containing translatable strings.
+# Each source file that has gettext translatable strings should be listed here
+libinstpatch/IpatchCram.c
+libinstpatch/IpatchCramDecoder.c
+libinstpatch/IpatchCram_DLS.c
+libinstpatch/IpatchCramEncoder.c
+libinstpatch/IpatchCramFile.c
+libinstpatch/IpatchCram_SF2.c
+libinstpatch/IpatchBase.c
+libinstpatch/IpatchConverter.c
+libinstpatch/IpatchConvert_SF2.c
+libinstpatch/IpatchDLS2.c
+libinstpatch/IpatchDLS2Info.c
+libinstpatch/IpatchDLS2Inst.c
+libinstpatch/IpatchDLS2Region.c
+libinstpatch/IpatchDLS2Sample.c
+libinstpatch/IpatchDLSFile.c
+libinstpatch/IpatchDLSReader.c
+libinstpatch/IpatchFile.c
+libinstpatch/IpatchGigFile.c
+libinstpatch/IpatchRiffParser.c
+libinstpatch/IpatchSampleFile.c
+libinstpatch/IpatchSampleStore.c
+libinstpatch/IpatchSampleStoreRAM.c
+libinstpatch/IpatchSampleStoreSwap.c
+libinstpatch/IpatchSF2.c
+libinstpatch/IpatchSF2File.c
+libinstpatch/IpatchSF2Gen.c
+libinstpatch/IpatchSF2Gen_tables.c
+libinstpatch/IpatchSF2Reader.c
+libinstpatch/IpatchSF2Preset.c
+libinstpatch/IpatchSF2Writer.c
+libinstpatch/IpatchSF2Zone.c
+libinstpatch/IpatchUnit.c
+libinstpatch/misc.c

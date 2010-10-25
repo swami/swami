@@ -1,0 +1,8118 @@
+;; -*- scheme -*-
+
+(include "ipatch-types.defs")
+
+; object definitions ...
+(define-object Converter
+  (in-module "Ipatch")
+  (parent "GObject")
+  (c-name "IpatchConverter")
+  (gtype-id "IPATCH_TYPE_CONVERTER")
+)
+
+(define-object Item
+  (in-module "Ipatch")
+  (parent "GObject")
+  (c-name "IpatchItem")
+  (gtype-id "IPATCH_TYPE_ITEM")
+)
+
+(define-object GigSubRegion
+  (in-module "Ipatch")
+  (parent "IpatchItem")
+  (c-name "IpatchGigSubRegion")
+  (gtype-id "IPATCH_TYPE_GIG_SUB_REGION")
+)
+
+(define-object GigDimension
+  (in-module "Ipatch")
+  (parent "IpatchItem")
+  (c-name "IpatchGigDimension")
+  (gtype-id "IPATCH_TYPE_GIG_DIMENSION")
+)
+
+(define-object File
+  (in-module "Ipatch")
+  (parent "IpatchItem")
+  (c-name "IpatchFile")
+  (gtype-id "IPATCH_TYPE_FILE")
+)
+
+(define-object DLSFile
+  (in-module "Ipatch")
+  (parent "IpatchFile")
+  (c-name "IpatchDLSFile")
+  (gtype-id "IPATCH_TYPE_DLS_FILE")
+)
+
+(define-object GigFile
+  (in-module "Ipatch")
+  (parent "IpatchDLSFile")
+  (c-name "IpatchGigFile")
+  (gtype-id "IPATCH_TYPE_GIG_FILE")
+)
+
+(define-object DLS2Sample
+  (in-module "Ipatch")
+  (parent "IpatchItem")
+  (c-name "IpatchDLS2Sample")
+  (gtype-id "IPATCH_TYPE_DLS2_SAMPLE")
+)
+
+(define-object GigSample
+  (in-module "Ipatch")
+  (parent "IpatchDLS2Sample")
+  (c-name "IpatchGigSample")
+  (gtype-id "IPATCH_TYPE_GIG_SAMPLE")
+)
+
+(define-object DLS2Region
+  (in-module "Ipatch")
+  (parent "IpatchItem")
+  (c-name "IpatchDLS2Region")
+  (gtype-id "IPATCH_TYPE_DLS2_REGION")
+)
+
+(define-object Container
+  (in-module "Ipatch")
+  (parent "IpatchItem")
+  (c-name "IpatchContainer")
+  (gtype-id "IPATCH_TYPE_CONTAINER")
+)
+
+(define-object GigRegion
+  (in-module "Ipatch")
+  (parent "IpatchContainer")
+  (c-name "IpatchGigRegion")
+  (gtype-id "IPATCH_TYPE_GIG_REGION")
+)
+
+(define-object DLS2Inst
+  (in-module "Ipatch")
+  (parent "IpatchContainer")
+  (c-name "IpatchDLS2Inst")
+  (gtype-id "IPATCH_TYPE_DLS2_INST")
+)
+
+(define-object GigInst
+  (in-module "Ipatch")
+  (parent "IpatchDLS2Inst")
+  (c-name "IpatchGigInst")
+  (gtype-id "IPATCH_TYPE_GIG_INST")
+)
+
+(define-object Base
+  (in-module "Ipatch")
+  (parent "IpatchContainer")
+  (c-name "IpatchBase")
+  (gtype-id "IPATCH_TYPE_BASE")
+)
+
+(define-object DLS2
+  (in-module "Ipatch")
+  (parent "IpatchBase")
+  (c-name "IpatchDLS2")
+  (gtype-id "IPATCH_TYPE_DLS2")
+)
+
+(define-object Gig
+  (in-module "Ipatch")
+  (parent "IpatchDLS2")
+  (c-name "IpatchGig")
+  (gtype-id "IPATCH_TYPE_GIG")
+)
+
+(define-object List
+  (in-module "Ipatch")
+  (parent "GObject")
+  (c-name "IpatchList")
+  (gtype-id "IPATCH_TYPE_LIST")
+)
+
+(define-object Paste
+  (in-module "Ipatch")
+  (parent "GObject")
+  (c-name "IpatchPaste")
+  (gtype-id "IPATCH_TYPE_PASTE")
+)
+
+(define-object Riff
+  (in-module "Ipatch")
+  (parent "GObject")
+  (c-name "IpatchRiff")
+  (gtype-id "IPATCH_TYPE_RIFF")
+)
+
+(define-object DLSWriter
+  (in-module "Ipatch")
+  (parent "IpatchRiff")
+  (c-name "IpatchDLSWriter")
+  (gtype-id "IPATCH_TYPE_DLS_WRITER")
+)
+
+(define-object DLSReader
+  (in-module "Ipatch")
+  (parent "IpatchRiff")
+  (c-name "IpatchDLSReader")
+  (gtype-id "IPATCH_TYPE_DLS_READER")
+)
+
+(define-object SF2
+  (in-module "Ipatch")
+  (parent "IpatchBase")
+  (c-name "IpatchSF2")
+  (gtype-id "IPATCH_TYPE_SF2")
+)
+
+(define-object SF2File
+  (in-module "Ipatch")
+  (parent "IpatchFile")
+  (c-name "IpatchSF2File")
+  (gtype-id "IPATCH_TYPE_SF2_FILE")
+)
+
+(define-interface SF2GenItem
+  (in-module "Ipatch")
+  (c-name "IpatchSF2GenItem")
+  (gtype-id "IPATCH_TYPE_SF2_GEN_ITEM")
+)
+
+(define-object SF2Inst
+  (in-module "Ipatch")
+  (parent "IpatchContainer")
+  (c-name "IpatchSF2Inst")
+  (gtype-id "IPATCH_TYPE_SF2_INST")
+)
+
+(define-interface SF2ModItem
+  (in-module "Ipatch")
+  (c-name "IpatchSF2ModItem")
+  (gtype-id "IPATCH_TYPE_SF2_MOD_ITEM")
+)
+
+(define-object SF2Preset
+  (in-module "Ipatch")
+  (parent "IpatchContainer")
+  (c-name "IpatchSF2Preset")
+  (gtype-id "IPATCH_TYPE_SF2_PRESET")
+)
+
+(define-object SF2Reader
+  (in-module "Ipatch")
+  (parent "IpatchRiff")
+  (c-name "IpatchSF2Reader")
+  (gtype-id "IPATCH_TYPE_SF2_READER")
+)
+
+(define-object SF2Sample
+  (in-module "Ipatch")
+  (parent "IpatchItem")
+  (c-name "IpatchSF2Sample")
+  (gtype-id "IPATCH_TYPE_SF2_SAMPLE")
+)
+
+(define-object SF2VoiceCache
+  (in-module "Ipatch")
+  (parent "GObject")
+  (c-name "IpatchSF2VoiceCache")
+  (gtype-id "IPATCH_TYPE_SF2_VOICE_CACHE")
+)
+
+(define-object SF2Writer
+  (in-module "Ipatch")
+  (parent "IpatchRiff")
+  (c-name "IpatchSF2Writer")
+  (gtype-id "IPATCH_TYPE_SF2_WRITER")
+)
+
+(define-object SF2Zone
+  (in-module "Ipatch")
+  (parent "IpatchItem")
+  (c-name "IpatchSF2Zone")
+  (gtype-id "IPATCH_TYPE_SF2_ZONE")
+)
+
+(define-object SF2PZone
+  (in-module "Ipatch")
+  (parent "IpatchSF2Zone")
+  (c-name "IpatchSF2PZone")
+  (gtype-id "IPATCH_TYPE_SF2_PZONE")
+)
+
+(define-object SF2IZone
+  (in-module "Ipatch")
+  (parent "IpatchSF2Zone")
+  (c-name "IpatchSF2IZone")
+  (gtype-id "IPATCH_TYPE_SF2_IZONE")
+)
+
+(define-interface Sample
+  (in-module "Ipatch")
+  (c-name "IpatchSample")
+  (gtype-id "IPATCH_TYPE_SAMPLE")
+)
+
+(define-object SampleStore
+  (in-module "Ipatch")
+  (parent "IpatchItem")
+  (c-name "IpatchSampleStore")
+  (gtype-id "IPATCH_TYPE_SAMPLE_STORE")
+)
+
+(define-object SampleStoreCache
+  (in-module "Ipatch")
+  (parent "IpatchSampleStore")
+  (c-name "IpatchSampleStoreCache")
+  (gtype-id "IPATCH_TYPE_SAMPLE_STORE_CACHE")
+)
+
+(define-object SampleStoreFile
+  (in-module "Ipatch")
+  (parent "IpatchSampleStore")
+  (c-name "IpatchSampleStoreFile")
+  (gtype-id "IPATCH_TYPE_SAMPLE_STORE_FILE")
+)
+
+(define-object SampleStoreRam
+  (in-module "Ipatch")
+  (parent "IpatchSampleStore")
+  (c-name "IpatchSampleStoreRam")
+  (gtype-id "IPATCH_TYPE_SAMPLE_STORE_RAM")
+)
+
+(define-object SampleStoreRom
+  (in-module "Ipatch")
+  (parent "IpatchSampleStore")
+  (c-name "IpatchSampleStoreRom")
+  (gtype-id "IPATCH_TYPE_SAMPLE_STORE_ROM")
+)
+
+(define-object SampleStoreSndFile
+  (in-module "Ipatch")
+  (parent "IpatchSampleStore")
+  (c-name "IpatchSampleStoreSndFile")
+  (gtype-id "IPATCH_TYPE_SAMPLE_STORE_SND_FILE")
+)
+
+(define-object SampleStoreSwap
+  (in-module "Ipatch")
+  (parent "IpatchSampleStoreFile")
+  (c-name "IpatchSampleStoreSwap")
+  (gtype-id "IPATCH_TYPE_SAMPLE_STORE_SWAP")
+)
+
+(define-object SampleStoreVirtual
+  (in-module "Ipatch")
+  (parent "IpatchSampleStore")
+  (c-name "IpatchSampleStoreVirtual")
+  (gtype-id "IPATCH_TYPE_SAMPLE_STORE_VIRTUAL")
+)
+
+(define-object SndFile
+  (in-module "Ipatch")
+  (parent "IpatchFile")
+  (c-name "IpatchSndFile")
+  (gtype-id "IPATCH_TYPE_SND_FILE")
+)
+
+(define-object VBank
+  (in-module "Ipatch")
+  (parent "IpatchBase")
+  (c-name "IpatchVBank")
+  (gtype-id "IPATCH_TYPE_VBANK")
+)
+
+(define-object VBankInst
+  (in-module "Ipatch")
+  (parent "IpatchContainer")
+  (c-name "IpatchVBankInst")
+  (gtype-id "IPATCH_TYPE_VBANK_INST")
+)
+
+(define-object VBankRegion
+  (in-module "Ipatch")
+  (parent "IpatchItem")
+  (c-name "IpatchVBankRegion")
+  (gtype-id "IPATCH_TYPE_VBANK_REGION")
+)
+
+(define-object VirtualContainer
+  (in-module "Ipatch")
+  (parent "IpatchItem")
+  (c-name "IpatchVirtualContainer")
+  (gtype-id "IPATCH_TYPE_VIRTUAL_CONTAINER")
+)
+
+;; Enumerations and flags ...
+
+(define-flags BaseFlags
+  (in-module "Ipatch")
+  (c-name "IpatchBaseFlags")
+  (gtype-id "IPATCH_TYPE_BASE_FLAGS")
+  (values
+    '("changed" "IPATCH_BASE_CHANGED")
+    '("saved" "IPATCH_BASE_SAVED")
+  )
+)
+
+(define-enum ConverterLogType
+  (in-module "Ipatch")
+  (c-name "IpatchConverterLogType")
+  (gtype-id "IPATCH_TYPE_CONVERTER_LOG_TYPE")
+  (values
+    '("rating" "IPATCH_CONVERTER_LOG_RATING")
+    '("info" "IPATCH_CONVERTER_LOG_INFO")
+    '("warn" "IPATCH_CONVERTER_LOG_WARN")
+    '("critical" "IPATCH_CONVERTER_LOG_CRITICAL")
+    '("fatal" "IPATCH_CONVERTER_LOG_FATAL")
+  )
+)
+
+(define-enum ConverterCount
+  (in-module "Ipatch")
+  (c-name "IpatchConverterCount")
+  (gtype-id "IPATCH_TYPE_CONVERTER_COUNT")
+  (values
+    '("one-or-more" "IPATCH_CONVERTER_COUNT_ONE_OR_MORE")
+    '("zero-or-more" "IPATCH_CONVERTER_COUNT_ZERO_OR_MORE")
+  )
+)
+
+(define-flags ConverterFlags
+  (in-module "Ipatch")
+  (c-name "IpatchConverterFlags")
+  (gtype-id "IPATCH_TYPE_CONVERTER_FLAGS")
+  (values
+    '("derived" "IPATCH_CONVERTER_FLAG_SRC_DERIVED")
+  )
+)
+
+(define-enum ConverterPriority
+  (in-module "Ipatch")
+  (c-name "IpatchConverterPriority")
+  (gtype-id "IPATCH_TYPE_CONVERTER_PRIORITY")
+  (values
+    '("lowest" "IPATCH_CONVERTER_PRIORITY_LOWEST")
+    '("low" "IPATCH_CONVERTER_PRIORITY_LOW")
+    '("default" "IPATCH_CONVERTER_PRIORITY_DEFAULT")
+    '("high" "IPATCH_CONVERTER_PRIORITY_HIGH")
+    '("highest" "IPATCH_CONVERTER_PRIORITY_HIGHEST")
+  )
+)
+
+(define-enum DLSReaderError
+  (in-module "Ipatch")
+  (c-name "IpatchDLSReaderError")
+  (gtype-id "IPATCH_TYPE_DLS_READER_ERROR")
+  (values
+    '("gig" "IPATCH_DLS_READER_ERROR_GIG")
+  )
+)
+
+(define-flags FileFlags
+  (in-module "Ipatch")
+  (c-name "IpatchFileFlags")
+  (gtype-id "IPATCH_TYPE_FILE_FLAGS")
+  (values
+    '("swap" "IPATCH_FILE_FLAG_SWAP")
+    '("big-endian" "IPATCH_FILE_FLAG_BIG_ENDIAN")
+    '("free-iofuncs" "IPATCH_FILE_FLAG_FREE_IOFUNCS")
+  )
+)
+
+(define-enum FileIdentifyOrder
+  (in-module "Ipatch")
+  (c-name "IpatchFileIdentifyOrder")
+  (gtype-id "IPATCH_TYPE_FILE_IDENTIFY_ORDER")
+  (values
+    '("last" "IPATCH_FILE_IDENTIFY_ORDER_LAST")
+    '("default" "IPATCH_FILE_IDENTIFY_ORDER_DEFAULT")
+    '("first" "IPATCH_FILE_IDENTIFY_ORDER_FIRST")
+  )
+)
+
+(define-enum GigFilterType
+  (in-module "Ipatch")
+  (c-name "IpatchGigFilterType")
+  (gtype-id "IPATCH_TYPE_GIG_FILTER_TYPE")
+  (values
+    '("lowpass" "IPATCH_GIG_FILTER_LOWPASS")
+    '("bandpass" "IPATCH_GIG_FILTER_BANDPASS")
+    '("highpass" "IPATCH_GIG_FILTER_HIGHPASS")
+    '("bandreject" "IPATCH_GIG_FILTER_BANDREJECT")
+  )
+)
+
+(define-enum GigControlType
+  (in-module "Ipatch")
+  (c-name "IpatchGigControlType")
+  (gtype-id "IPATCH_TYPE_GIG_CONTROL_TYPE")
+  (values
+    '("mod-wheel" "IPATCH_GIG_CTRL_MOD_WHEEL")
+    '("breath" "IPATCH_GIG_CTRL_BREATH")
+    '("foot" "IPATCH_GIG_CTRL_FOOT")
+    '("portamento-time" "IPATCH_GIG_CTRL_PORTAMENTO_TIME")
+    '("effect-1" "IPATCH_GIG_CTRL_EFFECT_1")
+    '("effect-2" "IPATCH_GIG_CTRL_EFFECT_2")
+    '("gen-purpose-1" "IPATCH_GIG_CTRL_GEN_PURPOSE_1")
+    '("gen-purpose-2" "IPATCH_GIG_CTRL_GEN_PURPOSE_2")
+    '("gen-purpose-3" "IPATCH_GIG_CTRL_GEN_PURPOSE_3")
+    '("gen-purpose-4" "IPATCH_GIG_CTRL_GEN_PURPOSE_4")
+    '("sustain-pedal" "IPATCH_GIG_CTRL_SUSTAIN_PEDAL")
+    '("portamento" "IPATCH_GIG_CTRL_PORTAMENTO")
+    '("sostenuto" "IPATCH_GIG_CTRL_SOSTENUTO")
+    '("soft-pedal" "IPATCH_GIG_CTRL_SOFT_PEDAL")
+    '("gen-purpose-5" "IPATCH_GIG_CTRL_GEN_PURPOSE_5")
+    '("gen-purpose-6" "IPATCH_GIG_CTRL_GEN_PURPOSE_6")
+    '("gen-purpose-7" "IPATCH_GIG_CTRL_GEN_PURPOSE_7")
+    '("gen-purpose-8" "IPATCH_GIG_CTRL_GEN_PURPOSE_8")
+    '("effect-depth-1" "IPATCH_GIG_CTRL_EFFECT_DEPTH_1")
+    '("effect-depth-2" "IPATCH_GIG_CTRL_EFFECT_DEPTH_2")
+    '("effect-depth-3" "IPATCH_GIG_CTRL_EFFECT_DEPTH_3")
+    '("effect-depth-4" "IPATCH_GIG_CTRL_EFFECT_DEPTH_4")
+    '("effect-depth-5" "IPATCH_GIG_CTRL_EFFECT_DEPTH_5")
+  )
+)
+
+(define-enum GigDimensionType
+  (in-module "Ipatch")
+  (c-name "IpatchGigDimensionType")
+  (gtype-id "IPATCH_TYPE_GIG_DIMENSION_TYPE")
+  (values
+    '("none" "IPATCH_GIG_DIMENSION_NONE")
+    '("mod-wheel" "IPATCH_GIG_DIMENSION_MOD_WHEEL")
+    '("breath" "IPATCH_GIG_DIMENSION_BREATH")
+    '("foot" "IPATCH_GIG_DIMENSION_FOOT")
+    '("portamento-time" "IPATCH_GIG_DIMENSION_PORTAMENTO_TIME")
+    '("effect-1" "IPATCH_GIG_DIMENSION_EFFECT_1")
+    '("effect-2" "IPATCH_GIG_DIMENSION_EFFECT_2")
+    '("gen-purpose-1" "IPATCH_GIG_DIMENSION_GEN_PURPOSE_1")
+    '("gen-purpose-2" "IPATCH_GIG_DIMENSION_GEN_PURPOSE_2")
+    '("gen-purpose-3" "IPATCH_GIG_DIMENSION_GEN_PURPOSE_3")
+    '("gen-purpose-4" "IPATCH_GIG_DIMENSION_GEN_PURPOSE_4")
+    '("sustain-pedal" "IPATCH_GIG_DIMENSION_SUSTAIN_PEDAL")
+    '("portamento" "IPATCH_GIG_DIMENSION_PORTAMENTO")
+    '("sostenuto" "IPATCH_GIG_DIMENSION_SOSTENUTO")
+    '("soft-pedal" "IPATCH_GIG_DIMENSION_SOFT_PEDAL")
+    '("gen-purpose-5" "IPATCH_GIG_DIMENSION_GEN_PURPOSE_5")
+    '("gen-purpose-6" "IPATCH_GIG_DIMENSION_GEN_PURPOSE_6")
+    '("gen-purpose-7" "IPATCH_GIG_DIMENSION_GEN_PURPOSE_7")
+    '("gen-purpose-8" "IPATCH_GIG_DIMENSION_GEN_PURPOSE_8")
+    '("effect-depth-1" "IPATCH_GIG_DIMENSION_EFFECT_DEPTH_1")
+    '("effect-depth-2" "IPATCH_GIG_DIMENSION_EFFECT_DEPTH_2")
+    '("effect-depth-3" "IPATCH_GIG_DIMENSION_EFFECT_DEPTH_3")
+    '("effect-depth-4" "IPATCH_GIG_DIMENSION_EFFECT_DEPTH_4")
+    '("effect-depth-5" "IPATCH_GIG_DIMENSION_EFFECT_DEPTH_5")
+    '("channel" "IPATCH_GIG_DIMENSION_CHANNEL")
+    '("layer" "IPATCH_GIG_DIMENSION_LAYER")
+    '("velocity" "IPATCH_GIG_DIMENSION_VELOCITY")
+    '("after-touch" "IPATCH_GIG_DIMENSION_AFTER_TOUCH")
+    '("release-trig" "IPATCH_GIG_DIMENSION_RELEASE_TRIG")
+    '("keyboard" "IPATCH_GIG_DIMENSION_KEYBOARD")
+    '("round-robin" "IPATCH_GIG_DIMENSION_ROUND_ROBIN")
+    '("random" "IPATCH_GIG_DIMENSION_RANDOM")
+  )
+)
+
+(define-flags GigRegionFlags
+  (in-module "Ipatch")
+  (c-name "IpatchGigRegionFlags")
+  (gtype-id "IPATCH_TYPE_GIG_REGION_FLAGS")
+  (values
+    '("self-non-exclusive" "IPATCH_GIG_REGION_SELF_NON_EXCLUSIVE")
+    '("phase-master" "IPATCH_GIG_REGION_PHASE_MASTER")
+    '("multi-channel" "IPATCH_GIG_REGION_MULTI_CHANNEL")
+  )
+)
+
+(define-flags GigSubRegionFlags
+  (in-module "Ipatch")
+  (c-name "IpatchGigSubRegionFlags")
+  (gtype-id "IPATCH_TYPE_GIG_SUB_REGION_FLAGS")
+  (values
+    '("override" "IPATCH_GIG_SUB_REGION_SAMPLE_INFO_OVERRIDE")
+  )
+)
+
+(define-flags ItemFlags
+  (in-module "Ipatch")
+  (c-name "IpatchItemFlags")
+  (gtype-id "IPATCH_TYPE_ITEM_FLAGS")
+  (values
+    '("hooks-active" "IPATCH_ITEM_HOOKS_ACTIVE")
+    '("free-mutex" "IPATCH_ITEM_FREE_MUTEX")
+  )
+)
+
+(define-enum PasteChoice
+  (in-module "Ipatch")
+  (c-name "IpatchPasteChoice")
+  (gtype-id "IPATCH_TYPE_PASTE_CHOICE")
+  (values
+    '("ignore" "IPATCH_PASTE_CHOICE_IGNORE")
+    '("replace" "IPATCH_PASTE_CHOICE_REPLACE")
+    '("keep" "IPATCH_PASTE_CHOICE_KEEP")
+    '("cancel" "IPATCH_PASTE_CHOICE_CANCEL")
+  )
+)
+
+(define-enum PastePriority
+  (in-module "Ipatch")
+  (c-name "IpatchPastePriority")
+  (gtype-id "IPATCH_TYPE_PASTE_PRIORITY")
+  (values
+    '("lowest" "IPATCH_PASTE_PRIORITY_LOWEST")
+    '("low" "IPATCH_PASTE_PRIORITY_LOW")
+    '("default" "IPATCH_PASTE_PRIORITY_DEFAULT")
+    '("high" "IPATCH_PASTE_PRIORITY_HIGH")
+    '("highest" "IPATCH_PASTE_PRIORITY_HIGHEST")
+  )
+)
+
+(define-enum RiffStatus
+  (in-module "Ipatch")
+  (c-name "IpatchRiffStatus")
+  (gtype-id "IPATCH_TYPE_RIFF_STATUS")
+  (values
+    '("fail" "IPATCH_RIFF_STATUS_FAIL")
+    '("begin" "IPATCH_RIFF_STATUS_BEGIN")
+    '("finished" "IPATCH_RIFF_STATUS_FINISHED")
+    '("normal" "IPATCH_RIFF_STATUS_NORMAL")
+    '("chunk-end" "IPATCH_RIFF_STATUS_CHUNK_END")
+  )
+)
+
+(define-enum RiffMode
+  (in-module "Ipatch")
+  (c-name "IpatchRiffMode")
+  (gtype-id "IPATCH_TYPE_RIFF_MODE")
+  (values
+    '("read" "IPATCH_RIFF_READ")
+    '("write" "IPATCH_RIFF_WRITE")
+  )
+)
+
+(define-enum RiffChunkType
+  (in-module "Ipatch")
+  (c-name "IpatchRiffChunkType")
+  (gtype-id "IPATCH_TYPE_RIFF_CHUNK_TYPE")
+  (values
+    '("riff" "IPATCH_RIFF_CHUNK_RIFF")
+    '("list" "IPATCH_RIFF_CHUNK_LIST")
+    '("sub" "IPATCH_RIFF_CHUNK_SUB")
+  )
+)
+
+(define-enum RiffError
+  (in-module "Ipatch")
+  (c-name "IpatchRiffError")
+  (gtype-id "IPATCH_TYPE_RIFF_ERROR")
+  (values
+    '("not-riff" "IPATCH_RIFF_ERROR_NOT_RIFF")
+    '("unexpected-id" "IPATCH_RIFF_ERROR_UNEXPECTED_ID")
+    '("unexpected-chunk-end" "IPATCH_RIFF_ERROR_UNEXPECTED_CHUNK_END")
+    '("invalid-id" "IPATCH_RIFF_ERROR_INVALID_ID")
+    '("odd-size" "IPATCH_RIFF_ERROR_ODD_SIZE")
+    '("size-exceeded" "IPATCH_RIFF_ERROR_SIZE_EXCEEDED")
+    '("size-mismatch" "IPATCH_RIFF_ERROR_SIZE_MISMATCH")
+    '("invalid-data" "IPATCH_RIFF_ERROR_INVALID_DATA")
+  )
+)
+
+(define-enum SampleLoopType
+  (in-module "Ipatch")
+  (c-name "IpatchSampleLoopType")
+  (gtype-id "IPATCH_TYPE_SAMPLE_LOOP_TYPE")
+  (values
+    '("none" "IPATCH_SAMPLE_LOOP_NONE")
+    '("standard" "IPATCH_SAMPLE_LOOP_STANDARD")
+    '("release" "IPATCH_SAMPLE_LOOP_RELEASE")
+    '("pingpong" "IPATCH_SAMPLE_LOOP_PINGPONG")
+  )
+)
+
+(define-flags SampleStoreRamFlags
+  (in-module "Ipatch")
+  (c-name "IpatchSampleStoreRamFlags")
+  (gtype-id "IPATCH_TYPE_SAMPLE_STORE_RAM_FLAGS")
+  (values
+    '("allocated" "IPATCH_SAMPLE_STORE_RAM_ALLOCATED")
+  )
+)
+
+(define-enum SndFileEndian
+  (in-module "Ipatch")
+  (c-name "IpatchSndFileEndian")
+  (gtype-id "IPATCH_TYPE_SND_FILE_ENDIAN")
+  (values
+    '("file" "IPATCH_SND_FILE_ENDIAN_FILE")
+    '("little" "IPATCH_SND_FILE_ENDIAN_LITTLE")
+    '("big" "IPATCH_SND_FILE_ENDIAN_BIG")
+    '("cpu" "IPATCH_SND_FILE_ENDIAN_CPU")
+  )
+)
+
+(define-enum SplitsType
+  (in-module "Ipatch")
+  (c-name "IpatchSplitsType")
+  (gtype-id "IPATCH_TYPE_SPLITS_TYPE")
+  (values
+    '("none" "IPATCH_SPLITS_NONE")
+    '("normal" "IPATCH_SPLITS_NORMAL")
+    '("no-overlap" "IPATCH_SPLITS_NO_OVERLAP")
+  )
+)
+
+(define-flags UnitFlags
+  (in-module "Ipatch")
+  (c-name "IpatchUnitFlags")
+  (gtype-id "IPATCH_TYPE_UNIT_FLAGS")
+  (values
+    '("logarithmic" "IPATCH_UNIT_LOGARITHMIC")
+    '("user" "IPATCH_UNIT_USER")
+  )
+)
+
+(define-enum UnitType
+  (in-module "Ipatch")
+  (c-name "IpatchUnitType")
+  (gtype-id "IPATCH_TYPE_UNIT_TYPE")
+  (values
+    '("none" "IPATCH_UNIT_TYPE_NONE")
+    '("int" "IPATCH_UNIT_TYPE_INT")
+    '("uint" "IPATCH_UNIT_TYPE_UINT")
+    '("range" "IPATCH_UNIT_TYPE_RANGE")
+    '("decibels" "IPATCH_UNIT_TYPE_DECIBELS")
+    '("percent" "IPATCH_UNIT_TYPE_PERCENT")
+    '("semitones" "IPATCH_UNIT_TYPE_SEMITONES")
+    '("cents" "IPATCH_UNIT_TYPE_CENTS")
+    '("time-cents" "IPATCH_UNIT_TYPE_TIME_CENTS")
+    '("sample-rate" "IPATCH_UNIT_TYPE_SAMPLE_RATE")
+    '("samples" "IPATCH_UNIT_TYPE_SAMPLES")
+    '("hertz" "IPATCH_UNIT_TYPE_HERTZ")
+    '("seconds" "IPATCH_UNIT_TYPE_SECONDS")
+    '("multiplier" "IPATCH_UNIT_TYPE_MULTIPLIER")
+    '("dls-gain" "IPATCH_UNIT_TYPE_DLS_GAIN")
+    '("dls-abs-time" "IPATCH_UNIT_TYPE_DLS_ABS_TIME")
+    '("dls-rel-time" "IPATCH_UNIT_TYPE_DLS_REL_TIME")
+    '("dls-abs-pitch" "IPATCH_UNIT_TYPE_DLS_ABS_PITCH")
+    '("dls-rel-pitch" "IPATCH_UNIT_TYPE_DLS_REL_PITCH")
+    '("dls-percent" "IPATCH_UNIT_TYPE_DLS_PERCENT")
+    '("sf2-abs-pitch" "IPATCH_UNIT_TYPE_SF2_ABS_PITCH")
+    '("sf2-ofs-pitch" "IPATCH_UNIT_TYPE_SF2_OFS_PITCH")
+    '("sf2-abs-time" "IPATCH_UNIT_TYPE_SF2_ABS_TIME")
+    '("sf2-ofs-time" "IPATCH_UNIT_TYPE_SF2_OFS_TIME")
+    '("centibels" "IPATCH_UNIT_TYPE_CENTIBELS")
+    '("32k-samples" "IPATCH_UNIT_TYPE_32K_SAMPLES")
+    '("tenth-percent" "IPATCH_UNIT_TYPE_TENTH_PERCENT")
+  )
+)
+
+(define-enum UnitClassType
+  (in-module "Ipatch")
+  (c-name "IpatchUnitClassType")
+  (gtype-id "IPATCH_TYPE_UNIT_CLASS_TYPE")
+  (values
+    '("none" "IPATCH_UNIT_CLASS_NONE")
+    '("user" "IPATCH_UNIT_CLASS_USER")
+    '("dls" "IPATCH_UNIT_CLASS_DLS")
+    '("count" "IPATCH_UNIT_CLASS_COUNT")
+  )
+)
+
+(define-enum VBankRegionNoteRangeMode
+  (in-module "Ipatch")
+  (c-name "IpatchVBankRegionNoteRangeMode")
+  (gtype-id "IPATCH_TYPE_VBANK_REGION_NOTE_RANGE_MODE")
+  (values
+    '("intersect" "IPATCH_VBANK_REGION_NOTE_RANGE_MODE_INTERSECT")
+    '("override" "IPATCH_VBANK_REGION_NOTE_RANGE_MODE_OVERRIDE")
+  )
+)
+
+(define-enum VBankRegionRootNoteMode
+  (in-module "Ipatch")
+  (c-name "IpatchVBankRegionRootNoteMode")
+  (gtype-id "IPATCH_TYPE_VBANK_REGION_ROOT_NOTE_MODE")
+  (values
+    '("offset" "IPATCH_VBANK_REGION_ROOT_NOTE_MODE_OFFSET")
+    '("override" "IPATCH_VBANK_REGION_ROOT_NOTE_MODE_OVERRIDE")
+  )
+)
+
+(define-enum Error
+  (in-module "Ipatch")
+  (c-name "IpatchError")
+  (gtype-id "IPATCH_TYPE_ERROR")
+  (values
+    '("fail" "IPATCH_ERROR_FAIL")
+    '("io" "IPATCH_ERROR_IO")
+    '("program" "IPATCH_ERROR_PROGRAM")
+    '("invalid" "IPATCH_ERROR_INVALID")
+    '("corrupt" "IPATCH_ERROR_CORRUPT")
+    '("nomem" "IPATCH_ERROR_NOMEM")
+    '("unsupported" "IPATCH_ERROR_UNSUPPORTED")
+    '("unexpected-eof" "IPATCH_ERROR_UNEXPECTED_EOF")
+    '("unhandled-conversion" "IPATCH_ERROR_UNHANDLED_CONVERSION")
+  )
+)
+
+(define-enum SampleWidth
+  (in-module "Ipatch")
+  (c-name "IpatchSampleWidth")
+  (gtype-id "IPATCH_TYPE_SAMPLE_WIDTH")
+  (values
+    '("invalid" "IPATCH_SAMPLE_INVALID")
+    '("8bit" "IPATCH_SAMPLE_8BIT")
+    '("16bit" "IPATCH_SAMPLE_16BIT")
+    '("24bit" "IPATCH_SAMPLE_24BIT")
+    '("32bit" "IPATCH_SAMPLE_32BIT")
+    '("float" "IPATCH_SAMPLE_FLOAT")
+    '("double" "IPATCH_SAMPLE_DOUBLE")
+    '("real24bit" "IPATCH_SAMPLE_REAL24BIT")
+  )
+)
+
+(define-flags SampleChannel
+  (in-module "Ipatch")
+  (c-name "IpatchSampleChannel")
+  (gtype-id "IPATCH_TYPE_SAMPLE_CHANNEL")
+  (values
+    '("mono" "IPATCH_SAMPLE_MONO")
+    '("stereo" "IPATCH_SAMPLE_STEREO")
+  )
+)
+
+(define-enum SampleChannelType
+  (in-module "Ipatch")
+  (c-name "IpatchSampleChannelType")
+  (gtype-id "IPATCH_TYPE_SAMPLE_CHANNEL_TYPE")
+  (values
+    '("left" "IPATCH_SAMPLE_LEFT")
+    '("right" "IPATCH_SAMPLE_RIGHT")
+  )
+)
+
+(define-flags SampleSign
+  (in-module "Ipatch")
+  (c-name "IpatchSampleSign")
+  (gtype-id "IPATCH_TYPE_SAMPLE_SIGN")
+  (values
+    '("signed" "IPATCH_SAMPLE_SIGNED")
+    '("unsigned" "IPATCH_SAMPLE_UNSIGNED")
+  )
+)
+
+(define-flags SampleEndian
+  (in-module "Ipatch")
+  (c-name "IpatchSampleEndian")
+  (gtype-id "IPATCH_TYPE_SAMPLE_ENDIAN")
+  (values
+    '("lendian" "IPATCH_SAMPLE_LENDIAN")
+    '("bendian" "IPATCH_SAMPLE_BENDIAN")
+  )
+)
+
+
+;; From builtin_enums.h
+
+(define-function ipatch_base_flags_get_type
+  (c-name "ipatch_base_flags_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_converter_log_type_get_type
+  (c-name "ipatch_converter_log_type_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_converter_count_get_type
+  (c-name "ipatch_converter_count_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_converter_flags_get_type
+  (c-name "ipatch_converter_flags_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_converter_priority_get_type
+  (c-name "ipatch_converter_priority_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_dls2_conn_src_type_get_type
+  (c-name "ipatch_dls2_conn_src_type_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_dls2_conn_dest_type_get_type
+  (c-name "ipatch_dls2_conn_dest_type_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_dls2_conn_transform_type_get_type
+  (c-name "ipatch_dls2_conn_transform_type_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_dls2_conn_polarity_type_get_type
+  (c-name "ipatch_dls2_conn_polarity_type_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_dls2_conn_transform_masks_get_type
+  (c-name "ipatch_dls2_conn_transform_masks_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_dls2_conn_transform_shifts_get_type
+  (c-name "ipatch_dls2_conn_transform_shifts_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_dls2_flags_get_type
+  (c-name "ipatch_dls2_flags_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_dls2_info_type_get_type
+  (c-name "ipatch_dls2_info_type_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_dls2_inst_flags_get_type
+  (c-name "ipatch_dls2_inst_flags_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_dls2_param_get_type
+  (c-name "ipatch_dls2_param_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_dls2_region_channel_type_get_type
+  (c-name "ipatch_dls2_region_channel_type_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_dls2_region_flags_get_type
+  (c-name "ipatch_dls2_region_flags_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_dls2_sample_flags_get_type
+  (c-name "ipatch_dls2_sample_flags_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_dls_reader_error_get_type
+  (c-name "ipatch_dls_reader_error_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_file_flags_get_type
+  (c-name "ipatch_file_flags_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_file_identify_order_get_type
+  (c-name "ipatch_file_identify_order_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_gig_dimension_type_get_type
+  (c-name "ipatch_gig_dimension_type_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_gig_filter_type_get_type
+  (c-name "ipatch_gig_filter_type_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_gig_control_type_get_type
+  (c-name "ipatch_gig_control_type_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_gig_region_flags_get_type
+  (c-name "ipatch_gig_region_flags_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_gig_sub_region_flags_get_type
+  (c-name "ipatch_gig_sub_region_flags_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_item_flags_get_type
+  (c-name "ipatch_item_flags_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_paste_choice_get_type
+  (c-name "ipatch_paste_choice_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_paste_priority_get_type
+  (c-name "ipatch_paste_priority_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_riff_status_get_type
+  (c-name "ipatch_riff_status_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_riff_mode_get_type
+  (c-name "ipatch_riff_mode_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_riff_chunk_type_get_type
+  (c-name "ipatch_riff_chunk_type_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_riff_error_get_type
+  (c-name "ipatch_riff_error_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sample_loop_type_get_type
+  (c-name "ipatch_sample_loop_type_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sample_store_ram_flags_get_type
+  (c-name "ipatch_sample_store_ram_flags_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_flags_get_type
+  (c-name "ipatch_sf2_flags_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_info_type_get_type
+  (c-name "ipatch_sf2_info_type_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_file_sample_type_get_type
+  (c-name "ipatch_sf2_file_sample_type_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_gen_props_type_get_type
+  (c-name "ipatch_sf2_gen_props_type_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_gen_type_get_type
+  (c-name "ipatch_sf2_gen_type_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_gen_sample_modes_get_type
+  (c-name "ipatch_sf2_gen_sample_modes_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_mod_field_masks_get_type
+  (c-name "ipatch_sf2_mod_field_masks_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_mod_field_shifts_get_type
+  (c-name "ipatch_sf2_mod_field_shifts_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_mod_control_get_type
+  (c-name "ipatch_sf2_mod_control_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_mod_control_palette_get_type
+  (c-name "ipatch_sf2_mod_control_palette_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_mod_direction_get_type
+  (c-name "ipatch_sf2_mod_direction_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_mod_polarity_get_type
+  (c-name "ipatch_sf2_mod_polarity_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_mod_type_get_type
+  (c-name "ipatch_sf2_mod_type_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_mod_transform_get_type
+  (c-name "ipatch_sf2_mod_transform_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_mod_flags_get_type
+  (c-name "ipatch_sf2_mod_flags_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_sample_channel_get_type
+  (c-name "ipatch_sf2_sample_channel_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_voice_sel_type_get_type
+  (c-name "ipatch_sf2_voice_sel_type_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_snd_file_endian_get_type
+  (c-name "ipatch_snd_file_endian_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_splits_type_get_type
+  (c-name "ipatch_splits_type_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_unit_flags_get_type
+  (c-name "ipatch_unit_flags_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_unit_type_get_type
+  (c-name "ipatch_unit_type_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_unit_class_type_get_type
+  (c-name "ipatch_unit_class_type_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_vbank_region_note_range_mode_get_type
+  (c-name "ipatch_vbank_region_note_range_mode_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_vbank_region_root_note_mode_get_type
+  (c-name "ipatch_vbank_region_root_note_mode_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_error_get_type
+  (c-name "ipatch_error_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sample_width_get_type
+  (c-name "ipatch_sample_width_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sample_channel_get_type
+  (c-name "ipatch_sample_channel_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sample_channel_type_get_type
+  (c-name "ipatch_sample_channel_type_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sample_sign_get_type
+  (c-name "ipatch_sample_sign_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sample_endian_get_type
+  (c-name "ipatch_sample_endian_get_type")
+  (return-type "GType")
+)
+
+
+
+;; From IpatchBase.h
+
+(define-function ipatch_base_get_type
+  (c-name "ipatch_base_get_type")
+  (return-type "GType")
+)
+
+(define-method set_file
+  (of-object "IpatchBase")
+  (c-name "ipatch_base_set_file")
+  (return-type "none")
+  (parameters
+    '("IpatchFile*" "file")
+  )
+)
+
+(define-method get_file
+  (of-object "IpatchBase")
+  (c-name "ipatch_base_get_file")
+  (return-type "IpatchFile*")
+)
+
+(define-method set_file_name
+  (of-object "IpatchBase")
+  (c-name "ipatch_base_set_file_name")
+  (return-type "none")
+  (parameters
+    '("const-char*" "file_name")
+  )
+)
+
+(define-method get_file_name
+  (of-object "IpatchBase")
+  (c-name "ipatch_base_get_file_name")
+  (return-type "char*")
+)
+
+(define-method find_unused_midi_locale
+  (of-object "IpatchBase")
+  (c-name "ipatch_base_find_unused_midi_locale")
+  (return-type "none")
+  (parameters
+    '("int*" "bank")
+    '("int*" "program")
+    '("const-IpatchItem*" "exclude")
+    '("gboolean" "percussion")
+  )
+)
+
+(define-method find_item_by_midi_locale
+  (of-object "IpatchBase")
+  (c-name "ipatch_base_find_item_by_midi_locale")
+  (return-type "IpatchItem*")
+  (parameters
+    '("int" "bank")
+    '("int" "program")
+  )
+)
+
+
+
+;; From IpatchContainer.h
+
+(define-function ipatch_container_get_type
+  (c-name "ipatch_container_get_type")
+  (return-type "GType")
+)
+
+(define-method get_children
+  (of-object "IpatchContainer")
+  (c-name "ipatch_container_get_children")
+  (return-type "IpatchList*")
+  (parameters
+    '("GType" "type")
+  )
+)
+
+(define-method get_child_types
+  (of-object "IpatchContainer")
+  (c-name "ipatch_container_get_child_types")
+  (return-type "const-GType*")
+)
+
+(define-method get_virtual_types
+  (of-object "IpatchContainer")
+  (c-name "ipatch_container_get_virtual_types")
+  (return-type "const-GType*")
+)
+
+(define-function ipatch_container_type_get_child_types
+  (c-name "ipatch_container_type_get_child_types")
+  (return-type "const-GType*")
+  (parameters
+    '("GType" "container_type")
+  )
+)
+
+(define-method insert
+  (of-object "IpatchContainer")
+  (c-name "ipatch_container_insert")
+  (return-type "none")
+  (parameters
+    '("IpatchItem*" "item")
+    '("int" "pos")
+  )
+)
+
+(define-method append
+  (of-object "IpatchContainer")
+  (c-name "ipatch_container_append")
+  (return-type "none")
+  (parameters
+    '("IpatchItem*" "item")
+  )
+)
+
+(define-method remove
+  (of-object "IpatchContainer")
+  (c-name "ipatch_container_remove")
+  (return-type "none")
+  (parameters
+    '("IpatchItem*" "item")
+  )
+)
+
+(define-method remove_all
+  (of-object "IpatchContainer")
+  (c-name "ipatch_container_remove_all")
+  (return-type "none")
+)
+
+(define-method count
+  (of-object "IpatchContainer")
+  (c-name "ipatch_container_count")
+  (return-type "guint")
+  (parameters
+    '("GType" "type")
+  )
+)
+
+(define-method make_unique
+  (of-object "IpatchContainer")
+  (c-name "ipatch_container_make_unique")
+  (return-type "none")
+  (parameters
+    '("IpatchItem*" "item")
+  )
+)
+
+(define-method add_unique
+  (of-object "IpatchContainer")
+  (c-name "ipatch_container_add_unique")
+  (return-type "none")
+  (parameters
+    '("IpatchItem*" "item")
+  )
+)
+
+(define-method init_iter
+  (of-object "IpatchContainer")
+  (c-name "ipatch_container_init_iter")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchIter*" "iter")
+    '("GType" "type")
+  )
+)
+
+(define-method insert_iter
+  (of-object "IpatchContainer")
+  (c-name "ipatch_container_insert_iter")
+  (return-type "none")
+  (parameters
+    '("IpatchItem*" "item")
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-method remove_iter
+  (of-object "IpatchContainer")
+  (c-name "ipatch_container_remove_iter")
+  (return-type "none")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-method add_notify
+  (of-object "IpatchContainer")
+  (c-name "ipatch_container_add_notify")
+  (return-type "none")
+  (parameters
+    '("IpatchItem*" "child")
+  )
+)
+
+(define-method remove_notify
+  (of-object "IpatchContainer")
+  (c-name "ipatch_container_remove_notify")
+  (return-type "none")
+  (parameters
+    '("IpatchItem*" "child")
+  )
+)
+
+(define-method add_connect
+  (of-object "IpatchContainer")
+  (c-name "ipatch_container_add_connect")
+  (return-type "guint")
+  (parameters
+    '("IpatchContainerCallback" "callback")
+    '("IpatchContainerDisconnect" "disconnect")
+    '("gpointer" "user_data")
+  )
+)
+
+(define-method remove_connect
+  (of-object "IpatchContainer")
+  (c-name "ipatch_container_remove_connect")
+  (return-type "guint")
+  (parameters
+    '("IpatchItem*" "child")
+    '("IpatchContainerCallback" "callback")
+    '("IpatchContainerDisconnect" "disconnect")
+    '("gpointer" "user_data")
+  )
+)
+
+(define-function ipatch_container_add_disconnect
+  (c-name "ipatch_container_add_disconnect")
+  (return-type "none")
+  (parameters
+    '("guint" "handler_id")
+  )
+)
+
+(define-method add_disconnect_matched
+  (of-object "IpatchContainer")
+  (c-name "ipatch_container_add_disconnect_matched")
+  (return-type "none")
+  (parameters
+    '("IpatchContainerCallback" "callback")
+    '("gpointer" "user_data")
+  )
+)
+
+(define-function ipatch_container_remove_disconnect
+  (c-name "ipatch_container_remove_disconnect")
+  (return-type "none")
+  (parameters
+    '("guint" "handler_id")
+  )
+)
+
+(define-method remove_disconnect_matched
+  (of-object "IpatchContainer")
+  (c-name "ipatch_container_remove_disconnect_matched")
+  (return-type "none")
+  (parameters
+    '("IpatchItem*" "child")
+    '("IpatchContainerCallback" "callback")
+    '("gpointer" "user_data")
+  )
+)
+
+
+
+;; From IpatchConverter.h
+
+(define-function ipatch_convert_objects
+  (c-name "ipatch_convert_objects")
+  (return-type "gboolean")
+  (parameters
+    '("GObject*" "input")
+    '("GObject*" "output")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_convert_object_to_type
+  (c-name "ipatch_convert_object_to_type")
+  (return-type "GObject*")
+  (parameters
+    '("GObject*" "object")
+    '("GType" "type")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_convert_object_to_type_multi
+  (c-name "ipatch_convert_object_to_type_multi")
+  (return-type "IpatchList*")
+  (parameters
+    '("GObject*" "object")
+    '("GType" "type")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_create_converter
+  (c-name "ipatch_create_converter")
+  (return-type "IpatchConverter*")
+  (parameters
+    '("GType" "src_type")
+    '("GType" "dest_type")
+  )
+)
+
+(define-function ipatch_register_converter_map
+  (c-name "ipatch_register_converter_map")
+  (return-type "none")
+  (parameters
+    '("GType" "conv_type")
+    '("guint" "flags")
+    '("GType" "src_type")
+    '("GType" "src_match")
+    '("gint8" "src_count")
+    '("GType" "dest_type")
+    '("GType" "dest_match")
+    '("gint8" "dest_count")
+  )
+)
+
+(define-function ipatch_find_converter
+  (c-name "ipatch_find_converter")
+  (return-type "GType")
+  (parameters
+    '("GType" "src_type")
+    '("GType" "dest_type")
+  )
+)
+
+(define-function ipatch_lookup_converter_info
+  (c-name "ipatch_lookup_converter_info")
+  (return-type "IpatchConverterInfo*")
+  (parameters
+    '("GType" "conv_type")
+    '("GType" "src_type")
+    '("GType" "dest_type")
+  )
+)
+
+(define-function ipatch_converter_get_type
+  (c-name "ipatch_converter_get_type")
+  (return-type "GType")
+)
+
+(define-method add_input
+  (of-object "IpatchConverter")
+  (c-name "ipatch_converter_add_input")
+  (return-type "none")
+  (parameters
+    '("GObject*" "object")
+  )
+)
+
+(define-method add_output
+  (of-object "IpatchConverter")
+  (c-name "ipatch_converter_add_output")
+  (return-type "none")
+  (parameters
+    '("GObject*" "object")
+  )
+)
+
+(define-method add_inputs
+  (of-object "IpatchConverter")
+  (c-name "ipatch_converter_add_inputs")
+  (return-type "none")
+  (parameters
+    '("GList*" "objects")
+  )
+)
+
+(define-method add_outputs
+  (of-object "IpatchConverter")
+  (c-name "ipatch_converter_add_outputs")
+  (return-type "none")
+  (parameters
+    '("GList*" "objects")
+  )
+)
+
+(define-method get_input
+  (of-object "IpatchConverter")
+  (c-name "ipatch_converter_get_input")
+  (return-type "GObject*")
+)
+
+(define-method get_output
+  (of-object "IpatchConverter")
+  (c-name "ipatch_converter_get_output")
+  (return-type "GObject*")
+)
+
+(define-method get_inputs
+  (of-object "IpatchConverter")
+  (c-name "ipatch_converter_get_inputs")
+  (return-type "IpatchList*")
+)
+
+(define-method get_outputs
+  (of-object "IpatchConverter")
+  (c-name "ipatch_converter_get_outputs")
+  (return-type "IpatchList*")
+)
+
+(define-method verify
+  (of-object "IpatchConverter")
+  (c-name "ipatch_converter_verify")
+  (return-type "gboolean")
+  (parameters
+    '("char**" "failmsg")
+  )
+)
+
+(define-method init
+  (of-object "IpatchConverter")
+  (c-name "ipatch_converter_init")
+  (return-type "none")
+)
+
+(define-method convert
+  (of-object "IpatchConverter")
+  (c-name "ipatch_converter_convert")
+  (return-type "gboolean")
+  (parameters
+    '("GError**" "err")
+  )
+)
+
+(define-method reset
+  (of-object "IpatchConverter")
+  (c-name "ipatch_converter_reset")
+  (return-type "none")
+)
+
+(define-method get_notes
+  (of-object "IpatchConverter")
+  (c-name "ipatch_converter_get_notes")
+  (return-type "char*")
+)
+
+(define-method log
+  (of-object "IpatchConverter")
+  (c-name "ipatch_converter_log")
+  (return-type "none")
+  (parameters
+    '("GObject*" "item")
+    '("int" "type")
+    '("char*" "msg")
+  )
+)
+
+(define-method log_printf
+  (of-object "IpatchConverter")
+  (c-name "ipatch_converter_log_printf")
+  (return-type "none")
+  (parameters
+    '("GObject*" "item")
+    '("int" "type")
+    '("const-char*" "fmt")
+  )
+  (varargs #t)
+)
+
+(define-method log_next
+  (of-object "IpatchConverter")
+  (c-name "ipatch_converter_log_next")
+  (return-type "gboolean")
+  (parameters
+    '("gpointer*" "pos")
+    '("GObject**" "item")
+    '("int*" "type")
+    '("char**" "msg")
+  )
+)
+
+(define-method set_link_funcs
+  (of-object "IpatchConverter")
+  (c-name "ipatch_converter_set_link_funcs")
+  (return-type "none")
+  (parameters
+    '("IpatchConverterLinkLookupFunc*" "link_lookup")
+    '("IpatchConverterLinkNotifyFunc*" "link_notify")
+  )
+)
+
+
+
+;; From IpatchConvert_DLS2.h
+
+(define-function ipatch_converter_dls2_to_file_get_type
+  (c-name "ipatch_converter_dls2_to_file_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_converter_file_to_dls2_get_type
+  (c-name "ipatch_converter_file_to_dls2_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_converter_file_to_dls2_sample_get_type
+  (c-name "ipatch_converter_file_to_dls2_sample_get_type")
+  (return-type "GType")
+)
+
+
+
+;; From IpatchConvert_Gig.h
+
+(define-function ipatch_converter_gig_to_file_get_type
+  (c-name "ipatch_converter_gig_to_file_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_converter_file_to_gig_get_type
+  (c-name "ipatch_converter_file_to_gig_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_converter_file_to_gig_sample_get_type
+  (c-name "ipatch_converter_file_to_gig_sample_get_type")
+  (return-type "GType")
+)
+
+
+
+;; From IpatchConvert_SF2.h
+
+(define-function ipatch_converter_sf2_to_file_get_type
+  (c-name "ipatch_converter_sf2_to_file_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_converter_file_to_sf2_get_type
+  (c-name "ipatch_converter_file_to_sf2_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_converter_file_to_sf2_sample_get_type
+  (c-name "ipatch_converter_file_to_sf2_sample_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_converter_sf2_to_dls2_get_type
+  (c-name "ipatch_converter_sf2_to_dls2_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_converter_dls2_to_sf2_get_type
+  (c-name "ipatch_converter_dls2_to_sf2_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_converter_sf2_preset_to_dls2_inst_get_type
+  (c-name "ipatch_converter_sf2_preset_to_dls2_inst_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_converter_dls2_inst_to_sf2_preset_get_type
+  (c-name "ipatch_converter_dls2_inst_to_sf2_preset_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_converter_sf2_inst_to_dls2_inst_get_type
+  (c-name "ipatch_converter_sf2_inst_to_dls2_inst_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_converter_dls2_inst_to_sf2_inst_get_type
+  (c-name "ipatch_converter_dls2_inst_to_sf2_inst_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_converter_sf2_pzone_to_dls2_region_get_type
+  (c-name "ipatch_converter_sf2_pzone_to_dls2_region_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_converter_dls2_region_to_sf2_pzone_get_type
+  (c-name "ipatch_converter_dls2_region_to_sf2_pzone_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_converter_sf2_izone_to_dls2_region_get_type
+  (c-name "ipatch_converter_sf2_izone_to_dls2_region_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_converter_dls2_region_to_sf2_izone_get_type
+  (c-name "ipatch_converter_dls2_region_to_sf2_izone_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_converter_sf2_sample_to_dls2_sample_get_type
+  (c-name "ipatch_converter_sf2_sample_to_dls2_sample_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_converter_dls2_sample_to_sf2_sample_get_type
+  (c-name "ipatch_converter_dls2_sample_to_sf2_sample_get_type")
+  (return-type "GType")
+)
+
+
+
+;; From IpatchDLS2Conn.h
+
+(define-function ipatch_dls2_conn_get_type
+  (c-name "ipatch_dls2_conn_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_dls2_conn_new
+  (c-name "ipatch_dls2_conn_new")
+  (is-constructor-of "IpatchDLS2Conn")
+  (return-type "IpatchDLS2Conn*")
+)
+
+(define-method free
+  (of-object "IpatchDLS2Conn")
+  (c-name "ipatch_dls2_conn_free")
+  (return-type "none")
+)
+
+(define-method duplicate
+  (of-object "IpatchDLS2Conn")
+  (c-name "ipatch_dls2_conn_duplicate")
+  (return-type "IpatchDLS2Conn*")
+)
+
+(define-function ipatch_dls2_conn_list_set
+  (c-name "ipatch_dls2_conn_list_set")
+  (return-type "none")
+  (parameters
+    '("GSList**" "list")
+    '("const-IpatchDLS2Conn*" "conn")
+  )
+)
+
+(define-function ipatch_dls2_conn_list_unset
+  (c-name "ipatch_dls2_conn_list_unset")
+  (return-type "none")
+  (parameters
+    '("GSList**" "list")
+    '("const-IpatchDLS2Conn*" "conn")
+  )
+)
+
+(define-function ipatch_dls2_conn_list_duplicate
+  (c-name "ipatch_dls2_conn_list_duplicate")
+  (return-type "GSList*")
+  (parameters
+    '("const-GSList*" "list")
+  )
+)
+
+(define-function ipatch_dls2_conn_list_duplicate_fast
+  (c-name "ipatch_dls2_conn_list_duplicate_fast")
+  (return-type "GSList*")
+  (parameters
+    '("const-GSList*" "list")
+  )
+)
+
+(define-function ipatch_dls2_conn_list_free
+  (c-name "ipatch_dls2_conn_list_free")
+  (return-type "none")
+  (parameters
+    '("GSList*" "list")
+    '("gboolean" "free_conns")
+  )
+)
+
+
+
+;; From IpatchDLS2.h
+
+(define-function ipatch_dls2_get_type
+  (c-name "ipatch_dls2_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_dls2_new
+  (c-name "ipatch_dls2_new")
+  (is-constructor-of "IpatchDLS2")
+  (return-type "IpatchDLS2*")
+)
+
+(define-method set_file
+  (of-object "IpatchDLS2")
+  (c-name "ipatch_dls2_set_file")
+  (return-type "none")
+  (parameters
+    '("IpatchDLSFile*" "file")
+  )
+)
+
+(define-method get_file
+  (of-object "IpatchDLS2")
+  (c-name "ipatch_dls2_get_file")
+  (return-type "IpatchDLSFile*")
+)
+
+(define-method get_info
+  (of-object "IpatchDLS2")
+  (c-name "ipatch_dls2_get_info")
+  (return-type "char*")
+  (parameters
+    '("guint32" "fourcc")
+  )
+)
+
+(define-method set_info
+  (of-object "IpatchDLS2")
+  (c-name "ipatch_dls2_set_info")
+  (return-type "none")
+  (parameters
+    '("guint32" "fourcc")
+    '("const-char*" "val")
+  )
+)
+
+(define-method make_unique_name
+  (of-object "IpatchDLS2")
+  (c-name "ipatch_dls2_make_unique_name")
+  (return-type "char*")
+  (parameters
+    '("GType" "child_type")
+    '("const-char*" "name")
+    '("const-IpatchItem*" "exclude")
+  )
+)
+
+(define-method find_inst
+  (of-object "IpatchDLS2")
+  (c-name "ipatch_dls2_find_inst")
+  (return-type "IpatchDLS2Inst*")
+  (parameters
+    '("const-char*" "name")
+    '("int" "bank")
+    '("int" "program")
+    '("const-IpatchDLS2Inst*" "exclude")
+  )
+)
+
+(define-method find_sample
+  (of-object "IpatchDLS2")
+  (c-name "ipatch_dls2_find_sample")
+  (return-type "IpatchDLS2Sample*")
+  (parameters
+    '("const-char*" "name")
+    '("const-IpatchDLS2Sample*" "exclude")
+  )
+)
+
+(define-function ipatch_dls2_get_region_references
+  (c-name "ipatch_dls2_get_region_references")
+  (return-type "IpatchList*")
+  (parameters
+    '("IpatchDLS2Sample*" "sample")
+  )
+)
+
+
+
+;; From IpatchDLS2Info.h
+
+(define-method get
+  (of-object "IpatchDLS2Info")
+  (c-name "ipatch_dls2_info_get")
+  (return-type "char*")
+  (parameters
+    '("guint32" "fourcc")
+  )
+)
+
+(define-method peek
+  (of-object "IpatchDLS2Info")
+  (c-name "ipatch_dls2_info_peek")
+  (return-type "const-char*")
+  (parameters
+    '("guint32" "fourcc")
+  )
+)
+
+(define-function ipatch_dls2_info_set
+  (c-name "ipatch_dls2_info_set")
+  (return-type "none")
+  (parameters
+    '("IpatchDLS2Info**" "info")
+    '("guint32" "fourcc")
+    '("const-char*" "value")
+  )
+)
+
+(define-method free
+  (of-object "IpatchDLS2Info")
+  (c-name "ipatch_dls2_info_free")
+  (return-type "none")
+)
+
+(define-method duplicate
+  (of-object "IpatchDLS2Info")
+  (c-name "ipatch_dls2_info_duplicate")
+  (return-type "IpatchDLS2Info*")
+)
+
+(define-function ipatch_dls2_info_is_defined
+  (c-name "ipatch_dls2_info_is_defined")
+  (return-type "gboolean")
+  (parameters
+    '("guint32" "fourcc")
+  )
+)
+
+(define-function ipatch_dls2_info_install_class_properties
+  (c-name "ipatch_dls2_info_install_class_properties")
+  (return-type "none")
+  (parameters
+    '("GObjectClass*" "obj_class")
+  )
+)
+
+(define-function ipatch_dls2_info_set_property
+  (c-name "ipatch_dls2_info_set_property")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchDLS2Info**" "info_list")
+    '("guint" "property_id")
+    '("const-GValue*" "value")
+  )
+)
+
+(define-method get_property
+  (of-object "IpatchDLS2Info")
+  (c-name "ipatch_dls2_info_get_property")
+  (return-type "gboolean")
+  (parameters
+    '("guint" "property_id")
+    '("GValue*" "value")
+  )
+)
+
+(define-function ipatch_dls2_info_notify
+  (c-name "ipatch_dls2_info_notify")
+  (return-type "none")
+  (parameters
+    '("IpatchItem*" "item")
+    '("guint32" "fourcc")
+    '("const-GValue*" "new_value")
+    '("const-GValue*" "old_value")
+  )
+)
+
+(define-function ipatch_dls2_info_bag_new
+  (c-name "ipatch_dls2_info_bag_new")
+  (is-constructor-of "IpatchDLS2InfoBag")
+  (return-type "IpatchDLS2InfoBag*")
+)
+
+(define-method free
+  (of-object "IpatchDLS2InfoBag")
+  (c-name "ipatch_dls2_info_bag_free")
+  (return-type "none")
+)
+
+
+
+;; From IpatchDLS2Inst.h
+
+(define-function ipatch_dls2_inst_get_type
+  (c-name "ipatch_dls2_inst_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_dls2_inst_new
+  (c-name "ipatch_dls2_inst_new")
+  (is-constructor-of "IpatchDLS2Inst")
+  (return-type "IpatchDLS2Inst*")
+)
+
+(define-function ipatch_dls2_inst_first
+  (c-name "ipatch_dls2_inst_first")
+  (return-type "IpatchDLS2Inst*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-function ipatch_dls2_inst_next
+  (c-name "ipatch_dls2_inst_next")
+  (return-type "IpatchDLS2Inst*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-method get_info
+  (of-object "IpatchDLS2Inst")
+  (c-name "ipatch_dls2_inst_get_info")
+  (return-type "char*")
+  (parameters
+    '("guint32" "fourcc")
+  )
+)
+
+(define-method set_info
+  (of-object "IpatchDLS2Inst")
+  (c-name "ipatch_dls2_inst_set_info")
+  (return-type "none")
+  (parameters
+    '("guint32" "fourcc")
+    '("const-char*" "val")
+  )
+)
+
+(define-method set_midi_locale
+  (of-object "IpatchDLS2Inst")
+  (c-name "ipatch_dls2_inst_set_midi_locale")
+  (return-type "none")
+  (parameters
+    '("int" "bank")
+    '("int" "program")
+  )
+)
+
+(define-method get_midi_locale
+  (of-object "IpatchDLS2Inst")
+  (c-name "ipatch_dls2_inst_get_midi_locale")
+  (return-type "none")
+  (parameters
+    '("int*" "bank")
+    '("int*" "program")
+  )
+)
+
+(define-method compare
+  (of-object "IpatchDLS2Inst")
+  (c-name "ipatch_dls2_inst_compare")
+  (return-type "int")
+  (parameters
+    '("const-IpatchDLS2Inst*" "p2")
+  )
+)
+
+(define-method get_conns
+  (of-object "IpatchDLS2Inst")
+  (c-name "ipatch_dls2_inst_get_conns")
+  (return-type "GSList*")
+)
+
+(define-method set_conn
+  (of-object "IpatchDLS2Inst")
+  (c-name "ipatch_dls2_inst_set_conn")
+  (return-type "none")
+  (parameters
+    '("const-IpatchDLS2Conn*" "conn")
+  )
+)
+
+(define-method unset_conn
+  (of-object "IpatchDLS2Inst")
+  (c-name "ipatch_dls2_inst_unset_conn")
+  (return-type "none")
+  (parameters
+    '("const-IpatchDLS2Conn*" "conn")
+  )
+)
+
+(define-method unset_all_conns
+  (of-object "IpatchDLS2Inst")
+  (c-name "ipatch_dls2_inst_unset_all_conns")
+  (return-type "none")
+)
+
+(define-method conn_count
+  (of-object "IpatchDLS2Inst")
+  (c-name "ipatch_dls2_inst_conn_count")
+  (return-type "guint")
+)
+
+
+
+;; From IpatchDLS2Region.h
+
+(define-function ipatch_dls2_region_get_type
+  (c-name "ipatch_dls2_region_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_dls2_region_new
+  (c-name "ipatch_dls2_region_new")
+  (is-constructor-of "IpatchDLS2Region")
+  (return-type "IpatchDLS2Region*")
+)
+
+(define-function ipatch_dls2_region_first
+  (c-name "ipatch_dls2_region_first")
+  (return-type "IpatchDLS2Region*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-function ipatch_dls2_region_next
+  (c-name "ipatch_dls2_region_next")
+  (return-type "IpatchDLS2Region*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-method get_info
+  (of-object "IpatchDLS2Region")
+  (c-name "ipatch_dls2_region_get_info")
+  (return-type "char*")
+  (parameters
+    '("guint32" "fourcc")
+  )
+)
+
+(define-method set_info
+  (of-object "IpatchDLS2Region")
+  (c-name "ipatch_dls2_region_set_info")
+  (return-type "none")
+  (parameters
+    '("guint32" "fourcc")
+    '("const-char*" "val")
+  )
+)
+
+(define-method set_sample
+  (of-object "IpatchDLS2Region")
+  (c-name "ipatch_dls2_region_set_sample")
+  (return-type "none")
+  (parameters
+    '("IpatchDLS2Sample*" "sample")
+  )
+)
+
+(define-method get_sample
+  (of-object "IpatchDLS2Region")
+  (c-name "ipatch_dls2_region_get_sample")
+  (return-type "IpatchDLS2Sample*")
+)
+
+(define-method peek_sample
+  (of-object "IpatchDLS2Region")
+  (c-name "ipatch_dls2_region_peek_sample")
+  (return-type "IpatchDLS2Sample*")
+)
+
+(define-method set_note_range
+  (of-object "IpatchDLS2Region")
+  (c-name "ipatch_dls2_region_set_note_range")
+  (return-type "none")
+  (parameters
+    '("int" "low")
+    '("int" "high")
+  )
+)
+
+(define-method set_velocity_range
+  (of-object "IpatchDLS2Region")
+  (c-name "ipatch_dls2_region_set_velocity_range")
+  (return-type "none")
+  (parameters
+    '("int" "low")
+    '("int" "high")
+  )
+)
+
+(define-method in_range
+  (of-object "IpatchDLS2Region")
+  (c-name "ipatch_dls2_region_in_range")
+  (return-type "gboolean")
+  (parameters
+    '("int" "note")
+    '("int" "velocity")
+  )
+)
+
+(define-method set_param
+  (of-object "IpatchDLS2Region")
+  (c-name "ipatch_dls2_region_set_param")
+  (return-type "none")
+  (parameters
+    '("IpatchDLS2Param" "param")
+    '("gint32" "val")
+  )
+)
+
+(define-method set_param_array
+  (of-object "IpatchDLS2Region")
+  (c-name "ipatch_dls2_region_set_param_array")
+  (return-type "none")
+  (parameters
+    '("IpatchDLS2ParamArray*" "array")
+  )
+)
+
+(define-method get_conns
+  (of-object "IpatchDLS2Region")
+  (c-name "ipatch_dls2_region_get_conns")
+  (return-type "GSList*")
+)
+
+(define-method set_conn
+  (of-object "IpatchDLS2Region")
+  (c-name "ipatch_dls2_region_set_conn")
+  (return-type "none")
+  (parameters
+    '("const-IpatchDLS2Conn*" "conn")
+  )
+)
+
+(define-method unset_conn
+  (of-object "IpatchDLS2Region")
+  (c-name "ipatch_dls2_region_unset_conn")
+  (return-type "none")
+  (parameters
+    '("const-IpatchDLS2Conn*" "conn")
+  )
+)
+
+(define-method unset_all_conns
+  (of-object "IpatchDLS2Region")
+  (c-name "ipatch_dls2_region_unset_all_conns")
+  (return-type "none")
+)
+
+(define-method conn_count
+  (of-object "IpatchDLS2Region")
+  (c-name "ipatch_dls2_region_conn_count")
+  (return-type "guint")
+)
+
+(define-function ipatch_dls2_region_channel_map_stereo
+  (c-name "ipatch_dls2_region_channel_map_stereo")
+  (return-type "int")
+  (parameters
+    '("IpatchDLS2RegionChannelType" "chan")
+  )
+)
+
+
+
+;; From IpatchDLS2Sample.h
+
+(define-function ipatch_dls2_sample_get_type
+  (c-name "ipatch_dls2_sample_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_dls2_sample_new
+  (c-name "ipatch_dls2_sample_new")
+  (is-constructor-of "IpatchDLS2Sample")
+  (return-type "IpatchDLS2Sample*")
+)
+
+(define-function ipatch_dls2_sample_first
+  (c-name "ipatch_dls2_sample_first")
+  (return-type "IpatchDLS2Sample*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-function ipatch_dls2_sample_next
+  (c-name "ipatch_dls2_sample_next")
+  (return-type "IpatchDLS2Sample*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-method set_data
+  (of-object "IpatchDLS2Sample")
+  (c-name "ipatch_dls2_sample_set_data")
+  (return-type "none")
+  (parameters
+    '("IpatchSampleData*" "sampledata")
+  )
+)
+
+(define-method get_data
+  (of-object "IpatchDLS2Sample")
+  (c-name "ipatch_dls2_sample_get_data")
+  (return-type "IpatchSampleData*")
+)
+
+(define-method peek_data
+  (of-object "IpatchDLS2Sample")
+  (c-name "ipatch_dls2_sample_peek_data")
+  (return-type "IpatchSampleData*")
+)
+
+(define-method set_blank
+  (of-object "IpatchDLS2Sample")
+  (c-name "ipatch_dls2_sample_set_blank")
+  (return-type "none")
+)
+
+(define-function ipatch_dls2_sample_info_new
+  (c-name "ipatch_dls2_sample_info_new")
+  (is-constructor-of "IpatchDLS2SampleInfo")
+  (return-type "IpatchDLS2SampleInfo*")
+)
+
+(define-method free
+  (of-object "IpatchDLS2SampleInfo")
+  (c-name "ipatch_dls2_sample_info_free")
+  (return-type "none")
+)
+
+(define-method duplicate
+  (of-object "IpatchDLS2SampleInfo")
+  (c-name "ipatch_dls2_sample_info_duplicate")
+  (return-type "IpatchDLS2SampleInfo*")
+)
+
+(define-method init
+  (of-object "IpatchDLS2SampleInfo")
+  (c-name "ipatch_dls2_sample_info_init")
+  (return-type "none")
+)
+
+(define-function ipatch_dls2_sample_info_install_class_properties
+  (c-name "ipatch_dls2_sample_info_install_class_properties")
+  (return-type "none")
+  (parameters
+    '("GObjectClass*" "obj_class")
+  )
+)
+
+(define-function ipatch_dls2_sample_info_is_property_id_valid
+  (c-name "ipatch_dls2_sample_info_is_property_id_valid")
+  (return-type "gboolean")
+  (parameters
+    '("guint" "property_id")
+  )
+)
+
+(define-function ipatch_dls2_sample_info_set_property
+  (c-name "ipatch_dls2_sample_info_set_property")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchDLS2SampleInfo**" "sample_info")
+    '("guint" "property_id")
+    '("const-GValue*" "value")
+  )
+)
+
+(define-method get_property
+  (of-object "IpatchDLS2SampleInfo")
+  (c-name "ipatch_dls2_sample_info_get_property")
+  (return-type "gboolean")
+  (parameters
+    '("guint" "property_id")
+    '("GValue*" "value")
+  )
+)
+
+(define-function ipatch_dls2_sample_info_notify_changes
+  (c-name "ipatch_dls2_sample_info_notify_changes")
+  (return-type "none")
+  (parameters
+    '("IpatchItem*" "item")
+    '("IpatchDLS2SampleInfo*" "newinfo")
+    '("IpatchDLS2SampleInfo*" "oldinfo")
+  )
+)
+
+
+
+;; From IpatchDLSFile.h
+
+(define-function ipatch_dls_file_get_type
+  (c-name "ipatch_dls_file_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_dls_file_new
+  (c-name "ipatch_dls_file_new")
+  (is-constructor-of "IpatchDLSFile")
+  (return-type "IpatchDLSFile*")
+)
+
+
+
+;; From IpatchDLSReader.h
+
+(define-function ipatch_dls_reader_get_type
+  (c-name "ipatch_dls_reader_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_dls_reader_new
+  (c-name "ipatch_dls_reader_new")
+  (is-constructor-of "IpatchDLSReader")
+  (return-type "IpatchDLSReader*")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+  )
+)
+
+(define-method load
+  (of-object "IpatchDLSReader")
+  (c-name "ipatch_dls_reader_load")
+  (return-type "IpatchDLS2*")
+  (parameters
+    '("GError**" "err")
+  )
+)
+
+(define-method start
+  (of-object "IpatchDLSReader")
+  (c-name "ipatch_dls_reader_start")
+  (return-type "gboolean")
+  (parameters
+    '("GError**" "err")
+  )
+)
+
+(define-method set_pool_table
+  (of-object "IpatchDLSReader")
+  (c-name "ipatch_dls_reader_set_pool_table")
+  (return-type "none")
+  (parameters
+    '("const-guint32[]" "pool_table")
+    '("guint" "size")
+  )
+)
+
+(define-method fixup
+  (of-object "IpatchDLSReader")
+  (c-name "ipatch_dls_reader_fixup")
+  (return-type "gboolean")
+  (parameters
+    '("GError**" "err")
+  )
+)
+
+(define-method load_level_0
+  (of-object "IpatchDLSReader")
+  (c-name "ipatch_dls_reader_load_level_0")
+  (return-type "gboolean")
+  (parameters
+    '("GError**" "err")
+  )
+)
+
+(define-method load_inst_list
+  (of-object "IpatchDLSReader")
+  (c-name "ipatch_dls_reader_load_inst_list")
+  (return-type "gboolean")
+  (parameters
+    '("GError**" "err")
+  )
+)
+
+(define-method load_region_list
+  (of-object "IpatchDLSReader")
+  (c-name "ipatch_dls_reader_load_region_list")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchDLS2Inst*" "inst")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_gig_reader_load_region_list
+  (c-name "ipatch_gig_reader_load_region_list")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchDLSReader*" "reader")
+    '("IpatchGigInst*" "giginst")
+    '("GError**" "err")
+  )
+)
+
+(define-method load_art_list
+  (of-object "IpatchDLSReader")
+  (c-name "ipatch_dls_reader_load_art_list")
+  (return-type "gboolean")
+  (parameters
+    '("GSList**" "conn_list")
+    '("GError**" "err")
+  )
+)
+
+(define-method load_wave_pool
+  (of-object "IpatchDLSReader")
+  (c-name "ipatch_dls_reader_load_wave_pool")
+  (return-type "gboolean")
+  (parameters
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_gig_reader_load_sub_regions
+  (c-name "ipatch_gig_reader_load_sub_regions")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchDLSReader*" "reader")
+    '("IpatchGigRegion*" "region")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_gig_reader_load_inst_lart
+  (c-name "ipatch_gig_reader_load_inst_lart")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchDLSReader*" "reader")
+    '("IpatchGigInst*" "inst")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_dls_load_info
+  (c-name "ipatch_dls_load_info")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchRiff*" "riff")
+    '("IpatchDLS2Info**" "info")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_dls_load_region_header
+  (c-name "ipatch_dls_load_region_header")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchRiff*" "riff")
+    '("IpatchDLS2Region*" "region")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_gig_load_region_header
+  (c-name "ipatch_gig_load_region_header")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchRiff*" "riff")
+    '("IpatchGigRegion*" "region")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_dls_load_wave_link
+  (c-name "ipatch_dls_load_wave_link")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchRiff*" "riff")
+    '("IpatchDLS2Region*" "region")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_dls_load_sample_info
+  (c-name "ipatch_dls_load_sample_info")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchRiff*" "riff")
+    '("IpatchDLS2SampleInfo*" "info")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_dls_load_connection
+  (c-name "ipatch_dls_load_connection")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchRiff*" "riff")
+    '("GSList**" "conn_list")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_dls_load_sample_format
+  (c-name "ipatch_dls_load_sample_format")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchRiff*" "riff")
+    '("IpatchDLS2Sample*" "sample")
+    '("int*" "bitwidth")
+    '("int*" "channels")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_dls_load_pool_table
+  (c-name "ipatch_dls_load_pool_table")
+  (return-type "guint32*")
+  (parameters
+    '("IpatchRiff*" "riff")
+    '("guint*" "size")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_dls_load_dlid
+  (c-name "ipatch_dls_load_dlid")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchRiff*" "riff")
+    '("guint8*" "dlid")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_gig_load_sample_info
+  (c-name "ipatch_gig_load_sample_info")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchRiff*" "riff")
+    '("IpatchDLS2SampleInfo*" "info")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_gig_load_dimension_info
+  (c-name "ipatch_gig_load_dimension_info")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchRiff*" "riff")
+    '("IpatchGigRegion*" "region")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_gig_load_dimension_names
+  (c-name "ipatch_gig_load_dimension_names")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchRiff*" "riff")
+    '("IpatchGigRegion*" "region")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_gig_load_group_names
+  (c-name "ipatch_gig_load_group_names")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchRiff*" "riff")
+    '("GSList**" "name_list")
+    '("GError**" "err")
+  )
+)
+
+
+
+;; From IpatchDLSWriter.h
+
+(define-function ipatch_dls_writer_get_type
+  (c-name "ipatch_dls_writer_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_dls_writer_new
+  (c-name "ipatch_dls_writer_new")
+  (is-constructor-of "IpatchDLSWriter")
+  (return-type "IpatchDLSWriter*")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("IpatchDLS2*" "dls")
+  )
+)
+
+(define-method set_patch
+  (of-object "IpatchDLSWriter")
+  (c-name "ipatch_dls_writer_set_patch")
+  (return-type "none")
+  (parameters
+    '("IpatchDLS2*" "dls")
+  )
+)
+
+(define-method set_file_handle
+  (of-object "IpatchDLSWriter")
+  (c-name "ipatch_dls_writer_set_file_handle")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+  )
+)
+
+(define-method save
+  (of-object "IpatchDLSWriter")
+  (c-name "ipatch_dls_writer_save")
+  (return-type "gboolean")
+  (parameters
+    '("GError**" "err")
+  )
+)
+
+
+
+;; From IpatchFile.h
+
+(define-function ipatch_file_get_type
+  (c-name "ipatch_file_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_file_new
+  (c-name "ipatch_file_new")
+  (is-constructor-of "IpatchFile")
+  (return-type "IpatchFile*")
+)
+
+(define-method set_name
+  (of-object "IpatchFile")
+  (c-name "ipatch_file_set_name")
+  (return-type "none")
+  (parameters
+    '("const-char*" "file_name")
+  )
+)
+
+(define-method get_name
+  (of-object "IpatchFile")
+  (c-name "ipatch_file_get_name")
+  (return-type "char*")
+)
+
+(define-method open
+  (of-object "IpatchFile")
+  (c-name "ipatch_file_open")
+  (return-type "IpatchFileHandle*")
+  (parameters
+    '("const-char*" "file_name")
+    '("const-char*" "mode")
+    '("GError**" "err")
+  )
+)
+
+(define-method assign_fd
+  (of-object "IpatchFile")
+  (c-name "ipatch_file_assign_fd")
+  (return-type "none")
+  (parameters
+    '("int" "fd")
+    '("gboolean" "close_on_finalize")
+  )
+)
+
+(define-method assign_io_channel
+  (of-object "IpatchFile")
+  (c-name "ipatch_file_assign_io_channel")
+  (return-type "none")
+  (parameters
+    '("GIOChannel*" "iochan")
+  )
+)
+
+(define-function ipatch_file_get_io_channel
+  (c-name "ipatch_file_get_io_channel")
+  (return-type "GIOChannel*")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+  )
+)
+
+(define-function ipatch_file_get_fd
+  (c-name "ipatch_file_get_fd")
+  (return-type "int")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+  )
+)
+
+(define-function ipatch_file_close
+  (c-name "ipatch_file_close")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+  )
+)
+
+(define-function ipatch_file_get_position
+  (c-name "ipatch_file_get_position")
+  (return-type "guint")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+  )
+)
+
+(define-function ipatch_file_update_position
+  (c-name "ipatch_file_update_position")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("guint" "offset")
+  )
+)
+
+(define-function ipatch_file_read
+  (c-name "ipatch_file_read")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("gpointer" "buf")
+    '("guint" "size")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_file_read_eof
+  (c-name "ipatch_file_read_eof")
+  (return-type "GIOStatus")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("gpointer" "buf")
+    '("guint" "size")
+    '("guint*" "bytes_read")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_file_write
+  (c-name "ipatch_file_write")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("gconstpointer" "buf")
+    '("guint" "size")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_file_seek
+  (c-name "ipatch_file_seek")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("int" "offset")
+    '("GSeekType" "type")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_file_seek_eof
+  (c-name "ipatch_file_seek_eof")
+  (return-type "GIOStatus")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("int" "offset")
+    '("GSeekType" "type")
+    '("GError**" "err")
+  )
+)
+
+(define-method get_size
+  (of-object "IpatchFile")
+  (c-name "ipatch_file_get_size")
+  (return-type "int")
+  (parameters
+    '("GError**" "err")
+  )
+)
+
+(define-method identify
+  (of-object "IpatchFile")
+  (c-name "ipatch_file_identify")
+  (return-type "GType")
+  (parameters
+    '("GError**" "err")
+  )
+)
+
+(define-method identify_by_ext
+  (of-object "IpatchFile")
+  (c-name "ipatch_file_identify_by_ext")
+  (return-type "GType")
+)
+
+(define-function ipatch_file_identify_open
+  (c-name "ipatch_file_identify_open")
+  (return-type "IpatchFileHandle*")
+  (parameters
+    '("const-char*" "file_name")
+    '("GError**" "err")
+  )
+)
+
+(define-method set_little_endian
+  (of-object "IpatchFile")
+  (c-name "ipatch_file_set_little_endian")
+  (return-type "none")
+)
+
+(define-method set_big_endian
+  (of-object "IpatchFile")
+  (c-name "ipatch_file_set_big_endian")
+  (return-type "none")
+)
+
+(define-function ipatch_file_read_u8
+  (c-name "ipatch_file_read_u8")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("guint8*" "val")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_file_read_u16
+  (c-name "ipatch_file_read_u16")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("guint16*" "val")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_file_read_u32
+  (c-name "ipatch_file_read_u32")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("guint32*" "val")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_file_read_u64
+  (c-name "ipatch_file_read_u64")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("guint64*" "val")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_file_read_s8
+  (c-name "ipatch_file_read_s8")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("gint8*" "val")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_file_read_s16
+  (c-name "ipatch_file_read_s16")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("gint16*" "val")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_file_read_s32
+  (c-name "ipatch_file_read_s32")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("gint32*" "val")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_file_read_s64
+  (c-name "ipatch_file_read_s64")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("gint64*" "val")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_file_write_u8
+  (c-name "ipatch_file_write_u8")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("guint8" "val")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_file_write_u16
+  (c-name "ipatch_file_write_u16")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("guint16" "val")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_file_write_u32
+  (c-name "ipatch_file_write_u32")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("guint32" "val")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_file_write_u64
+  (c-name "ipatch_file_write_u64")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("guint64" "val")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_file_write_s8
+  (c-name "ipatch_file_write_s8")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("gint8" "val")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_file_write_s16
+  (c-name "ipatch_file_write_s16")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("gint16" "val")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_file_write_s32
+  (c-name "ipatch_file_write_s32")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("gint32" "val")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_file_write_s64
+  (c-name "ipatch_file_write_s64")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("gint64" "val")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_file_buf_load
+  (c-name "ipatch_file_buf_load")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("guint" "size")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_file_buf_read
+  (c-name "ipatch_file_buf_read")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("gpointer" "buf")
+    '("guint" "size")
+  )
+)
+
+(define-function ipatch_file_buf_write
+  (c-name "ipatch_file_buf_write")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("gconstpointer" "buf")
+    '("guint" "size")
+  )
+)
+
+(define-function ipatch_file_buf_memset
+  (c-name "ipatch_file_buf_memset")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("char" "c")
+    '("guint" "size")
+  )
+)
+
+(define-function ipatch_file_buf_commit
+  (c-name "ipatch_file_buf_commit")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_file_buf_seek
+  (c-name "ipatch_file_buf_seek")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("int" "offset")
+    '("GSeekType" "type")
+  )
+)
+
+(define-function ipatch_file_buf_read_u8
+  (c-name "ipatch_file_buf_read_u8")
+  (return-type "guint8")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+  )
+)
+
+(define-function ipatch_file_buf_read_u16
+  (c-name "ipatch_file_buf_read_u16")
+  (return-type "guint16")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+  )
+)
+
+(define-function ipatch_file_buf_read_u32
+  (c-name "ipatch_file_buf_read_u32")
+  (return-type "guint32")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+  )
+)
+
+(define-function ipatch_file_buf_read_u64
+  (c-name "ipatch_file_buf_read_u64")
+  (return-type "guint64")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+  )
+)
+
+(define-function ipatch_file_buf_read_s8
+  (c-name "ipatch_file_buf_read_s8")
+  (return-type "gint8")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+  )
+)
+
+(define-function ipatch_file_buf_read_s16
+  (c-name "ipatch_file_buf_read_s16")
+  (return-type "gint16")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+  )
+)
+
+(define-function ipatch_file_buf_read_s32
+  (c-name "ipatch_file_buf_read_s32")
+  (return-type "gint32")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+  )
+)
+
+(define-function ipatch_file_buf_read_s64
+  (c-name "ipatch_file_buf_read_s64")
+  (return-type "gint64")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+  )
+)
+
+(define-function ipatch_file_buf_write_u8
+  (c-name "ipatch_file_buf_write_u8")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("guint8" "val")
+  )
+)
+
+(define-function ipatch_file_buf_write_u16
+  (c-name "ipatch_file_buf_write_u16")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("guint16" "val")
+  )
+)
+
+(define-function ipatch_file_buf_write_u32
+  (c-name "ipatch_file_buf_write_u32")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("guint32" "val")
+  )
+)
+
+(define-function ipatch_file_buf_write_u64
+  (c-name "ipatch_file_buf_write_u64")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("guint64" "val")
+  )
+)
+
+(define-function ipatch_file_buf_write_s8
+  (c-name "ipatch_file_buf_write_s8")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("gint8" "val")
+  )
+)
+
+(define-function ipatch_file_buf_write_s16
+  (c-name "ipatch_file_buf_write_s16")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("gint16" "val")
+  )
+)
+
+(define-function ipatch_file_buf_write_s32
+  (c-name "ipatch_file_buf_write_s32")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("gint32" "val")
+  )
+)
+
+(define-function ipatch_file_buf_write_s64
+  (c-name "ipatch_file_buf_write_s64")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("gint64" "val")
+  )
+)
+
+(define-method set_iofuncs_static
+  (of-object "IpatchFile")
+  (c-name "ipatch_file_set_iofuncs_static")
+  (return-type "none")
+  (parameters
+    '("IpatchFileIOFuncs*" "funcs")
+  )
+)
+
+(define-method set_iofuncs
+  (of-object "IpatchFile")
+  (c-name "ipatch_file_set_iofuncs")
+  (return-type "none")
+  (parameters
+    '("const-IpatchFileIOFuncs*" "funcs")
+  )
+)
+
+(define-method get_iofuncs
+  (of-object "IpatchFile")
+  (c-name "ipatch_file_get_iofuncs")
+  (return-type "none")
+  (parameters
+    '("IpatchFileIOFuncs*" "out_funcs")
+  )
+)
+
+(define-method set_iofuncs_null
+  (of-object "IpatchFile")
+  (c-name "ipatch_file_set_iofuncs_null")
+  (return-type "none")
+)
+
+(define-function ipatch_file_default_open_method
+  (c-name "ipatch_file_default_open_method")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("const-char*" "mode")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_file_default_close_method
+  (c-name "ipatch_file_default_close_method")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+  )
+)
+
+(define-function ipatch_file_default_read_method
+  (c-name "ipatch_file_default_read_method")
+  (return-type "GIOStatus")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("gpointer" "buf")
+    '("guint" "size")
+    '("guint*" "bytes_read")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_file_default_write_method
+  (c-name "ipatch_file_default_write_method")
+  (return-type "GIOStatus")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("gconstpointer" "buf")
+    '("guint" "size")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_file_default_seek_method
+  (c-name "ipatch_file_default_seek_method")
+  (return-type "GIOStatus")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("int" "offset")
+    '("GSeekType" "type")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_file_default_getfd_method
+  (c-name "ipatch_file_default_getfd_method")
+  (return-type "int")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+  )
+)
+
+(define-method default_get_size_method
+  (of-object "IpatchFile")
+  (c-name "ipatch_file_default_get_size_method")
+  (return-type "int")
+  (parameters
+    '("GError**" "err")
+  )
+)
+
+
+
+;; From IpatchGigEffects.h
+
+(define-function ipatch_gig_parse_effects
+  (c-name "ipatch_gig_parse_effects")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("IpatchGigEffects*" "effects")
+  )
+)
+
+(define-function ipatch_gig_store_effects
+  (c-name "ipatch_gig_store_effects")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("IpatchGigEffects*" "effects")
+  )
+)
+
+(define-method init
+  (of-object "IpatchGigEffects")
+  (c-name "ipatch_gig_effects_init")
+  (return-type "none")
+)
+
+(define-method to_gen_array
+  (of-object "IpatchGigEffects")
+  (c-name "ipatch_gig_effects_to_gen_array")
+  (return-type "none")
+  (parameters
+    '("IpatchSF2GenArray*" "array")
+  )
+)
+
+(define-function ipatch_gig_to_sf2_timecents
+  (c-name "ipatch_gig_to_sf2_timecents")
+  (return-type "guint16")
+  (parameters
+    '("gint32" "gig_tc")
+  )
+)
+
+(define-function ipatch_gig_volsust_to_sf2_centibels
+  (c-name "ipatch_gig_volsust_to_sf2_centibels")
+  (return-type "guint16")
+  (parameters
+    '("guint" "gig_tperc")
+  )
+)
+
+
+
+;; From IpatchGigFile.h
+
+(define-function ipatch_gig_file_get_type
+  (c-name "ipatch_gig_file_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_gig_file_new
+  (c-name "ipatch_gig_file_new")
+  (is-constructor-of "IpatchGigFile")
+  (return-type "IpatchGigFile*")
+)
+
+
+
+;; From IpatchGig.h
+
+(define-function ipatch_gig_get_type
+  (c-name "ipatch_gig_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_gig_new
+  (c-name "ipatch_gig_new")
+  (is-constructor-of "IpatchGig")
+  (return-type "IpatchGig*")
+)
+
+
+
+;; From IpatchGigDimension.h
+
+(define-function ipatch_gig_dimension_get_type
+  (c-name "ipatch_gig_dimension_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_gig_dimension_new
+  (c-name "ipatch_gig_dimension_new")
+  (is-constructor-of "IpatchGigDimension")
+  (return-type "IpatchGigDimension*")
+)
+
+(define-function ipatch_gig_dimension_first
+  (c-name "ipatch_gig_dimension_first")
+  (return-type "IpatchGigDimension*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-function ipatch_gig_dimension_next
+  (c-name "ipatch_gig_dimension_next")
+  (return-type "IpatchGigDimension*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+
+
+;; From IpatchGigInst.h
+
+(define-function ipatch_gig_inst_get_type
+  (c-name "ipatch_gig_inst_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_gig_inst_new
+  (c-name "ipatch_gig_inst_new")
+  (is-constructor-of "IpatchGigInst")
+  (return-type "IpatchGigInst*")
+)
+
+(define-function ipatch_gig_inst_first
+  (c-name "ipatch_gig_inst_first")
+  (return-type "IpatchGigInst*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-function ipatch_gig_inst_next
+  (c-name "ipatch_gig_inst_next")
+  (return-type "IpatchGigInst*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+
+
+;; From IpatchGigRegion.h
+
+(define-function ipatch_gig_region_get_type
+  (c-name "ipatch_gig_region_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_gig_region_new
+  (c-name "ipatch_gig_region_new")
+  (is-constructor-of "IpatchGigRegion")
+  (return-type "IpatchGigRegion*")
+)
+
+(define-function ipatch_gig_region_first
+  (c-name "ipatch_gig_region_first")
+  (return-type "IpatchGigRegion*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-function ipatch_gig_region_next
+  (c-name "ipatch_gig_region_next")
+  (return-type "IpatchGigRegion*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-method set_note_range
+  (of-object "IpatchGigRegion")
+  (c-name "ipatch_gig_region_set_note_range")
+  (return-type "none")
+  (parameters
+    '("int" "low")
+    '("int" "high")
+  )
+)
+
+(define-method set_velocity_range
+  (of-object "IpatchGigRegion")
+  (c-name "ipatch_gig_region_set_velocity_range")
+  (return-type "none")
+  (parameters
+    '("int" "low")
+    '("int" "high")
+  )
+)
+
+(define-method new_dimension
+  (of-object "IpatchGigRegion")
+  (c-name "ipatch_gig_region_new_dimension")
+  (return-type "none")
+  (parameters
+    '("IpatchGigDimensionType" "type")
+    '("int" "split_count")
+  )
+)
+
+(define-method remove_dimension
+  (of-object "IpatchGigRegion")
+  (c-name "ipatch_gig_region_remove_dimension")
+  (return-type "none")
+  (parameters
+    '("int" "dim_index")
+    '("int" "split_index")
+  )
+)
+
+
+
+;; From IpatchGigSample.h
+
+(define-function ipatch_gig_sample_get_type
+  (c-name "ipatch_gig_sample_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_gig_sample_new
+  (c-name "ipatch_gig_sample_new")
+  (is-constructor-of "IpatchGigSample")
+  (return-type "IpatchGigSample*")
+)
+
+(define-function ipatch_gig_sample_first
+  (c-name "ipatch_gig_sample_first")
+  (return-type "IpatchGigSample*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-function ipatch_gig_sample_next
+  (c-name "ipatch_gig_sample_next")
+  (return-type "IpatchGigSample*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+
+
+;; From IpatchGigSubRegion.h
+
+(define-function ipatch_gig_sub_region_get_type
+  (c-name "ipatch_gig_sub_region_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_gig_sub_region_new
+  (c-name "ipatch_gig_sub_region_new")
+  (is-constructor-of "IpatchGigSubRegion")
+  (return-type "IpatchGigSubRegion*")
+)
+
+(define-function ipatch_gig_sub_region_first
+  (c-name "ipatch_gig_sub_region_first")
+  (return-type "IpatchGigSubRegion*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-function ipatch_gig_sub_region_next
+  (c-name "ipatch_gig_sub_region_next")
+  (return-type "IpatchGigSubRegion*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-method get_sample
+  (of-object "IpatchGigSubRegion")
+  (c-name "ipatch_gig_sub_region_get_sample")
+  (return-type "IpatchGigSample*")
+)
+
+(define-method set_sample
+  (of-object "IpatchGigSubRegion")
+  (c-name "ipatch_gig_sub_region_set_sample")
+  (return-type "none")
+  (parameters
+    '("IpatchGigSample*" "sample")
+  )
+)
+
+
+
+;; From IpatchItem.h
+
+(define-function ipatch_item_get_type
+  (c-name "ipatch_item_get_type")
+  (return-type "GType")
+)
+
+(define-method unparent
+  (of-object "IpatchItem")
+  (c-name "ipatch_item_unparent")
+  (return-type "none")
+)
+
+(define-method get_parent
+  (of-object "IpatchItem")
+  (c-name "ipatch_item_get_parent")
+  (return-type "IpatchItem*")
+)
+
+(define-method peek_parent
+  (of-object "IpatchItem")
+  (c-name "ipatch_item_peek_parent")
+  (return-type "IpatchItem*")
+)
+
+(define-method get_base
+  (of-object "IpatchItem")
+  (c-name "ipatch_item_get_base")
+  (return-type "IpatchItem*")
+)
+
+(define-method peek_base
+  (of-object "IpatchItem")
+  (c-name "ipatch_item_peek_base")
+  (return-type "IpatchItem*")
+)
+
+(define-method get_ancestor_by_type
+  (of-object "IpatchItem")
+  (c-name "ipatch_item_get_ancestor_by_type")
+  (return-type "IpatchItem*")
+  (parameters
+    '("GType" "ancestor_type")
+  )
+)
+
+(define-method peek_ancestor_by_type
+  (of-object "IpatchItem")
+  (c-name "ipatch_item_peek_ancestor_by_type")
+  (return-type "IpatchItem*")
+  (parameters
+    '("GType" "ancestor_type")
+  )
+)
+
+(define-method remove
+  (of-object "IpatchItem")
+  (c-name "ipatch_item_remove")
+  (return-type "none")
+)
+
+(define-method changed
+  (of-object "IpatchItem")
+  (c-name "ipatch_item_changed")
+  (return-type "none")
+)
+
+(define-method get_property_fast
+  (of-object "IpatchItem")
+  (c-name "ipatch_item_get_property_fast")
+  (return-type "none")
+  (parameters
+    '("GParamSpec*" "pspec")
+    '("GValue*" "value")
+  )
+)
+
+(define-method copy
+  (of-object "IpatchItem")
+  (c-name "ipatch_item_copy")
+  (return-type "none")
+  (parameters
+    '("IpatchItem*" "src")
+  )
+)
+
+(define-method copy_link_func
+  (of-object "IpatchItem")
+  (c-name "ipatch_item_copy_link_func")
+  (return-type "none")
+  (parameters
+    '("IpatchItem*" "src")
+    '("IpatchItemCopyLinkFunc" "link_func")
+    '("gpointer" "user_data")
+  )
+)
+
+(define-method copy_replace
+  (of-object "IpatchItem")
+  (c-name "ipatch_item_copy_replace")
+  (return-type "none")
+  (parameters
+    '("IpatchItem*" "src")
+    '("GHashTable*" "repl_hash")
+  )
+)
+
+(define-method duplicate
+  (of-object "IpatchItem")
+  (c-name "ipatch_item_duplicate")
+  (return-type "IpatchItem*")
+)
+
+(define-method duplicate_link_func
+  (of-object "IpatchItem")
+  (c-name "ipatch_item_duplicate_link_func")
+  (return-type "IpatchItem*")
+  (parameters
+    '("IpatchItemCopyLinkFunc" "link_func")
+    '("gpointer" "user_data")
+  )
+)
+
+(define-method duplicate_replace
+  (of-object "IpatchItem")
+  (c-name "ipatch_item_duplicate_replace")
+  (return-type "IpatchItem*")
+  (parameters
+    '("GHashTable*" "repl_hash")
+  )
+)
+
+(define-method duplicate_deep
+  (of-object "IpatchItem")
+  (c-name "ipatch_item_duplicate_deep")
+  (return-type "IpatchList*")
+)
+
+(define-method copy_link_func_deep
+  (of-object "IpatchItem")
+  (c-name "ipatch_item_copy_link_func_deep")
+  (return-type "IpatchItem*")
+  (parameters
+    '("IpatchItem*" "link")
+    '("gpointer" "user_data")
+  )
+)
+
+(define-method copy_link_func_hash
+  (of-object "IpatchItem")
+  (c-name "ipatch_item_copy_link_func_hash")
+  (return-type "IpatchItem*")
+  (parameters
+    '("IpatchItem*" "link")
+    '("gpointer" "user_data")
+  )
+)
+
+(define-function ipatch_item_type_can_conflict
+  (c-name "ipatch_item_type_can_conflict")
+  (return-type "gboolean")
+  (parameters
+    '("GType" "item_type")
+  )
+)
+
+(define-function ipatch_item_type_get_unique_specs
+  (c-name "ipatch_item_type_get_unique_specs")
+  (return-type "GParamSpec**")
+  (parameters
+    '("GType" "item_type")
+    '("guint32*" "groups")
+  )
+)
+
+(define-method get_unique_props
+  (of-object "IpatchItem")
+  (c-name "ipatch_item_get_unique_props")
+  (return-type "GValueArray*")
+)
+
+(define-method test_conflict
+  (of-object "IpatchItem")
+  (c-name "ipatch_item_test_conflict")
+  (return-type "guint")
+  (parameters
+    '("IpatchItem*" "item2")
+  )
+)
+
+(define-function ipatch_item_set_atomic
+  (c-name "ipatch_item_set_atomic")
+  (return-type "none")
+  (parameters
+    '("gpointer" "item")
+    '("const-char*" "first_property_name")
+  )
+  (varargs #t)
+)
+
+(define-function ipatch_item_get_atomic
+  (c-name "ipatch_item_get_atomic")
+  (return-type "none")
+  (parameters
+    '("gpointer" "item")
+    '("const-char*" "first_property_name")
+  )
+  (varargs #t)
+)
+
+(define-function ipatch_item_first
+  (c-name "ipatch_item_first")
+  (return-type "IpatchItem*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-function ipatch_item_next
+  (c-name "ipatch_item_next")
+  (return-type "IpatchItem*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-method prop_notify
+  (of-object "IpatchItem")
+  (c-name "ipatch_item_prop_notify")
+  (return-type "none")
+  (parameters
+    '("GParamSpec*" "pspec")
+    '("const-GValue*" "new_value")
+    '("const-GValue*" "old_value")
+  )
+)
+
+(define-method prop_notify_by_name
+  (of-object "IpatchItem")
+  (c-name "ipatch_item_prop_notify_by_name")
+  (return-type "none")
+  (parameters
+    '("const-char*" "prop_name")
+    '("const-GValue*" "new_value")
+    '("const-GValue*" "old_value")
+  )
+)
+
+(define-method prop_connect
+  (of-object "IpatchItem")
+  (c-name "ipatch_item_prop_connect")
+  (return-type "guint")
+  (parameters
+    '("GParamSpec*" "pspec")
+    '("IpatchItemPropCallback" "callback")
+    '("IpatchItemPropDisconnect" "disconnect")
+    '("gpointer" "user_data")
+  )
+)
+
+(define-method prop_connect_by_name
+  (of-object "IpatchItem")
+  (c-name "ipatch_item_prop_connect_by_name")
+  (return-type "guint")
+  (parameters
+    '("const-char*" "prop_name")
+    '("IpatchItemPropCallback" "callback")
+    '("IpatchItemPropDisconnect" "disconnect")
+    '("gpointer" "user_data")
+  )
+)
+
+(define-function ipatch_item_prop_disconnect
+  (c-name "ipatch_item_prop_disconnect")
+  (return-type "none")
+  (parameters
+    '("guint" "handler_id")
+  )
+)
+
+(define-method prop_disconnect_matched
+  (of-object "IpatchItem")
+  (c-name "ipatch_item_prop_disconnect_matched")
+  (return-type "none")
+  (parameters
+    '("GParamSpec*" "pspec")
+    '("IpatchItemPropCallback" "callback")
+    '("gpointer" "user_data")
+  )
+)
+
+(define-method prop_disconnect_by_name
+  (of-object "IpatchItem")
+  (c-name "ipatch_item_prop_disconnect_by_name")
+  (return-type "none")
+  (parameters
+    '("const-char*" "prop_name")
+    '("IpatchItemPropCallback" "callback")
+    '("gpointer" "user_data")
+  )
+)
+
+
+
+;; From IpatchIter.h
+
+(define-function ipatch_iter_get_type
+  (c-name "ipatch_iter_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_iter_alloc
+  (c-name "ipatch_iter_alloc")
+  (return-type "IpatchIter*")
+)
+
+(define-method free
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_free")
+  (return-type "none")
+)
+
+(define-method duplicate
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_duplicate")
+  (return-type "IpatchIter*")
+)
+
+(define-method GSList_init
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_GSList_init")
+  (return-type "none")
+  (parameters
+    '("GSList**" "list")
+  )
+)
+
+(define-method GSList_get
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_GSList_get")
+  (return-type "gpointer")
+)
+
+(define-method GSList_next
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_GSList_next")
+  (return-type "gpointer")
+)
+
+(define-method GSList_first
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_GSList_first")
+  (return-type "gpointer")
+)
+
+(define-method GSList_last
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_GSList_last")
+  (return-type "gpointer")
+)
+
+(define-method GSList_index
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_GSList_index")
+  (return-type "gpointer")
+  (parameters
+    '("int" "index")
+  )
+)
+
+(define-method GSList_insert
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_GSList_insert")
+  (return-type "none")
+  (parameters
+    '("gpointer" "item")
+  )
+)
+
+(define-method GSList_remove
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_GSList_remove")
+  (return-type "none")
+)
+
+(define-method GSList_count
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_GSList_count")
+  (return-type "int")
+)
+
+(define-method GList_init
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_GList_init")
+  (return-type "none")
+  (parameters
+    '("GList**" "list")
+  )
+)
+
+(define-method GList_get
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_GList_get")
+  (return-type "gpointer")
+)
+
+(define-method GList_next
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_GList_next")
+  (return-type "gpointer")
+)
+
+(define-method GList_first
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_GList_first")
+  (return-type "gpointer")
+)
+
+(define-method GList_last
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_GList_last")
+  (return-type "gpointer")
+)
+
+(define-method GList_index
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_GList_index")
+  (return-type "gpointer")
+  (parameters
+    '("int" "index")
+  )
+)
+
+(define-method GList_insert
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_GList_insert")
+  (return-type "none")
+  (parameters
+    '("gpointer" "item")
+  )
+)
+
+(define-method GList_remove
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_GList_remove")
+  (return-type "none")
+)
+
+(define-method GList_count
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_GList_count")
+  (return-type "int")
+)
+
+(define-method array_init
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_array_init")
+  (return-type "none")
+  (parameters
+    '("gpointer*" "array")
+    '("guint" "size")
+  )
+)
+
+(define-method array_get
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_array_get")
+  (return-type "gpointer")
+)
+
+(define-method array_next
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_array_next")
+  (return-type "gpointer")
+)
+
+(define-method array_first
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_array_first")
+  (return-type "gpointer")
+)
+
+(define-method array_last
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_array_last")
+  (return-type "gpointer")
+)
+
+(define-method array_index
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_array_index")
+  (return-type "gpointer")
+  (parameters
+    '("int" "index")
+  )
+)
+
+(define-method array_insert
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_array_insert")
+  (return-type "none")
+  (parameters
+    '("gpointer" "item")
+  )
+)
+
+(define-method array_remove
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_array_remove")
+  (return-type "none")
+)
+
+(define-method array_count
+  (of-object "IpatchIter")
+  (c-name "ipatch_iter_array_count")
+  (return-type "int")
+)
+
+
+
+;; From IpatchList.h
+
+(define-function ipatch_list_get_type
+  (c-name "ipatch_list_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_list_new
+  (c-name "ipatch_list_new")
+  (is-constructor-of "IpatchList")
+  (return-type "IpatchList*")
+)
+
+(define-method duplicate
+  (of-object "IpatchList")
+  (c-name "ipatch_list_duplicate")
+  (return-type "IpatchList*")
+)
+
+(define-method init_iter
+  (of-object "IpatchList")
+  (c-name "ipatch_list_init_iter")
+  (return-type "none")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+
+
+;; From IpatchParamProp.h
+
+(define-function ipatch_param_install_property
+  (c-name "ipatch_param_install_property")
+  (return-type "none")
+  (parameters
+    '("GParamSpec*" "prop_spec")
+  )
+)
+
+(define-function ipatch_param_find_property
+  (c-name "ipatch_param_find_property")
+  (return-type "GParamSpec*")
+  (parameters
+    '("const-char*" "name")
+  )
+)
+
+(define-function ipatch_param_list_properties
+  (c-name "ipatch_param_list_properties")
+  (return-type "GParamSpec**")
+  (parameters
+    '("guint*" "n_properties")
+  )
+)
+
+(define-function ipatch_param_set
+  (c-name "ipatch_param_set")
+  (return-type "GParamSpec*")
+  (parameters
+    '("GParamSpec*" "spec")
+    '("const-char*" "first_property_name")
+  )
+  (varargs #t)
+)
+
+(define-function ipatch_param_set_valist
+  (c-name "ipatch_param_set_valist")
+  (return-type "none")
+  (parameters
+    '("GParamSpec*" "spec")
+    '("const-char*" "first_property_name")
+    '("va_list" "args")
+  )
+)
+
+(define-function ipatch_param_set_property
+  (c-name "ipatch_param_set_property")
+  (return-type "none")
+  (parameters
+    '("GParamSpec*" "spec")
+    '("const-char*" "property_name")
+    '("const-GValue*" "value")
+  )
+)
+
+(define-function ipatch_param_get
+  (c-name "ipatch_param_get")
+  (return-type "none")
+  (parameters
+    '("GParamSpec*" "spec")
+    '("const-char*" "first_property_name")
+  )
+  (varargs #t)
+)
+
+(define-function ipatch_param_get_valist
+  (c-name "ipatch_param_get_valist")
+  (return-type "none")
+  (parameters
+    '("GParamSpec*" "spec")
+    '("const-char*" "first_property_name")
+    '("va_list" "args")
+  )
+)
+
+(define-function ipatch_param_get_property
+  (c-name "ipatch_param_get_property")
+  (return-type "gboolean")
+  (parameters
+    '("GParamSpec*" "spec")
+    '("const-char*" "property_name")
+    '("GValue*" "value")
+  )
+)
+
+
+
+;; From IpatchPaste.h
+
+(define-function ipatch_register_paste_handler
+  (c-name "ipatch_register_paste_handler")
+  (return-type "none")
+  (parameters
+    '("IpatchPasteTestFunc" "test_func")
+    '("IpatchPasteExecFunc" "exec_func")
+    '("int" "flags")
+  )
+)
+
+(define-function ipatch_is_paste_possible
+  (c-name "ipatch_is_paste_possible")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchItem*" "dest")
+    '("IpatchItem*" "src")
+  )
+)
+
+(define-function ipatch_simple_paste
+  (c-name "ipatch_simple_paste")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchItem*" "dest")
+    '("IpatchItem*" "src")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_paste_get_type
+  (c-name "ipatch_paste_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_paste_new
+  (c-name "ipatch_paste_new")
+  (is-constructor-of "IpatchPaste")
+  (return-type "IpatchPaste*")
+)
+
+(define-method objects
+  (of-object "IpatchPaste")
+  (c-name "ipatch_paste_objects")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchItem*" "dest")
+    '("IpatchItem*" "src")
+    '("GError**" "err")
+  )
+)
+
+(define-method resolve
+  (of-object "IpatchPaste")
+  (c-name "ipatch_paste_resolve")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchPasteResolveFunc" "resolve_func")
+    '("gpointer" "user_data")
+  )
+)
+
+(define-method finish
+  (of-object "IpatchPaste")
+  (c-name "ipatch_paste_finish")
+  (return-type "gboolean")
+  (parameters
+    '("GError**" "err")
+  )
+)
+
+(define-method get_add_list
+  (of-object "IpatchPaste")
+  (c-name "ipatch_paste_get_add_list")
+  (return-type "IpatchList*")
+)
+
+(define-method object_add
+  (of-object "IpatchPaste")
+  (c-name "ipatch_paste_object_add")
+  (return-type "none")
+  (parameters
+    '("IpatchItem*" "additem")
+    '("IpatchContainer*" "parent")
+    '("IpatchItem*" "orig")
+  )
+)
+
+(define-method object_add_duplicate
+  (of-object "IpatchPaste")
+  (c-name "ipatch_paste_object_add_duplicate")
+  (return-type "IpatchItem*")
+  (parameters
+    '("IpatchItem*" "item")
+    '("IpatchContainer*" "parent")
+  )
+)
+
+(define-method object_add_duplicate_deep
+  (of-object "IpatchPaste")
+  (c-name "ipatch_paste_object_add_duplicate_deep")
+  (return-type "IpatchItem*")
+  (parameters
+    '("IpatchItem*" "item")
+    '("IpatchContainer*" "parent")
+  )
+)
+
+(define-method object_add_convert
+  (of-object "IpatchPaste")
+  (c-name "ipatch_paste_object_add_convert")
+  (return-type "gboolean")
+  (parameters
+    '("GType" "conv_type")
+    '("IpatchItem*" "item")
+    '("IpatchContainer*" "parent")
+    '("IpatchList**" "item_list")
+    '("GError**" "err")
+  )
+)
+
+(define-method object_link
+  (of-object "IpatchPaste")
+  (c-name "ipatch_paste_object_link")
+  (return-type "none")
+  (parameters
+    '("IpatchItem*" "from")
+    '("IpatchItem*" "to")
+  )
+)
+
+(define-function ipatch_paste_default_test_func
+  (c-name "ipatch_paste_default_test_func")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchItem*" "dest")
+    '("IpatchItem*" "src")
+  )
+)
+
+(define-method default_exec_func
+  (of-object "IpatchPaste")
+  (c-name "ipatch_paste_default_exec_func")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchItem*" "dest")
+    '("IpatchItem*" "src")
+    '("GError**" "err")
+  )
+)
+
+
+
+;; From IpatchRange.h
+
+(define-function ipatch_range_get_type
+  (c-name "ipatch_range_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_range_new
+  (c-name "ipatch_range_new")
+  (is-constructor-of "IpatchRange")
+  (return-type "IpatchRange*")
+  (parameters
+    '("int" "low")
+    '("int" "high")
+  )
+)
+
+(define-method copy
+  (of-object "IpatchRange")
+  (c-name "ipatch_range_copy")
+  (return-type "IpatchRange*")
+  (caller-owns-return #t)
+)
+
+(define-method free
+  (of-object "IpatchRange")
+  (c-name "ipatch_range_free")
+  (return-type "none")
+)
+
+(define-function ipatch_value_set_range
+  (c-name "ipatch_value_set_range")
+  (return-type "none")
+  (parameters
+    '("GValue*" "value")
+    '("const-IpatchRange*" "range")
+  )
+)
+
+(define-function ipatch_value_set_static_range
+  (c-name "ipatch_value_set_static_range")
+  (return-type "none")
+  (parameters
+    '("GValue*" "value")
+    '("IpatchRange*" "range")
+  )
+)
+
+(define-function ipatch_value_get_range
+  (c-name "ipatch_value_get_range")
+  (return-type "IpatchRange*")
+  (parameters
+    '("const-GValue*" "value")
+  )
+)
+
+(define-function ipatch_param_spec_range_get_type
+  (c-name "ipatch_param_spec_range_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_param_spec_range
+  (c-name "ipatch_param_spec_range")
+  (return-type "GParamSpec*")
+  (parameters
+    '("const-char*" "name")
+    '("const-char*" "nick")
+    '("const-char*" "blurb")
+    '("int" "min")
+    '("int" "max")
+    '("int" "default_low")
+    '("int" "default_high")
+    '("GParamFlags" "flags")
+  )
+)
+
+
+
+;; From IpatchRiff.h
+
+(define-function ipatch_riff_get_type
+  (c-name "ipatch_riff_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_riff_error_quark
+  (c-name "ipatch_riff_error_quark")
+  (return-type "GQuark")
+)
+
+(define-function ipatch_riff_new
+  (c-name "ipatch_riff_new")
+  (is-constructor-of "IpatchRiff")
+  (return-type "IpatchRiff*")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+  )
+)
+
+(define-method set_file_handle
+  (of-object "IpatchRiff")
+  (c-name "ipatch_riff_set_file_handle")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+  )
+)
+
+(define-method get_file_handle
+  (of-object "IpatchRiff")
+  (c-name "ipatch_riff_get_file_handle")
+  (return-type "IpatchFileHandle*")
+)
+
+(define-method get_chunk_level
+  (of-object "IpatchRiff")
+  (c-name "ipatch_riff_get_chunk_level")
+  (return-type "int")
+)
+
+(define-method get_chunk_array
+  (of-object "IpatchRiff")
+  (c-name "ipatch_riff_get_chunk_array")
+  (return-type "IpatchRiffChunk*")
+  (parameters
+    '("int*" "count")
+  )
+)
+
+(define-method get_chunk
+  (of-object "IpatchRiff")
+  (c-name "ipatch_riff_get_chunk")
+  (return-type "IpatchRiffChunk*")
+  (parameters
+    '("int" "level")
+  )
+)
+
+(define-method get_total_size
+  (of-object "IpatchRiff")
+  (c-name "ipatch_riff_get_total_size")
+  (return-type "guint32")
+)
+
+(define-method get_position
+  (of-object "IpatchRiff")
+  (c-name "ipatch_riff_get_position")
+  (return-type "guint32")
+)
+
+(define-method push_state
+  (of-object "IpatchRiff")
+  (c-name "ipatch_riff_push_state")
+  (return-type "none")
+)
+
+(define-method pop_state
+  (of-object "IpatchRiff")
+  (c-name "ipatch_riff_pop_state")
+  (return-type "gboolean")
+  (parameters
+    '("GError**" "err")
+  )
+)
+
+(define-method start_read
+  (of-object "IpatchRiff")
+  (c-name "ipatch_riff_start_read")
+  (return-type "IpatchRiffChunk*")
+  (parameters
+    '("GError**" "err")
+  )
+)
+
+(define-method start_read_chunk
+  (of-object "IpatchRiff")
+  (c-name "ipatch_riff_start_read_chunk")
+  (return-type "IpatchRiffChunk*")
+  (parameters
+    '("GError**" "err")
+  )
+)
+
+(define-method read_chunk_verify
+  (of-object "IpatchRiff")
+  (c-name "ipatch_riff_read_chunk_verify")
+  (return-type "IpatchRiffChunk*")
+  (parameters
+    '("IpatchRiffChunkType" "type")
+    '("guint32" "id")
+    '("GError**" "err")
+  )
+)
+
+(define-method read_chunk
+  (of-object "IpatchRiff")
+  (c-name "ipatch_riff_read_chunk")
+  (return-type "IpatchRiffChunk*")
+  (parameters
+    '("GError**" "err")
+  )
+)
+
+(define-method write_chunk
+  (of-object "IpatchRiff")
+  (c-name "ipatch_riff_write_chunk")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchRiffChunkType" "type")
+    '("guint32" "id")
+    '("GError**" "err")
+  )
+)
+
+(define-method close_chunk
+  (of-object "IpatchRiff")
+  (c-name "ipatch_riff_close_chunk")
+  (return-type "gboolean")
+  (parameters
+    '("int" "level")
+    '("GError**" "err")
+  )
+)
+
+(define-method skip_chunks
+  (of-object "IpatchRiff")
+  (c-name "ipatch_riff_skip_chunks")
+  (return-type "gboolean")
+  (parameters
+    '("guint" "count")
+    '("GError**" "err")
+  )
+)
+
+(define-method get_error
+  (of-object "IpatchRiff")
+  (c-name "ipatch_riff_get_error")
+  (return-type "gboolean")
+  (parameters
+    '("GError**" "err")
+  )
+)
+
+(define-method message_detail
+  (of-object "IpatchRiff")
+  (c-name "ipatch_riff_message_detail")
+  (return-type "char*")
+  (parameters
+    '("int" "level")
+    '("const-char*" "format")
+  )
+  (varargs #t)
+)
+
+
+
+;; From IpatchSample.h
+
+(define-function ipatch_sample_get_type
+  (c-name "ipatch_sample_get_type")
+  (return-type "GType")
+)
+
+(define-method get_loop_types
+  (of-object "IpatchSample")
+  (c-name "ipatch_sample_get_loop_types")
+  (return-type "int*")
+)
+
+(define-function ipatch_sample_type_get_loop_types
+  (c-name "ipatch_sample_type_get_loop_types")
+  (return-type "int*")
+  (parameters
+    '("GType" "type")
+  )
+)
+
+(define-method set_format
+  (of-object "IpatchSample")
+  (c-name "ipatch_sample_set_format")
+  (return-type "none")
+  (parameters
+    '("int" "format")
+  )
+)
+
+(define-method get_format
+  (of-object "IpatchSample")
+  (c-name "ipatch_sample_get_format")
+  (return-type "int")
+)
+
+(define-method set_size
+  (of-object "IpatchSample")
+  (c-name "ipatch_sample_set_size")
+  (return-type "none")
+  (parameters
+    '("guint" "size")
+  )
+)
+
+(define-method get_size
+  (of-object "IpatchSample")
+  (c-name "ipatch_sample_get_size")
+  (return-type "guint")
+  (parameters
+    '("guint*" "bytes")
+  )
+)
+
+(define-method get_frame_size
+  (of-object "IpatchSample")
+  (c-name "ipatch_sample_get_frame_size")
+  (return-type "int")
+)
+
+(define-method get_sample_data
+  (of-object "IpatchSample")
+  (c-name "ipatch_sample_get_sample_data")
+  (return-type "IpatchSampleData*")
+)
+
+(define-method set_sample_data
+  (of-object "IpatchSample")
+  (c-name "ipatch_sample_set_sample_data")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchSampleData*" "sampledata")
+  )
+)
+
+(define-method read
+  (of-object "IpatchSample")
+  (c-name "ipatch_sample_read")
+  (return-type "gboolean")
+  (parameters
+    '("guint" "offset")
+    '("guint" "frames")
+    '("gpointer" "buf")
+    '("GError**" "err")
+  )
+)
+
+(define-method write
+  (of-object "IpatchSample")
+  (c-name "ipatch_sample_write")
+  (return-type "gboolean")
+  (parameters
+    '("guint" "offset")
+    '("guint" "frames")
+    '("gconstpointer" "buf")
+    '("GError**" "err")
+  )
+)
+
+(define-method read_transform
+  (of-object "IpatchSample")
+  (c-name "ipatch_sample_read_transform")
+  (return-type "gboolean")
+  (parameters
+    '("guint" "offset")
+    '("guint" "frames")
+    '("gpointer" "buf")
+    '("int" "format")
+    '("guint32" "channel_map")
+    '("GError**" "err")
+  )
+)
+
+(define-method write_transform
+  (of-object "IpatchSample")
+  (c-name "ipatch_sample_write_transform")
+  (return-type "gboolean")
+  (parameters
+    '("guint" "offset")
+    '("guint" "frames")
+    '("gconstpointer" "buf")
+    '("int" "format")
+    '("guint32" "channel_map")
+    '("GError**" "err")
+  )
+)
+
+(define-method copy
+  (of-object "IpatchSample")
+  (c-name "ipatch_sample_copy")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchSample*" "src_sample")
+    '("guint32" "channel_map")
+    '("GError**" "err")
+  )
+)
+
+(define-method save_to_file
+  (of-object "IpatchSample")
+  (c-name "ipatch_sample_save_to_file")
+  (return-type "gboolean")
+  (parameters
+    '("const-char*" "filename")
+    '("int" "file_format")
+    '("int" "sub_format")
+    '("GError**" "err")
+  )
+)
+
+(define-method handle_open
+  (of-object "IpatchSample")
+  (c-name "ipatch_sample_handle_open")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchSampleHandle*" "handle")
+    '("char" "mode")
+    '("int" "format")
+    '("guint32" "channel_map")
+    '("GError**" "err")
+  )
+)
+
+(define-method close
+  (of-object "IpatchSampleHandle")
+  (c-name "ipatch_sample_handle_close")
+  (return-type "none")
+)
+
+(define-method get_transform
+  (of-object "IpatchSampleHandle")
+  (c-name "ipatch_sample_handle_get_transform")
+  (return-type "IpatchSampleTransform*")
+)
+
+(define-method set_transform
+  (of-object "IpatchSampleHandle")
+  (c-name "ipatch_sample_handle_set_transform")
+  (return-type "none")
+  (parameters
+    '("IpatchSampleTransform*" "transform")
+  )
+)
+
+(define-method get_format
+  (of-object "IpatchSampleHandle")
+  (c-name "ipatch_sample_handle_get_format")
+  (return-type "int")
+)
+
+(define-method get_frame_size
+  (of-object "IpatchSampleHandle")
+  (c-name "ipatch_sample_handle_get_frame_size")
+  (return-type "int")
+)
+
+(define-method get_max_frames
+  (of-object "IpatchSampleHandle")
+  (c-name "ipatch_sample_handle_get_max_frames")
+  (return-type "guint")
+)
+
+(define-method read
+  (of-object "IpatchSampleHandle")
+  (c-name "ipatch_sample_handle_read")
+  (return-type "gpointer")
+  (parameters
+    '("guint" "offset")
+    '("guint" "frames")
+    '("gpointer" "buf")
+    '("GError**" "err")
+  )
+)
+
+(define-method write
+  (of-object "IpatchSampleHandle")
+  (c-name "ipatch_sample_handle_write")
+  (return-type "gboolean")
+  (parameters
+    '("guint" "offset")
+    '("guint" "frames")
+    '("gconstpointer" "buf")
+    '("GError**" "err")
+  )
+)
+
+(define-method cascade_open
+  (of-object "IpatchSampleHandle")
+  (c-name "ipatch_sample_handle_cascade_open")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchSample*" "sample")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_sample_install_property
+  (c-name "ipatch_sample_install_property")
+  (return-type "GParamSpec*")
+  (parameters
+    '("GObjectClass*" "oclass")
+    '("guint" "property_id")
+    '("const-char*" "property_name")
+  )
+)
+
+(define-function ipatch_sample_install_property_readonly
+  (c-name "ipatch_sample_install_property_readonly")
+  (return-type "GParamSpec*")
+  (parameters
+    '("GObjectClass*" "oclass")
+    '("guint" "property_id")
+    '("const-char*" "property_name")
+  )
+)
+
+(define-function ipatch_sample_new_property_param_spec
+  (c-name "ipatch_sample_new_property_param_spec")
+  (return-type "GParamSpec*")
+  (parameters
+    '("const-char*" "property_name")
+    '("GParamFlags" "flags")
+  )
+)
+
+
+
+;; From IpatchSampleStore.h
+
+(define-function ipatch_sample_store_get_type
+  (c-name "ipatch_sample_store_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sample_store_first
+  (c-name "ipatch_sample_store_first")
+  (return-type "IpatchSampleStore*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-function ipatch_sample_store_next
+  (c-name "ipatch_sample_store_next")
+  (return-type "IpatchSampleStore*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+
+
+;; From IpatchSampleStoreCache.h
+
+(define-function ipatch_sample_store_cache_get_type
+  (c-name "ipatch_sample_store_cache_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sample_store_cache_new
+  (c-name "ipatch_sample_store_cache_new")
+  (is-constructor-of "IpatchSampleStoreCache")
+  (return-type "IpatchSample*")
+  (parameters
+    '("gpointer" "location")
+  )
+)
+
+(define-method open
+  (of-object "IpatchSampleStoreCache")
+  (c-name "ipatch_sample_store_cache_open")
+  (return-type "none")
+)
+
+(define-method close
+  (of-object "IpatchSampleStoreCache")
+  (c-name "ipatch_sample_store_cache_close")
+  (return-type "none")
+)
+
+
+
+;; From IpatchSampleStoreFile.h
+
+(define-function ipatch_sample_store_file_get_type
+  (c-name "ipatch_sample_store_file_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sample_store_file_new
+  (c-name "ipatch_sample_store_file_new")
+  (is-constructor-of "IpatchSampleStoreFile")
+  (return-type "IpatchSample*")
+  (parameters
+    '("IpatchFile*" "file")
+    '("guint" "location")
+  )
+)
+
+
+
+;; From IpatchSampleStoreRam.h
+
+(define-function ipatch_sample_store_ram_get_type
+  (c-name "ipatch_sample_store_ram_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sample_store_ram_new
+  (c-name "ipatch_sample_store_ram_new")
+  (is-constructor-of "IpatchSampleStoreRam")
+  (return-type "IpatchSample*")
+  (parameters
+    '("gpointer" "location")
+    '("gboolean" "free_data")
+  )
+)
+
+(define-function ipatch_sample_store_ram_get_blank
+  (c-name "ipatch_sample_store_ram_get_blank")
+  (return-type "IpatchSample*")
+)
+
+
+
+;; From IpatchSampleStoreRom.h
+
+(define-function ipatch_sample_store_rom_get_type
+  (c-name "ipatch_sample_store_rom_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sample_store_rom_new
+  (c-name "ipatch_sample_store_rom_new")
+  (is-constructor-of "IpatchSampleStoreRom")
+  (return-type "IpatchSample*")
+  (parameters
+    '("guint" "location")
+  )
+)
+
+
+
+;; From IpatchSampleStoreSndFile.h
+
+(define-function ipatch_sample_store_snd_file_get_type
+  (c-name "ipatch_sample_store_snd_file_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sample_store_snd_file_new
+  (c-name "ipatch_sample_store_snd_file_new")
+  (is-constructor-of "IpatchSampleStoreSndFile")
+  (return-type "IpatchSample*")
+  (parameters
+    '("const-char*" "filename")
+  )
+)
+
+(define-method init_read
+  (of-object "IpatchSampleStoreSndFile")
+  (c-name "ipatch_sample_store_snd_file_init_read")
+  (return-type "gboolean")
+)
+
+(define-method init_write
+  (of-object "IpatchSampleStoreSndFile")
+  (c-name "ipatch_sample_store_snd_file_init_write")
+  (return-type "gboolean")
+  (parameters
+    '("int" "file_format")
+    '("int" "sub_format")
+    '("int" "endian")
+    '("int" "channels")
+    '("int" "samplerate")
+  )
+)
+
+
+
+;; From IpatchSampleStoreSwap.h
+
+(define-function ipatch_sample_store_swap_get_type
+  (c-name "ipatch_sample_store_swap_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sample_store_swap_new
+  (c-name "ipatch_sample_store_swap_new")
+  (is-constructor-of "IpatchSampleStoreSwap")
+  (return-type "IpatchSample*")
+)
+
+(define-function ipatch_sample_store_swap_get_unused_size
+  (c-name "ipatch_sample_store_swap_get_unused_size")
+  (return-type "int")
+)
+
+
+
+;; From IpatchSampleStoreVirtual.h
+
+(define-function ipatch_sample_store_virtual_get_type
+  (c-name "ipatch_sample_store_virtual_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sample_store_virtual_new
+  (c-name "ipatch_sample_store_virtual_new")
+  (is-constructor-of "IpatchSampleStoreVirtual")
+  (return-type "IpatchSample*")
+)
+
+(define-method get_list
+  (of-object "IpatchSampleStoreVirtual")
+  (c-name "ipatch_sample_store_virtual_get_list")
+  (return-type "IpatchSampleList*")
+  (parameters
+    '("guint" "chan")
+  )
+)
+
+(define-method set_list
+  (of-object "IpatchSampleStoreVirtual")
+  (c-name "ipatch_sample_store_virtual_set_list")
+  (return-type "none")
+  (parameters
+    '("guint" "chan")
+    '("IpatchSampleList*" "list")
+  )
+)
+
+
+
+;; From IpatchSampleTransform.h
+
+(define-function ipatch_sample_transform_new
+  (c-name "ipatch_sample_transform_new")
+  (is-constructor-of "IpatchSampleTransform")
+  (return-type "IpatchSampleTransform*")
+  (parameters
+    '("int" "src_format")
+    '("int" "dest_format")
+    '("guint32" "channel_map")
+  )
+)
+
+(define-method free
+  (of-object "IpatchSampleTransform")
+  (c-name "ipatch_sample_transform_free")
+  (return-type "none")
+)
+
+(define-method init
+  (of-object "IpatchSampleTransform")
+  (c-name "ipatch_sample_transform_init")
+  (return-type "none")
+)
+
+(define-function ipatch_sample_transform_pool_acquire
+  (c-name "ipatch_sample_transform_pool_acquire")
+  (return-type "IpatchSampleTransform*")
+  (parameters
+    '("int" "src_format")
+    '("int" "dest_format")
+    '("guint32" "channel_map")
+  )
+)
+
+(define-method pool_release
+  (of-object "IpatchSampleTransform")
+  (c-name "ipatch_sample_transform_pool_release")
+  (return-type "none")
+)
+
+(define-method set_formats
+  (of-object "IpatchSampleTransform")
+  (c-name "ipatch_sample_transform_set_formats")
+  (return-type "none")
+  (parameters
+    '("int" "src_format")
+    '("int" "dest_format")
+    '("guint32" "channel_map")
+  )
+)
+
+(define-method alloc
+  (of-object "IpatchSampleTransform")
+  (c-name "ipatch_sample_transform_alloc")
+  (return-type "none")
+  (parameters
+    '("guint" "frames")
+  )
+)
+
+(define-method alloc_size
+  (of-object "IpatchSampleTransform")
+  (c-name "ipatch_sample_transform_alloc_size")
+  (return-type "int")
+  (parameters
+    '("guint" "size")
+  )
+)
+
+(define-method free_buffers
+  (of-object "IpatchSampleTransform")
+  (c-name "ipatch_sample_transform_free_buffers")
+  (return-type "none")
+)
+
+(define-method set_buffers_size
+  (of-object "IpatchSampleTransform")
+  (c-name "ipatch_sample_transform_set_buffers_size")
+  (return-type "guint")
+  (parameters
+    '("gpointer" "buf")
+    '("guint" "size")
+  )
+)
+
+(define-method get_buffers
+  (of-object "IpatchSampleTransform")
+  (c-name "ipatch_sample_transform_get_buffers")
+  (return-type "none")
+  (parameters
+    '("gpointer*" "buf1")
+    '("gpointer*" "buf2")
+  )
+)
+
+(define-method get_frame_sizes
+  (of-object "IpatchSampleTransform")
+  (c-name "ipatch_sample_transform_get_frame_sizes")
+  (return-type "none")
+  (parameters
+    '("guint*" "buf1_size")
+    '("guint*" "buf2_size")
+  )
+)
+
+(define-method get_max_frames
+  (of-object "IpatchSampleTransform")
+  (c-name "ipatch_sample_transform_get_max_frames")
+  (return-type "guint")
+)
+
+(define-method convert
+  (of-object "IpatchSampleTransform")
+  (c-name "ipatch_sample_transform_convert")
+  (return-type "gpointer")
+  (parameters
+    '("gconstpointer" "src")
+    '("gpointer" "dest")
+    '("guint" "frames")
+  )
+)
+
+(define-method convert_single
+  (of-object "IpatchSampleTransform")
+  (c-name "ipatch_sample_transform_convert_single")
+  (return-type "gpointer")
+  (parameters
+    '("guint" "frames")
+  )
+)
+
+
+
+;; From IpatchSF2File.h
+
+(define-function ipatch_sf2_file_get_type
+  (c-name "ipatch_sf2_file_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_file_new
+  (c-name "ipatch_sf2_file_new")
+  (is-constructor-of "IpatchSF2File")
+  (return-type "IpatchSF2File*")
+)
+
+(define-method set_sample_pos
+  (of-object "IpatchSF2File")
+  (c-name "ipatch_sf2_file_set_sample_pos")
+  (return-type "none")
+  (parameters
+    '("guint" "sample_pos")
+  )
+)
+
+(define-method get_sample_pos
+  (of-object "IpatchSF2File")
+  (c-name "ipatch_sf2_file_get_sample_pos")
+  (return-type "guint")
+)
+
+(define-method set_sample_size
+  (of-object "IpatchSF2File")
+  (c-name "ipatch_sf2_file_set_sample_size")
+  (return-type "none")
+  (parameters
+    '("guint" "sample_size")
+  )
+)
+
+(define-method get_sample_size
+  (of-object "IpatchSF2File")
+  (c-name "ipatch_sf2_file_get_sample_size")
+  (return-type "guint")
+)
+
+(define-method set_sample24_pos
+  (of-object "IpatchSF2File")
+  (c-name "ipatch_sf2_file_set_sample24_pos")
+  (return-type "none")
+  (parameters
+    '("guint" "sample24_pos")
+  )
+)
+
+(define-method get_sample24_pos
+  (of-object "IpatchSF2File")
+  (c-name "ipatch_sf2_file_get_sample24_pos")
+  (return-type "guint")
+)
+
+
+
+;; From IpatchSF2Gen.h
+
+(define-function ipatch_sf2_gen_is_valid
+  (c-name "ipatch_sf2_gen_is_valid")
+  (return-type "gboolean")
+  (parameters
+    '("guint" "genid")
+    '("IpatchSF2GenPropsType" "propstype")
+  )
+)
+
+(define-function ipatch_sf2_gen_array_get_type
+  (c-name "ipatch_sf2_gen_array_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_gen_array_new
+  (c-name "ipatch_sf2_gen_array_new")
+  (is-constructor-of "IpatchSF2GenArray")
+  (return-type "IpatchSF2GenArray*")
+  (parameters
+    '("gboolean" "clear")
+  )
+)
+
+(define-method free
+  (of-object "IpatchSF2GenArray")
+  (c-name "ipatch_sf2_gen_array_free")
+  (return-type "none")
+)
+
+(define-method duplicate
+  (of-object "IpatchSF2GenArray")
+  (c-name "ipatch_sf2_gen_array_duplicate")
+  (return-type "IpatchSF2GenArray*")
+)
+
+(define-method init
+  (of-object "IpatchSF2GenArray")
+  (c-name "ipatch_sf2_gen_array_init")
+  (return-type "none")
+  (parameters
+    '("gboolean" "offset")
+    '("gboolean" "set")
+  )
+)
+
+(define-method offset
+  (of-object "IpatchSF2GenArray")
+  (c-name "ipatch_sf2_gen_array_offset")
+  (return-type "gboolean")
+  (parameters
+    '("const-IpatchSF2GenArray*" "ofs_array")
+  )
+)
+
+(define-method intersect_test
+  (of-object "IpatchSF2GenArray")
+  (c-name "ipatch_sf2_gen_array_intersect_test")
+  (return-type "gboolean")
+  (parameters
+    '("const-IpatchSF2GenArray*" "array2")
+  )
+)
+
+(define-method count_set
+  (of-object "IpatchSF2GenArray")
+  (c-name "ipatch_sf2_gen_array_count_set")
+  (return-type "guint")
+)
+
+(define-function ipatch_sf2_gen_amount_to_value
+  (c-name "ipatch_sf2_gen_amount_to_value")
+  (return-type "none")
+  (parameters
+    '("guint" "genid")
+    '("const-IpatchSF2GenAmount*" "amt")
+    '("GValue*" "value")
+  )
+)
+
+(define-function ipatch_sf2_gen_default_value
+  (c-name "ipatch_sf2_gen_default_value")
+  (return-type "none")
+  (parameters
+    '("guint" "genid")
+    '("gboolean" "ispreset")
+    '("IpatchSF2GenAmount*" "out_amt")
+  )
+)
+
+(define-function ipatch_sf2_gen_offset
+  (c-name "ipatch_sf2_gen_offset")
+  (return-type "gboolean")
+  (parameters
+    '("guint" "genid")
+    '("IpatchSF2GenAmount*" "dst")
+    '("const-IpatchSF2GenAmount*" "ofs")
+  )
+)
+
+(define-function ipatch_sf2_gen_clamp
+  (c-name "ipatch_sf2_gen_clamp")
+  (return-type "none")
+  (parameters
+    '("guint" "genid")
+    '("int*" "sfval")
+    '("gboolean" "ispreset")
+  )
+)
+
+(define-function ipatch_sf2_gen_range_intersect
+  (c-name "ipatch_sf2_gen_range_intersect")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchSF2GenAmount*" "dst")
+    '("const-IpatchSF2GenAmount*" "src")
+  )
+)
+
+(define-function ipatch_sf2_gen_range_intersect_test
+  (c-name "ipatch_sf2_gen_range_intersect_test")
+  (return-type "gboolean")
+  (parameters
+    '("const-IpatchSF2GenAmount*" "amt1")
+    '("const-IpatchSF2GenAmount*" "amt2")
+  )
+)
+
+(define-function ipatch_sf2_gen_get_prop_name
+  (c-name "ipatch_sf2_gen_get_prop_name")
+  (return-type "const-char*")
+  (parameters
+    '("guint" "genid")
+  )
+)
+
+
+
+;; From IpatchSF2GenItem.h
+
+(define-function ipatch_sf2_gen_item_get_type
+  (c-name "ipatch_sf2_gen_item_get_type")
+  (return-type "GType")
+)
+
+(define-method get_amount
+  (of-object "IpatchSF2GenItem")
+  (c-name "ipatch_sf2_gen_item_get_amount")
+  (return-type "gboolean")
+  (parameters
+    '("guint" "genid")
+    '("IpatchSF2GenAmount*" "out_amt")
+  )
+)
+
+(define-method set_amount
+  (of-object "IpatchSF2GenItem")
+  (c-name "ipatch_sf2_gen_item_set_amount")
+  (return-type "none")
+  (parameters
+    '("guint" "genid")
+    '("IpatchSF2GenAmount*" "amt")
+  )
+)
+
+(define-method set_gen_flag
+  (of-object "IpatchSF2GenItem")
+  (c-name "ipatch_sf2_gen_item_set_gen_flag")
+  (return-type "none")
+  (parameters
+    '("guint" "genid")
+    '("gboolean" "setflag")
+  )
+)
+
+(define-method count_set
+  (of-object "IpatchSF2GenItem")
+  (c-name "ipatch_sf2_gen_item_count_set")
+  (return-type "guint")
+)
+
+(define-method copy_all
+  (of-object "IpatchSF2GenItem")
+  (c-name "ipatch_sf2_gen_item_copy_all")
+  (return-type "none")
+  (parameters
+    '("IpatchSF2GenArray*" "array")
+  )
+)
+
+(define-method copy_set
+  (of-object "IpatchSF2GenItem")
+  (c-name "ipatch_sf2_gen_item_copy_set")
+  (return-type "none")
+  (parameters
+    '("IpatchSF2GenArray*" "array")
+  )
+)
+
+(define-method set_note_range
+  (of-object "IpatchSF2GenItem")
+  (c-name "ipatch_sf2_gen_item_set_note_range")
+  (return-type "none")
+  (parameters
+    '("int" "low")
+    '("int" "high")
+  )
+)
+
+(define-method set_velocity_range
+  (of-object "IpatchSF2GenItem")
+  (c-name "ipatch_sf2_gen_item_set_velocity_range")
+  (return-type "none")
+  (parameters
+    '("int" "low")
+    '("int" "high")
+  )
+)
+
+(define-method in_range
+  (of-object "IpatchSF2GenItem")
+  (c-name "ipatch_sf2_gen_item_in_range")
+  (return-type "gboolean")
+  (parameters
+    '("int" "note")
+    '("int" "velocity")
+  )
+)
+
+(define-method intersect_test
+  (of-object "IpatchSF2GenItem")
+  (c-name "ipatch_sf2_gen_item_intersect_test")
+  (return-type "gboolean")
+  (parameters
+    '("const-IpatchSF2GenArray*" "genarray")
+  )
+)
+
+(define-function ipatch_sf2_gen_item_class_get_pspec
+  (c-name "ipatch_sf2_gen_item_class_get_pspec")
+  (return-type "GParamSpec*")
+  (parameters
+    '("GObjectClass*" "klass")
+    '("guint" "genid")
+  )
+)
+
+(define-function ipatch_sf2_gen_item_class_get_pspec_set
+  (c-name "ipatch_sf2_gen_item_class_get_pspec_set")
+  (return-type "GParamSpec*")
+  (parameters
+    '("GObjectClass*" "klass")
+    '("guint" "genid")
+  )
+)
+
+(define-function ipatch_sf2_gen_item_iface_install_properties
+  (c-name "ipatch_sf2_gen_item_iface_install_properties")
+  (return-type "none")
+  (parameters
+    '("GObjectClass*" "klass")
+    '("IpatchSF2GenPropsType" "propstype")
+    '("GParamSpec***" "specs")
+    '("GParamSpec***" "setspecs")
+  )
+)
+
+(define-method iface_set_property
+  (of-object "IpatchSF2GenItem")
+  (c-name "ipatch_sf2_gen_item_iface_set_property")
+  (return-type "gboolean")
+  (parameters
+    '("guint" "property_id")
+    '("const-GValue*" "value")
+  )
+)
+
+(define-method iface_get_property
+  (of-object "IpatchSF2GenItem")
+  (c-name "ipatch_sf2_gen_item_iface_get_property")
+  (return-type "gboolean")
+  (parameters
+    '("guint" "property_id")
+    '("GValue*" "value")
+  )
+)
+
+
+
+;; From IpatchSF2.h
+
+(define-function ipatch_sf2_get_type
+  (c-name "ipatch_sf2_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_new
+  (c-name "ipatch_sf2_new")
+  (is-constructor-of "IpatchSF2")
+  (return-type "IpatchSF2*")
+)
+
+(define-method set_file
+  (of-object "IpatchSF2")
+  (c-name "ipatch_sf2_set_file")
+  (return-type "none")
+  (parameters
+    '("IpatchSF2File*" "file")
+  )
+)
+
+(define-method get_file
+  (of-object "IpatchSF2")
+  (c-name "ipatch_sf2_get_file")
+  (return-type "IpatchSF2File*")
+)
+
+(define-method get_info
+  (of-object "IpatchSF2")
+  (c-name "ipatch_sf2_get_info")
+  (return-type "char*")
+  (parameters
+    '("IpatchSF2InfoType" "id")
+  )
+)
+
+(define-method set_info
+  (of-object "IpatchSF2")
+  (c-name "ipatch_sf2_set_info")
+  (return-type "none")
+  (parameters
+    '("IpatchSF2InfoType" "id")
+    '("const-char*" "val")
+  )
+)
+
+(define-method get_info_array
+  (of-object "IpatchSF2")
+  (c-name "ipatch_sf2_get_info_array")
+  (return-type "IpatchSF2Info*")
+)
+
+(define-function ipatch_sf2_free_info_array
+  (c-name "ipatch_sf2_free_info_array")
+  (return-type "none")
+  (parameters
+    '("IpatchSF2Info*" "array")
+  )
+)
+
+(define-function ipatch_sf2_info_id_is_valid
+  (c-name "ipatch_sf2_info_id_is_valid")
+  (return-type "gboolean")
+  (parameters
+    '("guint32" "id")
+  )
+)
+
+(define-function ipatch_sf2_get_info_max_size
+  (c-name "ipatch_sf2_get_info_max_size")
+  (return-type "int")
+  (parameters
+    '("IpatchSF2InfoType" "infotype")
+  )
+)
+
+(define-method find_preset
+  (of-object "IpatchSF2")
+  (c-name "ipatch_sf2_find_preset")
+  (return-type "IpatchSF2Preset*")
+  (parameters
+    '("const-char*" "name")
+    '("int" "bank")
+    '("int" "program")
+    '("const-IpatchSF2Preset*" "exclude")
+  )
+)
+
+(define-method find_inst
+  (of-object "IpatchSF2")
+  (c-name "ipatch_sf2_find_inst")
+  (return-type "IpatchSF2Inst*")
+  (parameters
+    '("const-char*" "name")
+    '("const-IpatchSF2Inst*" "exclude")
+  )
+)
+
+(define-method find_sample
+  (of-object "IpatchSF2")
+  (c-name "ipatch_sf2_find_sample")
+  (return-type "IpatchSF2Sample*")
+  (parameters
+    '("const-char*" "name")
+    '("const-IpatchSF2Sample*" "exclude")
+  )
+)
+
+(define-function ipatch_sf2_get_zone_references
+  (c-name "ipatch_sf2_get_zone_references")
+  (return-type "IpatchList*")
+  (parameters
+    '("IpatchItem*" "item")
+  )
+)
+
+(define-method make_unique_name
+  (of-object "IpatchSF2")
+  (c-name "ipatch_sf2_make_unique_name")
+  (return-type "char*")
+  (parameters
+    '("GType" "child_type")
+    '("const-char*" "name")
+    '("const-IpatchItem*" "exclude")
+  )
+)
+
+
+
+;; From IpatchSF2Inst.h
+
+(define-function ipatch_sf2_inst_get_type
+  (c-name "ipatch_sf2_inst_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_inst_new
+  (c-name "ipatch_sf2_inst_new")
+  (is-constructor-of "IpatchSF2Inst")
+  (return-type "IpatchSF2Inst*")
+)
+
+(define-function ipatch_sf2_inst_first
+  (c-name "ipatch_sf2_inst_first")
+  (return-type "IpatchSF2Inst*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-function ipatch_sf2_inst_next
+  (c-name "ipatch_sf2_inst_next")
+  (return-type "IpatchSF2Inst*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-method new_zone
+  (of-object "IpatchSF2Inst")
+  (c-name "ipatch_sf2_inst_new_zone")
+  (return-type "none")
+  (parameters
+    '("IpatchSF2Sample*" "sample")
+  )
+)
+
+(define-method set_name
+  (of-object "IpatchSF2Inst")
+  (c-name "ipatch_sf2_inst_set_name")
+  (return-type "none")
+  (parameters
+    '("const-char*" "name")
+  )
+)
+
+(define-method get_name
+  (of-object "IpatchSF2Inst")
+  (c-name "ipatch_sf2_inst_get_name")
+  (return-type "char*")
+)
+
+
+
+;; From IpatchSF2IZone.h
+
+(define-function ipatch_sf2_izone_get_type
+  (c-name "ipatch_sf2_izone_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_izone_new
+  (c-name "ipatch_sf2_izone_new")
+  (is-constructor-of "IpatchSF2IZone")
+  (return-type "IpatchSF2IZone*")
+)
+
+(define-function ipatch_sf2_izone_first
+  (c-name "ipatch_sf2_izone_first")
+  (return-type "IpatchSF2IZone*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-function ipatch_sf2_izone_next
+  (c-name "ipatch_sf2_izone_next")
+  (return-type "IpatchSF2IZone*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-method set_sample
+  (of-object "IpatchSF2IZone")
+  (c-name "ipatch_sf2_izone_set_sample")
+  (return-type "none")
+  (parameters
+    '("IpatchSF2Sample*" "sample")
+  )
+)
+
+(define-method get_sample
+  (of-object "IpatchSF2IZone")
+  (c-name "ipatch_sf2_izone_get_sample")
+  (return-type "IpatchSF2Sample*")
+)
+
+
+
+;; From IpatchSF2Mod.h
+
+(define-function ipatch_sf2_mod_get_type
+  (c-name "ipatch_sf2_mod_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_mod_list_get_type
+  (c-name "ipatch_sf2_mod_list_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_mod_new
+  (c-name "ipatch_sf2_mod_new")
+  (is-constructor-of "IpatchSF2Mod")
+  (return-type "IpatchSF2Mod*")
+)
+
+(define-method free
+  (of-object "IpatchSF2Mod")
+  (c-name "ipatch_sf2_mod_free")
+  (return-type "none")
+)
+
+(define-method duplicate
+  (of-object "IpatchSF2Mod")
+  (c-name "ipatch_sf2_mod_duplicate")
+  (return-type "IpatchSF2Mod*")
+)
+
+(define-function ipatch_sf2_mod_list_duplicate
+  (c-name "ipatch_sf2_mod_list_duplicate")
+  (return-type "GSList*")
+  (parameters
+    '("const-GSList*" "list")
+  )
+)
+
+(define-function ipatch_sf2_mod_list_override
+  (c-name "ipatch_sf2_mod_list_override")
+  (return-type "GSList*")
+  (parameters
+    '("const-GSList*" "alist")
+    '("const-GSList*" "blist")
+    '("gboolean" "copy")
+  )
+)
+
+(define-function ipatch_sf2_mod_list_boxed_free
+  (c-name "ipatch_sf2_mod_list_boxed_free")
+  (return-type "none")
+  (parameters
+    '("GSList*" "list")
+  )
+)
+
+(define-function ipatch_sf2_mod_list_insert
+  (c-name "ipatch_sf2_mod_list_insert")
+  (return-type "GSList*")
+  (parameters
+    '("GSList*" "mods")
+    '("const-IpatchSF2Mod*" "modvals")
+    '("int" "pos")
+  )
+)
+
+(define-function ipatch_sf2_mod_list_remove
+  (c-name "ipatch_sf2_mod_list_remove")
+  (return-type "GSList*")
+  (parameters
+    '("GSList*" "mods")
+    '("const-IpatchSF2Mod*" "modvals")
+    '("gboolean*" "changed")
+  )
+)
+
+(define-function ipatch_sf2_mod_list_change
+  (c-name "ipatch_sf2_mod_list_change")
+  (return-type "gboolean")
+  (parameters
+    '("GSList*" "mods")
+    '("const-IpatchSF2Mod*" "oldvals")
+    '("const-IpatchSF2Mod*" "newvals")
+  )
+)
+
+(define-function ipatch_sf2_mod_list_offset
+  (c-name "ipatch_sf2_mod_list_offset")
+  (return-type "GSList*")
+  (parameters
+    '("const-GSList*" "alist")
+    '("const-GSList*" "blist")
+  )
+)
+
+(define-function ipatch_sf2_mod_list_free
+  (c-name "ipatch_sf2_mod_list_free")
+  (return-type "none")
+  (parameters
+    '("GSList*" "list")
+    '("gboolean" "free_mods")
+  )
+)
+
+(define-function ipatch_sf2_mod_list_get_default
+  (c-name "ipatch_sf2_mod_list_get_default")
+  (return-type "const-GSList*")
+)
+
+
+
+;; From IpatchSF2ModItem.h
+
+(define-function ipatch_sf2_mod_item_get_type
+  (c-name "ipatch_sf2_mod_item_get_type")
+  (return-type "GType")
+)
+
+(define-method get_mods
+  (of-object "IpatchSF2ModItem")
+  (c-name "ipatch_sf2_mod_item_get_mods")
+  (return-type "GSList*")
+)
+
+(define-method set_mods
+  (of-object "IpatchSF2ModItem")
+  (c-name "ipatch_sf2_mod_item_set_mods")
+  (return-type "none")
+  (parameters
+    '("GSList*" "mod_list")
+    '("int" "flags")
+  )
+)
+
+(define-method insert
+  (of-object "IpatchSF2ModItem")
+  (c-name "ipatch_sf2_mod_item_insert")
+  (return-type "none")
+  (parameters
+    '("const-IpatchSF2Mod*" "mod")
+    '("int" "pos")
+  )
+)
+
+(define-method remove
+  (of-object "IpatchSF2ModItem")
+  (c-name "ipatch_sf2_mod_item_remove")
+  (return-type "none")
+  (parameters
+    '("const-IpatchSF2Mod*" "mod")
+  )
+)
+
+(define-method change
+  (of-object "IpatchSF2ModItem")
+  (c-name "ipatch_sf2_mod_item_change")
+  (return-type "none")
+  (parameters
+    '("const-IpatchSF2Mod*" "oldmod")
+    '("const-IpatchSF2Mod*" "newmod")
+  )
+)
+
+(define-method count
+  (of-object "IpatchSF2ModItem")
+  (c-name "ipatch_sf2_mod_item_count")
+  (return-type "guint")
+)
+
+
+
+;; From IpatchSF2Preset.h
+
+(define-function ipatch_sf2_preset_get_type
+  (c-name "ipatch_sf2_preset_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_preset_new
+  (c-name "ipatch_sf2_preset_new")
+  (is-constructor-of "IpatchSF2Preset")
+  (return-type "IpatchSF2Preset*")
+)
+
+(define-function ipatch_sf2_preset_first
+  (c-name "ipatch_sf2_preset_first")
+  (return-type "IpatchSF2Preset*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-function ipatch_sf2_preset_next
+  (c-name "ipatch_sf2_preset_next")
+  (return-type "IpatchSF2Preset*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-method new_zone
+  (of-object "IpatchSF2Preset")
+  (c-name "ipatch_sf2_preset_new_zone")
+  (return-type "none")
+  (parameters
+    '("IpatchSF2Inst*" "inst")
+  )
+)
+
+(define-method set_name
+  (of-object "IpatchSF2Preset")
+  (c-name "ipatch_sf2_preset_set_name")
+  (return-type "none")
+  (parameters
+    '("const-char*" "name")
+  )
+)
+
+(define-method get_name
+  (of-object "IpatchSF2Preset")
+  (c-name "ipatch_sf2_preset_get_name")
+  (return-type "char*")
+)
+
+(define-method set_midi_locale
+  (of-object "IpatchSF2Preset")
+  (c-name "ipatch_sf2_preset_set_midi_locale")
+  (return-type "none")
+  (parameters
+    '("int" "bank")
+    '("int" "program")
+  )
+)
+
+(define-method get_midi_locale
+  (of-object "IpatchSF2Preset")
+  (c-name "ipatch_sf2_preset_get_midi_locale")
+  (return-type "none")
+  (parameters
+    '("int*" "bank")
+    '("int*" "program")
+  )
+)
+
+(define-method compare
+  (of-object "IpatchSF2Preset")
+  (c-name "ipatch_sf2_preset_compare")
+  (return-type "int")
+  (parameters
+    '("const-IpatchSF2Preset*" "p2")
+  )
+)
+
+
+
+;; From IpatchSF2PZone.h
+
+(define-function ipatch_sf2_pzone_get_type
+  (c-name "ipatch_sf2_pzone_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_pzone_new
+  (c-name "ipatch_sf2_pzone_new")
+  (is-constructor-of "IpatchSF2PZone")
+  (return-type "IpatchSF2PZone*")
+)
+
+(define-function ipatch_sf2_pzone_first
+  (c-name "ipatch_sf2_pzone_first")
+  (return-type "IpatchSF2PZone*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-function ipatch_sf2_pzone_next
+  (c-name "ipatch_sf2_pzone_next")
+  (return-type "IpatchSF2PZone*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-method set_inst
+  (of-object "IpatchSF2PZone")
+  (c-name "ipatch_sf2_pzone_set_inst")
+  (return-type "none")
+  (parameters
+    '("IpatchSF2Inst*" "inst")
+  )
+)
+
+(define-method get_inst
+  (of-object "IpatchSF2PZone")
+  (c-name "ipatch_sf2_pzone_get_inst")
+  (return-type "IpatchSF2Inst*")
+)
+
+
+
+;; From IpatchSF2Reader.h
+
+(define-function ipatch_sf2_reader_get_type
+  (c-name "ipatch_sf2_reader_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_reader_new
+  (c-name "ipatch_sf2_reader_new")
+  (is-constructor-of "IpatchSF2Reader")
+  (return-type "IpatchSF2Reader*")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+  )
+)
+
+(define-method set_file_handle
+  (of-object "IpatchSF2Reader")
+  (c-name "ipatch_sf2_reader_set_file_handle")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+  )
+)
+
+(define-method load
+  (of-object "IpatchSF2Reader")
+  (c-name "ipatch_sf2_reader_load")
+  (return-type "IpatchSF2*")
+  (parameters
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_sf2_load_phdr
+  (c-name "ipatch_sf2_load_phdr")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("IpatchSF2Phdr*" "phdr")
+  )
+)
+
+(define-function ipatch_sf2_load_ihdr
+  (c-name "ipatch_sf2_load_ihdr")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("IpatchSF2Ihdr*" "ihdr")
+  )
+)
+
+(define-function ipatch_sf2_load_shdr
+  (c-name "ipatch_sf2_load_shdr")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("IpatchSF2Shdr*" "shdr")
+  )
+)
+
+(define-function ipatch_sf2_load_bag
+  (c-name "ipatch_sf2_load_bag")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("IpatchSF2Bag*" "bag")
+  )
+)
+
+(define-function ipatch_sf2_load_mod
+  (c-name "ipatch_sf2_load_mod")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("IpatchSF2Mod*" "mod")
+  )
+)
+
+(define-function ipatch_sf2_load_gen
+  (c-name "ipatch_sf2_load_gen")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("int*" "genid")
+    '("IpatchSF2GenAmount*" "amount")
+  )
+)
+
+
+
+;; From IpatchSF2Sample.h
+
+(define-function ipatch_sf2_sample_get_type
+  (c-name "ipatch_sf2_sample_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_sample_new
+  (c-name "ipatch_sf2_sample_new")
+  (is-constructor-of "IpatchSF2Sample")
+  (return-type "IpatchSF2Sample*")
+)
+
+(define-function ipatch_sf2_sample_first
+  (c-name "ipatch_sf2_sample_first")
+  (return-type "IpatchSF2Sample*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-function ipatch_sf2_sample_next
+  (c-name "ipatch_sf2_sample_next")
+  (return-type "IpatchSF2Sample*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-method set_name
+  (of-object "IpatchSF2Sample")
+  (c-name "ipatch_sf2_sample_set_name")
+  (return-type "none")
+  (parameters
+    '("const-char*" "name")
+  )
+)
+
+(define-method get_name
+  (of-object "IpatchSF2Sample")
+  (c-name "ipatch_sf2_sample_get_name")
+  (return-type "char*")
+)
+
+(define-method set_data
+  (of-object "IpatchSF2Sample")
+  (c-name "ipatch_sf2_sample_set_data")
+  (return-type "none")
+  (parameters
+    '("IpatchSampleData*" "sampledata")
+  )
+)
+
+(define-method get_data
+  (of-object "IpatchSF2Sample")
+  (c-name "ipatch_sf2_sample_get_data")
+  (return-type "IpatchSampleData*")
+)
+
+(define-method peek_data
+  (of-object "IpatchSF2Sample")
+  (c-name "ipatch_sf2_sample_peek_data")
+  (return-type "IpatchSampleData*")
+)
+
+(define-method set_linked
+  (of-object "IpatchSF2Sample")
+  (c-name "ipatch_sf2_sample_set_linked")
+  (return-type "none")
+  (parameters
+    '("IpatchSF2Sample*" "linked")
+  )
+)
+
+(define-method get_linked
+  (of-object "IpatchSF2Sample")
+  (c-name "ipatch_sf2_sample_get_linked")
+  (return-type "IpatchSF2Sample*")
+)
+
+(define-method peek_linked
+  (of-object "IpatchSF2Sample")
+  (c-name "ipatch_sf2_sample_peek_linked")
+  (return-type "IpatchSF2Sample*")
+)
+
+(define-method set_blank
+  (of-object "IpatchSF2Sample")
+  (c-name "ipatch_sf2_sample_set_blank")
+  (return-type "none")
+)
+
+
+
+;; From IpatchSF2VoiceCache.h
+
+(define-function ipatch_sf2_voice_cache_get_type
+  (c-name "ipatch_sf2_voice_cache_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_voice_cache_new
+  (c-name "ipatch_sf2_voice_cache_new")
+  (is-constructor-of "IpatchSF2VoiceCache")
+  (return-type "IpatchSF2VoiceCache*")
+  (parameters
+    '("IpatchSF2VoiceSelInfo*" "info")
+    '("int" "sel_count")
+  )
+)
+
+(define-method set_default_mods
+  (of-object "IpatchSF2VoiceCache")
+  (c-name "ipatch_sf2_voice_cache_set_default_mods")
+  (return-type "none")
+  (parameters
+    '("GSList*" "mods")
+  )
+)
+
+(define-method add_voice
+  (of-object "IpatchSF2VoiceCache")
+  (c-name "ipatch_sf2_voice_cache_add_voice")
+  (return-type "IpatchSF2Voice*")
+)
+
+(define-method set_voice_range
+  (of-object "IpatchSF2VoiceCache")
+  (c-name "ipatch_sf2_voice_cache_set_voice_range")
+  (return-type "none")
+  (parameters
+    '("IpatchSF2Voice*" "voice")
+    '("guint" "sel_index")
+    '("int" "low")
+    '("int" "high")
+  )
+)
+
+(define-method set_sample_data
+  (of-object "IpatchSF2Voice")
+  (c-name "ipatch_sf2_voice_set_sample_data")
+  (return-type "none")
+  (parameters
+    '("IpatchSampleData*" "sample_data")
+  )
+)
+
+(define-method cache_sample_data
+  (of-object "IpatchSF2Voice")
+  (c-name "ipatch_sf2_voice_cache_sample_data")
+  (return-type "gboolean")
+  (parameters
+    '("GError**" "err")
+  )
+)
+
+(define-method copy
+  (of-object "IpatchSF2Voice")
+  (c-name "ipatch_sf2_voice_copy")
+  (return-type "none")
+  (parameters
+    '("IpatchSF2Voice*" "src")
+  )
+)
+
+(define-method optimize
+  (of-object "IpatchSF2VoiceCache")
+  (c-name "ipatch_sf2_voice_cache_optimize")
+  (return-type "none")
+)
+
+(define-method select
+  (of-object "IpatchSF2VoiceCache")
+  (c-name "ipatch_sf2_voice_cache_select")
+  (return-type "int")
+  (parameters
+    '("int*" "select_values")
+    '("guint16*" "index_array")
+    '("guint16" "max_indexes")
+  )
+)
+
+(define-method update
+  (of-object "IpatchSF2VoiceCache")
+  (c-name "ipatch_sf2_voice_cache_update")
+  (return-type "int")
+  (parameters
+    '("int*" "select_values")
+    '("GObject*" "cache_item")
+    '("GObject*" "item")
+    '("GParamSpec*" "pspec")
+    '("const-GValue*" "value")
+    '("IpatchSF2VoiceUpdate*" "updates")
+    '("guint" "max_updates")
+  )
+)
+
+
+
+;; From IpatchSF2Writer.h
+
+(define-function ipatch_sf2_writer_get_type
+  (c-name "ipatch_sf2_writer_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_writer_new
+  (c-name "ipatch_sf2_writer_new")
+  (is-constructor-of "IpatchSF2Writer")
+  (return-type "IpatchSF2Writer*")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("IpatchSF2*" "sfont")
+  )
+)
+
+(define-method set_patch
+  (of-object "IpatchSF2Writer")
+  (c-name "ipatch_sf2_writer_set_patch")
+  (return-type "none")
+  (parameters
+    '("IpatchSF2*" "sfont")
+  )
+)
+
+(define-method set_file_handle
+  (of-object "IpatchSF2Writer")
+  (c-name "ipatch_sf2_writer_set_file_handle")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+  )
+)
+
+(define-method save
+  (of-object "IpatchSF2Writer")
+  (c-name "ipatch_sf2_writer_save")
+  (return-type "gboolean")
+  (parameters
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_sf2_write_phdr
+  (c-name "ipatch_sf2_write_phdr")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("const-IpatchSF2Phdr*" "phdr")
+  )
+)
+
+(define-function ipatch_sf2_write_ihdr
+  (c-name "ipatch_sf2_write_ihdr")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("const-IpatchSF2Ihdr*" "ihdr")
+  )
+)
+
+(define-function ipatch_sf2_write_shdr
+  (c-name "ipatch_sf2_write_shdr")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("const-IpatchSF2Shdr*" "shdr")
+  )
+)
+
+(define-function ipatch_sf2_write_bag
+  (c-name "ipatch_sf2_write_bag")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("const-IpatchSF2Bag*" "bag")
+  )
+)
+
+(define-function ipatch_sf2_write_mod
+  (c-name "ipatch_sf2_write_mod")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("const-IpatchSF2Mod*" "mod")
+  )
+)
+
+(define-function ipatch_sf2_write_gen
+  (c-name "ipatch_sf2_write_gen")
+  (return-type "none")
+  (parameters
+    '("IpatchFileHandle*" "handle")
+    '("int" "genid")
+    '("const-IpatchSF2GenAmount*" "amount")
+  )
+)
+
+
+
+;; From IpatchSF2Zone.h
+
+(define-function ipatch_sf2_zone_get_type
+  (c-name "ipatch_sf2_zone_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sf2_zone_first
+  (c-name "ipatch_sf2_zone_first")
+  (return-type "IpatchSF2Zone*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-function ipatch_sf2_zone_next
+  (c-name "ipatch_sf2_zone_next")
+  (return-type "IpatchSF2Zone*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-method set_link_item
+  (of-object "IpatchSF2Zone")
+  (c-name "ipatch_sf2_zone_set_link_item")
+  (return-type "none")
+  (parameters
+    '("IpatchItem*" "item")
+  )
+)
+
+(define-method set_link_item_no_notify
+  (of-object "IpatchSF2Zone")
+  (c-name "ipatch_sf2_zone_set_link_item_no_notify")
+  (return-type "gboolean")
+  (parameters
+    '("IpatchItem*" "item")
+    '("IpatchItem**" "olditem")
+  )
+)
+
+(define-method get_link_item
+  (of-object "IpatchSF2Zone")
+  (c-name "ipatch_sf2_zone_get_link_item")
+  (return-type "IpatchItem*")
+)
+
+(define-method peek_link_item
+  (of-object "IpatchSF2Zone")
+  (c-name "ipatch_sf2_zone_peek_link_item")
+  (return-type "IpatchItem*")
+)
+
+
+
+;; From IpatchSndFile.h
+
+(define-function ipatch_snd_file_get_type
+  (c-name "ipatch_snd_file_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_snd_file_new
+  (c-name "ipatch_snd_file_new")
+  (is-constructor-of "IpatchSndFile")
+  (return-type "IpatchSndFile*")
+)
+
+(define-function ipatch_snd_file_format_get_type
+  (c-name "ipatch_snd_file_format_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_snd_file_sub_format_get_type
+  (c-name "ipatch_snd_file_sub_format_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_snd_file_format_get_sub_formats
+  (c-name "ipatch_snd_file_format_get_sub_formats")
+  (return-type "int*")
+  (parameters
+    '("int" "format")
+    '("guint*" "size")
+  )
+)
+
+(define-function ipatch_snd_file_sample_format_to_sub_format
+  (c-name "ipatch_snd_file_sample_format_to_sub_format")
+  (return-type "int")
+  (parameters
+    '("int" "sample_format")
+    '("int" "file_format")
+  )
+)
+
+
+
+;; From IpatchTypeProp.h
+
+(define-function ipatch_type_install_property
+  (c-name "ipatch_type_install_property")
+  (return-type "none")
+  (parameters
+    '("GParamSpec*" "prop_spec")
+  )
+)
+
+(define-function ipatch_type_find_property
+  (c-name "ipatch_type_find_property")
+  (return-type "GParamSpec*")
+  (parameters
+    '("const-char*" "name")
+  )
+)
+
+(define-function ipatch_type_list_properties
+  (c-name "ipatch_type_list_properties")
+  (return-type "GParamSpec**")
+  (parameters
+    '("guint*" "n_properties")
+  )
+)
+
+(define-function ipatch_type_find_types_with_property
+  (c-name "ipatch_type_find_types_with_property")
+  (return-type "GType*")
+  (parameters
+    '("const-char*" "name")
+    '("guint*" "n_types")
+  )
+)
+
+(define-function ipatch_type_set
+  (c-name "ipatch_type_set")
+  (return-type "none")
+  (parameters
+    '("GType" "type")
+    '("const-char*" "first_property_name")
+  )
+  (varargs #t)
+)
+
+(define-function ipatch_type_set_valist
+  (c-name "ipatch_type_set_valist")
+  (return-type "none")
+  (parameters
+    '("GType" "type")
+    '("const-char*" "first_property_name")
+    '("va_list" "args")
+  )
+)
+
+(define-function ipatch_type_set_property
+  (c-name "ipatch_type_set_property")
+  (return-type "none")
+  (parameters
+    '("GType" "type")
+    '("const-char*" "property_name")
+    '("const-GValue*" "value")
+  )
+)
+
+(define-function ipatch_type_get
+  (c-name "ipatch_type_get")
+  (return-type "none")
+  (parameters
+    '("GType" "type")
+    '("const-char*" "first_property_name")
+  )
+  (varargs #t)
+)
+
+(define-function ipatch_type_get_valist
+  (c-name "ipatch_type_get_valist")
+  (return-type "none")
+  (parameters
+    '("GType" "type")
+    '("const-char*" "first_property_name")
+    '("va_list" "args")
+  )
+)
+
+(define-function ipatch_type_get_property
+  (c-name "ipatch_type_get_property")
+  (return-type "none")
+  (parameters
+    '("GType" "type")
+    '("const-char*" "property_name")
+    '("GValue*" "value")
+  )
+)
+
+(define-function ipatch_type_object_get
+  (c-name "ipatch_type_object_get")
+  (return-type "none")
+  (parameters
+    '("GObject*" "object")
+    '("const-char*" "first_property_name")
+  )
+  (varargs #t)
+)
+
+(define-function ipatch_type_object_get_valist
+  (c-name "ipatch_type_object_get_valist")
+  (return-type "none")
+  (parameters
+    '("GObject*" "object")
+    '("const-char*" "first_property_name")
+    '("va_list" "args")
+  )
+)
+
+(define-function ipatch_type_object_get_property
+  (c-name "ipatch_type_object_get_property")
+  (return-type "none")
+  (parameters
+    '("GObject*" "object")
+    '("const-char*" "property_name")
+    '("GValue*" "value")
+  )
+)
+
+(define-function ipatch_type_set_dynamic_func
+  (c-name "ipatch_type_set_dynamic_func")
+  (return-type "none")
+  (parameters
+    '("GType" "type")
+    '("const-char*" "property_name")
+    '("IpatchTypePropGetFunc" "func")
+  )
+)
+
+(define-function ipatch_type_get_dynamic_func
+  (c-name "ipatch_type_get_dynamic_func")
+  (return-type "IpatchTypePropGetFunc")
+  (parameters
+    '("GType" "type")
+    '("const-char*" "property_name")
+  )
+)
+
+
+
+;; From IpatchUnit.h
+
+(define-function ipatch_unit_info_new
+  (c-name "ipatch_unit_info_new")
+  (is-constructor-of "IpatchUnitInfo")
+  (return-type "IpatchUnitInfo*")
+)
+
+(define-method free
+  (of-object "IpatchUnitInfo")
+  (c-name "ipatch_unit_info_free")
+  (return-type "none")
+)
+
+(define-function ipatch_unit_register
+  (c-name "ipatch_unit_register")
+  (return-type "guint16")
+  (parameters
+    '("const-IpatchUnitInfo*" "info")
+  )
+)
+
+(define-function ipatch_unit_lookup
+  (c-name "ipatch_unit_lookup")
+  (return-type "IpatchUnitInfo*")
+  (parameters
+    '("guint16" "id")
+  )
+)
+
+(define-function ipatch_unit_lookup_by_name
+  (c-name "ipatch_unit_lookup_by_name")
+  (return-type "IpatchUnitInfo*")
+  (parameters
+    '("const-char*" "name")
+  )
+)
+
+(define-function ipatch_unit_class_register_map
+  (c-name "ipatch_unit_class_register_map")
+  (return-type "none")
+  (parameters
+    '("guint16" "class_type")
+    '("guint16" "src_units")
+    '("guint16" "dest_units")
+  )
+)
+
+(define-function ipatch_unit_class_lookup_map
+  (c-name "ipatch_unit_class_lookup_map")
+  (return-type "IpatchUnitInfo*")
+  (parameters
+    '("guint16" "class_type")
+    '("guint16" "src_units")
+  )
+)
+
+(define-function ipatch_unit_conversion_register
+  (c-name "ipatch_unit_conversion_register")
+  (return-type "none")
+  (parameters
+    '("guint16" "src_units")
+    '("guint16" "dest_units")
+    '("IpatchValueTransform" "func")
+  )
+)
+
+(define-function ipatch_unit_conversion_lookup
+  (c-name "ipatch_unit_conversion_lookup")
+  (return-type "IpatchValueTransform")
+  (parameters
+    '("guint16" "src_units")
+    '("guint16" "dest_units")
+    '("gboolean*" "set")
+  )
+)
+
+(define-function ipatch_unit_convert
+  (c-name "ipatch_unit_convert")
+  (return-type "gboolean")
+  (parameters
+    '("guint16" "src_units")
+    '("guint16" "dest_units")
+    '("const-GValue*" "src_val")
+    '("GValue*" "dest_val")
+  )
+)
+
+(define-function ipatch_unit_user_class_convert
+  (c-name "ipatch_unit_user_class_convert")
+  (return-type "double")
+  (parameters
+    '("guint16" "src_units")
+    '("const-GValue*" "src_val")
+  )
+)
+
+
+
+;; From IpatchUnit_generic.h
+
+(define-function ipatch_unit_hertz_to_cents
+  (c-name "ipatch_unit_hertz_to_cents")
+  (return-type "double")
+  (parameters
+    '("double" "hz")
+  )
+)
+
+(define-function ipatch_unit_cents_to_hertz
+  (c-name "ipatch_unit_cents_to_hertz")
+  (return-type "double")
+  (parameters
+    '("double" "cents")
+  )
+)
+
+
+
+;; From IpatchUnit_DLS.h
+
+(define-function ipatch_unit_dls_class_convert
+  (c-name "ipatch_unit_dls_class_convert")
+  (return-type "int")
+  (parameters
+    '("guint16" "src_units")
+    '("const-GValue*" "src_val")
+  )
+)
+
+(define-function ipatch_unit_dls_percent_to_percent
+  (c-name "ipatch_unit_dls_percent_to_percent")
+  (return-type "double")
+  (parameters
+    '("int" "dls_percent")
+  )
+)
+
+(define-function ipatch_unit_percent_to_dls_percent
+  (c-name "ipatch_unit_percent_to_dls_percent")
+  (return-type "int")
+  (parameters
+    '("double" "percent")
+  )
+)
+
+(define-function ipatch_unit_dls_gain_to_decibels
+  (c-name "ipatch_unit_dls_gain_to_decibels")
+  (return-type "double")
+  (parameters
+    '("int" "dls_gain")
+  )
+)
+
+(define-function ipatch_unit_decibels_to_dls_gain
+  (c-name "ipatch_unit_decibels_to_dls_gain")
+  (return-type "int")
+  (parameters
+    '("double" "db")
+  )
+)
+
+(define-function ipatch_unit_dls_abs_time_to_seconds
+  (c-name "ipatch_unit_dls_abs_time_to_seconds")
+  (return-type "double")
+  (parameters
+    '("int" "dls_abs_time")
+  )
+)
+
+(define-function ipatch_unit_seconds_to_dls_abs_time
+  (c-name "ipatch_unit_seconds_to_dls_abs_time")
+  (return-type "int")
+  (parameters
+    '("double" "seconds")
+  )
+)
+
+(define-function ipatch_unit_dls_rel_time_to_time_cents
+  (c-name "ipatch_unit_dls_rel_time_to_time_cents")
+  (return-type "double")
+  (parameters
+    '("int" "dls_rel_time")
+  )
+)
+
+(define-function ipatch_unit_time_cents_to_dls_rel_time
+  (c-name "ipatch_unit_time_cents_to_dls_rel_time")
+  (return-type "int")
+  (parameters
+    '("double" "time_cents")
+  )
+)
+
+(define-function ipatch_unit_dls_abs_pitch_to_hertz
+  (c-name "ipatch_unit_dls_abs_pitch_to_hertz")
+  (return-type "double")
+  (parameters
+    '("int" "dls_abs_pitch")
+  )
+)
+
+(define-function ipatch_unit_hertz_to_dls_abs_pitch
+  (c-name "ipatch_unit_hertz_to_dls_abs_pitch")
+  (return-type "int")
+  (parameters
+    '("double" "hertz")
+  )
+)
+
+(define-function ipatch_unit_dls_rel_pitch_to_cents
+  (c-name "ipatch_unit_dls_rel_pitch_to_cents")
+  (return-type "double")
+  (parameters
+    '("int" "dls_rel_pitch")
+  )
+)
+
+(define-function ipatch_unit_cents_to_dls_rel_pitch
+  (c-name "ipatch_unit_cents_to_dls_rel_pitch")
+  (return-type "int")
+  (parameters
+    '("double" "cents")
+  )
+)
+
+
+
+;; From IpatchUnit_SF2.h
+
+(define-function ipatch_unit_sf2_abs_pitch_to_dls_abs_pitch
+  (c-name "ipatch_unit_sf2_abs_pitch_to_dls_abs_pitch")
+  (return-type "int")
+  (parameters
+    '("int" "sf2_abs_pitch")
+  )
+)
+
+(define-function ipatch_unit_dls_abs_pitch_to_sf2_abs_pitch
+  (c-name "ipatch_unit_dls_abs_pitch_to_sf2_abs_pitch")
+  (return-type "int")
+  (parameters
+    '("int" "dls_abs_pitch")
+  )
+)
+
+(define-function ipatch_unit_sf2_abs_pitch_to_hertz
+  (c-name "ipatch_unit_sf2_abs_pitch_to_hertz")
+  (return-type "double")
+  (parameters
+    '("int" "sf2_abs_pitch")
+  )
+)
+
+(define-function ipatch_unit_hertz_to_sf2_abs_pitch
+  (c-name "ipatch_unit_hertz_to_sf2_abs_pitch")
+  (return-type "int")
+  (parameters
+    '("double" "hz")
+  )
+)
+
+(define-function ipatch_unit_sf2_ofs_pitch_to_multiplier
+  (c-name "ipatch_unit_sf2_ofs_pitch_to_multiplier")
+  (return-type "double")
+  (parameters
+    '("int" "sf2_ofs_pitch")
+  )
+)
+
+(define-function ipatch_unit_multiplier_to_sf2_ofs_pitch
+  (c-name "ipatch_unit_multiplier_to_sf2_ofs_pitch")
+  (return-type "int")
+  (parameters
+    '("double" "multiplier")
+  )
+)
+
+(define-function ipatch_unit_sf2_abs_time_to_dls_abs_time
+  (c-name "ipatch_unit_sf2_abs_time_to_dls_abs_time")
+  (return-type "int")
+  (parameters
+    '("int" "sf2_abs_time")
+  )
+)
+
+(define-function ipatch_unit_dls_abs_time_to_sf2_abs_time
+  (c-name "ipatch_unit_dls_abs_time_to_sf2_abs_time")
+  (return-type "int")
+  (parameters
+    '("int" "dls_abs_time")
+  )
+)
+
+(define-function ipatch_unit_sf2_abs_time_to_seconds
+  (c-name "ipatch_unit_sf2_abs_time_to_seconds")
+  (return-type "double")
+  (parameters
+    '("int" "sf2_abs_time")
+  )
+)
+
+(define-function ipatch_unit_seconds_to_sf2_abs_time
+  (c-name "ipatch_unit_seconds_to_sf2_abs_time")
+  (return-type "int")
+  (parameters
+    '("double" "sec")
+  )
+)
+
+(define-function ipatch_unit_sf2_ofs_time_to_multiplier
+  (c-name "ipatch_unit_sf2_ofs_time_to_multiplier")
+  (return-type "double")
+  (parameters
+    '("int" "sf2_ofs_time")
+  )
+)
+
+(define-function ipatch_unit_multiplier_to_sf2_ofs_time
+  (c-name "ipatch_unit_multiplier_to_sf2_ofs_time")
+  (return-type "int")
+  (parameters
+    '("double" "multiplier")
+  )
+)
+
+(define-function ipatch_unit_centibels_to_dls_gain
+  (c-name "ipatch_unit_centibels_to_dls_gain")
+  (return-type "int")
+  (parameters
+    '("int" "centibel")
+  )
+)
+
+(define-function ipatch_unit_dls_gain_to_centibels
+  (c-name "ipatch_unit_dls_gain_to_centibels")
+  (return-type "int")
+  (parameters
+    '("int" "dls_gain")
+  )
+)
+
+(define-function ipatch_unit_centibels_to_decibels
+  (c-name "ipatch_unit_centibels_to_decibels")
+  (return-type "double")
+  (parameters
+    '("int" "cb")
+  )
+)
+
+(define-function ipatch_unit_decibels_to_centibels
+  (c-name "ipatch_unit_decibels_to_centibels")
+  (return-type "int")
+  (parameters
+    '("double" "db")
+  )
+)
+
+(define-function ipatch_unit_tenth_percent_to_percent
+  (c-name "ipatch_unit_tenth_percent_to_percent")
+  (return-type "double")
+  (parameters
+    '("int" "tenth_percent")
+  )
+)
+
+(define-function ipatch_unit_percent_to_tenth_percent
+  (c-name "ipatch_unit_percent_to_tenth_percent")
+  (return-type "int")
+  (parameters
+    '("double" "percent")
+  )
+)
+
+
+
+;; From IpatchVBank.h
+
+(define-function ipatch_vbank_get_type
+  (c-name "ipatch_vbank_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_vbank_new
+  (c-name "ipatch_vbank_new")
+  (is-constructor-of "IpatchVbank")
+  (return-type "IpatchVBank*")
+)
+
+(define-method find_inst
+  (of-object "IpatchVBank")
+  (c-name "ipatch_vbank_find_inst")
+  (return-type "IpatchVBankInst*")
+  (parameters
+    '("const-char*" "name")
+    '("int" "bank")
+    '("int" "program")
+    '("const-IpatchVBankInst*" "exclude")
+  )
+)
+
+(define-method make_unique_name
+  (of-object "IpatchVBank")
+  (c-name "ipatch_vbank_make_unique_name")
+  (return-type "char*")
+  (parameters
+    '("const-char*" "name")
+    '("const-IpatchVBankInst*" "exclude")
+  )
+)
+
+
+
+;; From IpatchVBankInst.h
+
+(define-function ipatch_vbank_inst_get_type
+  (c-name "ipatch_vbank_inst_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_vbank_inst_new
+  (c-name "ipatch_vbank_inst_new")
+  (is-constructor-of "IpatchVbankInst")
+  (return-type "IpatchVBankInst*")
+)
+
+(define-function ipatch_vbank_inst_first
+  (c-name "ipatch_vbank_inst_first")
+  (return-type "IpatchVBankInst*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-function ipatch_vbank_inst_next
+  (c-name "ipatch_vbank_inst_next")
+  (return-type "IpatchVBankInst*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-method new_region
+  (of-object "IpatchVBankInst")
+  (c-name "ipatch_vbank_inst_new_region")
+  (return-type "none")
+  (parameters
+    '("IpatchItem*" "item")
+  )
+)
+
+(define-method set_midi_locale
+  (of-object "IpatchVBankInst")
+  (c-name "ipatch_vbank_inst_set_midi_locale")
+  (return-type "none")
+  (parameters
+    '("int" "bank")
+    '("int" "program")
+  )
+)
+
+(define-method get_midi_locale
+  (of-object "IpatchVBankInst")
+  (c-name "ipatch_vbank_inst_get_midi_locale")
+  (return-type "none")
+  (parameters
+    '("int*" "bank")
+    '("int*" "program")
+  )
+)
+
+(define-method compare
+  (of-object "IpatchVBankInst")
+  (c-name "ipatch_vbank_inst_compare")
+  (return-type "int")
+  (parameters
+    '("const-IpatchVBankInst*" "p2")
+  )
+)
+
+
+
+;; From IpatchVBankRegion.h
+
+(define-function ipatch_vbank_region_get_type
+  (c-name "ipatch_vbank_region_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_vbank_region_new
+  (c-name "ipatch_vbank_region_new")
+  (is-constructor-of "IpatchVbankRegion")
+  (return-type "IpatchVBankRegion*")
+)
+
+(define-function ipatch_vbank_region_first
+  (c-name "ipatch_vbank_region_first")
+  (return-type "IpatchVBankRegion*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-function ipatch_vbank_region_next
+  (c-name "ipatch_vbank_region_next")
+  (return-type "IpatchVBankRegion*")
+  (parameters
+    '("IpatchIter*" "iter")
+  )
+)
+
+(define-method set_id_props
+  (of-object "IpatchVBankRegion")
+  (c-name "ipatch_vbank_region_set_id_props")
+  (return-type "none")
+  (parameters
+    '("char**" "id_props")
+  )
+)
+
+(define-method get_id_props
+  (of-object "IpatchVBankRegion")
+  (c-name "ipatch_vbank_region_get_id_props")
+  (return-type "char**")
+  (parameters
+    '("guint*" "n_elements")
+  )
+)
+
+
+
+;; From IpatchVirtualContainer.h
+
+(define-function ipatch_virtual_container_get_type
+  (c-name "ipatch_virtual_container_get_type")
+  (return-type "GType")
+)
+
+
+
+;; From IpatchVirtualContainer_types.h
+
+(define-function ipatch_virtual_dls2_melodic_get_type
+  (c-name "ipatch_virtual_dls2_melodic_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_virtual_dls2_percussion_get_type
+  (c-name "ipatch_virtual_dls2_percussion_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_virtual_dls2_samples_get_type
+  (c-name "ipatch_virtual_dls2_samples_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_virtual_gig_melodic_get_type
+  (c-name "ipatch_virtual_gig_melodic_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_virtual_gig_percussion_get_type
+  (c-name "ipatch_virtual_gig_percussion_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_virtual_gig_samples_get_type
+  (c-name "ipatch_virtual_gig_samples_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_virtual_sf2_inst_get_type
+  (c-name "ipatch_virtual_sf2_inst_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_virtual_sf2_melodic_get_type
+  (c-name "ipatch_virtual_sf2_melodic_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_virtual_sf2_percussion_get_type
+  (c-name "ipatch_virtual_sf2_percussion_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_virtual_sf2_samples_get_type
+  (c-name "ipatch_virtual_sf2_samples_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_virtual_sf2_rom_get_type
+  (c-name "ipatch_virtual_sf2_rom_get_type")
+  (return-type "GType")
+)
+
+
+
+;; From IpatchXml.h
+
+(define-function ipatch_xml_new_node
+  (c-name "ipatch_xml_new_node")
+  (return-type "GNode*")
+  (parameters
+    '("GNode*" "parent")
+    '("const-char*" "name")
+    '("const-char*" "value")
+    '("const-char*" "attr_name")
+  )
+  (varargs #t)
+)
+
+(define-function ipatch_xml_new_node_strv
+  (c-name "ipatch_xml_new_node_strv")
+  (return-type "GNode*")
+  (parameters
+    '("GNode*" "parent")
+    '("const-char*" "name")
+    '("const-char*" "value")
+    '("const-char**" "attr_names")
+    '("const-char**" "attr_values")
+  )
+)
+
+(define-function ipatch_xml_get_data
+  (c-name "ipatch_xml_get_data")
+  (return-type "gpointer")
+  (parameters
+    '("GNode*" "node")
+    '("const-char*" "key")
+  )
+)
+
+(define-function ipatch_xml_set_data
+  (c-name "ipatch_xml_set_data")
+  (return-type "none")
+  (parameters
+    '("GNode*" "node")
+    '("const-char*" "key")
+    '("gpointer" "data")
+  )
+)
+
+(define-function ipatch_xml_set_data_full
+  (c-name "ipatch_xml_set_data_full")
+  (return-type "none")
+  (parameters
+    '("GNode*" "node")
+    '("const-char*" "key")
+    '("gpointer" "data")
+    '("GDestroyNotify" "destroy_func")
+  )
+)
+
+(define-function ipatch_xml_steal_data
+  (c-name "ipatch_xml_steal_data")
+  (return-type "gpointer")
+  (parameters
+    '("GNode*" "node")
+    '("const-char*" "key")
+  )
+)
+
+(define-function ipatch_xml_get_qdata
+  (c-name "ipatch_xml_get_qdata")
+  (return-type "gpointer")
+  (parameters
+    '("GNode*" "node")
+    '("GQuark" "quark")
+  )
+)
+
+(define-function ipatch_xml_set_qdata
+  (c-name "ipatch_xml_set_qdata")
+  (return-type "none")
+  (parameters
+    '("GNode*" "node")
+    '("GQuark" "quark")
+    '("gpointer" "data")
+  )
+)
+
+(define-function ipatch_xml_set_qdata_full
+  (c-name "ipatch_xml_set_qdata_full")
+  (return-type "none")
+  (parameters
+    '("GNode*" "node")
+    '("GQuark" "quark")
+    '("gpointer" "data")
+    '("GDestroyNotify" "destroy_func")
+  )
+)
+
+(define-function ipatch_xml_steal_qdata
+  (c-name "ipatch_xml_steal_qdata")
+  (return-type "gpointer")
+  (parameters
+    '("GNode*" "node")
+    '("GQuark" "quark")
+  )
+)
+
+(define-function ipatch_xml_destroy
+  (c-name "ipatch_xml_destroy")
+  (return-type "none")
+  (parameters
+    '("GNode*" "node")
+  )
+)
+
+(define-function ipatch_xml_copy
+  (c-name "ipatch_xml_copy")
+  (return-type "GNode*")
+  (parameters
+    '("GNode*" "node")
+  )
+)
+
+(define-function ipatch_xml_set_name
+  (c-name "ipatch_xml_set_name")
+  (return-type "none")
+  (parameters
+    '("GNode*" "node")
+    '("const-char*" "name")
+  )
+)
+
+(define-function ipatch_xml_set_value
+  (c-name "ipatch_xml_set_value")
+  (return-type "none")
+  (parameters
+    '("GNode*" "node")
+    '("const-char*" "value")
+  )
+)
+
+(define-function ipatch_xml_set_value_printf
+  (c-name "ipatch_xml_set_value_printf")
+  (return-type "none")
+  (parameters
+    '("GNode*" "node")
+    '("const-char*" "format")
+  )
+  (varargs #t)
+)
+
+(define-function ipatch_xml_take_name
+  (c-name "ipatch_xml_take_name")
+  (return-type "none")
+  (parameters
+    '("GNode*" "node")
+    '("char*" "name")
+  )
+)
+
+(define-function ipatch_xml_take_value
+  (c-name "ipatch_xml_take_value")
+  (return-type "none")
+  (parameters
+    '("GNode*" "node")
+    '("char*" "value")
+  )
+)
+
+(define-function ipatch_xml_get_name
+  (c-name "ipatch_xml_get_name")
+  (return-type "const-char*")
+  (parameters
+    '("GNode*" "node")
+  )
+)
+
+(define-function ipatch_xml_test_name
+  (c-name "ipatch_xml_test_name")
+  (return-type "gboolean")
+  (parameters
+    '("GNode*" "node")
+    '("const-char*" "cmpname")
+  )
+)
+
+(define-function ipatch_xml_get_value
+  (c-name "ipatch_xml_get_value")
+  (return-type "const-char*")
+  (parameters
+    '("GNode*" "node")
+  )
+)
+
+(define-function ipatch_xml_dup_value
+  (c-name "ipatch_xml_dup_value")
+  (return-type "char*")
+  (parameters
+    '("GNode*" "node")
+  )
+)
+
+(define-function ipatch_xml_test_value
+  (c-name "ipatch_xml_test_value")
+  (return-type "gboolean")
+  (parameters
+    '("GNode*" "node")
+    '("const-char*" "cmpvalue")
+  )
+)
+
+(define-function ipatch_xml_set_attribute
+  (c-name "ipatch_xml_set_attribute")
+  (return-type "none")
+  (parameters
+    '("GNode*" "node")
+    '("const-char*" "attr_name")
+    '("const-char*" "attr_value")
+  )
+)
+
+(define-function ipatch_xml_set_attributes
+  (c-name "ipatch_xml_set_attributes")
+  (return-type "none")
+  (parameters
+    '("GNode*" "node")
+    '("const-char*" "attr_name")
+    '("const-char*" "attr_value")
+    '("const-char*" "attr2_name")
+  )
+  (varargs #t)
+)
+
+(define-function ipatch_xml_get_attribute
+  (c-name "ipatch_xml_get_attribute")
+  (return-type "const-char*")
+  (parameters
+    '("GNode*" "node")
+    '("const-char*" "name")
+  )
+)
+
+(define-function ipatch_xml_test_attribute
+  (c-name "ipatch_xml_test_attribute")
+  (return-type "gboolean")
+  (parameters
+    '("GNode*" "node")
+    '("const-char*" "attr_name")
+    '("const-char*" "cmpval")
+  )
+)
+
+(define-function ipatch_xml_find_child
+  (c-name "ipatch_xml_find_child")
+  (return-type "GNode*")
+  (parameters
+    '("GNode*" "node")
+    '("const-char*" "name")
+  )
+)
+
+(define-function ipatch_xml_find_by_path
+  (c-name "ipatch_xml_find_by_path")
+  (return-type "GNode*")
+  (parameters
+    '("GNode*" "node")
+    '("const-char*" "path")
+  )
+)
+
+(define-function ipatch_xml_to_str
+  (c-name "ipatch_xml_to_str")
+  (return-type "char*")
+  (parameters
+    '("GNode*" "node")
+    '("guint" "indent")
+  )
+)
+
+(define-function ipatch_xml_save_to_file
+  (c-name "ipatch_xml_save_to_file")
+  (return-type "gboolean")
+  (parameters
+    '("GNode*" "node")
+    '("guint" "indent")
+    '("const-char*" "filename")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_xml_from_str
+  (c-name "ipatch_xml_from_str")
+  (return-type "GNode*")
+  (parameters
+    '("const-char*" "str")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_xml_load_from_file
+  (c-name "ipatch_xml_load_from_file")
+  (return-type "GNode*")
+  (parameters
+    '("const-char*" "filename")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_xml_node_new
+  (c-name "ipatch_xml_node_new")
+  (is-constructor-of "IpatchXmlNode")
+  (return-type "IpatchXmlNode*")
+)
+
+(define-method free
+  (of-object "IpatchXmlNode")
+  (c-name "ipatch_xml_node_free")
+  (return-type "none")
+)
+
+(define-method duplicate
+  (of-object "IpatchXmlNode")
+  (c-name "ipatch_xml_node_duplicate")
+  (return-type "IpatchXmlNode*")
+)
+
+(define-function ipatch_xml_attr_new
+  (c-name "ipatch_xml_attr_new")
+  (is-constructor-of "IpatchXmlAttr")
+  (return-type "IpatchXmlAttr*")
+)
+
+(define-method free
+  (of-object "IpatchXmlAttr")
+  (c-name "ipatch_xml_attr_free")
+  (return-type "none")
+)
+
+(define-method duplicate
+  (of-object "IpatchXmlAttr")
+  (c-name "ipatch_xml_attr_duplicate")
+  (return-type "IpatchXmlAttr*")
+)
+
+
+
+;; From IpatchXmlObject.h
+
+(define-function ipatch_xml_register_handler
+  (c-name "ipatch_xml_register_handler")
+  (return-type "none")
+  (parameters
+    '("GType" "type")
+    '("const-char*" "prop_name")
+    '("IpatchXmlEncodeFunc" "encode_func")
+    '("IpatchXmlDecodeFunc" "decode_func")
+  )
+)
+
+(define-function ipatch_xml_lookup_handler
+  (c-name "ipatch_xml_lookup_handler")
+  (return-type "gboolean")
+  (parameters
+    '("GType" "type")
+    '("GParamSpec*" "pspec")
+    '("IpatchXmlEncodeFunc*" "encode_func")
+    '("IpatchXmlDecodeFunc*" "decode_func")
+  )
+)
+
+(define-function ipatch_xml_lookup_handler_by_prop_name
+  (c-name "ipatch_xml_lookup_handler_by_prop_name")
+  (return-type "gboolean")
+  (parameters
+    '("GType" "type")
+    '("const-char*" "prop_name")
+    '("IpatchXmlEncodeFunc*" "encode_func")
+    '("IpatchXmlDecodeFunc*" "decode_func")
+  )
+)
+
+(define-function ipatch_xml_encode_object
+  (c-name "ipatch_xml_encode_object")
+  (return-type "gboolean")
+  (parameters
+    '("GNode*" "node")
+    '("GObject*" "object")
+    '("gboolean" "create_element")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_xml_encode_property
+  (c-name "ipatch_xml_encode_property")
+  (return-type "gboolean")
+  (parameters
+    '("GNode*" "node")
+    '("GObject*" "object")
+    '("GParamSpec*" "pspec")
+    '("gboolean" "create_element")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_xml_encode_property_by_name
+  (c-name "ipatch_xml_encode_property_by_name")
+  (return-type "gboolean")
+  (parameters
+    '("GNode*" "node")
+    '("GObject*" "object")
+    '("const-char*" "propname")
+    '("gboolean" "create_element")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_xml_encode_value
+  (c-name "ipatch_xml_encode_value")
+  (return-type "gboolean")
+  (parameters
+    '("GNode*" "node")
+    '("GValue*" "value")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_xml_decode_object
+  (c-name "ipatch_xml_decode_object")
+  (return-type "gboolean")
+  (parameters
+    '("GNode*" "node")
+    '("GObject*" "object")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_xml_decode_property
+  (c-name "ipatch_xml_decode_property")
+  (return-type "gboolean")
+  (parameters
+    '("GNode*" "node")
+    '("GObject*" "object")
+    '("GParamSpec*" "pspec")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_xml_decode_property_by_name
+  (c-name "ipatch_xml_decode_property_by_name")
+  (return-type "gboolean")
+  (parameters
+    '("GNode*" "node")
+    '("GObject*" "object")
+    '("const-char*" "propname")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_xml_decode_value
+  (c-name "ipatch_xml_decode_value")
+  (return-type "gboolean")
+  (parameters
+    '("GNode*" "node")
+    '("GValue*" "value")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_xml_default_encode_object_func
+  (c-name "ipatch_xml_default_encode_object_func")
+  (return-type "gboolean")
+  (parameters
+    '("GNode*" "node")
+    '("GObject*" "object")
+    '("GParamSpec*" "pspec")
+    '("GValue*" "value")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_xml_default_encode_property_func
+  (c-name "ipatch_xml_default_encode_property_func")
+  (return-type "gboolean")
+  (parameters
+    '("GNode*" "node")
+    '("GObject*" "object")
+    '("GParamSpec*" "pspec")
+    '("GValue*" "value")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_xml_default_encode_value_func
+  (c-name "ipatch_xml_default_encode_value_func")
+  (return-type "gboolean")
+  (parameters
+    '("GNode*" "node")
+    '("GObject*" "object")
+    '("GParamSpec*" "pspec")
+    '("GValue*" "value")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_xml_default_decode_object_func
+  (c-name "ipatch_xml_default_decode_object_func")
+  (return-type "gboolean")
+  (parameters
+    '("GNode*" "node")
+    '("GObject*" "object")
+    '("GParamSpec*" "pspec")
+    '("GValue*" "value")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_xml_default_decode_property_func
+  (c-name "ipatch_xml_default_decode_property_func")
+  (return-type "gboolean")
+  (parameters
+    '("GNode*" "node")
+    '("GObject*" "object")
+    '("GParamSpec*" "pspec")
+    '("GValue*" "value")
+    '("GError**" "err")
+  )
+)
+
+(define-function ipatch_xml_default_decode_value_func
+  (c-name "ipatch_xml_default_decode_value_func")
+  (return-type "gboolean")
+  (parameters
+    '("GNode*" "node")
+    '("GObject*" "object")
+    '("GParamSpec*" "pspec")
+    '("GValue*" "value")
+    '("GError**" "err")
+  )
+)
+
+
+
+;; From misc.h
+
+(define-function ipatch_init
+  (c-name "ipatch_init")
+  (return-type "none")
+)
+
+(define-function ipatch_set_application_name
+  (c-name "ipatch_set_application_name")
+  (return-type "none")
+  (parameters
+    '("const-char*" "name")
+  )
+)
+
+(define-function ipatch_error_quark
+  (c-name "ipatch_error_quark")
+  (return-type "GQuark")
+)
+
+(define-function ipatch_gerror_message
+  (c-name "ipatch_gerror_message")
+  (return-type "const-char*")
+  (parameters
+    '("GError*" "err")
+  )
+)
+
+(define-function ipatch_strconcat_num
+  (c-name "ipatch_strconcat_num")
+  (return-type "none")
+  (parameters
+    '("const-char*" "src")
+    '("int" "num")
+    '("char*" "dest")
+    '("int" "size")
+  )
+)
+
+(define-function ipatch_dump_object
+  (c-name "ipatch_dump_object")
+  (return-type "none")
+  (parameters
+    '("GObject*" "object")
+    '("gboolean" "recursive")
+    '("FILE*" "file")
+  )
+)
+
+
+
+;; From sample.h
+
+(define-function ipatch_sample_format_bit_width
+  (c-name "ipatch_sample_format_bit_width")
+  (return-type "int")
+  (parameters
+    '("int" "format")
+  )
+)
+
+(define-function ipatch_sample_format_verify
+  (c-name "ipatch_sample_format_verify")
+  (return-type "gboolean")
+  (parameters
+    '("int" "format")
+  )
+)
+
+(define-function ipatch_sample_format_transform_verify
+  (c-name "ipatch_sample_format_transform_verify")
+  (return-type "gboolean")
+  (parameters
+    '("int" "src_format")
+    '("int" "dest_format")
+    '("guint32" "channel_map")
+  )
+)
+
+(define-function ipatch_sample_get_transform_funcs
+  (c-name "ipatch_sample_get_transform_funcs")
+  (return-type "guint")
+  (parameters
+    '("int" "src_format")
+    '("int" "dest_format")
+    '("guint32" "channel_map")
+    '("guint*" "buf1_max_frame")
+    '("guint*" "buf2_max_frame")
+    '("IpatchSampleTransformFunc*" "funcs")
+  )
+)
+
+
+
+;; From version.h
+
+(define-function ipatch_version
+  (c-name "ipatch_version")
+  (return-type "none")
+  (parameters
+    '("guint*" "major")
+    '("guint*" "minor")
+    '("guint*" "micro")
+  )
+)
+
+

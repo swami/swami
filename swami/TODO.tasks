@@ -1,0 +1,193 @@
+<?xml version="1.0"?>
+<gtodo>
+  <category title="Feature" place="0">
+    <item>
+      <attribute id="1169896280" priority="1" done="0" start_date="732703" enddate="99999999" notify="0" endtime="-60" last_edited="1169896280"/>
+      <summary>CRAM read/write</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1169896296" priority="2" done="0" start_date="732703" enddate="99999999" notify="0" endtime="-60" last_edited="1169896296"/>
+      <summary>Preferences</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1169896310" priority="2" done="0" start_date="732703" enddate="99999999" notify="0" endtime="-60" last_edited="1169896310"/>
+      <summary>FluidSynth panel</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1169896334" priority="1" done="0" start_date="732703" enddate="99999999" notify="0" endtime="-60" last_edited="1169896334"/>
+      <summary>Multi-level paste (Sample -&gt; Preset)</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1169896347" priority="1" done="0" start_date="732703" enddate="99999999" notify="0" endtime="-60" last_edited="1169896347"/>
+      <summary>External sample editing</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1169896366" priority="1" done="0" start_date="732703" enddate="99999999" notify="0" endtime="-60" last_edited="1169896366"/>
+      <summary>Sample cut/crop</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1169896383" priority="2" done="0" start_date="732703" enddate="99999999" notify="0" endtime="-60" last_edited="1169896383"/>
+      <summary>Sample dicer</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1169896467" priority="0" done="0" start_date="732703" enddate="99999999" notify="0" endtime="-60" last_edited="1169896467"/>
+      <summary>Highlight ranges on mouse over and status bar</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1169896600" priority="2" done="0" start_date="732703" enddate="99999999" notify="0" endtime="-60" last_edited="1169896600"/>
+      <summary>Use real unit value for effect controls</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1169896680" priority="1" done="0" start_date="732703" enddate="99999999" notify="0" endtime="-60" last_edited="1169896680"/>
+      <summary>Default lower view to SwamiPanel interfaces</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1169896758" priority="1" done="0" start_date="732703" enddate="99999999" notify="0" endtime="-60" last_edited="1169896758"/>
+      <summary>SoundFont sample start/end ranges</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1169896977" priority="0" done="0" start_date="732703" enddate="99999999" notify="0" endtime="-60" last_edited="1169896977"/>
+      <summary>GigaSampler dimension editor</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1169897033" priority="0" done="0" start_date="732703" enddate="99999999" notify="0" endtime="-60" last_edited="1169897033"/>
+      <summary>Patch item interface selection buttons</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1169896501" priority="1" done="0" start_date="732703" enddate="99999999" notify="0" endtime="-60" last_edited="1169897422"/>
+      <summary>Box select note/velocity ranges, move as group and set as group</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1169896448" priority="0" done="0" start_date="732703" enddate="99999999" notify="0" endtime="-60" last_edited="1169897433"/>
+      <summary>Highlight piano buttons on mouse over</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1169903789" priority="0" done="0" start_date="732703" enddate="99999999" notify="0" endtime="-60" last_edited="1169903789"/>
+      <summary>Integrate sample tuner into sample editor</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1169903864" priority="0" done="0" start_date="732703" enddate="99999999" notify="0" endtime="-60" last_edited="1169903864"/>
+      <summary>Add fundamental tuning waveform playback</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1169896570" priority="2" done="1" start_date="732703" completed_date="732715" notify="0" last_edited="1170945853"/>
+      <summary>Implement loops as canvas ranges</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1169896399" priority="1" done="1" start_date="732703" completed_date="732715" notify="0" last_edited="1170945915"/>
+      <summary>Loop finder built into sample viewer</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1169896936" priority="2" done="0" start_date="732703" enddate="99999999" notify="0" endtime="-60" last_edited="1174326532"/>
+      <summary>Invalid value detection (duplicate names, invalid loops, etc)</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1169897349" priority="1" done="0" start_date="732703" enddate="99999999" notify="0" endtime="-60" last_edited="1174326569"/>
+      <summary>Interface editor property toggle</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1174326685" priority="2" done="0" start_date="732754" enddate="99999999" notify="0" endtime="-60" last_edited="1174326685"/>
+      <summary>Error output dialog</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1174341620" priority="2" done="0" start_date="732754" enddate="99999999" notify="0" endtime="-60" last_edited="1174341620"/>
+      <summary>Re-implement save dialog</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1174341653" priority="2" done="0" start_date="732754" enddate="99999999" notify="0" endtime="-60" last_edited="1174341653"/>
+      <summary>Append file extensions on save (if not specified)</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1174348357" priority="1" done="0" start_date="732754" enddate="99999999" notify="0" endtime="-60" last_edited="1174348357"/>
+      <summary>Ignore key presses with piano with certain widgets</summary>
+      <comment>Don't play piano when typing in text entries or views.</comment>
+    </item>
+    <item>
+      <attribute id="1174326653" priority="1" done="1" start_date="732754" completed_date="732755" notify="0" last_edited="1174351350"/>
+      <summary>Add "Load Samples" menu item to Samples branch in tree</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1174395608" priority="1" done="0" start_date="732755" enddate="99999999" notify="0" endtime="-60" last_edited="1174395608"/>
+      <summary>Keyboard octave selector and root note selector above piano</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1174395653" priority="0" done="0" start_date="732755" enddate="99999999" notify="0" endtime="-60" last_edited="1174395653"/>
+      <summary>Smarter keyboard piano key mapping</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1174395693" priority="1" done="0" start_date="732755" enddate="99999999" notify="0" endtime="-60" last_edited="1174395693"/>
+      <summary>Re-enable save dirty flag check on exit</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1174445052" priority="1" done="0" start_date="732756" enddate="99999999" notify="0" endtime="-60" last_edited="1174445052"/>
+      <summary>Some right click menu items wrong</summary>
+      <comment>Copy, Close and Delete are on menu when they shouldn't be sometimes.  Multi-item options should check all items in selection.</comment>
+    </item>
+  </category>
+  <category title="Bug" place="1">
+    <item>
+      <attribute id="1169896529" priority="1" done="0" start_date="732703" enddate="99999999" notify="0" endtime="-60" last_edited="1169897220"/>
+      <summary>Search position/deactivation when tree is clicked</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1169896727" priority="2" done="0" start_date="732703" enddate="99999999" notify="0" endtime="-60" last_edited="1169897250"/>
+      <summary>Prevent files from being opened multiple times</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1169896644" priority="2" done="0" start_date="732703" enddate="99999999" notify="0" endtime="-60" last_edited="1169897258"/>
+      <summary>Handle stereo samples correctly with SoundFont files</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1170028790" priority="2" done="0" start_date="732704" enddate="99999999" notify="0" endtime="-60" last_edited="1170028790"/>
+      <summary>SF2IZone loop override negative values broken</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1170945823" priority="2" done="0" start_date="732715" enddate="99999999" notify="0" endtime="-60" last_edited="1170945823"/>
+      <summary>Piano crashes when out of view and note is played</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1174351759" priority="1" done="0" start_date="732755" enddate="99999999" notify="0" endtime="-60" last_edited="1174351759"/>
+      <summary>Changing preset bank/program not resorting</summary>
+      <comment/>
+    </item>
+    <item>
+      <attribute id="1174338168" priority="1" done="1" start_date="732754" completed_date="732755" notify="0" last_edited="1174396611"/>
+      <summary>New Zone doesn't work</summary>
+      <comment>Remove New Zone option or allow empty zones that need samples assigned to them.</comment>
+    </item>
+  </category>
+  <category title="Test" place="2"/>
+</gtodo>

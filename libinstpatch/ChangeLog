@@ -1,0 +1,1015 @@
+2008-12-14  Josh Green  <jgreen@users.sourceforge.net>
+	* libinstpatch/IpatchContainer.c: Updated unpickler callback.
+	* libinstpatch/IpatchPickler.c (ipatch_pickler_default_object_encode_func):
+	  Added missing parameter in call to ipatch_pickler_encode_property().
+	* libinstpatch/IpatchRange.c: Updated unpickler callback.
+	* libinstpatch/IpatchUnpickler.h: Removed some stuff which was causing
+	  conflicts with the rest of the pickle headers.  Code not yet complete.
+
+2008-12-07  Josh Green  <jgreen@users.sourceforge.net>
+	* libinstpatch/IpatchPickle.h: Now using IpatchUnpickler (not yet complete).
+	* libinstpatch/IpatchPickler.c: Added create_element parameter to
+	  indicate if a surrounding <element> should be created for functions
+	  ipatch_pickler_encode_object() ipatch_pickler_encode_property() and
+	  ipatch_pickler_encode_property_by_name().
+	* libinstpatch/IpatchUnpickler.[ch]: New files.  Initial unpickler,
+	  not yet complete.
+
+2008-08-19  Josh Green  <jgreen@users.sourceforge.net>
+
+	* configure.ac: Bumped required glib/gobject version to 2.10.
+	* libinstpatch/IpatchRange.c: Added GValue comparison function.
+	* libinstpatch/IpatchSF2Gen.c (ipatch_sf2_gen_range_intersect): Fixed bug
+	  in return value statement.
+	* libinstpatch/IpatchSF2Preset.c: Now doing proper IpatchItem notifies
+	  for bank and percussion flag.
+	* libinstpatch/IpatchStrArray.c: New string array boxed type.
+	* libinstpatch/IpatchTypeProp.c: Removed compatibility code with older
+	  versions of glib/gobject.
+	* libinstpatch/misc.c: Removed compatibility code with older
+	  versions of glib/gobject.
+	* python/ipatch.defs: Updates to Python binding.
+
+2008-03-30  Josh Green  <jgreen@users.sourceforge.net>
+
+	* Lots of documentation updates: removed file descriptions from .c files,
+	  added gtk-doc file descriptions to .h files and updated Copyright to
+	  1999-2008.
+	* Updated many depricated uses of gobject functions
+	  g_value_set_string_take_ownership and g_value_set_boxed_take_ownership.
+	* autogen.sh: Now calling gtkdocize.
+	* configure.ac: GTK_DOC_CHECK is now 1.9.
+	* IpatchConverter.c (ipatch_converter_log_printf): New function to do
+	  printf style logging to converter log.
+	* IpatchItem.c (ipatch_item_set_property_override): Added a hack to
+	  GObject property set override to handle interface properties,
+	  renamed ipatch_item_get_ancestor_type to ipatch_item_get_ancestor_by_type
+	  and ipatch_item_peek_ancestor_type to ipatch_item_peek_ancestor_by_type
+	* IpatchSF2Mod.c (ipatch_sf2_mod_list_duplicate): Now reverses the
+	  duplicated modulator list, instead of leaving it backwards from original.
+	* IpatchSF2VoiceCache.c (ipatch_sf2_voice_copy): New function to copy
+	  a voice structure.
+	* IpatchSF2Writer.c (sfont_write_pgens): Fixed crash bug in relation to
+	  switchover to global zone generators now in preset object.  Thanks to
+	  Frédéric Fournier for pointing this out.
+	* IpatchVBank.[ch]: New virtual bank object.
+	* IpatchVBankInst.[ch]: New virtual bank instrument object.
+	* IpatchVBankRegion.[ch]: New virtual bank region object.
+	* IpatchSF2VoiceCache_VBank.[ch]: New virtual bank SF2 synthesis objects.
+	* python/ipatch.defs: Updated Python binding.
+
+2007-12-15  Josh Green  <jgreen@users.sourceforge.net>
+
+	* libinstpatch/IpatchParamProp.h: Added IPATCH_PARAM_NO_SAVE flag
+	  to indicate that an object property should not be saved to XML for
+	  the object's state.
+	* libinstpatch/IpatchPickle.[ch]: Now contains only the pickle
+	  XML encoder/decoder function registration system.
+	* libinstpatch/IpatchPickler.[ch]: New object instance which handles
+	  encoding objects/properties/values to XML.
+	* libinstpatch/IpatchContainer.c: Added XML pickle encoder handler
+	  for container object types.
+	* libinstpatch/IpatchBase.c: Marked some properties with
+	  IPATCH_PARAM_NO_SAVE.
+	* libinstpatch/IpatchItem.c: Marked some properties with
+	  IPATCH_PARAM_NO_SAVE.
+	* libinstpatch/IpatchRange.c: Added XML pickle encoder/decoder
+	  handlers for IpatchRange boxed type.
+
+2007-11-26  Josh Green  <jgreen@users.sourceforge.net>
+
+	* docs/reference/libinstpatch-docs.sgml: Added IpatchSF2GenItem page
+	  to API reference index.
+	* libinstpatch/IpatchSF2Gen.[ch]: Split IpatchSF2GenItem interface
+	  into separate files.
+	* libinstpatch/IpatchSF2GenItem.[ch]: New home of IpatchSF2GenItem
+	  interface.
+	* libinstpatch/IpatchSF2Mod.[ch]: Split IpatchSF2ModItem interface
+	  into separate files.
+	* libinstpatch/IpatchSF2ModItem.[ch]: New home of IpatchSF2ModItem
+	  interface.
+	* python/ipatch.defs: Fixed declaration of interfaces
+	  (IpatchSF2GenItem, IpatchSF2ModItem and IpatchSample) and other
+	  updates.
+
+2007-05-10  Josh Green  <jgreen@users.sourceforge.net>
+
+	* libinstpatch/IpatchCram.h: Removed format specification from header,
+	  its now in an OpenOffice document in the trunk/media folder.
+	* libinstpatch/IpatchTypeProp.c: Fixed bugs with GType related
+	  type properties "virtual-parent-type", "virtual-child-type" and
+	  "link-type".  GType is defined as a gulong, which on 32 bit systems
+	  is the same size as a guint (what these properties were previously),
+	  on some 64 bit systems though, a gulong is 64 bits while a guint is
+	  32, causing crashes when a corrupted GType lookup attempt is made.
+	  Added conditional for using new GType GParamSpecs in 2.10.0, with
+	  fallback to gulong.
+	  Thanks to Henry Kroll for reporting this.
+	* libinstpatch/ipatch_priv.h: Added GTYPE_PARAM_SUPPORT macro to test
+	  for presence of GType param properties.
+
+2007-05-09  Josh Green  <jgreen@users.sourceforge.net>
+
+	* libinstpatch/IpatchCramDecoder.[ch]: Added WavPack decoding support.
+	* libinstpatch/IpatchCramEncoder.c: Fixed some bugs with encoder in
+	  regards to WavPack.  Starting to add segment grouping and save as
+	  binary support, but not yet done.
+
+2007-05-03  Josh Green  <jgreen@users.sourceforge.net>
+
+	* Switched license of libInstPatch to LGPL 2.1 and updated license text
+	  in all source files accordingly.  Also updated copyright year.
+	* python/ipatch.override: Added override for next_file() method of
+	  IpatchCramDecoder so that the decoder can be used fully in python.
+	* libinstpatch/IpatchCramEncoder.c: Added WavPack support.  All
+	  FLAC related properties are now prefixed with "flac-".
+	  (ipatch_cram_encoder_audio_params_new): Now takes an encoder instance
+	  so that the audio encoder type can be initialized from the
+	  "default-audio-encoder" property.
+	* README: Updated README.
+	* utils/cram.c: Added WavPack support with switch to choose between
+	  FLAC or WavPack.  FLAC is still the default, since there is not yet
+	  decoding support for WavPack, and there may be other changes before
+	  the format is finalized.
+	* libwavpack: Built in WavPack from WavPack 4.40.0.
+
+2007-04-20  Josh Green  <jgreen@users.sourceforge.net>
+
+	* configure.ac: Added --disable-python configure option.
+
+2007-04-19  Josh Green  <jgreen@users.sourceforge.net>
+
+	* utils/cram.c: Fixed -t test mode, NULL I/O functions were being
+	  assigned to the IpatchFile object but the file was not set to "open".
+	  Thanks to Dominique Würtz for reporting this problem.
+
+2007-04-18  Josh Green  <jgreen@users.sourceforge.net>
+
+	* libinstpatch/misc.c: Removed BUILD_CRAM #ifdef, since CRAM is now
+	  always built and that define is no more, which was breaking CRAM
+	  converters (including cram utility).  Thanks to Dominique Würtz
+	  for reporting that there was a problem with cram.
+
+2007-04-06  Josh Green  <jgreen@users.sourceforge.net>
+
+	* libinstpatch/IpatchSample.[ch]: Added get_data and set_data methods
+	  to the IpatchSample interface for getting and setting sample data
+	  as an IpatchSampleData object.  New functions ipatch_sample_get_data()
+	  ipatch_sample_set_data(), and ipatch_sample_has_data().
+	* libinstpatch/IpatchSF2Sample.c: Implimented new IpatchSample
+	  get_data and set_data methods.
+
+2007-03-21  Josh Green  <jgreen@users.sourceforge.net>
+
+	* libinstpatch/IpatchPaste.c: Added ipatch_paste_get_add_list() function
+	  to retrieve the list of added paste objects.
+
+2007-03-01  Josh Green  <jgreen@users.sourceforge.net>
+
+	* libinstpatch/sample.c: Added verification of channel and channel
+	  routing fields to ipatch_sample_format_verify(), fixed bug in
+	  ipatch_sample_get_transform_funcs() related to stereo to mono right
+	  channel audio conversion.
+	* libinstpatch/ipatch_priv.h: Changed IPATCH_SAMPLE_TRANS_BUFFER_SIZE
+	  to 32k instead of 64k (a bit large) and now using for
+	  IpatchSampleTransform pool.
+	* libinstpatch/IpatchSampleData.c: Changed ipatch_sample_data_new()
+	  to take the size of the sample data object as a parameter.
+	* libinstpatch/IpatchSampleStoreVirtual.c: Changed functions to
+	  take IpatchSampleStore pointer instead, to be consistent with other
+	  store types.
+	* libinstpatch/IpatchSampleTransform.c: Now using
+	  IPATCH_SAMPLE_TRANS_BUFFER_SIZE in ipatch_priv.h for sizes of
+	  transforms in pool.
+	* libinstpatch/IpatchSampleStore.c: Added new ipatch_sample_store_new()
+	  for added convenience.  Converted ipatch_sample_store_copy() to
+	  using sample transform pool.
+	* libinstpatch/IpatchSampleList.c: Bug fixes in
+	  ipatch_sample_list_render() including a crasher and channel
+	  routing related bugs.  Added ipatch_sample_list_dump() function for
+	  debugging.
+	* libinstpatch/IpatchSampleList.h: Added
+	  IPATCH_SAMPLE_LIST_ITEM_GET_CHAN_ROUTE macro for getting channel
+	  routing from a sample list item.
+	* libinstpatch/acinclude.m4: Added IPATCH_DEBUG config.h variable for
+	  building/including other debug code during compile time.
+	* configure.ac: New sub dir tests/.
+	* Makefile.am: New sub dir tests/.
+	* tests/sample_test.c: Sample audio transform tests.
+	* tests/sample_list_test.c: Sample edit list test.
+
+2007-02-26  Josh Green  <jgreen@users.sourceforge.net>
+
+	* libinstpatch/sample.h: Increased the sample width field of the sample
+	  format integer to 4 bits to allow for 8 new backwards compatible
+	  widths/formats in the future, also increased channel field to 3 bits
+	  for future surround sound support (up to 8 channels), 
+	* libinstpatch/sample.c: Many many many bug fixes in regards to sample
+	  transform functions, thanks to the in progress test suit,
+	  modified ipatch_sample_get_transform_funcs() to not allocate but
+	  instead store to a caller supplied array with maximum length.
+	* libinstpatch/IpatchSampleList.[ch]: New sample segment lists for
+	  doing sample edits, non-destructively.  Not yet tested.
+	* libinstpatch/IpatchSampleStoreVirtual.[ch]: Modified to use new
+	  IpatchSampleList structure.  Not yet tested.
+	* libinstpatch/IpatchSampleTransform.[ch]: Added sample transform
+	  pool functionality for fast retrieval of a sample transform object
+	  for temporary use without the over head of object creation, transform
+	  object should now be fixed in regards to changing format, removed
+	  ipatch_sample_transform_set_buffers() since we now enforce that
+	  buffers are allocated together to make format changes possible,
+	  modified ipatch_sample_transform_convert() to allow source and
+	  destination buffers to be specified of any size added
+	  ipatch_sample_transform_convert_single() with old style 1 call per
+	  buffer conversion.
+	* libinstpatch/IpatchSampleStore.c: Modified
+	  ipatch_sample_store_transform_read() and
+	  ipatch_sample_store_transform_write() to take an optional buffer
+	  parameter which allows for reading/writing of larger sizes than the max
+	  frames of the transform object.
+	* libinstpatch/IpatchAudioFile.c: Fixed bugs in regards to floating
+	  point audio and 24 bit and added transformations for real 24 bit
+	  3 byte audio and new function ipatch_audio_file_new().
+
+2007-02-15  Josh Green  <jgreen@users.sourceforge.net>
+
+	* Modified build to include version in version sensitive files so that
+	  future major versions can be installed in parellel.
+	* libinstpatch/IpatchState*.[ch]: Migrated from libswami, not yet being
+	  used, but will be the bases of undo sub system.
+	* libinstpatch/IpatchSF2Preset.c: Removed
+	  ipatch_sf2_preset_has_global_zone() since IpatchSF2Preset is now the
+	  global zone.
+	* libinstpatch/IpatchPickle.[ch]: XML <> Object pickling, not yet done
+	  and inactive.
+	* libinstpatch/IpatchSF2Sample.c: Sample property flags are now being
+	  set on which ones affect synthesis and which ones should be real time,
+	  also added a sf2voice-update-func to handle real time effect changes.
+	* libinstpatch/IpatchSF2VoiceCache_SF2.c: Removed disabled and outdated
+	  realtime generator effect code.  Replacing with new generic system.
+	* libinstpatch/misc.c: Removed "sort-children" type flag from all types
+	  except preset related ones.
+	* libinstpatch/IpatchSF2VoiceCache.c: Added new
+	  ipatch_sf2_voice_cache_update() function for the new real time
+	  voice cache update functionality and a sf2voice-update-func type
+	  property to register handler functions to specific types.
+	* TODO.tasks: Anjuta-2.1 tasks file for use with Anjuta dev, rocks!
+	* libinstpatch.anjuta: Anjuta-2.1 project file.
+
+2007-01-14  Josh Green  <jgreen@users.sourceforge.net>
+
+	* zlib is now required (no longer optional) so CRAM support is always
+	  available.  Easier than trying to remove CRAM from Pythong binding
+	  and builtin_enums.  Besides, zlib is rather standard.
+	* acinclude.m4: Modified some of the builtin automake functions so that
+	  they don't produce the "underquoted definition" warnings.
+	  AM_PATH_ZLIB was defining a main() function with AC_TRY_COMPILE
+	  which it already does, causing a nested function which was failing on
+	  OSX.
+
+2006-12-28  Josh Green  <jgreen@users.sourceforge.net>
+
+	* libinstpatch/IpatchContainer.c: Reverting change of type swap in
+	  ipatch_container_get_children() which was not a good idea.
+
+2006-12-22  Josh Green  <jgreen@users.sourceforge.net>
+
+	* All IpatchItem "title" property notifies of all items now send at
+	  least the new value and sometimes also the old value (when convenient).
+	* Most ipatch_item_changed() calls removed as it is now down
+	  automatically through the property notify system.
+	* libinstpatch/IpatchItem.c: Removed item property hook function and
+	  replaced with more powerful item property notify system in
+	  IpatchItemProp.c, ipatch_item_changed() now implicitly called when
+	  an IpatchItem property notify occurs (IPATCH_PARAM_NO_SAVE_CHANGE
+	  property flag can be used to indicate that property is not part of
+	  saveable state), performance improved, and now doing notify
+	  for IpatchBase "changed" property.
+	* libinstpatch/IpatchDLS2Param_tables.c: New file - Initial table data for
+	  DLS parameters, not yet completed.
+	* libinstpatch/IpatchItemProp.c: New file - Item property notify system
+	  moved from Swami to libinstpatch and improved.
+	* libinstpatch/IpatchContainer_notify.c: New file - Container add/remove
+	  notify system moved from Swami to libinstpatch and improved.
+	* libinstpatch/IpatchSF2Inst.c: Converted to using IpatchSF2GenItem
+	  and IpatchSF2ModItem interfaces, global zones generators integrated
+	  into Instrument (no more global zones).
+	* libinstpatch/IpatchSF2IZone.c: Converted to using IpatchSF2GenItem
+	  interface, title notify now depends on linked item title.
+	* libinstpatch/IpatchUnit_generic.c: Wasn't setting unit ID field of
+	  built in types (fixed), some other changes to the labels and
+	  descriptions of built in unit types, all float types changed to
+	  double (for her pleasure).
+	* libinstpatch/IpatchSF2Preset.c: Global preset zones now integrated
+	  into presets (no more global zones), using new generator item
+	  interface.
+	* libinstpatch/IpatchSF2Gen.c: Added generator item interface for
+	  items implementing generator properties (IpatchSF2Inst, IpatchSF2IZone,
+	  IpatchSF2Preset, IpatchSF2PZone).  Some rename of generator property
+	  names to more appropriate ones ("key-range" -> "note-range",
+	  "root-note-override" -> "root-note", etc?), other cleanup/reorg.
+	* libinstpatch/IpatchUnit_SF2.c: Some renaming of functions, changes
+	  to unit labels and descriptions, re-added tenth percent unit, using
+	  doubles instead of floats.
+	* libinstpatch/IpatchGigRegion.c: Renamed property "key-range" to
+	  "note-range".
+	* libinstpatch/IpatchUnit_DLS.c: More changes like to other unit files.
+	* libinstpatch/IpatchParamProp.h: Added IPATCH_PARAM_NO_SAVE_CHANGE
+	  property flag to indicate if a property should cause
+	  ipatch_item_changed() to be called (modifies saveable state).
+	* libinstpatch/IpatchSF2PZone.c: Similar changes as with instrument zones.
+	* libinstpatch/IpatchDLS2Region.c: Rename of key-range to note-range.
+	* libinstpatch/IpatchSF2Gen_tables.c: Update of descriptions and labels
+	  and renames.
+	* libinstpatch/IpatchSF2VoiceCache_SF2.c: Updated for new global
+	  generator changes.
+	* libinstpatch/IpatchSF2Mod.c: New moderator interface.
+	* libinstpatch/IpatchContainer.c: Add/remove notify system, fixed
+	  bug in ipatch_container_get_children() with child type checking.
+
+	* Lots of other minor/major changes that I don't feel like writing about..
+	  Too long without a commit!  Sheeesh!
+
+2006-08-31  Josh Green  <jgreen@users.sourceforge.net>
+
+	* libinstpatch/IpatchSF2Reader.c: Improper use of
+	  ipatch_riff_read_chunk_verify() introduced a bug with recent changes
+	  to that function (causing non 24 bit SoundFont files to fail to load).
+	  Now enforcing that a SMPL chunk exists, pretty useless without one.
+
+2006-08-29  Josh Green  <jgreen@users.sourceforge.net>
+
+	* libinstpatch/IpatchCramDecoder.c: Fixed bug which caused decoder
+	  to fail when attempt was made to decode stereo non-split audio.
+	* utils/cram.c: Fixed bug with -p switch (was actually set as
+	  --qlp-coeff-search instead of --path), -q, --quiet now doing what
+	  it is supposed to do.
+
+2006-08-29  Josh Green  <jgreen@users.sourceforge.net>
+
+	A stripped down version of FLAC is now included with libInstPatch to
+	allow for customizations and to prevent breakage from new changes in
+	official FLAC encoder/decoder.
+
+	* libinstpatch/sample.c (ipatch_sample_format_bit_width): New function
+	  for getting the effective bit width of a sample format.
+	* libinstpatch/IpatchRiffParser.c (ipatch_riff_read_chunk_verify):
+	  A new error IPATCH_RIFF_ERROR_UNEXPECTED_CHUNK_END was added which is
+	  returned if current LIST chunk ends.  Previously no error info was
+	  being set.
+	* libinstpatch/IpatchSF2File.c: Addition of sample24-pos property and
+	  related fields for 24 bit SoundFont support.
+	* libinstpatch/IpatchCramEncoder.c: Changed to use included FLAC,
+	  added sample split support (for 24 bit SoundFonts), renamed
+	  ipatch_cram_encoder_declare_flac_audio to
+	  ipatch_cram_encoder_declare_audio and now passing parameters as a
+	  structure which can be allocated with
+	  ipatch_cram_encoder_audio_params_new, remove unneeded
+	  convert_audio_format_interleave, CRAM read version is getting set
+	  correctly if new features are used (such as sample splits), removed
+	  metadata hacks (no longer required with included FLAC).
+	* libinstpatch/IpatchCramDecoder.c: Changed to use included FLAC,
+	  added sample split support, removed metadata hacks (no longer
+	  required with included FLAC).
+	* libinstpatch/IpatchSampleData.c: The flag
+	  IPATCH_SAMPLE_DATA_FIND_QUALITY can now be used to search for
+	  highest quality sample within a IpatchSampleData object.
+	* libinstpatch/IpatchDLS2Region.c: Adding effect parameter support
+	  (not yet completed).
+	* libinstpatch/IpatchTypeProp.c: Renamed ipatch_type_register_func
+	  and ipatch_type_get_func to ipatch_type_register_dynamic_func and
+	  ipatch_type_get_dynamic_func respectively.
+	* libinstpatch/IpatchSampleStoreSplit24.[ch]: Added for SoundFont 24
+	  support.
+	* libinstpatch/IpatchSF2Reader.c: Added SoundFont 24 bit support.
+	* libinstpatch/util.c (ipatch_util_file_size): New convenience utility
+	  function for getting a file size.
+	* libinstpatch/IpatchCram_SF2.c: Added SoundFont 24 bit support,
+	  unfortunately due to expected issues with FLAC it results in rather
+	  poor performance :(
+	* libinstpatch/IpatchCramDecoderConverter.c: Added proper error
+	  detection for ipatch_cram_decoder_next_file in convert method.
+	* libinstpatch/IpatchDLSReader.c: DLS 8 bit audio is now properly set
+	  as unsigned.
+	* libinstpatch/IpatchSF2.c: Added "samples-24bit" property which
+	  indicates that sample data should be stored as 24 bit.
+	* libinstpatch/IpatchSF2Writer.c: SoundFont 24 bit support.
+	* libinstpatch/IpatchCram.h: Revision 3 of the specification adds
+	  sample split support and clarifies some other things in the format
+	  documentation.
+
+2006-07-22  Josh Green  <jgreen@users.sourceforge.net>
+
+	* IpatchAudioFile type was not being wraped as a python object causing crash with
+	  create_sf2.py.
+	* Updated create_sf2.py to use new converter functions.
+
+2006-06-18  Josh Green  <jgreen@users.sourceforge.net>
+
+	* libinstpatch/IpatchDLS2Sample.c: Changed init types of enum and
+	  flags GValues for IpatchItem property notifies to specific types.
+	* libinstpatch/IpatchGigRegion.c: IpatchRange was incorrectly being
+	  freed using g_free.
+	* libinstpatch/IpatchSF2VoiceCache_SF2.c: Fixed bugs in preset and
+	  instrument converters, including a GSlice related crash bug and
+	  modulator leaks.  Also now more resiliant to duplicate global zones.
+	* libinstpatch/IpatchPaste.c: Added ipatch_paste_object_add_duplicate()
+	  function.  Default paste handler now supports pasting to virtual
+	  containers.
+
+2006-05-08  Josh Green  <jgreen@users.sourceforge.net>
+
+	* Renamed all functions with *_ref_* in the name to *_get_* and
+	  removed _ref from the end of any function names.  This was decided
+	  to simplify the auto Python binding generation which does not care
+	  about reference counting.
+	* IpatchSF2VoiceCache converters now expect a voice cache object to
+	  be supplied, rather than creating it in the conversion function.
+	  This allows for parameters to be set on the voice cache prior to
+	  conversion.
+	* libinstpatch/IpatchVirtualContainer (IPATCH_VIRTUAL_CONTAINER_CREATE):
+	  Added childtype field to specify the child types contained by a
+	  virtual container.
+	  (IpatchVirtualContainerConformFunc): Function type used for
+	  "virtual-child-conform-func" type property for making a child conform
+	  to a virtual container parent's criteria.
+	* libinstpatch/IpatchSampleData.c (ipatch_sample_data_get_blank): Now
+	  setting sample data to zero for blank sample (bug).
+	* libinstpatch/IpatchTypeProp.c: Added "virtual-child-type" property
+	  for specifying what type of children a virtual container stores and
+	  "virtual-child-conform-func" as explained above.
+	* libinstpatch/IpatchSF2Mod.c: IpatchSF2ModList is now a boxed type for
+	  use as a object property.  Added functions ipatch_sf2_mod_list_get_type,
+	  ipatch_sf2_mod_list_free, ipatch_sf2_mod_list_insert,
+	  ipatch_sf2_mod_list_remove, and ipatch_sf2_mod_list_change.  Added
+	  modulator property support to objects for which it makes sense.
+	* libinstpatch/misc.c: Added "virtual-child-conform-func" functions for
+	  percussion/melodic virtual container branches.
+	* libinstpatch/IpatchSF2.c: find_unused_locale method now properly
+	  handles searching for free percussion MIDI locale.
+	* libinstpatch/IpatchDLS2.c: find_unused_locale method now properly
+	  handles searching for free percussion MIDI locale, fixed bug in
+	  ipatch_dls2_make_unique_name which caused unique counter to be
+	  overwritten.
+	* Documentation updates for renames.
+
+2006-04-15  Josh Green  <jgreen@users.sourceforge.net>
+
+	* Moved ac_python_devel.m4 to m4/python.m4.
+	* builtin_enums.[ch] and marshals.[ch] now auto generated.
+	* gtk-doc documentation updates.
+	* libinstpatch/IpatchSF2VoiceCache_SF2.c: Fixed crash bug in
+	  IpatchSF2Sample -> IpatchSF2VoiceCache converter, added voice cache
+	  item declaration in IpatchSF2Inst -> IpatchSF2VoiceCache converter.
+
+2006-04-12  Josh Green  <jgreen@users.sourceforge.net>
+
+	* libinstpatch/IpatchParamProp.h: Added IPATCH_PARAM_SYNTH and
+	  IPATCH_PARAM_SYNTH_REALTIME GParamSpec flags.
+	* libinstpatch/IpatchRange.[ch] (ipatch_range_new): Added low and
+	  high parameters.
+	* libinstpatch/IpatchSF2Gen.h: Some renaming of SoundFont generator
+	  defines (and property names), generator table is now defined const.
+	* IpatchSF2VoiceCache.c: Added item_func which gets called with all
+	  items for which a voice cache depends on (for synthesis updates).
+	  (ipatch_sf2_voice_cache_select): Fixed bug that
+	    caused not all voice indexes to be used (was counting all voices
+	    instead of only matched voices).
+	* IpatchSF2Zone.c: Now setting IPATCH_PARAM_SYNTH and
+	  IPATCH_PARAM_SYNTH_REALTIME for zone parameters.
+	* IpatchSF2Zone.h: Fixed generator array macros.
+	* python/ipatch.override: Created an iterator type for IpatchList,
+	  IpatchRange can be treated like a sequence and added low and high
+	  methods.
+	* python/ipatch-types.defs: New file added to override and declare
+	  some types (boxed types, etc).
+	* python/ipatch.defs: No longer auto generated.
+
+2006-03-15  Josh Green  <jgreen@users.sourceforge.net>
+
+	* Updated gtk-doc build files and API docs are now disabled by default.
+	* Removed all GMemChunk usage and replaced with GSlice (fallback to
+	  malloc if GSlice not available).
+	* Removed PREALLOC defines for objects since it was kinda messy and
+	  not really necessary.
+	* libinstpatch/IpatchSF2.c (ipatch_sf2_item_copy): Updated to
+	  ignore link_func since no objects are external from the SoundFont
+	  itself, fixed bugs where object references weren't being replaced.
+	* libinstpatch/IpatchSF2VoiceCache.[ch]: Added a default_loop_type
+	  field which gets used for object types which have no looping mode
+	  defined (such as IpatchSF2Sample objects).
+	* libinstpatch/IpatchSampleStoreVirtual.c: Now allows for stereo
+	  pairing of mono samples, still need to add stereo->mono conversions.
+
+2006-03-09  Josh Green  <jgreen@users.sourceforge.net>
+
+	* libinstpatch/sample.c: Floating point is now -1.0 to 1.0.
+	* libinstpatch/IpatchItem.c (ipatch_item_prop_notify_by_name): Debug
+	  macros weren't allowing old_value or new_value to be NULL.
+
+2006-03-03  Josh Green  <jgreen@users.sourceforge.net>
+
+	* libinstpatch/IpatchConverter.c: Added IPATCH_CONVERTER_FLAG_SRC_DERIVED
+	flag to ipatch_register_converter_map and changed priority field to
+	flags field.  Added ipatch_converter_set_link_funcs().
+	* libinstpatch/IpatchPaste.c: Added ipatch_paste_object_add_convert()
+	for easily converting an object during a paste operation.
+	* libinstpatch/IpatchVirtualContainer.h: IPATCH_VIRTUAL_CONTAINER_CREATE
+	macro to assist in creating new virtual container types.
+
+2006-01-20  Josh Green  <jgreen@users.sourceforge.net>
+
+	IpatchItem copy method changed to use a callback function for fixing
+	up object links and return code removed (copies should not fail), all
+	IpatchItem derived types updated to use this new method.
+	
+	* libinstpatch/IpatchDLS2Region.h: Started adding region properties.
+	* libinstpatch/IpatchItem.[ch]: IpatchItem "copy" method now uses a
+	callback function to fixup external links and return value and GError
+	removed (should not fail), many new functions added for copying and
+	duplicating items (replacement hash, link func, deep duplication),
+	functions added for getting unique properties for an item and testing
+	for conflicts.
+	* libinstpatch/IpatchPaste.[ch]: Overhauled and sweet! :)  There is now
+	a paste instance which paste operations can be added to.  All items to
+	be pasted are duplicated, conflicts can be detected all at once, items
+	can be changed in place, the paste operations are not executed until
+	finalized.
+
+2005-11-25  Josh Green  <jgreen@users.sourceforge.net>
+
+	IpatchConverter system modified to accept a range of types to match for
+	source and destination, many convenience functions added for converting
+	directly between 2 objects or an object and a type.  Existing converters
+	updated to use new system.
+
+2005-11-05  Josh Green  <jgreen@users.sourceforge.net>
+
+	IpatchItem property notifies now only occur once, after the property
+	is set.  The previous value is passed as an argument to the notify.
+	Insane amount of changes on property notifies, still some work to do.
+	Some duplicate properties removed (like "sample" for instrument zones,
+	"link-item" now used where appropriate).  Removed "title" type property
+	and made it an IpatchItem property.  Some fixes to sample converters
+	to get things to work right for sample exporting.  Added
+	ipatch_convert_objects and ipatch_convert_object_to_type functions for
+	added convenience.  Bug fixes in GigaSampler writer/reader and sub
+	regions.  IpatchItem now has some other defined properties too.  Added
+	a "float-digits" parameter property.
+	So much other crap its scary! :)
+
+2005-09-18  Josh Green  <jgreen@users.sourceforge.net>
+
+	Applied Win32 build patch from Keishi Suenaga.
+
+2005-09-17  Josh Green  <jgreen@users.sourceforge.net>
+
+	Converted all IpatchItem "describe" methods to "title" type properties.
+	Lots of other changes which I don't feel like describing today :)
+
+	libinstpatch/IpatchItem.c: Removed "describe" method and functions, now
+	replaced by "title" type property, changed implimentations throughout.
+	libinstpatch/IpatchSample.c: Added some IpatchSample interface helper
+	functions for use by IpatchSampleData based interfaces.  New loop_types
+	field of IpatchSampleIface to describe what loop types an interface
+	supports.  Updated all IpatchSample interfaces.
+	libinstpatch/IpatchDLSReader.c: Fixed an allocation bug with
+	IpatchDLS2SampleInfo in IpatchGigSubRegion objects which was causing
+	crashes.
+	libinstpatch/IpatchGig.c: Added virtual container child types.
+	libinstpatch/IpatchTypeProp.c: Added a "link-item" property
+	libinstpatch/IpatchSF2.c: Bug fix with virtual child list.
+
+2005-08-26  Josh Green  <jgreen@users.sourceforge.net>
+
+	Updates to python binding.  Created a IpatchContainer.add () method,
+	fixed a bunch of bugs with mis-named constructor types (made it
+	impossible to instantiate many types).  Attempted to create a binding
+	for the IpatchRange boxed type.
+
+	libinstpatch/IpatchAudioFile.c: Fixed an endian related bug (virtual
+	format must be set, otherwise it defaults to the host endian order),
+	less Nazi loop handling, if a conversion is required (non multiple of
+	8 bit width) then convert to native endian also.
+	libinstpatch/IpatchDLSReader.c: Fixed another endian related bug that
+	was causing DLS and Gig files to fail on big endian machines.
+	libinstpatch/IpatchSF2IZone.c: Fixed some property related bugs.
+	libinstpatch/IpatchSF2PZone.c: Fixed some more property bugs.
+	libinstpatch/IpatchSF2VoiceCache.c (ipatch_sf2_voice_cache_select):
+	Fixed a crash bug when no voices have been added to the cache.
+	libinstpatch/IpatchSF2Zone.c: Added ipatch_sf2_zone_set_key_range and
+	ipatch_sf2_zone_set_velocity_range.
+	libinstpatch/IpatchSampleData.c: Added
+	ipatch_sample_data_ref_primary_store.
+	libinstpatch/IpatchSampleStore.c (ipatch_sample_store_copy): Now allow
+	source sample store to be smaller than destination.
+	IpatchVirtualContainer_types.c: Added Gig virtual container types back in.
+	libinstpatch/misc.c: Initializing Gig virtual container types.
+
+2005-08-24  Josh Green  <jgreen@users.sourceforge.net>
+
+        libinstpatch/IpatchSF2VoiceCache_DLS.h: Forgot to add defines for the
+        DLS2Region voice synthesis converter.
+
+2005-08-23  Josh Green  <jgreen@users.sourceforge.net>
+
+        autogen.sh: Now checks to see if binaries exist, runs libtoolize and
+        outputs an error message if any commands fail.
+        configure.ac: PKG_CHECK_MODULES is done for pygtk if pygobject not
+        found (for pygtk versions that don't install a pygobject pkg-config file).
+        libinstpatch/IpatchSF2VoiceCache_DLS.c: Added basic DLS2Inst SF2
+        voice cache synthesis.
+
+2005-08-22  Josh Green  <jgreen@users.sourceforge.net>
+
+        configure.ac: PYGTK now uses pygobject-2.0 instead which removes GTK
+        dependency for Python binding.
+        libinstpatch/IpatchSF2VoiceCache_Gig.c: Added IpatchGigSample voice cache
+        synthesis converter.
+        libinstpatch/IpatchSF2VoiceCache_DLS.[ch]: New files, with a
+        IpatchDLS2Sample voice cache synthesis converter.
+
+2005-08-17  Josh Green  <jgreen@users.sourceforge.net>
+
+        Virtual container types added for DLS2, SF2, SF2Sample and Gig. Virtual
+        containers are used for grouping items in a user friendly manner, for
+        example: DLS2 objects have Melodic, Percussion and Sample virtual types
+        which would contain Melodic Instruments, Percussion Instruments and
+        Samples respectively in a user interface.
+
+        libinstpatch/IpatchContainer.c: Added ipatch_container_get_virtual_types
+        which will retrieve a list of virtual container types (grouping for user
+        interfaces).
+        libinstpatch/IpatchCramDecoderConverter: Added "strip-paths" property
+        which will strip all path components from extracted files.
+        libinstpatch/IpatchCramFile.c: Fixed bug in IpatchCramFile
+        identification method which caused CRAM files to not be identified.
+        libinstpatch/IpatchDLS2Inst.c: Added "percussion" property, and
+        percussion flag no longer stored in Bank.
+        libinstpatch/IpatchDLSReader.c: Heavily modified Gig loading code to
+        account for the fact that IpatchGigRegion is no longer inherited from
+        IpatchDLS2Region.
+        libinstpatch/IpatchDLSWriter.c: Heavily modified Gig writing code to
+        account for the fact that IpatchGigRegion is no longer inherited from
+        IpatchDLS2Region.
+        libinstpatch/IpatchGig.c: Now returns IpatchGigInst and IpatchGigSample
+        as child types (overrides IpatchDLS2).
+        libinstpatch/IpatchGigEffects.c: Added ipatch_gig_effects_init to
+        initialize a Gig effects structure.
+        libinstpatch/IpatchGigRegion.c: No longer inhereted from
+        IpatchDLS2Region, so some code is now duplicated.  Also dimensions and
+        sub regions now are now objects.  Renamed
+        ipatch_gig_region_add_dimension to ipatch_gig_region_new_dimension.
+        libinstpatch/IpatchItem.c: Added mutex inheritence so that a child item
+        can inherit its parent's mutex, thereby saving space and simplifying
+        locking.  Currently used for IpatchGigSubRegion and IpatchGigDimension
+        child objects of IpatchGigRegion.
+        libinstpatch/IpatchIter.c: Added array iterator type, split iterator
+        private access macros into GET and SET variants for all iterator types.
+        libinstpatch/IpatchParamProp.c: Added a "unit-type" parameter property to
+        specifiy what units (IpatchUnits.[ch]) a parameter uses.
+        libinstpatch/IpatchSF2Gen.c: Fixed a 64 bit constant bug with generator
+        add mask that was affecting ipatch_sf2_gen_array_offset and causing
+        incorrect results of generator sumation (velocity/key ranges were
+        being added and other valid generators were not!).
+        libinstpatch/IpatchSF2Preset.c: Added "percussion" property.
+        libinstpatch/IpatchSF2Zone.c: Generator "unit-type" parameter
+        properties are now being set.
+        libinstpatch/IpatchTypeProp.[ch]: Added dynamic type property functions
+        which get called when retrieving a type property and handles returning
+        the value.  Added "category", "virtual-parent-type", and "sort-children"
+        type properties.  Added some default type categories. Added 
+        ipatch_type_object_get, ipatch_type_object_get_valist,
+        ipatch_type_object_get_property, and ipatch_type_register_func.
+        libinstpatch/misc.c: Type properties like "name", "blurb", "category",
+        "virtual-parent-type" and "sort-children" now set for built in types.
+        libinstpatch/libinstpatch.h.in: Added G_BEGIN_DECLS and G_END_DECLS,
+        probably should add to every header file though.
+
+2005-06-24  Josh Green  <jgreen@users.sourceforge.net>
+
+	Improved finalization for many object types.  SF2Voices replaced with
+	IpatchSF2VoiceCache.
+
+	libinstpatch/IpatchAudioFile.c (ipatch_audio_file_open): Added support
+	for reading and writing loop and instrument info.
+	libinstpatch/IpatchBase.c: Removed ipatch_base_save which has been
+	superceded by IpatchConverter system, added
+	ipatch_base_find_item_by_midi_locale_ref for finding a child item by
+	MIDI locale.
+	libinstpatch/IpatchContainer.c: Added ipatch_container_remove_all and
+	now using it at container finalization.
+	libinstpatch/IpatchGigEffects.c: Unknown info now loaded and preserved.
+	libinstpatch/IpatchSF2VoiceCache.c: Some bug fixes and improvements.
+	libinstpatch/IpatchSF2VoiceCache_SF2.c: Now working.
+	libinstpatch/IpatchSF2VoiceCache_Gig.c: Also working :)
+
+2005-05-06  Josh Green  <jgreen@users.sourceforge.net>
+
+	Moved IPATCH_SF2_DEFAULT_NAME to IPATCH_BASE_DEFAULT_NAME. Default
+	name now set for DLS and GigaSampler files. Added "name" and "blurb"
+	IpatchTypeProp properties for defining user friendly name and
+	descriptions for GTypes and defined for SF2, DLS2 and Gig types.
+
+2005-05-02  Josh Green  <jgreen@users.sourceforge.net>
+
+	Added IpatchGigSample, IpatchIfaceProp (interface properties),
+	IpatchParamProp (GParamSpec properties) and IpatchTypeProp (GType
+	properties).  Copyright message updated in all files and changed
+	GPL license text to only allow use of version 2 (in case of future
+	license corruptions).  GigaSampler saving is working now and many
+	improvements in DLS/Gig loader as well.  Added software and comment
+	fields to CRAM header and bumped format version to 2.  Added
+	properties to IpatchCramDecoder.  IpatchCramDecoderConverter now
+	passes property requests to IpatchCramDecoder.  Added a get_size
+	method to IpatchFile and ipatch_file_get_size() function to use it.
+	Added a ipatch_file_buf_memset() function, ipatch_file_buf_zero
+	is now just a macro using this function.  Bug fixes in item_copy
+	methods for DLS/Gigasampler.  Unknown GigaSampler fields are now
+	preserved.  Improved cram utility statistics and added flag to set
+	comment and a file list mode.
+
+2004-12-14  Josh Green  <jgreen@users.sourceforge.net>
+
+	Lots of changes to sample related property names and loop types. Lots
+	of other property changes in regards to new IpatchParam extended
+	properties - max string lengths, unique tagging, etc. Many objects
+	now have IpatchSample interfaces.
+
+	* libinstpatch/IpatchSample.[ch]: New - basic sample interface which
+	is now implemented by IpatchDLS2Region, IpatchDLS2Sample,
+	IpatchSF2IZone, IpatchSF2Sample, IpatchSampleData and IpatchSampleFile.
+	* libinstpatch/IpatchUnit_generic.[ch]: New - generic unit definitions
+	and functions moved out of IpatchUnit.[ch].
+	* libinstpatch/IpatchItem.[ch]: Added a pre_prop_notify_hook which gets
+	called before an IpatchItem property changes, and the symantics of
+	prop_notify_hook have now been changed so it is called after the
+	property has changed.
+	* libinstpatch/IpatchParam.[ch]: Added functions for adding extended
+	properties to GParamSpec types and created some standard properties
+	"string-max-length" to specify max length of strings and
+	"unique-group-id" for specifying a group of properties that define
+	a unique key - an example is Bank:Preset numbers, IPATCH_PARAM_UNIQUE
+	flag added to indicate unique properties.
+	* libinstpatch/IpatchSampleTransform.c: Max frames that can be converted
+	at a time with an IpatchSampleTransform can now be retrieved and other
+	changes.
+
+2004-11-19  Josh Green  <jgreen@users.sourceforge.net>
+
+	* libinstpatch/IpatchDLS2Sample.c (ipatch_dls2_sample_find_store_ref):
+	Added sample format parameter.
+	* libinstpatch/IpatchSF2Sample.c (ipatch_sf2_sample_find_store_ref):
+	Added sample format parameter.
+	* libinstpatch/IpatchSampleData (ipatch_sample_data_find_store_ref):
+	Added format parameter and IPATCH_SAMPLE_DATA_FIND_EXACT_FORMAT flag.
+	* libinstpatch/IpatchSampleStore.c (ipatch_sample_store_duplicate):
+	Added sample format parameter.
+	* libinstpatch/sample.c: Fixed bugs in sample endian swapping
+	functions (swap16/32/64).
+
+2004-11-08  Josh Green  <jgreen@users.sourceforge.net>
+
+	Documentation updates.
+	Container child_types method changed.
+
+	* configure.ac: PyGtk codegen dir now fetched with pkg-config.
+	* python/Makefile.am: PyGtk codegen dir now fetched with pkg-config.
+	* libinstpatch/IpatchContainer.c: Removed n_children fields from
+	ipatch_container_get_child_types, ipatch_container_type_get_child_types
+	and class method.
+
+2004-11-07  Josh Green  <jgreen@users.sourceforge.net>
+
+	* ac_python_devel.m4: AC_PYTHON_DEVEL for detecting python support.
+	* configure.ac: Updated to use AC_PYTHON_DEVEL in ac_python_devel.m4.
+	* libinstpatch/IpatchConvert_Gig.c: Added Gig file load converter.
+	* libinstpatch/IpatchDLS2Region.c: Regions now use IpatchRange type
+	for velocity and note range.
+	* libinstpatch/IpatchDLSReader.c: Fixed bug with stereo sample sizes,
+	no more debug spew for unknown chunks.
+	* libinstpatch/IpatchSampleFile.c: "channels" property changed to
+	integer type and updated for new sample format channels value.
+	* libinstpatch/IpatchSampleStore.c: "channels" property changed to
+	integer type and updated for new sample format channels value.
+	* libinstpatch/IpatchSampleTransform.c: Updated for new sample format
+	channels value.
+	* libinstpatch/sample.c: Fixed bug with stereo to mono convert
+	functions, updated for new sample format channels value.
+	* libinstpatch/sample.h: Values for sample format channels changed to
+	the number of channels - 1 and a new field added for channel routing.
+	* python/Makefile.am: Updated to use new defines from AC_PYTHON_DEVEL.
+
+2004-10-28  Josh Green  <jgreen@users.sourceforge.net>
+
+	"-ref" was removed from all object properties with this naming
+	convention since GValue already references returned objects.
+
+2004-09-16  Josh Green  <jgreen@users.sourceforge.net>
+
+	Release: 1.0.0beta-20040917
+	* examples/create_sf2.py: Updated for latest API changes and to match
+	functionality of C equivelent create_sf2.c.
+
+2004-09-16  Josh Green  <jgreen@users.sourceforge.net>
+
+	* examples/create_sf2.c: Updated SoundFont creation example to
+	also create Instruments and Presets for the added samples.
+	* libinstpatch/IpatchSF2Inst.c (ipatch_sf2_inst_create_zone): Killed
+	the return value for ultra convenience (unref not needed).
+	* libinstpatch/IpatchSF2Preset.c (ipatch_sf2_preset_create_zone):
+	Killed the return value for ultra convenience (unref not needed).
+
+2004-09-15  Josh Green  <jgreen@users.sourceforge.net>
+
+	Documentation updates.
+
+	* libinstpatch/IpatchAudioFile.c: Bug fixes.
+	* libinstpatch/IpatchConvert_SF2.c: Improved IpatchSampleFile to
+	IpatchSF2Sample conversion.
+	* libinstpatch/IpatchConverter.[ch]: Renamed ipatch_lookup_converter to
+	ipatch_find_converter and added find flag fields to parameters.
+	* libinstpatch/IpatchSampleData.h: Renamed IpatchSampleStoreFindFlags
+	to IpatchSampleDataFindFlags.
+	* libinstpatch/IpatchSF2Writer.c: Samples now written with "untitled%d"
+	string if it has no name, also fixes crash bug.
+	* libinstpatch/IpatchSampleTransform.c: Bug fixes and new function
+	ipatch_sample_transform_free_buffers.
+	* examples/create_sf2.py: New Python example for creating a SoundFont
+	from sample files.
+	* examples/create_sf2.c: New C example for creating a SoundFont from
+	sample files.
+
+2004-09-01  Josh Green  <jgreen@users.sourceforge.net>
+
+	Documentation updates.
+
+	* libinstpatch/sample.[ch]: Re-worked sample format integer to
+	describe complete sample format (width/type, sign, endian, channels).
+	Moved sample format related functions to sample.c and created
+	conversion functions for converting between any supported format with
+	a routine to create an array of function pointers required for a
+	conversion.
+	* libinstpatch/IpatchSampleTransform.[ch]: A new sample format
+	conversion object.
+	* libinstpatch/IpatchSampleStoreVirtual.[ch]: The beginnings of a
+	virtual sample store, which will support simple edit lists and format
+	conversions.
+	* libinstpatch/IpatchConverter_priv.h: Some private macros for more
+	easily defining IpatchConverter types.
+	* libinstpatch/IpatchAudioFile.h: Removed virtual file support, since
+	we are handling format conversion internally. Added a method for
+	getting a list of supported save file types. Re-wrote sections of open
+	method to use native audio format since virtual IpatchSampleFile
+	support has been ditched.
+	* libinstpatch/IpatchConvert_DLS2.c: Now using helper macros to
+	simplify creation of converter types. Added a IpatchSampleFile to
+	IpatchDLS2Sample converter. Updated init routine for
+	ipatch_register_converter changes.
+	* libinstpatch/IpatchConvert_SF2.c: Added a IpatchSampleFile to
+	IpatchSF2Sample converter. Updated init routine for
+	ipatch_register_converter changes. Now using converter helper macros
+	in IpatchConverter_priv.h.
+	* libinstpatch/IpatchConverter.c: Added fields for expected source and
+	destination item counts to converter registration system and updated
+	the ipatch_register_converter function and changed/renamed
+	ipatch_lookup_converter_type to ipatch_lookup_converter_info to
+	handle this additional information. Updated verify routine to check
+	items based on the item count and type information if the verify
+	method is NULL.
+	* libinstpatch/IpatchDLSReader.c: Updated for new sample format system.
+	* libinstpatch/IpatchDLSWriter.c: Updated to use new sample conversion
+	system.
+	* libinstpatch/IpatchSF2Reader.c: Updated for new sample format system.
+	* libinstpatch/IpatchSF2Writer.c: Updated to use new sample conversion
+	system.
+	* libinstpatch/IpatchSampleData.[ch]: Updated for new sample format
+	system.
+	* libinstpatch/IpatchSampleFile.[ch]: Removed virtual sample format
+	parameters (we now do this internally). Updated for new sample format
+	system.
+	* libinstpatch/IpatchSampleStore.[ch]: Updated for new sample format
+	system. Added convenience functions for converting audio format
+	to/from sample stores.
+
+2004-07-16  Josh Green  <jgreen@users.sourceforge.net>
+
+	* libinstpatch/IpatchConvert_SF2.c: Fixed bug in verify method
+	template macro.
+	* libinstpatch/IpatchConverter.c: Added a function to lookup
+	source and destination conversion types for a given converter
+	type.
+	* python/ipatchmodule.c: Added #define NO_IMPORT_PYGOBJECT since
+	it fixes build on MAC OS X related to duplicate symbols. Not real
+	sure what this define is for though.
+	
+2004-07-15  Josh Green  <jgreen@users.sourceforge.net>
+
+	Fixed bug in IpatchSF2Reader.c that affected big endian machines (Mac
+	OS X in particular).
+
+2004-07-14  Josh Green  <jgreen@users.sourceforge.net>
+
+	Renamed Cram* to IpatchCram* to fix python binding and just to
+	integrate the beast. Renamed IpatchSF2Loader to IpatchSF2Reader
+	and IpatchDLSLoader to IpatchDLSReader. Created converters for
+	loading/saving SoundFont and DLS files. Ditched libsndfile support
+	in favor of requiring libaudiofile and added IpatchSampleFile
+	support for libaudiofile with virtual format conversion for files
+	and IpatchSampleStore objects! Renamed IpatchSampleStoreFormat to
+	IpatchSampleFormat and moved it to misc.h. Documentation updates.
+
+	* libinstpatch/IpatchConverter.c: Lookups for registered handlers
+	now looks for derived types as well and finds the best match. Also
+	added an init() method for converters that want to intialize
+	parameters based on input/output objects.
+	* libinstpatch/IpatchFile.c: Removed load_object method in favor
+	of IpatchConverter system.
+	* libinstpatch/IpatchSampleFile.c: Cleaned up sample format and
+	virtual sample format parameters.
+
+2004-07-06  Josh Green  <jgreen@users.sourceforge.net>
+
+	Mucking around with gettext stuff. Hopefully everything is set up
+	right now (what a pain!).
+
+2004-07-06  Josh Green  <jgreen@users.sourceforge.net>
+
+	Build updates to intl and po gettext stuff.
+	* libinstpatch/IpatchConverter.c: Documentation updates.
+	* libinstpatch/IpatchRange.c: Now setting value_type field of
+	GParamSpec to IPATCH_TYPE_RANGE (what a GBoxed type should do).
+	* libinstpatch/misc.h: Bug fix to G_HAVE_GNUC_VARARGS version of
+	ipatch_code_error macro.
+
+2004-07-03  Josh Green  <jgreen@users.sourceforge.net>
+
+	Release: 1.0.0beta-20040703
+	Documentation updates (looking pretty sweet).
+
+2004-07-02  Josh Green  <jgreen@users.sourceforge.net>
+
+	Dude, I have been bad about the ChangeLog updates! FlacPak is now
+	Cram and the format has been re-written to be extendable (thanks
+	to EBML) and support multiple files in an archive with paths. The
+	IpatchConverter is now being used for the Cram decoder/encoder to
+	convert between IpatchFile and CramFile types. The cram command
+	line utility is working but needs some work in relation to
+	progress and statistic output.
+
+2004-01-25  Josh Green  <jgreen@users.sourceforge.net>
+
+	Renamed ipatch_sf2_write to ipatch_sf2_writer_save and swapped
+	IpatchSF2File and IpatchSF2 parameters in ipatch_sf2_writer_new.
+	Both changes made to get Python binding to work correctly.
+
+2004-01-21  Josh Green  <jgreen@users.sourceforge.net>
+
+	Removed include of convert.h, which no longer exists, from
+	libinstpatch.h.in. Changed python/Makefile.am to not be broken in
+	regards to generating defs.
+
+2004-01-18  Josh Green  <jgreen@users.sourceforge.net>
+
+	Removed IpatchConvert from build until its working, fixed a
+	bug that made zone generator properties unusable, also changed
+	python binding Makefile to generate the defs file if it doesn't
+	already exist.
+
+2003-12-13  Josh Green  <jgreen@users.sourceforge.net>
+
+	Lots of bug fixes to SoundFont writer (was pretty much unusable,
+	gotta test those things :)
+
+2003-12-11  Josh Green  <jgreen@users.sourceforge.net>
+
+	Removed old object conversion interface and created new
+	IpatchConverter object and conversion registry. Some bug fixes to
+	SoundFont FlacPak encoder handler.
+
+2003-12-03  Josh Green  <jgreen@users.sourceforge.net>
+
+	Many bug fixes with FlacPak including a problem with MD5 function
+	name clashes with FLAC causing memory leaks, fixes to compressing
+	or decompressing multiple files, improved statistic functionality
+	with FlacPakEncoder, better text output from flacpak utility and
+	some bugs with the SoundFont FlacPak handler.
+
+2003-12-01  Josh Green  <jgreen@users.sourceforge.net>
+
+	FlacPak is on the scene (libinstpatch/FlacPak*), dynamically generating
+	libinstpatch.h since FlacPak is optional, split IpatchFileBuf stuff
+	into separate C file, many bug fixes to IpatchFile routines, made
+	many IpatchDLSLoader routines public (still needs some work), added
+	a flacpak command line program to utils/.
+
+2003-10-03  Josh Green  <jgreen@users.sourceforge.net>
+
+	Lots of things have changed, finally getting around to importing
+	this lot into CVS.
+
+
+2003-08-29  Josh Green  <jgreen@users.sourceforge.net>
+
+	libInstPatch is now its own package, check Swami changelog for earlier
+	history.

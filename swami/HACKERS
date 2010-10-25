@@ -1,0 +1,73 @@
+Documentation for fellow hackers and those wishing to contribute code to the
+Swami project.  Contributions without following these guidlines are ok, but it
+likely means more work for me, since I'll probably modify things so that it is
+correctly assimulated.
+
+Code style
+---------------
+
+Code indentation style is pretty much the GNU style of the 'indent' command
+with a couple exceptions:
+
+Braces are not indented (i.e., they are on the same column as the statement
+they follow).  Note that currently most of the project does in fact have
+2 space brace indenting, but I'd like to change that.
+
+Also, pointer arguments in functions don't have a space between
+the * and the argument name (anyone know how to turn that off with indent?)
+
+Example:
+
+int
+function (GObject *obj, int arg)
+{
+  int i;
+
+  if (1 == 1)
+  {
+    for (i = 0; i < 0; i++)
+    {
+      printf ("This coding style is yummy!\n");
+    }
+  }
+}
+
+
+The following indent command will get things almost right.  If anyone knows
+how to turn off the spaces between the * in function pointer arguments and
+the argument name, do let me know.  For some reason that just annoys the hell
+out of me ;)  The other thing that is annoying is breaking lines on
+_("") macro i18n calls, but I doubt indent can be forced to not to do that.
+
+If I could fix those two issues I'd probably run indent on all the code, since
+the current bracing indentation style is not to my liking.
+
+indent -bli0 -sc -ncs myfile.c
+
+
+Commenting code
+---------------
+
+Please comment all new public functions with GTK doc style comment blocks.
+
+Refcounting/memory allocation is also good to comment.  Please do so like this:
+
+  sf2 = ipatch_sf2_new ();	/* ++ ref */
+
+  file = ipatch_file_new ();	/* ++ ref */
+  ptr = g_new (MyStruct, 1);	/* ++ alloc */
+
+  ...
+
+  g_free (ptr);			/* -- free */
+  g_object_unref (file);	/* -- unref */
+
+  return (sf2);			/* !! caller takes over reference */
+
+
+So in other words, use "++" to indicate an allocate or object reference,
+"--" to indicate free or object unref and "!!" to indicate something special
+with allocation or reference counting (such as returning allocated or
+referenced object to caller).  In this way it should be easy to scan a function
+quickly and notice if there are any ref/allocation issues (an unref forgotten,
+etc).
