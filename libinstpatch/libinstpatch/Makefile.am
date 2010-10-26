@@ -211,7 +211,7 @@ ipatch_sources = \
 libinstpatch_1_0_la_SOURCES = $(ipatch_public_h_sources) $(ipatch_sources)
 libinstpatch_1_0_la_LDFLAGS = $(no_undefined) $(libinstpatch_la_def) \
   -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) -export-dynamic
-libinstpatch_1_0_la_LIBADD = @SNDFILE_LIBS@ @GOBJECT_LIBS@
+libinstpatch_1_0_la_LIBADD = @SNDFILE_LIBS@ @GOBJECT_LIBS@ -lm
 
 ipatchincdir = $(includedir)/libinstpatch-1.0/libinstpatch
 ipatchinc_HEADERS = $(ipatch_public_h_sources) builtin_enums.h libinstpatch.h

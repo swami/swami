@@ -155,10 +155,6 @@ if test "$GTK_SOURCE_VIEW_SUPPORT" = "1" ; then
 fi
 
 
-dnl Check for python 2.2 (defines PYTHON_CFLAGS, PYTHON_LIBS, PYTHON_SITE_PKG,
-dnl    PYTHON_EXTRA_LIBS)
-AC_PYTHON_DEVEL
-
 PKG_CHECK_MODULES(PYGTK, pygtk-2.0, PYGTK_SUPPORT=1, PYGTK_SUPPORT=0)
 AC_SUBST(PYGTK_CFLAGS)
 AC_SUBST(PYGTK_LIBS)
@@ -177,6 +173,9 @@ if test "x${enable_python}" = "xyes" -a "$PYGTK_SUPPORT" = "1" ; then
   fi
 
   AC_SUBST(PYGTK_CODEGEN_DIR)
+
+  dnl Check for python 2.2 (defines PYTHON_CFLAGS, PYTHON_LIBS, PYTHON_SITE_PKG, PYTHON_EXTRA_LIBS)
+  AC_PYTHON_DEVEL
 else
   enable_python="no"
 fi

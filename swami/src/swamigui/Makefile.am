@@ -73,6 +73,8 @@ libswamigui_public_h_sources = \
 	patch_funcs.h \
 	splash.h \
 	util.h
+	widgets/combo-box.h \
+	widgets/icon-combo.h
 
 
 libswamigui_sources = \
@@ -120,11 +122,12 @@ libswamigui_sources = \
 	patch_funcs.c \
 	splash.c \
 	swamigui.h \
-	util.c
+	util.c \
+	widgets/combo-box.c \
+	widgets/icon-combo.c
 
 libswamigui_la_SOURCES = $(libswamigui_public_h_sources) $(libswamigui_sources)
-libswamigui_la_LIBADD = widgets/libwidgets.la \
-  $(top_srcdir)/src/libswami/libswami.la \
+libswamigui_la_LIBADD = $(top_srcdir)/src/libswami/libswami.la \
  @LIBINSTPATCH_LIBS@ @GUI_LIBS@ @LIBGLADE_LIBS@ @LIBINTL@ \
  @GTK_SOURCE_VIEW_LIBS@ @PYGTK_LIBS@ @PYTHON_LIBS@
 

@@ -136,11 +136,6 @@ PKG_CHECK_MODULES(SNDFILE, sndfile >= 1.0)
 AC_SUBST(SNDFILE_CFLAGS)
 AC_SUBST(SNDFILE_LIBS)
 
-
-# Check for python 2.2 (defines PYTHON_CFLAGS, PYTHON_LIBS, PYTHON_SITE_PKG,
-#    PYTHON_EXTRA_LIBS)
-AC_PYTHON_DEVEL
-
 # Try for pygobject first (removes gtk dependency)
 PKG_CHECK_MODULES(PYGTK, pygobject-2.0, PYGTK_SUPPORT=1, PYGTK_SUPPORT=0)
 
@@ -166,6 +161,9 @@ if test "x${enable_python}" = "xyes" -a "$PYGTK_SUPPORT" = "1" ; then
   fi
 
   AC_SUBST(PYGTK_CODEGEN_DIR)
+
+  # Check for python 2.2 (defines PYTHON_CFLAGS, PYTHON_LIBS, PYTHON_SITE_PKG, PYTHON_EXTRA_LIBS)
+  AC_PYTHON_DEVEL
 else
   enable_python="no"
 fi
