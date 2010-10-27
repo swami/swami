@@ -72,7 +72,7 @@ libswamigui_public_h_sources = \
 	icons.h \
 	patch_funcs.h \
 	splash.h \
-	util.h
+	util.h \
 	widgets/combo-box.h \
 	widgets/icon-combo.h
 

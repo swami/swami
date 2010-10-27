@@ -12,7 +12,6 @@ swamigui_control_adj_get_type
 swamigui_knob_get_type
 swamigui_loop_finder_get_type
 swamigui_mod_edit_get_type
-swamigui_python_view_get_type
 swamigui_sample_canvas_get_type
 swamigui_panel_get_type
 swamigui_spin_scale_get_type

@@ -157,7 +157,7 @@ swamigui_init (int *argc, char **argv[])
   if (!g_thread_supported ()) g_thread_init (NULL);
 
   gtk_set_locale ();
-  gtk_init (argc, argv);	/* initialize GTK */
+  gtk_init_check (argc, argv);	/* initialize GTK */
 
   /* set the application/program name, so things work right with recent file chooser
    * even when binary name is different (such as lt-swami) */
