@@ -577,7 +577,7 @@ swamigui_root_init (SwamiguiRoot *root)
 #endif
 
   root->update_interval = 40;
-  root->quit_confirm = SWAMIGUI_QUIT_CONFIRM_NEVER;
+  root->quit_confirm = SWAMIGUI_QUIT_CONFIRM_UNSAVED;
   root->splash_enable = TRUE;
   root->splash_delay = SWAMIGUI_ROOT_DEFAULT_SPLASH_DELAY;
   root->tips_enable = FALSE;

@@ -647,13 +647,13 @@ sfload_pbags (IpatchSF2Reader *reader, GError **err)
   if (!ipatch_file_read (riff->handle, bag_table, chunk->size, err))
     return (FALSE);	   /* bag_table will be freed by finalize() */
 
-  pgenndx = IPATCH_FILE_SWAP16 (riff->handle, &bag_table[0]);
-  pmodndx = IPATCH_FILE_SWAP16 (riff->handle, &bag_table[1]);
+  pgenndx = IPATCH_FILE_SWAP16 (riff->handle->file, &bag_table[0]);
+  pmodndx = IPATCH_FILE_SWAP16 (riff->handle->file, &bag_table[1]);
 
   for (i=0; i < reader->pbag_count; i++)
     {
-      genndx = IPATCH_FILE_SWAP16 (riff->handle, &bag_table[(i+1)*2]);
-      modndx = IPATCH_FILE_SWAP16 (riff->handle, &bag_table[(i+1)*2+1]);
+      genndx = IPATCH_FILE_SWAP16 (riff->handle->file, &bag_table[(i+1)*2]);
+      modndx = IPATCH_FILE_SWAP16 (riff->handle->file, &bag_table[(i+1)*2+1]);
 
       if (genndx < pgenndx)
 	{
@@ -973,13 +973,13 @@ sfload_ibags (IpatchSF2Reader *reader, GError **err)
   if (!ipatch_file_read (riff->handle, bag_table, chunk->size, err))
     return (FALSE);	   /* bag_table will be freed by finalize() */
 
-  pgenndx = IPATCH_FILE_SWAP16 (riff->handle, &bag_table[0]);
-  pmodndx = IPATCH_FILE_SWAP16 (riff->handle, &bag_table[1]);
+  pgenndx = IPATCH_FILE_SWAP16 (riff->handle->file, &bag_table[0]);
+  pmodndx = IPATCH_FILE_SWAP16 (riff->handle->file, &bag_table[1]);
 
   for (i=0; i < reader->ibag_count; i++)
     {
-      genndx = IPATCH_FILE_SWAP16 (riff->handle, &bag_table[(i+1)*2]);
-      modndx = IPATCH_FILE_SWAP16 (riff->handle, &bag_table[(i+1)*2+1]);
+      genndx = IPATCH_FILE_SWAP16 (riff->handle->file, &bag_table[(i+1)*2]);
+      modndx = IPATCH_FILE_SWAP16 (riff->handle->file, &bag_table[(i+1)*2+1]);
 
       if (genndx < pgenndx)
 	{
