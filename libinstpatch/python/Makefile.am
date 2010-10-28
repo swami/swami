@@ -19,7 +19,7 @@ pyexec_LTLIBRARIES = $(ipatchmodule_cond)
 ipatchmodule_la_LDFLAGS = -module -avoid-version -export-symbols-regex \
     initipatch
 ipatchmodule_la_LIBADD = ../libinstpatch/libinstpatch-1.0.la @PYGTK_LIBS@ \
-    @GOBJECT_LIBS@
+    @GOBJECT_LIBS@ @PYTHON_LIBS@
 ipatchmodule_la_SOURCES = ipatchmodule.c
 nodist_ipatchmodule_la_SOURCES = ipatch.c
 ipatch.c: ipatch.defs ipatch-types.defs ipatch.override
