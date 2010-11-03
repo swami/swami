@@ -1,0 +1,342 @@
+# 
+# libInstPatch
+#
+# Copyright (C) 1999-2010 Joshua "Element" Green <jgreen@users.sourceforge.net>
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Library General Public License
+# as published by the Free Software Foundation; version 2.1 of the
+# License only.
+#
+# This library is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Library General Public License for more details.
+#
+# You should have received a copy of the GNU Library General Public
+# License along with this library; if not, write to the Free
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+# 02111-1307, USA
+#
+
+include_directories (
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${GOBJECT_INCLUDEDIR}
+    ${GOBJECT_INCLUDE_DIRS}
+)
+
+# ************ library ************
+
+set ( libinstpatch_public_HEADERS
+    IpatchBase.h
+    IpatchContainer.h
+    IpatchConverter.h
+    IpatchConverterSF2VoiceCache.h
+    IpatchConvert_DLS2.h
+    IpatchConvert_Gig.h
+    IpatchConvert_SF2.h
+    IpatchDLS2Conn.h
+    IpatchDLS2.h
+    IpatchDLS2Info.h
+    IpatchDLS2Inst.h
+    IpatchDLS2Region.h
+    IpatchDLS2Sample.h
+    IpatchDLSFile.h
+    IpatchDLSReader.h
+    IpatchDLSWriter.h
+    IpatchFile.h
+    IpatchGig.h
+    IpatchGigDimension.h
+    IpatchGigEffects.h
+    IpatchGigFile.h
+    IpatchGigInst.h
+    IpatchGigRegion.h
+    IpatchGigSample.h
+    IpatchGigSubRegion.h
+    IpatchItem.h
+    IpatchIter.h
+    IpatchList.h
+    IpatchParamProp.h
+    IpatchPaste.h
+    IpatchRange.h
+    IpatchRiff.h
+    IpatchSample.h
+    IpatchSampleData.h
+    IpatchSampleList.h
+    IpatchSampleStore.h
+    IpatchSampleStoreCache.h
+    IpatchSampleStoreFile.h
+    IpatchSampleStoreRam.h
+    IpatchSampleStoreRom.h
+    IpatchSampleStoreSndFile.h
+    IpatchSampleStoreSplit24.h
+    IpatchSampleStoreSwap.h
+    IpatchSampleStoreVirtual.h
+    IpatchSampleTransform.h
+    IpatchSF2.h
+    IpatchSF2File.h
+    IpatchSF2Gen.h
+    IpatchSF2GenItem.h
+    IpatchSF2Inst.h
+    IpatchSF2IZone.h
+    IpatchSF2Mod.h
+    IpatchSF2ModItem.h
+    IpatchSF2Preset.h
+    IpatchSF2PZone.h
+    IpatchSF2Reader.h
+    IpatchSF2Sample.h
+    IpatchSF2VoiceCache.h
+    IpatchSF2VoiceCache_DLS.h
+    IpatchSF2VoiceCache_SF2.h
+    IpatchSF2VoiceCache_Gig.h
+    IpatchSF2VoiceCache_VBank.h
+    IpatchSF2Writer.h
+    IpatchSF2Zone.h
+    IpatchSndFile.h
+    IpatchTypeProp.h
+    IpatchUnit.h
+    IpatchUnit_generic.h
+    IpatchUnit_DLS.h
+    IpatchUnit_SF2.h
+    IpatchVBank.h
+    IpatchVBankInst.h
+    IpatchVBankRegion.h
+    IpatchVirtualContainer.h
+    IpatchVirtualContainer_types.h
+    IpatchXml.h
+    IpatchXmlObject.h
+    misc.h
+    sample.h
+    util.h
+    ${CMAKE_CURRENT_BINARY_DIR}/version.h
+) 
+
+set ( libinstpatch_SOURCES
+    IpatchBase.c
+    IpatchContainer.c
+    IpatchContainer_notify.c
+    IpatchConverter.c
+    IpatchConverterSF2VoiceCache.c
+    IpatchConverter_priv.h
+    IpatchConvert_DLS2.c
+    IpatchConvert_Gig.c
+    IpatchConvert_SF2.c
+    IpatchDLS2.c
+    IpatchDLS2Conn.c
+    IpatchDLS2Info.c
+    IpatchDLS2Inst.c
+    IpatchDLS2Param_tables.c
+    IpatchDLS2Region.c
+    IpatchDLS2Sample.c
+    IpatchDLSFile.c
+    IpatchDLSReader.c
+    IpatchDLSWriter.c
+    IpatchFile.c
+    IpatchFileBuf.c
+    IpatchGig.c
+    IpatchGigDimension.c
+    IpatchGigEffects.c
+    IpatchGigFile.c
+    IpatchGigInst.c
+    IpatchGigRegion.c
+    IpatchGigSample.c
+    IpatchGigSubRegion.c
+    IpatchItem.c
+    IpatchItemProp.c
+    IpatchIter.c
+    IpatchList.c
+    IpatchParamProp.c
+    IpatchPaste.c
+    IpatchRange.c
+    IpatchRiff.c
+    IpatchSample.c
+    IpatchSampleData.c
+    IpatchSampleList.c
+    IpatchSampleStore.c
+    IpatchSampleStoreCache.c
+    IpatchSampleStoreFile.c
+    IpatchSampleStoreRam.c
+    IpatchSampleStoreRom.c
+    IpatchSampleStoreSndFile.c
+    IpatchSampleStoreSplit24.c
+    IpatchSampleStoreSwap.c
+    IpatchSampleStoreVirtual.c
+    IpatchSampleTransform.c
+    IpatchSF2.c
+    IpatchSF2File.c
+    IpatchSF2Gen.c
+    IpatchSF2GenItem.c
+    IpatchSF2Gen_tables.c
+    IpatchSF2Inst.c
+    IpatchSF2IZone.c
+    IpatchSF2Mod.c
+    IpatchSF2ModItem.c
+    IpatchSF2Preset.c
+    IpatchSF2PZone.c
+    IpatchSF2Reader.c
+    IpatchSF2Sample.c
+    IpatchSF2VoiceCache.c
+    IpatchSF2VoiceCache_DLS.c
+    IpatchSF2VoiceCache_SF2.c
+    IpatchSF2VoiceCache_Gig.c
+    IpatchSF2VoiceCache_VBank.c
+    IpatchSF2Writer.c
+    IpatchSF2Zone.c
+    IpatchSndFile.c
+    IpatchTypeProp.c
+    IpatchUnit.c
+    IpatchUnit_generic.c
+    IpatchUnit_DLS.c
+    IpatchUnit_SF2.c
+    IpatchVBank.c
+    IpatchVBankInst.c
+    IpatchVBankRegion.c
+    IpatchVirtualContainer.c
+    IpatchVirtualContainer_types.c
+    IpatchXml.c
+    IpatchXmlObject.c
+    i18n.h
+    ipatch_priv.h
+    md5.c
+    md5.h
+    misc.c
+    sample.c
+    util.c
+)
+
+
+set ( public_main_HEADER ${CMAKE_CURRENT_BINARY_DIR}/libinstpatch.h )
+
+link_directories (
+    ${GOBJECT_LIBDIR}
+    ${GOBJECT_LIBRARY_DIRS}
+    ${SNDFILE_LIBDIR}
+    ${SNDFILE_LIBRARY_DIRS}
+)
+
+add_definitions ( -DLOCALEDIR="${DATA_INSTALL_DIR}/locale" )
+
+add_library ( libinstpatch-1.0
+    ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.c
+    ${CMAKE_CURRENT_BINARY_DIR}/marshals.c
+    ${libinstpatch_SOURCES}
+)
+
+target_link_libraries ( libinstpatch-1.0
+    ${GOBJECT_LIBRARIES}
+    ${SNDFILE_LIBRARIES}
+    ${IPATCH_LIBS}
+)
+
+install ( FILES
+          ${libinstpatch_public_HEADERS}
+          ${public_main_HEADER}
+          ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.h
+          DESTINATION include/libinstpatch-1.0/libinstpatch )
+
+find_program (GLIB2_MKENUMS glib-mkenums)
+find_program (SED sed)
+
+add_custom_command (
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.h
+  COMMAND ${GLIB2_MKENUMS}
+  ARGS
+    --fhead \"\#ifndef __IPATCH_BUILTIN_ENUMS_H__\\n\"
+    --fhead \"\#define __IPATCH_BUILTIN_ENUMS_H__\\n\\n\"
+    --fhead \"\#include <glib-object.h>\\n\\n\"
+    --fhead \"G_BEGIN_DECLS\\n\"
+    --fprod \"/* enumerations from \\"@filename@\\" */\\n\"
+    --vhead \"GType @enum_name@_get_type \(void\)\;\\n\"
+    --vhead \"\#define IPATCH_TYPE_@ENUMSHORT@ \(@enum_name@_get_type\(\)\)\\n\"
+    --ftail \"G_END_DECLS\\n\\n\"
+    --ftail \"\#endif /* __IPATCH_BUILTIN_ENUMS_H__ */\"
+    ${libinstpatch_public_HEADERS}
+    | ${SED} 's/dl_s2/dls2/g\;s/DL_S2/DLS2/g'
+    > ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.h
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  DEPENDS ${libinstpatch_public_HEADERS}
+)
+
+add_custom_command (
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.c
+  COMMAND ${GLIB2_MKENUMS}
+  ARGS
+    --fhead \"\#include \\"libinstpatch.h\\"\\n\"
+    --fhead \"\#include \\"ipatch_priv.h\\"\\n\\n\"
+    --fprod \"/* enumerations from \\"@filename@\\" */\"
+    --vhead \"static const G@Type@Value _@enum_name@_values[] = {\"
+    --vprod \"  { @VALUENAME@, \\"@VALUENAME@\\", \\"@valuenick@\\" },\"
+    --vtail \"  { 0, NULL, NULL }\\n}\;\\n\\n\"
+    --vtail \"GType\\n@enum_name@_get_type \(void\)\\n{\\n\"
+    --vtail \"  static GType type = 0\;\\n\\n\"
+    --vtail \"  if \(G_UNLIKELY \(type == 0\)\)\\n\"
+    --vtail \"    type = g_\@type\@_register_static \(\\"@EnumName@\\", _@enum_name@_values\)\;\\n\\n\"
+    --vtail \"  return type\;\\n}\\n\\n\"
+    ${libinstpatch_public_HEADERS}
+    | ${SED} 's/dl_s2/dls2/g\;s/DL_S2/DLS2/g'
+    > ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.c
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  DEPENDS ${libinstpatch_public_HEADERS} ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.h
+)
+
+
+find_program (GLIB2_GENMARSHAL glib-genmarshal)
+
+add_custom_command (
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/marshals.c
+  COMMAND ${GLIB2_GENMARSHAL}
+  ARGS
+    --body --prefix=ipatch_marshal
+    ${CMAKE_CURRENT_SOURCE_DIR}/marshals.list >${CMAKE_CURRENT_BINARY_DIR}/marshals.c
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/marshals.list ${CMAKE_CURRENT_BINARY_DIR}/marshals.h
+)
+
+add_custom_command (
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/marshals.h
+  COMMAND ${GLIB2_GENMARSHAL}
+  ARGS
+    --header --prefix=ipatch_marshal
+    ${CMAKE_CURRENT_SOURCE_DIR}/marshals.list >${CMAKE_CURRENT_BINARY_DIR}/marshals.h
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/marshals.list
+)
+
+if ( MACOSX_FRAMEWORK )
+     set_property ( SOURCE ${libinstpatch_public_HEADERS} 
+         PROPERTY MACOSX_PACKAGE_LOCATION Headers/libinstpatch
+     )
+    set_target_properties ( libinstpatch-1.0
+      PROPERTIES
+        OUTPUT_NAME "libinstpatch-1.0"
+        FRAMEWORK TRUE
+        PUBLIC_HEADER "${public_main_HEADER}"
+        FRAMEWORK_VERSION "${LIB_VERSION_CURRENT}"
+        INSTALL_NAME_DIR ${FRAMEWORK_INSTALL_DIR}
+        VERSION ${LIB_VERSION_INFO}
+        SOVERSION ${LIB_VERSION_CURRENT}
+    )
+else ( MACOSX_FRAMEWORK )
+  set_target_properties ( libinstpatch-1.0
+    PROPERTIES
+      PREFIX "lib"
+      OUTPUT_NAME "instpatch-1.0"
+      VERSION ${LIB_VERSION_INFO}
+      SOVERSION ${LIB_VERSION_CURRENT}
+  )
+endif ( MACOSX_FRAMEWORK )
+
+if ( IPATCH_CPPFLAGS )
+  set_target_properties ( libinstpatch-1.0
+    PROPERTIES COMPILE_FLAGS ${IPATCH_CPPFLAGS} )
+endif ( IPATCH_CPPFLAGS ) 
+
+install ( TARGETS libinstpatch-1.0
+  LIBRARY DESTINATION ${LIB_INSTALL_DIR}${LIB_SUFFIX}
+  ARCHIVE DESTINATION ${LIB_INSTALL_DIR}${LIB_SUFFIX}
+  FRAMEWORK DESTINATION ${FRAMEWORK_INSTALL_DIR}
+  BUNDLE DESTINATION ${BUNDLE_INSTALL_DIR}
+)
+

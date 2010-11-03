@@ -23,11 +23,6 @@ AM_CONFIG_HEADER(config.h)
 SWAMI_VERSION="\"$VERSION\""
 CFLAGS="$CFLAGS -Wall"
 
-dnl Set location of build
-BUILD_DIR=`pwd`
-AC_DEFINE_UNQUOTED(BUILD_DIR, "$BUILD_DIR", [Define the build directory])
-AC_SUBST(BUILD_DIR)
-
 dnl - Program checks
 AC_PROG_CC
 
@@ -193,19 +188,21 @@ fi
 
 dnl *** Plugin stuff ***
 
-AC_ARG_ENABLE(developer,
-[--enable-developer] [Enable developer options (use build path for externals
-  and enable other debugging options],
+AC_ARG_ENABLE(source-build,
+[--enable-source-build] [Enable source build (use source path for externals],
 [case "${enableval}" in
-  yes) SWAMI_DEVELOPER=yes ;;
-  no)  SWAMI_DEVELOPER=no ;;
-  *) AC_MSG_ERROR(bad value ${enableval} for --enable-developer) ;;
+  yes) SOURCE_BUILD=yes ;;
+  no)  SOURCE_BUILD=no ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-source-build) ;;
 esac],
-[SWAMI_DEVELOPER=no]) dnl Default value
+[SOURCE_BUILD=no]) dnl Default value
 
-if test "x$SWAMI_DEVELOPER" = "xyes"; then
-  AC_DEFINE(SWAMI_DEVELOPER, 1, [Define to enable options useful for developers])
+if test "x$SOURCE_BUILD" = "xyes"; then
+  AC_DEFINE(SOURCE_BUILD, 1, [Define to enable use of source path for externals])
 fi
+
+AM_CONDITIONAL(SOURCE_BUILD, test "x$SOURCE_BUILD" = "xyes")
+
 
 dnl Check for Gtk-doc
 GTK_DOC_CHECK(1.9)
@@ -252,8 +249,8 @@ FEATURE_SUMMARY([  Generate gtk-doc API docs],
 FEATURE_SUMMARY([  Debugging (compiler flags)],
   ["${disable_debug}" != "yes"])
 
-FEATURE_SUMMARY([  Developer options (runable from build location, other options)],
-  ["${SWAMI_DEVELOPER}" == "yes"])
+FEATURE_SUMMARY([  Source build (load external files from source code path)],
+  ["${SOURCE_BUILD}" == "yes"])
 
 echo
 echo "**************************************************************"

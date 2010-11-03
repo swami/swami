@@ -89,9 +89,15 @@ libswami_la_SOURCES = $(swami_public_h_sources) $(swami_sources)
 libswami_la_LDFLAGS = $(no_undefined) $(libswami_la_def) \
  @GOBJECT_LIBS@ @LIBINSTPATCH_LIBS@
 
+if SOURCE_BUILD
+PLUGINS_DIR="$(abs_top_builddir)/src/plugins/.libs"
+else
+PLUGINS_DIR="$(pkglibdir)"
+endif
+
 AM_CPPFLAGS = \
   -DG_LOG_DOMAIN=\"libswami\" \
-  -DPLUGINS_DIR=\"$(pkglibdir)\" \
+  -DPLUGINS_DIR=\"$(PLUGINS_DIR)\" \
   -DLOCALEDIR=\"$(datadir)/locale\" \
   -I$(top_srcdir)/src \
   -I$(top_srcdir)/src/include \

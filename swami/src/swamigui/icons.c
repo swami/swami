@@ -119,14 +119,13 @@ _swamigui_stock_icons_init (void)
     };
 
   /* ++ alloc path */
-#ifdef SWAMI_DEVELOPER		/* use build tree for loading icons? */
-  path = g_build_filename (BUILD_DIR, "src", "swamigui", "images", NULL);
+#ifdef SOURCE_BUILD		/* use source dir for loading icons? */
+  path = SOURCE_DIR "/src/swamigui/images";
 #else
-  path = g_build_filename (PKGDATA_DIR, "images", NULL);
+  path = IMAGES_DIR;
 #endif
 
   gtk_icon_theme_append_search_path (theme, path);
-  g_free (path);	/* -- free path */
 
   factory = gtk_icon_factory_new ();
   gtk_icon_factory_add_default (factory);
@@ -138,11 +137,7 @@ _swamigui_stock_icons_init (void)
       char *fn, *s;
 
       s = g_strconcat (&items[i][prefix_len], ".png", NULL);
-#ifdef SWAMI_DEVELOPER		/* use build tree for loading icons? */
-      fn = g_build_filename (BUILD_DIR, "src", "swamigui", "images", s, NULL);
-#else  /* use installed shared directory */
-      fn = g_build_filename (PKGDATA_DIR, "images", s, NULL);
-#endif
+      fn = g_build_filename (path, s, NULL);
       g_free (s);
 
       pixbuf = gdk_pixbuf_new_from_file (fn, NULL);

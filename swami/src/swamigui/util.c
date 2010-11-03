@@ -329,6 +329,7 @@ GtkWidget *
 swamigui_util_glade_create (const char *name)
 {
   gboolean first_time = TRUE;
+  char *filename;
   GladeXML *xml;
 
   if (first_time)
@@ -337,11 +338,13 @@ swamigui_util_glade_create (const char *name)
     first_time = FALSE;
   }
 
-#ifdef SWAMI_DEVELOPER
-  xml = glade_xml_new (BUILD_DIR "/src/swamigui/swami-2.glade", name, NULL);
+#ifdef SOURCE_BUILD
+  filename = SOURCE_DIR "/src/swamigui/swami-2.glade";
 #else
-  xml = glade_xml_new (PKGDATA_DIR G_DIR_SEPARATOR_S "swami-2.glade", name, NULL);
+  filename = UIXML_DIR G_DIR_SEPARATOR_S "swami-2.glade";
 #endif
+
+  xml = glade_xml_new (filename, name, NULL);
 
   glade_xml_signal_autoconnect (xml);
 

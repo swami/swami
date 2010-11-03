@@ -22,6 +22,8 @@ AC_DEFUN([AC_DEBUGGING],
   if test "$enable_debug" = "yes" ; then
   	AC_MSG_RESULT([enable debugging compiler flags ...])
   	CFLAGS="-g ${CFLAGS}"
+  	AC_DEFINE_UNQUOTED(DEBUG, 1, [Enable debugging])
+        AC_SUBST(DEBUG)
   else
 	AC_MSG_RESULT([disable debugging compiler flags ...])
 	CFLAGS="-O2 ${CFLAGS}"

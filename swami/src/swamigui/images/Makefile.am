@@ -1,8 +1,8 @@
 ## Process this file with automake to produce Makefile.in
 
-imagedir = $(pkgdatadir)/images
+imagesdir = $(pkgdatadir)/images
 
-image_DATA = \
+images_DATA = \
 	DLS.png \
 	GIG.png \
 	SoundFont.png \
@@ -64,6 +64,6 @@ image_DATA = \
         volenv_sustain.png
 
 
-EXTRA_DIST = $(image_DATA)
+EXTRA_DIST = $(images_DATA)
 
 MAINTAINERCLEANFILES = Makefile.in

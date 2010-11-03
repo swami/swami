@@ -1,22 +1,127 @@
 #!/bin/sh
 
-echo "Initializing Swami build..."
-error=0
+AUTOMAKE_REQ=1.7
+AUTOCONF_REQ=2.54
+LIBTOOL_REQ=2.2.10
+PKG_CONFIG_REQ=0.1
 
-for prog in aclocal autoheader autoconf automake libtoolize gtkdocize; do
-  which $prog 2>&1 >/dev/null || {
-    echo "*** The program '$prog' was not found and is required to initialize build."
-    exit 1
-  }
-done
+lessthan () {
+  ver1="$1"
+  ver2="$2"
 
-gtkdocize --copy --flavour no-tmpl && aclocal -I . -I m4 && autoheader && autoconf \
-  && automake --add-missing -c && libtoolize -c -f \
-  || error=1
+  major1=$( echo $ver1 | sed "s/^\([0-9]*\)\..*/\1/");
+  minor1=$( echo $ver1 | sed "s/^[^\.]*\.\([0-9]*\).*/\1/" );
+  major2=$( echo $ver2 | sed "s/^\([0-9]*\)\..*/\1/");
+  minor2=$( echo $ver2 | sed "s/^[^\.]*\.\([0-9]*\).*/\1/" );
+  test "$major1" -lt "$major2" || test "$minor1" -lt "$minor2";
+}
 
-if [ error = "1" ]; then
-  echo "*** An error occurred while initializing the build environment."
-  echo "*** Make sure you have recent versions of autoconf, automake, and"
-  echo "*** libtool installed when building from CVS or regenerating build."
+morethan () {
+  ver1="$1"
+  ver2="$2"
+
+  major1=$( echo $ver1 | sed "s/^\([0-9]*\)\..*/\1/");
+  minor1=$( echo $ver1 | sed "s/^[^\.]*\.\([0-9]*\).*/\1/" );
+  major2=$( echo $ver2 | sed "s/^\([0-9]*\)\..*/\1/");
+  minor2=$( echo $ver2 | sed "s/^[^\.]*\.\([0-9]*\).*/\1/" );
+  test "$major2" -lt "$major1" || test "$minor2" -lt "$minor1";
+}
+
+echo -n "automake version: "
+amver=$( automake --version | head -1 | sed "s/.* //" );
+echo -n "$amver"
+
+lessthan $amver $AUTOMAKE_REQ
+if test $? = 0; then
+  echo " (not ok)"
+  echo "
+####################################################################
+#########################  WARNING  ################################
+####################################################################
+
+                 You need automake >= ${AUTOMAKE_REQ}!
+
+
+"
+  sleep 1;
+else
+  echo " (ok)"
+fi
+
+echo -n "autoconf version: "
+acver=$( autoconf --version | head -1 | sed "s/.* //" );
+echo -n "$acver"
+lessthan $acver $AUTOCONF_REQ
+if test $? = 0; then
+  echo " (not ok)"
+  echo "
+####################################################################
+#########################  WARNING  ################################
+####################################################################
+
+                  You need autoconf >= ${AUTOCONF_REQ}!
+
+
+"
+  sleep 1;
+else
+  echo " (ok)"
+fi
+
+if [ ! -f `which libtool` ] ; then
+  echo "No libtool installed"
   exit 1
 fi
+echo -n "libtool version: "
+ltver=$( libtool --version | cut -d ' ' -f 4 | head -1 );
+echo -n "$ltver"
+echo " (ok)"
+
+
+echo -n "pkg-config: "
+pkg_config="$( which pkg-config )"
+if test -z "$pkg_config"; then
+  echo "(not found)"
+  echo "
+####################################################################
+#########################  WARNING  ################################
+####################################################################
+
+                    You need pkg-config!
+
+
+"
+else
+  echo "$pkg_config"
+  echo -n "pkg-config version: "
+  pcver=$( pkg-config --version )
+  echo -n "$pcver"
+  lessthan $pcver $PKG_CONFIG_REQ
+  if test $? = 0; then
+    echo " (not ok)"
+    echo "
+####################################################################
+#########################  WARNING  ################################
+####################################################################
+
+               You need pkg-config >= ${PKG_CONFIG_REQ}!
+
+
+"
+  else
+    echo " (ok)"
+    sleep 1;
+  fi
+fi
+
+echo -n "generating build system.."
+libtoolize -f -c \
+  && echo -n "." && aclocal -I m4 \
+  && echo -n "." && autoheader \
+  && echo -n "." && automake -a --include-deps \
+  && echo -n "." && autoconf && echo "done" \
+  && echo "
+
+  You may now run ./configure
+"
+

@@ -55,15 +55,13 @@ swamigui_splash_display (guint timeout)
       return;
     }
 
-#ifdef SWAMI_DEVELOPER		/* use build tree for loading data? */
-  filename = g_build_filename (BUILD_DIR, "src", "swamigui", "images", "splash.png", NULL);
-#else  /* use installed shared directory */
-  filename = g_build_filename (PKGDATA_DIR, "images", "splash.png", NULL);
+#ifdef SOURCE_BUILD		/* load splash image from source dir? */
+  filename = SOURCE_DIR "/src/swamigui/images/splash.png";
+#else
+  filename = IMAGES_DIR G_DIR_SEPARATOR_S "splash.png";
 #endif
 
   pixbuf = gdk_pixbuf_new_from_file (filename, NULL); /* ++ ref new pixbuf */
-  g_free (filename);
-
   if (!pixbuf) return;	/* fail silently if splash image load fails */
 
   /* splash popup window */

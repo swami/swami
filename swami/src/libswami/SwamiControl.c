@@ -34,10 +34,11 @@
 #include "swami_priv.h"
 #include "util.h"
 #include "marshals.h"
+#include "config.h"
 
 /* work around for bug in G_BREAKPOINT where SIGTRAP symbol is used on
  * some architectures without including signal.h header. */
-#ifdef SWAMI_DEVELOPER
+#if DEBUG
 #include <signal.h>
 #endif
 
@@ -102,7 +103,7 @@ static GObjectClass *parent_class = NULL;
 static guint control_signals[SIGNAL_COUNT] = { 0 };
 
 /* debug flag for enabling display of control operations */
-#ifdef SWAMI_DEVELOPER
+#if DEBUG
 gboolean swami_control_debug = FALSE;
 SwamiControl *swami_control_break = NULL;
 
@@ -295,7 +296,7 @@ swami_control_connect_transform (SwamiControl *src, SwamiControl *dest,
     }
   else swami_control_connect_real (src, dest, trans1, data1, destroy1, flags);
 
-#ifdef SWAMI_DEVELOPER
+#if DEBUG
   if (swami_control_debug)
     {
       char *s1, *s2;
@@ -684,7 +685,7 @@ swami_control_real_disconnect (SwamiControl *c1, SwamiControl *c2, guint flags)
   if (flags & SWAMI_CONTROL_CONN_OUTPUT)
     {
 
-#ifdef SWAMI_DEVELOPER
+#if DEBUG
       if (swami_control_debug)
 	{
 	  char *s1, *s2;
@@ -1520,7 +1521,7 @@ swami_control_set_event_real (SwamiControl *control, SwamiControlEvent *event)
     }
   else value = &event->value; /* No conversion necessary */
 
-#ifdef SWAMI_DEVELOPER
+#if DEBUG
   if (swami_control_debug)
     {
       char *valstr = g_strdup_value_contents (value);
@@ -1564,7 +1565,7 @@ swami_control_loop_check (SwamiControl *control, SwamiControlEvent *event)
       if (ev == origin)		/* event loop catch */
 	{
 
-#ifdef SWAMI_DEVELOPER
+#if DEBUG
 	  if (swami_control_debug)
 	    {
 	      char *s1 = pretty_control (control);
@@ -1644,7 +1645,7 @@ swami_control_transmit_value (SwamiControl *control, const GValue *value)
 
   SWAMI_UNLOCK_WRITE (control);
   
-#ifdef SWAMI_DEVELOPER
+#if DEBUG
   if (swami_control_debug)
     {
       char *s1 = pretty_control (control);
@@ -1739,7 +1740,7 @@ swami_control_transmit_event (SwamiControl *control, SwamiControlEvent *event)
 
   } /* stack space saver */
 
-#ifdef SWAMI_DEVELOPER
+#if DEBUG
   if (swami_control_debug)
     {
       char *s1 = pretty_control (control);
@@ -1830,7 +1831,7 @@ swami_control_transmit_event_loop (SwamiControl *control,
 
   } /* stack space saver */
 
-#ifdef SWAMI_DEVELOPER
+#if DEBUG
   if (swami_control_debug)
     {
       char *s1 = pretty_control (control);

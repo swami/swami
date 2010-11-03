@@ -75,12 +75,10 @@ swamigui_knob_init (SwamiguiKnob *knob)
     GError *err = NULL;
     char *filename;
 
-    /* ++ alloc filename */
-#ifdef SWAMI_DEVELOPER		/* use build tree for loading icons? */
-    filename = g_build_filename (BUILD_DIR, "src", "swamigui", "images",
-				 "knob.svg", NULL);
-#else  /* use installed shared directory */
-    filename = g_build_filename (PKGDATA_DIR, "images", "knob.svg", NULL);
+#ifdef SOURCE_BUILD		/* use source dir for loading icons? */
+    filename = SOURCE_DIR "/src/swamigui/images/knob.svg";
+#else
+    filename = IMAGES_DIR G_DIR_SEPARATOR_S "knob.svg";
 #endif
 
     knob_svg_data = rsvg_handle_new_from_file (filename, &err);
@@ -90,10 +88,7 @@ swamigui_knob_init (SwamiguiKnob *knob)
       g_critical ("Failed to open SVG knob file '%s': %s",
 		  filename, err ? err->message : "No error details");
       g_clear_error (&err);
-      g_free (filename);	/* -- free filename */
     }
-
-    g_free (filename);	/* -- free filename */
   }
 
   gtk_widget_set_size_request (GTK_WIDGET (knob), KNOB_SIZE_REQ, KNOB_SIZE_REQ);

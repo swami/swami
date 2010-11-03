@@ -21,8 +21,8 @@ endif
 EXTRA_DIST = glade_strings.c marshals.list swami-2.glade SwamiguiPythonView.h \
   SwamiguiPythonView.c swami_python.h swami_python.c
 
-sharedir = $(pkgdatadir)
-share_DATA = swami-2.glade
+uixmldir = $(pkgdatadir)
+uixml_DATA = swami-2.glade
 
 BUILT_SOURCES = \
 	builtin_enums.c \
@@ -139,7 +139,9 @@ swami_LDADD = libswamigui.la $(top_srcdir)/src/libswami/libswami.la \
  @GTK_SOURCE_VIEW_LIBS@ @PYGTK_LIBS@ @PYTHON_LIBS@
 
 AM_CPPFLAGS = \
- -DPKGDATA_DIR=\"$(pkgdatadir)\" \
+ -DIMAGES_DIR=\"$(pkgdatadir)/images\" \
+ -DUIXML_DIR=\"$(pkgdatadir)\" \
+ -DSOURCE_DIR=\"$(abs_top_srcdir)\" \
  -DLOCALEDIR=\"$(datadir)/locale\" \
  -I$(top_srcdir) -I$(top_srcdir)/src -I$(top_srcdir)/intl \
  @GUI_CFLAGS@ @LIBINSTPATCH_CFLAGS@ @LIBGLADE_CFLAGS@ \

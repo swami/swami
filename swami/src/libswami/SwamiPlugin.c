@@ -27,10 +27,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <unistd.h>
-
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <libinstpatch/misc.h>	/* ipatch_gerror_message() */
 
@@ -75,12 +72,7 @@ static gboolean swami_plugin_load_recurse (char *file, char *name);
 void
 _swami_plugin_initialize (void)
 {
-#ifdef SWAMI_DEVELOPER	    /* use build tree for loading plugins? */
-  plugin_paths = g_list_append (plugin_paths, BUILD_DIR "/src/plugins");
-  plugin_paths = g_list_append (plugin_paths, BUILD_DIR "/src/plugins/.libs");
-#else  /* ?: no, add the main (installed) library path */
   plugin_paths = g_list_append (plugin_paths, PLUGINS_DIR);
-#endif
 }
 
 GType

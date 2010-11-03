@@ -1,8 +1,8 @@
 +-------------------------------------------------------+
 +	libInstPatch - README				+
-+	Copyright (C) 1999-2007 Josh Green		+
++	Copyright (C) 1999-2010 Josh Green		+
 +	Email: jgreen@users.sourceforge.net		+
-+	libInstPatch site: http://swami.resonance.org	+
++	libInstPatch site: http://swami.sourceforge.net	+
 +-------------------------------------------------------+
 
 
@@ -26,7 +26,7 @@ which can then be edited, converted, compressed and saved.
 More information can be found on the libInstPatch Wiki pages on
 the Project Swami website.
 
-http://swami.resonance.org/trac/wiki/libInstPatch
+http://swami.sourceforge.net
 
 
 2. License
@@ -53,21 +53,31 @@ Look at the INSTALL file for instructions on compiling and installing
 libInstPatch and for more details on software requirements.
 
 libInstPatch has the following requirements:
-- Just about anywhere glib/GObject can be found. This includes many
-  *nix like operating systems such as Linux, *BSD, and Mac OS X and it
-  should also be possible to run on win32 systems.
-- glib/gobject 2.x
-- libaudiofile
+- glib/GObject >= 2.14
+- libsndfile
 
 glib/gobject homepage: http://www.gtk.org
-audiofile homepage: http://www.68k.org/~michael/audiofile/
+libsndfile homepage: http://www.mega-nerd.com/libsndfile
+
+libInstPatch can be built for Linux, Mac OSX and many other Unix like
+operating systems.  It has also been known to run on Windows systems.
 
 
 4. Features
 -------------------------------------
-- Supports SoundFont 2
-- Incomplete support for DLS 1/2 and GigaSampler
-- CRAM reference implementation for instrument compression
+* Native GObject C API
+* Supports SoundFont 2
+* SoundFont synthesis cache subsystem (IpatchSF2VoiceCache)
+* Conversion of most raw sample width formats (8/16/24/32bit/float/double, etc)
+* Sample format transform functions support up to 8 channels
+* Sample cache pool for caching samples in RAM in different formats
+* Sample edit lists for primitive sample editing operations
+* Simple XML tree parsing/saving using the glib GNode data type
+* Paste subsystem for easily performing copies of objects within and
+  between different instrument files
+* Instrument item conversion sub system
+* Python binding (currently incomplete)
+* Incomplete support for DLS 1/2 and GigaSampler
 
 
 5. Trademark Acknowledgement
