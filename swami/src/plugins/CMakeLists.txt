@@ -46,7 +46,7 @@ link_directories ( ${GOBJECT_LIBDIR} ${GOBJECT_LIBRARY_DIRS}
 
 add_library ( fluidsynth_plugin MODULE fluidsynth.c )
 
-target_link_libraries ( fluidsynth_plugin libswami ${GOBJECT_LIBRARIES}
+target_link_libraries ( fluidsynth_plugin libswami libswamigui ${GOBJECT_LIBRARIES}
     ${LIBINSTPATCH_LIBRARIES} ${FLUIDSYNTH_LIBRARIES}
 )
 
