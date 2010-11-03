@@ -20,7 +20,7 @@ EXTRA_DIST = \
 	fluidsynth_gui_i18n.h
 
 if FLUIDSYNTH_SUPPORT
-fluidsynth_lib = fluidsynth.la
+fluidsynth_lib = fluidsynth_plugin.la
 fluidsynth_gui_lib = fluidsynth_gui.la
 endif
 
@@ -32,9 +32,9 @@ endif
 pkglib_LTLIBRARIES = $(fluidsynth_lib) $(fluidsynth_gui_lib) \
 	$(fftune_lib) $(fftune_gui_lib)
 
-fluidsynth_la_SOURCES = fluidsynth.c fluidsynth_i18n.h
-fluidsynth_la_CFLAGS = @FLUIDSYNTH_CFLAGS@ @LIBINSTPATCH_CFLAGS@ @GUI_CFLAGS@
-fluidsynth_la_LDFLAGS =  $(no_undefined) $(fluidsynth_la_def) \
+fluidsynth_plugin_la_SOURCES = fluidsynth.c fluidsynth_i18n.h
+fluidsynth_plugin_la_CFLAGS = @FLUIDSYNTH_CFLAGS@ @LIBINSTPATCH_CFLAGS@ @GUI_CFLAGS@
+fluidsynth_plugin_la_LDFLAGS =  $(no_undefined) $(fluidsynth_la_def) \
     -module -avoid-version @FLUIDSYNTH_LIBS@ @GUI_LIBS@ \
     ../libswami/libswami.la
 

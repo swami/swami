@@ -300,7 +300,7 @@ fftune_gui_init (FFTuneGui *fftunegui)
   fftunegui->snap_line_color = 0xFF0000FF;
 
   /* create spectrum tuning object */
-  fftunegui->spectra = g_object_new (FFTUNE_TYPE_SPECTRA, NULL);
+  fftunegui->spectra = g_object_new (g_type_from_name ("FFTuneSpectra"), NULL);
 
   /* connect to spectrum change signal */
   g_signal_connect (fftunegui->spectra, "spectrum-change",

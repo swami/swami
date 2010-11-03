@@ -26,10 +26,11 @@
 #include <libinstpatch/libinstpatch.h>
 #include <libswami/SwamiControl.h>
 
-#include "fftune.h"
-
 typedef struct _FFTuneGui FFTuneGui;
 typedef struct _FFTuneGuiClass FFTuneGuiClass;
+
+/* Defined in fftune.h */
+typedef struct _FFTuneSpectra FFTuneSpectra;
 
 #define FFTUNE_TYPE_GUI   (fftune_gui_get_type ())
 #define FFTUNE_GUI(obj) \
