@@ -143,6 +143,8 @@ _swamigui_stock_icons_init (void)
       pixbuf = gdk_pixbuf_new_from_file (fn, NULL);
       g_free (fn);
 
+      if (!pixbuf) continue;
+
       if (strcmp (items[i], SWAMIGUI_STOCK_MODULATOR_JUNCT) == 0)
 	{
 	  int width, height;

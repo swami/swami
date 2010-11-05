@@ -717,7 +717,7 @@ ipatch_xml_find_by_path_recurse (GNode *node, const char *path)
   int len;
   GNode *n;
 
-  dot = index (path, '.');
+  dot = strchr (path, '.');
   len = dot ? dot - path : strlen (path);
 
   for (n = node->children; n; n = n->next)

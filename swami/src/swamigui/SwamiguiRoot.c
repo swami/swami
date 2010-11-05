@@ -580,7 +580,7 @@ swamigui_root_init (SwamiguiRoot *root)
   root->quit_confirm = SWAMIGUI_QUIT_CONFIRM_UNSAVED;
   root->splash_enable = TRUE;
   root->splash_delay = SWAMIGUI_ROOT_DEFAULT_SPLASH_DELAY;
-  root->tips_enable = FALSE;
+  root->tips_enable = TRUE;
   root->default_patch_type = IPATCH_TYPE_SF2;
 
   root->piano_lower_keys
