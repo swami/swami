@@ -57,7 +57,7 @@ ipatch_gig_file_identify_method (IpatchFile *file, IpatchFileHandle *handle,
                                  GError **err)
 {
   char *filename;
-  guint8 buf[3];
+  guint32 buf[3];
   gboolean retval = TRUE;
   int len;
 

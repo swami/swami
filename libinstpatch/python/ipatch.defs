@@ -10,6 +10,13 @@
   (gtype-id "IPATCH_TYPE_CONVERTER")
 )
 
+(define-object ConverterSF2VoiceCache
+  (in-module "Ipatch")
+  (parent "IpatchConverter")
+  (c-name "IpatchConverterSF2VoiceCache")
+  (gtype-id "IPATCH_TYPE_CONVERTER_SF2_VOICE_CACHE")
+)
+
 (define-object Item
   (in-module "Ipatch")
   (parent "GObject")
@@ -292,6 +299,13 @@
   (parent "IpatchSampleStore")
   (c-name "IpatchSampleStoreSndFile")
   (gtype-id "IPATCH_TYPE_SAMPLE_STORE_SND_FILE")
+)
+
+(define-object SampleStoreSplit24
+  (in-module "Ipatch")
+  (parent "IpatchSampleStoreFile")
+  (c-name "IpatchSampleStoreSplit24")
+  (gtype-id "IPATCH_TYPE_SAMPLE_STORE_SPLIT24")
 )
 
 (define-object SampleStoreSwap
@@ -1442,6 +1456,18 @@
   )
 )
 
+(define-function ipatch_convert_object_to_type_multi_set
+  (c-name "ipatch_convert_object_to_type_multi_set")
+  (return-type "IpatchList*")
+  (parameters
+    '("GObject*" "object")
+    '("GType" "type")
+    '("GError**" "err")
+    '("const-char*" "first_property_name")
+  )
+  (varargs #t)
+)
+
 (define-function ipatch_create_converter
   (c-name "ipatch_create_converter")
   (return-type "IpatchConverter*")
@@ -1629,6 +1655,15 @@
     '("IpatchConverterLinkLookupFunc*" "link_lookup")
     '("IpatchConverterLinkNotifyFunc*" "link_notify")
   )
+)
+
+
+
+;; From IpatchConverterSF2VoiceCache.h
+
+(define-function ipatch_converter_sf2_voice_cache_get_type
+  (c-name "ipatch_converter_sf2_voice_cache_get_type")
+  (return-type "GType")
 )
 
 
@@ -5165,6 +5200,26 @@
 
 
 
+;; From IpatchSampleStoreSplit24.h
+
+(define-function ipatch_sample_store_split24_get_type
+  (c-name "ipatch_sample_store_split24_get_type")
+  (return-type "GType")
+)
+
+(define-function ipatch_sample_store_split24_new
+  (c-name "ipatch_sample_store_split24_new")
+  (is-constructor-of "IpatchSampleStoreSplit24")
+  (return-type "IpatchSample*")
+  (parameters
+    '("IpatchFile*" "file")
+    '("guint" "loc_16bit")
+    '("guint" "loc_lsbytes")
+  )
+)
+
+
+
 ;; From IpatchSampleStoreSwap.h
 
 (define-function ipatch_sample_store_swap_get_type
@@ -5930,6 +5985,12 @@
   (of-object "IpatchSF2IZone")
   (c-name "ipatch_sf2_izone_get_sample")
   (return-type "IpatchSF2Sample*")
+)
+
+(define-method get_stereo_link
+  (of-object "IpatchSF2IZone")
+  (c-name "ipatch_sf2_izone_get_stereo_link")
+  (return-type "IpatchSF2IZone*")
 )
 
 
@@ -6756,6 +6817,7 @@
   (return-type "GType*")
   (parameters
     '("const-char*" "name")
+    '("const-GValue*" "value")
     '("guint*" "n_types")
   )
 )

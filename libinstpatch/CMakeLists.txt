@@ -50,6 +50,7 @@ set ( LIB_VERSION_INFO
 
 # Options disabled by default
 option ( enable-debug "enable debugging (default=no)" off )
+option ( BUILD_PYTHON_BINDING "Build Python binding" off )
 
 # Options enabled by default
 option ( BUILD_SHARED_LIBS "Build a shared object or DLL" on )
@@ -140,21 +141,25 @@ configure_file ( ${CMAKE_SOURCE_DIR}/libinstpatch/version.h.in
 configure_file ( ${CMAKE_SOURCE_DIR}/libinstpatch/libinstpatch.h.in
                  ${CMAKE_CURRENT_BINARY_DIR}/libinstpatch/libinstpatch.h )
 
-# Process subdirectories 
-add_subdirectory ( libinstpatch )
-
-# Extra targets for Unix build environments
-if ( UNIX )
+if ( UNIX OR MINGW )
     # pkg-config support
     set ( prefix "${CMAKE_INSTALL_PREFIX}" )
     set ( exec_prefix "\${prefix}" )
-    set ( libdir "\${exec_prefix}/${LIB_INSTALL_DIR}${LIB_SUFFIX}" )
+    if (LIB_INSTALL_DIR STREQUAL ${CMAKE_INSTALL_PREFIX}/lib)
+        set(LIBINSTPATCH_INSTALL_DIR ${LIB_INSTALL_DIR}${LIB_SUFFIX})
+    else (LIB_INSTALL_DIR STREQUAL ${CMAKE_INSTALL_PREFIX}/lib)
+        set(LIBINSTPATCH_INSTALL_DIR ${LIB_INSTALL_DIR})
+    endif (LIB_INSTALL_DIR STREQUAL ${CMAKE_INSTALL_PREFIX}/lib)
+    set ( libdir "\${exec_prefix}/${LIBINSTPATCH_INSTALL_DIR}" )
     set ( includedir "\${prefix}/${INCLUDE_INSTALL_DIR}" )
     configure_file ( libinstpatch-1.0.pc.in 
         ${CMAKE_BINARY_DIR}/libinstpatch-1.0.pc IMMEDIATE @ONLY )
     install ( FILES ${CMAKE_BINARY_DIR}/libinstpatch-1.0.pc
-        DESTINATION ${LIB_INSTALL_DIR}${LIB_SUFFIX}/pkgconfig )
-    
+              DESTINATION ${LIBINSTPATCH_INSTALL_DIR}/pkgconfig )
+endif ( UNIX OR MINGW )
+
+# Extra targets for Unix build environments
+if ( UNIX )
     # uninstall custom target
     configure_file ( "${CMAKE_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
       "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake" IMMEDIATE @ONLY)
@@ -162,6 +167,18 @@ if ( UNIX )
       "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
 endif ( UNIX )
 
+# Process subdirectories 
+add_subdirectory ( libinstpatch )
+add_subdirectory ( utils )
+
+unset ( PYGOBJECT_FOUND )
+if (BUILD_PYTHON_BINDING)
+    pkg_check_modules ( PYGOBJECT pygobject-2.0 )
+
+    if ( PYGOBJECT_FOUND )
+        add_subdirectory ( python )
+    endif ( PYGOBJECT_FOUND )
+endif (BUILD_PYTHON_BINDING)
 
 # CPack support 
 set ( CPACK_PACKAGE_DESCRIPTION_SUMMARY "libInstPatch instrument editing library" )
@@ -194,3 +211,8 @@ else ( ENABLE_DEBUG )
   message ( "Debug:                 no" )
 endif ( ENABLE_DEBUG )
 
+if (PYGOBJECT_FOUND)
+  message ( "Python binding:        yes" ) 
+else (PYGOBJECT_FOUND)
+  message ( "Python binding:        no" ) 
+endif(PYGOBJECT_FOUND)

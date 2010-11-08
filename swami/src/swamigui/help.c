@@ -122,7 +122,7 @@ swamigui_help_about (void)
   pixbuf = gtk_icon_theme_load_icon (gtk_icon_theme_get_default (),
                                      "swami_logo", 160, 0, NULL);
   gtk_about_dialog_set_logo (GTK_ABOUT_DIALOG (boutwin), pixbuf);
-  g_object_unref (pixbuf);      /* -- unref pixbuf */
+  if (pixbuf) g_object_unref (pixbuf);      /* -- unref pixbuf */
 
   g_signal_connect_swapped (G_OBJECT(boutwin), "response",
                             G_CALLBACK (gtk_widget_destroy), boutwin);

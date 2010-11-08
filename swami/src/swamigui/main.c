@@ -52,7 +52,8 @@ main (int argc, char *argv[])
   gboolean default_prefs = FALSE;
   gchar **scripts = NULL;
   gchar **files = NULL;
-  char *loadfile, *fname;
+  const char *loadfile;
+  char *fname;
   GOptionContext *context;
   GError *err = NULL;
   gchar **sptr;
@@ -66,6 +67,12 @@ main (int argc, char *argv[])
     { G_OPTION_REMAINING, '\0', 0, G_OPTION_ARG_FILENAME_ARRAY, &files, NULL, "[file1.sf2 file2.sf2 ...]" },
     { NULL }
   };
+
+  /* FIXME - Kind of a hack, to use relative dirs for GdkPixbuf loaders on WIN32 */
+#ifdef MINGW32
+  g_setenv ("GDK_PIXBUF_MODULE_FILE", "lib/gdk-pixbuf-2.0/2.10.0/loaders.cache", TRUE);
+  g_setenv ("GDK_PIXBUF_MODULEDIR", "lib/gdk-pixbuf-2.0/2.10.0/loaders", TRUE);
+#endif
 
 #if defined(ENABLE_NLS)
   bindtextdomain (PACKAGE, LOCALEDIR);
@@ -100,7 +107,7 @@ main (int argc, char *argv[])
   swamigui_root_activate (root);
 
   /* just for me for that added convenience, yah  -:] */
-  if ((loadfile = getenv ("SWAMI_LOAD_FILE")))
+  if ((loadfile = g_getenv ("SWAMI_LOAD_FILE")))
     swami_root_patch_load (SWAMI_ROOT (root), loadfile, NULL, NULL);
 
   /* loop over command line non-options, assuming they're files to open */

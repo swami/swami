@@ -63,7 +63,10 @@ target_link_libraries ( fluidsynth_gui libswami libswamigui ${GUI_LIBRARIES}
 set_target_properties ( fluidsynth_plugin PROPERTIES PREFIX "" )
 set_target_properties ( fluidsynth_gui PROPERTIES PREFIX "" )
 
-install ( TARGETS fluidsynth_plugin fluidsynth_gui LIBRARY DESTINATION ${PLUGINS_DIR} )
+install ( TARGETS fluidsynth_plugin fluidsynth_gui
+    RUNTIME DESTINATION ${PLUGINS_DIR}
+    LIBRARY DESTINATION ${PLUGINS_DIR}
+)
 
 endif ( FLUIDSYNTH_SUPPORT )
 
@@ -93,6 +96,9 @@ target_link_libraries ( fftune_gui libswami libswamigui ${GUI_LIBRARIES}
 set_target_properties ( fftune PROPERTIES PREFIX "" )
 set_target_properties ( fftune_gui PROPERTIES PREFIX "" )
 
-install ( TARGETS fftune fftune_gui LIBRARY DESTINATION ${PLUGINS_DIR} )
+install ( TARGETS fftune fftune_gui
+    RUNTIME DESTINATION ${PLUGINS_DIR}
+    LIBRARY DESTINATION ${PLUGINS_DIR}
+)
 
 endif ( FFTW_SUPPORT )

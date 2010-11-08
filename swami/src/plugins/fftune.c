@@ -522,8 +522,10 @@ fftune_spectra_calc_spectrum (FFTuneSpectra *spectra)
 
   x = dsize / 2 + 1;	/* size of spectrum array */
 
-  /* resize spectrum array (its half the size of the output array) */
-  data = realloc (data, sizeof (double) * x);
+  /* Spectrum array is twice the size of the output array, but realloc'ing it
+   * not possible, due to separate memory pools between fftw_malloc */
+
+  // data = realloc (data, sizeof (double) * x);  - Removed to fix bug on win32
 
   /* emit spectrum-change signal */
   g_signal_emit (spectra, obj_signals[SPECTRUM_CHANGE], 0, x, data);
