@@ -607,6 +607,7 @@ ipatch_sample_store_snd_file_init_read (IpatchSampleStoreSndFile *store)
   SNDFILE *sfhandle;
   SF_INFO info;
   int format;
+  
 
   memset (&info, 0, sizeof (SF_INFO));
 
@@ -618,17 +619,12 @@ ipatch_sample_store_snd_file_init_read (IpatchSampleStoreSndFile *store)
   format = libsndfile_read_format_convert (info.format, info.channels, &store->raw);
 
   g_object_set (store,
-                "file-format", info.format & SF_FORMAT_TYPEMASK,
-                "sub-format", info.format & SF_FORMAT_SUBMASK,
-                "endian", info.format & SF_FORMAT_ENDMASK,
-                "sample-rate", info.samplerate,
-                "sample-size", info.frames,
-                NULL);
-
-  /* FIXME - Weird weird weird bug where adding "sample-format" property to
-   * the end of the above g_object_set() call will not work!!! WTF? */
-  g_object_set (store,
-                "sample-format", format,
+                "file-format", (int)(info.format & SF_FORMAT_TYPEMASK),
+                "sub-format", (int)(info.format & SF_FORMAT_SUBMASK),
+                "endian", (int)(info.format & SF_FORMAT_ENDMASK),
+                "sample-rate", (int)(info.samplerate),
+                "sample-size", (guint)(info.frames),
+                "sample-format", (int)(format),
                 NULL);
 
   if (sf_command (sfhandle, SFC_GET_INSTRUMENT, &instinfo, sizeof (instinfo)))
@@ -663,11 +659,11 @@ ipatch_sample_store_snd_file_init_read (IpatchSampleStoreSndFile *store)
     }
 
     g_object_set (store,
-                  "root-note", instinfo.basenote,
-                  "fine-tune", instinfo.detune,
-                  "loop-type", loop_type,
-                  "loop-start", loop_start,
-                  "loop-end", loop_end,
+                  "root-note", (int)(instinfo.basenote),
+                  "fine-tune", (int)(instinfo.detune),
+                  "loop-type", (int)(loop_type),
+                  "loop-start", (guint)(loop_start),
+                  "loop-end", (guint)(loop_end),
                   NULL);
   }
 
