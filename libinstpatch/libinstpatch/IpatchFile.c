@@ -122,6 +122,9 @@ ipatch_file_init (IpatchFile *file)
 {
   file->iofuncs = &default_iofuncs;
   ipatch_item_clear_flags (file, IPATCH_FILE_FLAG_FREE_IOFUNCS);
+
+  if (G_BYTE_ORDER != G_LITTLE_ENDIAN)
+    ipatch_item_set_flags (file, IPATCH_FILE_FLAG_SWAP);
 }
 
 static void
