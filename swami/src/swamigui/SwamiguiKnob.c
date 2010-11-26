@@ -75,10 +75,25 @@ swamigui_knob_init (SwamiguiKnob *knob)
     GError *err = NULL;
     char *filename;
 
-#ifdef SOURCE_BUILD		/* use source dir for loading icons? */
-    filename = SOURCE_DIR "/src/swamigui/images/knob.svg";
+#ifdef MINGW32
+    char *appdir;
+    gboolean free_filename = FALSE;
+
+    appdir = g_win32_get_package_installation_directory_of_module (NULL); /* ++ alloc */
+
+    if (appdir)
+    {
+      filename = g_build_filename (appdir, "images", "knob.svg", NULL);  /* ++ alloc */
+      free_filename = TRUE;
+      g_free (appdir);    /* -- free appdir */
+    }
+    else filename = IMAGES_DIR G_DIR_SEPARATOR_S "knob.svg";
 #else
+#  ifdef SOURCE_BUILD		/* use source dir for loading icons? */
+    filename = SOURCE_DIR "/src/swamigui/images/knob.svg";
+#  else
     filename = IMAGES_DIR G_DIR_SEPARATOR_S "knob.svg";
+#  endif
 #endif
 
     knob_svg_data = rsvg_handle_new_from_file (filename, &err);
@@ -89,6 +104,10 @@ swamigui_knob_init (SwamiguiKnob *knob)
 		  filename, err ? err->message : "No error details");
       g_clear_error (&err);
     }
+
+#ifdef MINGW32
+    if (free_filename) g_free (filename);       /* -- free allocated filename */
+#endif
   }
 
   gtk_widget_set_size_request (GTK_WIDGET (knob), KNOB_SIZE_REQ, KNOB_SIZE_REQ);

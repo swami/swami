@@ -332,19 +332,38 @@ swamigui_util_glade_create (const char *name)
   char *filename;
   GladeXML *xml;
 
+#ifdef MINGW32
+  char *appdir;
+  gboolean free_filename = FALSE;
+
+  appdir = g_win32_get_package_installation_directory_of_module (NULL); /* ++ alloc */
+
+  if (appdir)
+  {
+    filename = g_build_filename (appdir, "swami-2.glade", NULL);  /* ++ alloc */
+    free_filename = TRUE;
+    g_free (appdir);    /* -- free appdir */
+  }
+  else filename = UIXML_DIR G_DIR_SEPARATOR_S "swami-2.glade";
+#else
+#  ifdef SOURCE_BUILD
+  filename = SOURCE_DIR "/src/swamigui/swami-2.glade";
+#  else
+  filename = UIXML_DIR G_DIR_SEPARATOR_S "swami-2.glade";
+#  endif
+#endif
+
   if (first_time)
   {
     glade_set_custom_handler (swamigui_util_custom_glade_widget_handler, NULL);
     first_time = FALSE;
   }
 
-#ifdef SOURCE_BUILD
-  filename = SOURCE_DIR "/src/swamigui/swami-2.glade";
-#else
-  filename = UIXML_DIR G_DIR_SEPARATOR_S "swami-2.glade";
-#endif
-
   xml = glade_xml_new (filename, name, NULL);
+
+#ifdef MINGW32
+  if (free_filename) g_free (filename);         /* -- free allocated filename */
+#endif
 
   glade_xml_signal_autoconnect (xml);
 

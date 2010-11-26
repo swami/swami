@@ -72,7 +72,22 @@ static gboolean swami_plugin_load_recurse (char *file, char *name);
 void
 _swami_plugin_initialize (void)
 {
+#ifdef MINGW32
+  char *appdir, *path;
+
+  appdir = g_win32_get_package_installation_directory_of_module (NULL); /* ++ alloc */
+
+  if (appdir)
+  {
+    path = g_build_filename (appdir, "plugins", NULL);  /* !! never freed */
+    g_free (appdir);    /* -- free appdir */
+  }
+  else path = PLUGINS_DIR;
+
+  plugin_paths = g_list_append (plugin_paths, path);
+#else
   plugin_paths = g_list_append (plugin_paths, PLUGINS_DIR);
+#endif
 }
 
 GType

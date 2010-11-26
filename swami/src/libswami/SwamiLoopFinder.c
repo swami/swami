@@ -4,9 +4,6 @@
  * Swami
  * Copyright (C) 1999-2010 Joshua "Element" Green <jgreen@users.sourceforge.net>
  *
- * Thanks to Luis Garrido for the loop finder algorithm code and his
- * interest in creating this feature for Swami.
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; version 2
@@ -22,6 +19,11 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  * 02111-1307, USA or point your web browser to http://www.gnu.org.
  */
+/*
+ * Thanks to Luis Garrido for the original loop finder algorithm code and his
+ * interest in creating this feature for Swami.
+ */
+
 #include <stdio.h>
 
 #include <libinstpatch/libinstpatch.h>
@@ -664,17 +666,28 @@ swami_loop_finder_get_results (SwamiLoopFinder *finder)
 static void
 find_loop (SwamiLoopFinder *finder, SwamiLoopMatch *matches)
 {
-  /******************** VARIABLE DECLARATION *******************/
-
-  float *sample = finder->sample_data;
-  int length = finder->sample_size;
-  int max_matches = finder->max_results;
-  int analysis_window = finder->analysis_window;
-  int min_loop_size = finder->min_loop_size;
-  int win1start, win1end, win2start, win2end;
-  int start, start_size, end, end_size;
-  int group_pos_diff = finder->group_pos_diff;
-  int group_size_diff = finder->group_size_diff;
+  float *sample_data = finder->sample_data;             /* Pointer to sample data */
+  int max_results = finder->max_results;                /* Maximum results to return */
+  int analysis_window = finder->analysis_window;        /* Analysis window size */
+  int min_loop_size = finder->min_loop_size;            /* Minimum loop size */
+  int win1start, win1end, win1size, win2start, win2end, win2size;  /* Search window parameters */
+  int group_pos_diff = finder->group_pos_diff;          /* Minimum result group position diff */
+  int group_size_diff = finder->group_size_diff;        /* Minimum result group size diff */
+  int half_window = analysis_window / 2;                /* First half of analysis window */
+  guint64 progress_step, progress_count;                /* Progress update vars */
+  SwamiLoopMatch *match, *cmpmatch;
+  float *anwin_factors;
+  GList *match_list = NULL;
+  GList *match_list_last = NULL;
+  int match_list_size = 0;
+  float match_list_worst = 1.0;
+  int win1, win2;
+  int startpos, endpos;
+  int pos_diff, size_diff, loop_diff;
+  float quality, diff;
+  GList *p, *link, *insert, *tmp;
+  int fract, pow2;
+  int i;
 
   /* Swap start/ends as needed */
   win1start = MIN (finder->window1_start, finder->window1_end);
@@ -682,7 +695,7 @@ find_loop (SwamiLoopFinder *finder, SwamiLoopMatch *matches)
   win2start = MIN (finder->window2_start, finder->window2_end);
   win2end = MAX (finder->window2_start, finder->window2_end);
 
-  /* Swap ranges if needed, so that window1 is start of loop */
+  /* Swap ranges if needed, so that window1 is loop start search */
   if (win1start > win2start)
   {
     int tmp;
@@ -695,292 +708,248 @@ find_loop (SwamiLoopFinder *finder, SwamiLoopMatch *matches)
     win1end = win2end;
     win2end = tmp;
   }
-
-  /* Convert window start/end positions to start/size */
-  start = win1start;
-  start_size = win1end - win1start + 1;
-  end = win2start;
-  end_size = win2end - win2start + 1;
-
-  /* Limits of the analysis loop */
-
-  int half_window = analysis_window / 2;
-  int sr_first, sw_first, sr_last, sr_size;
-  int er_first, ew_first, er_last, er_size;
-
-  /* Control of the number of progress updates */
-
-  int progress_total, progress_step, progress_count, progress_next;
-
-  /* Loop and temporary variables */
-
-  int i;
-  int j, k, stop, e, s;
-  register
-  float f;
-
-  /* Analysis variables */
-
-  // register
-  float quality;
-  float norm = 2.0 / analysis_window;
-  int dlag; 
-  int max_lag, min_lag;
-
-  /* 
-   * Control of local variations of a result (result groups)
-   * (difference between beginning points)
-   * (difference between loop lengths) 
-   */
-  int db, dl;
-
-  /* Cache to store the energies of the windows */
-  float *sw_energy;
-  float *ew_energy;
   
-  /******************** FUNCTION IMPLEMENTATION *******************/
-  
-  /* Initialize result table with worst quality results (1.0) */
-  for(i = 0; i < max_matches; i++) 
+  win1size = win1end - win1start + 1;
+  win2size = win2end - win2start + 1;
+
+  /* Control of progress update */
+  progress_step = ((float)win1size * (float)win2size) / 1000.0;      /* Max. 1000 progress callbacks */
+  progress_count = progress_step;
+
+  finder->progress = 0.0;
+  g_object_notify ((GObject *)finder, "progress");
+
+  /* Create analysis window factors array.  All values in array add up to
+   * 0.5 which when multiplied times maximum sample value difference of
+   * 2.0 (1 - -1), gives a maximum quality value (worse quality) of 1.0.
+   * Each neighboring factor towards the center point is twice the value of
+   * it's outer neighbor. */
+  anwin_factors = g_new (float, analysis_window);
+
+  /* Calculate fraction divisor */
+  for (i = 0, fract = 0, pow2 = 1; i <= half_window; i++, pow2 *= 2)
   {
-    matches[i].start = 0;
-    matches[i].end = 0;
-    matches[i].quality = 1.0f;
+    fract += pow2;
+    if (i < half_window) fract += pow2;
   }
 
-  /* 
-    Validate and readjust if necessary the algorithm parameters
-    to keep the array bounds and respect the min_loop_size. 
-  */    
-  sr_first = MAX (half_window, start);
-  er_first = MAX (end, sr_first + min_loop_size);
-  er_last = MIN (length - 1 - analysis_window + half_window,
-		 end + end_size - 1);
-  sr_last = MIN (start + start_size - 1,
-		 er_last - min_loop_size);
+  /* Even windows are asymetrical, subtract 1 */
+  if (!(analysis_window & 1)) fract--;
 
-  sr_size = sr_last - sr_first + 1;
-  er_size = er_last - er_first + 1;
+  /* Calculate values for 1st half of window and center of window */
+  for (i = 0, pow2 = 1; i <= half_window; i++, pow2 *= 2)
+    anwin_factors[i] = pow2 * 0.5 / fract;
 
-  sw_first = sr_first - half_window;
-  ew_first = er_first - half_window;
+  /* Copy values for 2nd half of window */
+  for (i = 0; half_window + i + 1 < analysis_window; i++)
+    anwin_factors[half_window + i + 1] = anwin_factors[half_window - i - 1];
 
-  //~ printf("sr_first: %d\n", sr_first);
-  //~ printf("sr_last: %d\n", sr_last);
-  //~ printf("sr_size: %d\n", sr_size);
-  //~ printf("sw_first: %d\n", sw_first);
-  //~ printf("er_first: %d\n", er_first);
-  //~ printf("er_last: %d\n", er_last);
-  //~ printf("er_size: %d\n", er_size);
-  //~ printf("ew_first: %d\n", ew_first);
-
-  /* Fill the table of energies of the start windows */
-
-  sw_energy = g_new (float, sr_size);	/* ++ alloc */
-
-  /* Calculate start windows energy */
-  f = 0.0;
-  for (i = 0; i < analysis_window; i++)
-    f += sample[sw_first + i] * sample[sw_first + i];
-  sw_energy[0] = f / analysis_window;
-
-  /* Fill the rest of the windows */
-  s = sw_first - 1;
-  e = s + analysis_window;
-  for (j = 1; j < sr_size; j++)
+  for (win1 = 0; win1 < win1size; win1++)
   {
-    f -= sample[s + j] * sample[s + j];
-    f += sample[e + j] * sample[e + j];
-    sw_energy[j] = f / analysis_window;
-  }
+    startpos = win1start + win1;
 
-  /* Fill the table of energies of the end windows */
-
-  ew_energy = g_new (float, er_size);	/* ++ alloc */
-
-  /* Calculate end windows energy */
-  f = 0.0;
-  for (i = 0; i < analysis_window; i++)
-    f += sample[ew_first + i] * sample[ew_first + i];
-  ew_energy[0] = f / analysis_window;
-
-  /* Fill the rest of the windows */
-  s = ew_first - 1;
-  e = s + analysis_window;
-  for (j = 1; j < er_size; j++)
-  {
-    f -= sample[s + j] * sample[s + j];
-    f += sample[e + j] * sample[e + j];
-    ew_energy[j] = f / analysis_window;
-  }
-
-  /* Control of progress update and "active" property check */
-  progress_total = sr_size * er_size;
-  progress_step = progress_total / 1000;    /* Max. 1000 callbacks */
-  progress_count = 0;
-  progress_next = progress_step;
-
-  /* Main loop: calculate the cross correlation for the different possible lags */
-
-  max_lag = er_last - er_first;
-  min_lag = MAX (-(sr_size - 1), min_loop_size - er_first + sr_first);
-
-  /* 
-   * Minimum lag between start and end windows is er_first - sr_first.
-   * dlag is the additional lag to add to this figure
-   */
-  for (dlag = min_lag; dlag <= max_lag; dlag++)
-  {
-    /* Calculate first xcorr */
-    f = 0.0;
-    for (i = 0; i < analysis_window; i++)
-      f += sample[sw_first + i] * sample[ew_first + dlag + i];
-
-    stop = MIN (sr_size, er_size - dlag);
-
-    /*
-    Move the windows along the sample separated the same lag, so we can
-    accumulate the xcorr results.
-    */
-    for (i = MAX (0, -dlag); i < stop; i++)
+    for (win2 = 0; win2 < win2size; win2++)
     {
-      quality = sw_energy[i] + ew_energy[dlag + i] - norm * f;
-      //printf("dlag: %d, i: %d, q: %g\n", dlag, i, quality);
-
-      /* Update xcorr for next iteration */
-      f -= sample[sw_first + i] * sample[ew_first + dlag + i];
-      f += sample[sw_first + i + analysis_window]
-	* sample[ew_first + dlag + i + analysis_window];
-
-      //~ if((sr_first + i == 17) && (er_first + dlag + i == 29))
-        //~ for(k = 0; k < max_matches; k++)
-          //~ printf("[%d,%d,%g]\n", matches[k].start, matches[k].end, matches[k].quality);
-
-      /* The pruning algorithm is a tad complex
-       *
-       * Two loops belong to the same group if both:
-       * 1) Begin at nearby (?) points.
-       * 2) Have similar (?) length.
-       * If there is already a match that belongs to the group of the new
-       * match, discard the one with the less quality.
-       */
-      j = max_matches - 1;
-      do 
-      {
-        if (quality > matches[j].quality)
-        { /* Result at j is better than the new one. */
-
-	  /* if new result worse than the worst, discard */
-	  if (j == max_matches - 1) break;
-
-	  /* new result not crap, check if a better result is in same group */
-	  for (k = j; k >= 0; k--)
-	  {
-	    db = sr_first + i - matches[k].start;
-//	    dl = er_first + dlag + i - matches[k].end - db;	// JMG - Seems wrong
-	    dl = ((er_first + dlag) - sr_first)
-	      - (matches[k].end - matches[k].start);
-
-	    if (db < 0) db = -db;
-	    if (dl < 0) dl = -dl;
-	    if (db < group_pos_diff && dl < group_size_diff)
-	      break;
-	  }
-
-	  if (k < 0)	/* no better result in same group found? */
-	  {
-	    /* insert new result immediately after the previous better result */
-	    j++;
-	    for (k = max_matches - 1; k > j; k--) 
-	    {
-	      matches[k].start = matches[k - 1].start;
-	      matches[k].end = matches[k - 1].end;
-	      matches[k].quality = matches[k - 1].quality;
-	    }
-
-	    matches[j].start = sr_first + i;
-	    matches[j].end = er_first + dlag + i;
-	    matches[j].quality = quality;
-	  }	/* else - better result in the same group found, discard new */
-          break;	/* Finished. Exit the result loop. */
-        }
-        else
-        { /* New result is better than the one at j. Check if in same group */
-          db = sr_first + i - matches[j].start;
-//          dl = er_first + dlag + i - matches[j].end - db;	// JMG - Seems wrong
-	  dl = ((er_first + dlag) - sr_first)
-	    - (matches[j].end - matches[j].start);
-          if (db < 0) db = -db;
-          if (dl < 0) dl = -dl;
-
-          if (db < group_pos_diff && dl < group_size_diff)
-          { /* belong to same group and old one is worse, delete it and kick
-	     * the results above one step down until we find a better result. */
-            while (j > 0 && quality < matches[j - 1].quality)
-            {
-              matches[j].start = matches[j - 1].start;
-              matches[j].end = matches[j - 1].end;
-              matches[j].quality = matches[j - 1].quality;
-              j--;
-            }
-
-            matches[j].start = sr_first + i;
-            matches[j].end = er_first + dlag + i;
-            matches[j].quality = quality;
-            break;	/* Finished. Exit the result loop. */
-          }
-          else
-          { /* Not the same group. Are we at the top yet? */
-            if (j == 0)
-            {
-              /* Good one! Move everything downwards and insert it. */
-              for (k = max_matches - 1; k > 0; k--)
-              {
-                matches[k].start = matches[k - 1].start;
-                matches[k].end = matches[k - 1].end;
-                matches[k].quality = matches[k - 1].quality;
-              }
-
-              matches[0].start = sr_first + i;
-              matches[0].end = er_first + dlag + i;
-              matches[0].quality = quality;
-              break; /* Finished. Exit the result loop. */
-            }
-            else j--;	/* Good enough, climb a step */
-          }
-        }	/* quality of new result is better than result at j? */
-      }	/* result prune loop */
-      while (TRUE);
-
-      //~ if((sr_first + i == 17) && (er_first + dlag + i == 29))
-        //~ for(k = 0; k < max_matches; k++)
-          //~ printf("[%d,%d,%g]\n", matches[k].start, matches[k].end, matches[k].quality);
+      endpos = win2start + win2;
 
       if (finder->cancel)  /* if cancel flag has been set, return */
       {
-	g_free (sw_energy);
-	g_free (ew_energy);
+        for (p = match_list; p; p = g_list_delete_link (p, p))
+          g_slice_free (SwamiLoopMatch, p->data);
+
+        g_free (anwin_factors);
 	return;
       }
 
       /* progress management */
-      progress_count++;
-      if (progress_count == progress_next)
+      progress_count--;
+      if (progress_count == 0)
       {
-        progress_next += progress_step;
+        progress_count = progress_step;
 
-	finder->progress = (float)progress_count / progress_total;
+	finder->progress = ((float)win1 * win2size + win2) / ((float)win1size * win2size);
 	g_object_notify ((GObject *)finder, "progress");
       }
 
-    } /* End for(i = 0 ...) */
-  } /* End for(lag = 0 ...) */
-  
-  // printf("# of xcorrs: %d\n", cb_count);
+      if (startpos >= endpos || endpos - startpos + 1 < min_loop_size)
+        continue;
+
+      for (i = 0, quality = 0.0; i < analysis_window; i++)
+      {
+        diff = sample_data[startpos + i - half_window]
+          - sample_data[endpos + i - half_window];
+        if (diff < 0) diff = -diff;
+        quality += diff * anwin_factors[i];
+      }
+
+      /* Skip if worse than the worst and result list already full */
+      if (quality >= match_list_worst && match_list_size == max_results)
+        continue;
+
+      loop_diff = endpos - startpos;
+      insert = NULL;
+      link = NULL;
+
+      /* Look through existing matches for insert position, check if new
+       * match is a part of an existing group and discard new match if worse
+       * than existing group match or remove old group matches if worse quality */
+      for (p = match_list; p; )
+      {
+        cmpmatch = (SwamiLoopMatch *)(p->data);
+
+        /* Calculate position and size differences of new match and cmpmatch */
+        pos_diff = startpos - cmpmatch->start;
+        size_diff = loop_diff - (cmpmatch->end - cmpmatch->start);
+        if (pos_diff < 0) pos_diff = -pos_diff;
+        if (size_diff < 0) size_diff = -size_diff;
+
+        /* Same match group? */
+        if (pos_diff < group_pos_diff && size_diff < group_size_diff)
+        {
+          /* New match is worse? - Discard new */
+          if (quality >= cmpmatch->quality)
+            break;
+
+          /* New match is better - Discard old */
+
+          if (p == match_list_last)
+          {
+            match_list_last = p->prev;
+
+            if (match_list_last)
+            {
+              match = (SwamiLoopMatch *)(match_list_last->data);
+              match_list_worst = match->quality;
+            }
+          }
+
+          if (!link)
+          { /* Re-use list nodes */
+            link = p;
+            p = p->next;
+            match_list = g_list_remove_link (match_list, link);
+          }
+          else
+          {
+            tmp = p;
+            p = p->next;
+            g_slice_free (SwamiLoopMatch, tmp->data);
+            match_list = g_list_delete_link (match_list, tmp);
+          }
+
+          match_list_size--;
+          continue;
+        }
+
+        if (!insert && quality < cmpmatch->quality)
+          insert = p;
+
+        p = p->next;
+      }
+
+      /* Discard new match? */
+      if (p) continue;
+
+      /* max results reached? */
+      if (match_list_size == max_results)
+      {
+        if (insert == match_list_last) insert = NULL;
+
+        if (!link)
+        { /* Re-use list nodes */
+          link = match_list_last;
+          match_list_last = match_list_last->prev;
+          match_list = g_list_remove_link (match_list, link);
+        }
+        else
+        {
+          tmp = match_list_last;
+          match_list_last = match_list_last->prev;
+          g_slice_free (SwamiLoopMatch, tmp->data);
+          match_list = g_list_delete_link (match_list, tmp);
+        }
+
+        match = (SwamiLoopMatch *)(match_list_last->data);
+        match_list_worst = match->quality;
+        match_list_size--;
+      }
+
+      if (!link)
+      {
+        match = g_slice_new (SwamiLoopMatch);
+        link = g_list_append (NULL, match);
+      }
+      else match = link->data;
+
+      match_list_size++;
+
+      match->start = startpos;
+      match->end = endpos;
+      match->quality = quality;
+
+      if (insert)
+      {
+        link->prev = insert->prev;
+        link->next = insert;
+
+        if (insert->prev) insert->prev->next = link;
+        else match_list = link;
+
+        insert->prev = link;
+      }
+      else      /* Append */
+      {
+        if (match_list_last)
+        {
+          match_list_last->next = link;
+          link->prev = match_list_last;
+        }
+        else match_list = link;
+
+        match_list_last = link;
+        match = (SwamiLoopMatch *)(match_list_last->data);
+        match_list_worst = match->quality;
+      }
+    }
+  }
+
+  for (p = match_list, i = 0; p; p = g_list_delete_link (p, p), i++)
+  {
+    match = (SwamiLoopMatch *)(p->data);
+
+#if 0   // Debugging output of results
+    printf ("Quality: %0.4f start: %d end: %d\n", match->quality,
+            match->start, match->end);
+
+    for (i2 = 0; i2 < analysis_window; i2++)
+    {
+      float f;
+
+      diff = sample_data[match->start - half_window + i2]
+        - sample_data[match->end - half_window + i2];
+      if (diff < 0.0) diff = -diff;
+      f = (float)diff * anwin_factors[i2];
+      printf ("  %d diff:%0.8f * factor:%0.8f = %0.8f\n",
+              i2, diff, anwin_factors[i2], f);
+    }
+#endif
+
+    matches[i].start = match->start;
+    matches[i].end = match->end;
+    matches[i].quality = match->quality;
+
+    g_slice_free (SwamiLoopMatch, match);
+  }
+
+  for (; i < max_results; i++)
+  {
+    matches[i].start = 0;
+    matches[i].end = 0;
+    matches[i].quality = 1.0;
+  }
 
   finder->progress = 1.0;
   g_object_notify ((GObject *)finder, "progress");
 
-  g_free (sw_energy);
-  g_free (ew_energy);   
+  g_free (anwin_factors);
 }
