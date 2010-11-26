@@ -1,17 +1,18 @@
 +-------------------------------------------------------+
 +	Swami - README					+
-+	Copyright (C) 1999-2002 Josh Green		+
++       Copyright (C) 1999-2010 Joshua "Element" Green	+
 +	Email: jgreen@users.sourceforge.net		+
 +	Swami homepage: http://swami.sourceforge.net	+
 +-------------------------------------------------------+
 
 *******************************************************************
 * NOTE: This will be replaced by a real manual in the near future *
+* Also NOTE that it is outdated.                                  *
 *******************************************************************
 
 =====================================
 1. What is Swami?
-2. What happened to the Smurf Sound Font Editor?
+2. What happened to the Smurf SoundFont Editor?
 3. License
 4. Changes from Smurf
 5. Requirements
@@ -24,7 +25,7 @@
 12. Using the sample viewer
 13. Undo system
 14. Virtual Banks
-15. Sound font information, links and other resources
+15. SoundFont information, links and other resources
 16. Thanks
 17. Trademark Acknowledgement
 18. Contact
@@ -32,16 +33,16 @@
 
 1. What is Swami?
 -------------------------------------
-Swami (Sample Waveforms and Audio for Magical Instruments) is a sound
-font editor. Sound font files are a collection of audio samples and
+Swami (Sampled Waveforms And Musical Instruments) is a SoundFont
+editor. SoundFont files are a collection of audio samples and
 other data that describe instruments for the purpose of composing
-music. Sound fonts do not describe the music itself, but rather the
+music. SoundFont files do not describe the music itself, but rather the
 sounds of the instruments. These instruments can be composed of any
 digitally recordable or generated sound. This format provides a
 portable and flexible sound synthesis environment that can be
 supported in hardware or software.
 
-2. What happend to the Smurf Sound Font Editor?
+2. What happend to the Smurf SoundFont Editor?
 -------------------------------------
 Nothing actually. Since I was already doing an entire re-code of Smurf
 I decided it would be good to change the name to give the program a
@@ -54,19 +55,20 @@ completely replace Smurf in functionality, but it will.
 -------------------------------------
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
+as published by the Free Software Foundation; version 2
+of the License only.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
-02111-1307, USA or point your web browser to http://www.gnu.org.
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+NOTE: Python binding in src/python is also licensed under the GPL
+version 2 only.
 
 4. Changes from Smurf
 -------------------------------------
@@ -74,28 +76,26 @@ Most of the changes have occured in the programming architecture. Much
 of this work has been done in preparation for really cool features
 (TM) :) The SoundFont editing code is now completely abstracted from
 the GUI in separate shared libraries making things like: scripting
-support, multiple client concurrent access to SoundFonts and SwamiJam
+support, multiple client concurrent access to SoundFont objects and SwamiJam
 (networked semi-realtime composition with friends) more feasible. Most
 importantly things are much cleaner now so I don't go insane in attempts
 to add functionality.
 
 New features:
-- iiwusynth soft synth support (actually its required) which allows any
+- FluidSynth soft synth support (actually its required) which allows any
   OS supported sound card to be used and gives us modulators
   (real time effects) and routeable digital audio output for adding additional
   effects and for easy recording.
 - More operations work for multiple items. Including loading/saving/closing
-  of multiple SoundFonts, loading multiple samples, and
+  of multiple SoundFont files, loading multiple samples, and
   setting/viewing properties on multiple items.
 - Modulator editor for editing real time control parameters
 - Default toggle buttons for generator (effect) controls
 
 Things missing (as of this README):
 - Undo support
-- sample exporting
 - virtual SoundFont bank support
 - OSS AWE/SB Live! wavetable backend
-- libsndfile support
 
 
 5. Requirements
@@ -108,23 +108,22 @@ of the listed software may or may not work, but give it a try! And do let me
 know if you encounter any problems.
 
 Swami has the following requirements:
-- Linux (BSD's have also been known to work)
-  porting to: Windows, OS X and BeOS planned (anywhere GTK will run)
-- GTK+ v1.2
-- iiwusynth v0.2 (software wavetable synthesizer)
-- libAudiofile v0.1.5 (Audiofile 0.2.0 recommended)
+- Linux, Windows and Mac OS X.  Probably anywhere else GTK+ will run.
+- GTK+ v2.0
+- FluidSynth v1.0 (software wavetable synthesizer)
+- libsndfile
 
 GTK homepage: http://www.gtk.org
-iiwusynth homepage: http://www.iiwu.org/iiwusynth/
-audiofile homepage: http://www.68k.org/~michael/audiofile/
+FluidSynth homepage: http://www.fluidsynth.org
+libsndfile homepage: http://www.mega-nerd.com/libsndfile
 ALSA homepage: http://www.alsa-project.org
 OSS homepage: http://www.4front-tech.com
 
 
 6. Supported sound cards
 -------------------------------------
-Any OS supported sound card (i.e. works under ALSA or OSS in Linux), since
-Swami uses iiwusynth which does all synthesis in software.  A wavetable
+Any FluidSynth supported sound card (i.e. works under ALSA or OSS in Linux), since
+Swami uses FluidSynth which does all synthesis in software.  A wavetable
 backend is planned for using hardware based SoundFont synthesizers like the
 SB AWE/Live! for those who don't want to use their precious CPU cycles :)
 
@@ -132,16 +131,16 @@ SB AWE/Live! for those who don't want to use their precious CPU cycles :)
 7. Features
 -------------------------------------
 Current features include:
-- Loading of multiple sound font 2.x files *.SF2
-- Saving of multiple sound font files
-- Copy Samples/Instruments/Presets between and within Sound fonts
+- Loading of multiple SoundFont 2.x files *.SF2
+- Saving of multiple SoundFont files
+- Copy Samples/Instruments/Presets between and within SoundFont objects
 - Load and export multiple audio sample files (WAV, AU, etc)
 - View/set multiple Preset, Instrument and Sample parameters
 - A GTK piano widget to play notes with computer keyboard/mouse
-- Wavetable loading of entire sound fonts
+- Wavetable loading of entire SoundFont
 - Piano MIDI controls (Pitch bender amount, volume etc.)
 
-Features provided by iiwusynth:
+Features provided by FluidSynth:
 - Flexible driver system that supports OSS, ALSA, LADSPA, Jack, Midishare, etc
 - Real time effects via modulators and C API
 
@@ -151,7 +150,6 @@ The following are in the works or planned:
 - Undo support (just haven't written a front end for it really)
 - Copy/Paste generator parameters
 - Graphical manipulation of generator parameters
-- Loading of sound font 1.x files via conversion utility
 
 Was part of Smurf, not yet added:
 - Loading, saving and editing of virtual bank (*.bnk) files
@@ -199,42 +197,34 @@ the new features include:
 * MIDI bank and preset controls (also on toolbar)
 	Sets the current bank and preset for the selected MIDI channel. These
 	are often changed automatically by the user interface when selecting
-	items in the sound font tree, they can be changed manually as well.
-* Entire sound font loading
-	Allows you to load an entire sound font. This is particularly useful
-        to make a sound font available for sequencing with other programs.
+	items in the SoundFont tree, they can be changed manually as well.
+* Entire SoundFont loading
+	Allows you to load an entire SoundFont. This is particularly useful
+        to make a SoundFont available for sequencing with other programs.
 * Controls for changing how interface works with wavetable
 	Piano follows selection
-		When enabled: virtual keyboard will "follow" the sound font
+		When enabled: virtual keyboard will "follow" the SoundFont
 		tree selection. This will cause the selected item to be the one
 		heard on the piano. If selected item is a Preset in a loaded
-		sound font, then the piano will select the Bank:Preset of that
+		SoundFont, then the piano will select the Bank:Preset of that
 		item. Otherwise it is set to the Temporary Audible Bank:Preset
 		(configurable from preferences, defaults to 127:127). By
 		disabling this feature you can have more control over what is
 		being played by the virtual keyboard.
 
 	Auto load temp audible
-		When enabled: selected items in the sound font tree that aren't
-		Presets in a loaded sound font, are automatically loaded into
+		When enabled: selected items in the SoundFont tree that aren't
+		Presets in a loaded SoundFont, are automatically loaded into
 		the wavetable device. They are mapped to a temporary
 		Bank:Preset which is configurable from Preferences. Disabling
 		this allows for faster editing, if one does not care to hear
 		items.
 
-
-- Loading entire sound fonts -
-This can be accomplished by right clicking on a sound font and selecting
-"Wavetable Load". A speaker icon will appear to the left of the sound font
-tree item to indicate that it is loaded. This sound font will remain loaded
-until a "Reset wavetable" action is performed, or another sound font is loaded.
-
-
 - Temporary audible -
-The temporary audible enables you to listen to components of a sound font that
+The temporary audible enables you to listen to components of a SoundFont that
 aren't directly mapped to a MIDI Bank:Preset. This is done by designating a
 Bank:Preset for temporary use. It defaults to 127:127 but can be changed
-in Preferences. When a non-Preset or a Preset that isn't in a loaded sound font
+in Preferences. When a non-Preset or a Preset that isn't in a loaded SoundFont
 is loaded (either from the "Auto load temp audible" option or manually from the
 "Wavetable Load" item on the right click menus), it is mapped to this temporary
 bank and preset number.
@@ -291,7 +281,7 @@ left or right ends of the selection respectively.
 
 Swami has a rather flexible undo system. Many actions aren't currently
 undo-able, but will be implimented soon. Currently all actions
-relating to new sound font items, pasted sound font items, and deleted
+relating to new SoundFont items, pasted SoundFont items, and deleted
 items are undo-able.  The undo system is based on a tree rather than
 queue or list. This means that multiple changes can be easily tested.
 
@@ -353,22 +343,22 @@ changed to reflect the new branch.
 -------------------------------------
 [Not implemented yet in Swami!]
 
-Virtual banks allow you to make a sound font bank from many other sound font
+Virtual banks allow you to make a SoundFont bank from many other SoundFont
 files. Swami currently supports loading and saving of the AWE .bnk format.
 This is a simple text file format listing each Preset and where it can be found
-Sound Font file:Bank:Preset and its destination Bank:Preset.
+SoundFont file:Bank:Preset and its destination Bank:Preset.
 
-** NOTE ** Make sure you set the "Virtual sound font bank search paths" field
-in Preferences. It should be a colon seperated list of where to find your sound
-fonts. Example: "/home/josh/sbks/*:/tmp/sbks". Adding a '/*' to the end of a
+** NOTE ** Make sure you set the "Virtual SoundFont bank search paths" field
+in Preferences. It should be a colon seperated list of where to find your SoundFont
+files.  Example: "/home/josh/sbks/*:/tmp/sbks". Adding a '/*' to the end of a
 path will cause that directory to be recursively scanned (all sub directories
 under it).
 
 ** Current limitations (will be fixed in future) **
 
-Sound font files will not automatically be loaded with a virtual bank, so you'll
+SoundFont files will not automatically be loaded with a virtual bank, so you'll
 have to load them by hand.
-Default sound font bank can't be cleared
+Default SoundFont bank can't be cleared
 Can't edit virtual bank mappings
 
 
@@ -376,20 +366,20 @@ Can't edit virtual bank mappings
 Simply select and paste Preset items into the Mapping section of the virtual
 bank.
 
-- Setting default sound font -
-The default sound font sets the default Preset instruments. The Preset mappings
-override the default Presets. To change the default sound font simply paste a
-sound font item to the <DEFAULT> branch of the virtual bank.
+- Setting default SoundFont -
+The default SoundFont sets the default Preset instruments. The Preset mappings
+override the default Presets. To change the default SoundFont simply paste a
+SoundFont item to the <DEFAULT> branch of the virtual bank.
 
 
-15. Sound font information, links and other resources
+15. SoundFont information, links and other resources
 -------------------------------------
-I wrote an "Intro to Sound Fonts" and its available on the Swami homepage
+I wrote an "Intro to SoundFonts" and its available on the Swami homepage
 http://swami.sourceforge.net. Its a general overview of what a SoundFont is.
 
-More information on the Sound font standard can be obtained from
-www.soundfont.com. There is a PDF of the sound font technical specification
-at www.soundfont.com/documents/sfspec21.pdf.  If you find that it has moved
+More information on the SoundFont standard can be obtained from
+www.soundfont.com. There is a PDF of the SoundFont technical specification
+at www.soundfont.com/documents/sfspec24.pdf.  If you find that it has moved
 then look under the Resources section off of the soundfont.com home page
 (although it looks like you have to get a login to go there).
 
@@ -399,7 +389,7 @@ Thanks to Frank Johnson at EMU for clarifying this.
 16. Thanks
 -------------------------------------
 Thanks to the following projects for making Swami possible:
-- iiwusynth (its what makes the instruments sound :)
+- FluidSynth (its what makes the instruments sound :)
 - gstreamer for gobject2gtk code and helpful examples of using GObject
 - Glade GTK interface builder
 - Gimp for graphics editing
@@ -418,7 +408,7 @@ All other trademarks are property of their respective holders.
 
 18. Contact
 -------------------------------------
-Contact me (Josh Green) particularly if you are interested in helping
+Contact me (Joshua "Element" Green) particularly if you are interested in helping
 develop Swami. Programming, web page design, and
 documentation are all things that are lacking, so if you have an
 interest, do contact me. Also contact me if you find any bugs, have
