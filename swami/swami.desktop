@@ -1,8 +1,11 @@
 [Desktop Entry]
 Encoding=UTF-8
 Name=Swami Instrument Editor
+Name[ru]=Редактор сэмплов Swami
 GenericName=Instrument Editor
+GenericName[ru]=Редактор сэмплов 
 Comment=Create, play and organize MIDI instruments and sounds
+Comment[ru]=Создание, воспроизведение и организация звуковых сэмплов
 Exec=swami %F
 Icon=swami
 StartupNotify=true
