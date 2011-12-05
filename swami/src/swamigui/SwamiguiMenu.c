@@ -373,7 +373,7 @@ create_patch_type_menu (SwamiguiMenu *guimenu)
   menu = gtk_menu_new ();
 
   types = swami_util_get_child_types (IPATCH_TYPE_BASE, &n_types);
-  qsort (types, sizeof (GType), n_types, sort_by_type_name);
+  qsort (types, n_types, sizeof (GType), sort_by_type_name);
 
   for (ptype = types; *ptype; ptype++)
     {
