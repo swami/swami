@@ -181,7 +181,6 @@ swamigui_help_swamitips_set_tip (GtkWidget *tips, gint tipnum)
   GtkTextBuffer *buffer;
   GtkWidget *btn;
   gchar *msg;
-  gint pos;
 
   tipnum = CLAMP (tipnum, 0, TIPCOUNT - 1);
 
@@ -195,7 +194,6 @@ swamigui_help_swamitips_set_tip (GtkWidget *tips, gint tipnum)
   buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (txtview));
 
   msg = _(swamitips_msg[tipnum]); /* get the tip */
-  pos = 0;			/* add the new tip at position 0 */
   gtk_text_buffer_set_text (buffer, msg, -1);
 
   swamitip_current = tipnum;

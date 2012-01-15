@@ -48,6 +48,7 @@ typedef struct
   int sample_mode;	/* FFTUNE_MODE_* */
   guint sample_start;	/* start of selection (FFTUNE_MODE_SELECTION) */
   guint sample_end;	/* end of selection (start/end=0 will use entire sample) */
+  guint limit;          /* maximum number of samples to process or 0 for unlimited */
 
   double *spectrum;	/* spectrum power data */
   int spectrum_size;	/* size of spectrum array */
@@ -63,6 +64,8 @@ typedef struct
   float min_freq;	/* min freq for tuning suggestions */
   float max_freq;	/* max freq for tuning suggestions */
   int max_tunings;	/* maximum tuning suggestions to find */
+  int enable_window;    /* Enable Hann windowing of sample data */
+  float ellapsed_time;  /* Ellapsed time of last execution in seconds */
 } FFTuneSpectra;
 
 typedef struct

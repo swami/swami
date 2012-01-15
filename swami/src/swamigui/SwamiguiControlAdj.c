@@ -232,7 +232,6 @@ swamigui_control_adj_new (GtkAdjustment *adj)
 void
 swamigui_control_adj_set (SwamiguiControlAdj *ctrladj, GtkAdjustment *adj)
 {
-  SwamiControl *control;
   GParamSpec *pspec;
 
   g_return_if_fail (SWAMIGUI_IS_CONTROL_ADJ (ctrladj));
@@ -241,8 +240,6 @@ swamigui_control_adj_set (SwamiguiControlAdj *ctrladj, GtkAdjustment *adj)
   /* ++ ref new spec */
   pspec = g_param_spec_double ("value", NULL, NULL, adj->lower, adj->upper,
 			       adj->value, G_PARAM_READWRITE);
-
-  control = SWAMI_CONTROL (ctrladj);
 
   SWAMI_LOCK_WRITE (ctrladj);
 

@@ -90,14 +90,17 @@ if ( CMAKE_COMPILER_IS_GNUCC )
     set ( CMAKE_SHARED_LINKER_FLAGS 
           "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined" )
   endif ( NOT APPLE )
-  set ( GNUCC_WARNING_FLAGS "-Wall -W -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wstrict-prototypes -Wno-unused-parameter -Wno-cast-qual")
+  set ( GNUCC_WARNING_FLAGS "-Wall")
   set ( CMAKE_C_FLAGS_DEBUG "-g -DDEBUG ${GNUCC_WARNING_FLAGS}" )
-  set ( CMAKE_C_FLAGS_RELEASE "-O2 -fomit-frame-pointer -funroll-all-loops -finline-functions -DNDEBUG ${GNUCC_WARNING_FLAGS}" )
-  set ( CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g -fomit-frame-pointer -funroll-all-loops -finline-functions -DNDEBUG ${GNUCC_WARNING_FLAGS}" )
+  set ( CMAKE_C_FLAGS_RELEASE "-O2 -DNDEBUG ${GNUCC_WARNING_FLAGS}" )
+  set ( CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g -DNDEBUG ${GNUCC_WARNING_FLAGS}" )
 endif ( CMAKE_COMPILER_IS_GNUCC )
 
 if ( enable-debug )  
     set ( CMAKE_BUILD_TYPE "Debug" CACHE STRING
+          "Choose the build type, options: Debug Release RelWithDebInfo" FORCE )
+else ( enable-debug )
+    set ( CMAKE_BUILD_TYPE "Release" CACHE STRING
           "Choose the build type, options: Debug Release RelWithDebInfo" FORCE )
 endif ( enable-debug )
 
@@ -156,7 +159,7 @@ endif ( enable-fluidsynth )
 # Optional library fftw3
 unset ( FFTW_SUPPORT CACHE )
 if ( enable-fftw )
-  pkg_check_modules ( FFTW fftw3>=3.0 )
+  pkg_check_modules ( FFTW fftw3f>=3.0 )
   set ( FFTW_SUPPORT ${FFTW_FOUND} )
 else ( enable-fftw )
   unset_pkg_config ( FFTW )

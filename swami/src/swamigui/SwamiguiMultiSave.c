@@ -165,10 +165,6 @@ swamigui_multi_save_init (SwamiguiMultiSave *multi)
 static void
 swamigui_multi_save_finalize (GObject *object)
 {
-  SwamiguiMultiSave *multi;
-
-  multi = SWAMIGUI_MULTI_SAVE (object);
-
   if (G_OBJECT_CLASS (swamigui_multi_save_parent_class)->finalize)
     G_OBJECT_CLASS (swamigui_multi_save_parent_class)->finalize (object);
 }

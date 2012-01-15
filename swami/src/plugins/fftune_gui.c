@@ -75,6 +75,25 @@ enum
   COL_COUNT	/* count of columns */
 };
 
+typedef struct
+{
+  int limit;
+  char *label;
+} LimitInfo;
+
+/* Default index in limits[] array below */
+#define DEFAULT_LIMIT_INDEX 2
+
+/* Items in limits GtkComboBox */
+const LimitInfo limits[] =
+{
+  {          0, N_("Unlimited") },
+  { 128 * 1024, N_("128K") },
+  {  64 * 1024, N_("64K") },
+  {  32 * 1024, N_("32K") },
+  {  16 * 1024, N_("16K") }
+};
+
 static gboolean plugin_fftune_gui_init (SwamiPlugin *plugin, GError **err);
 static void fftune_gui_panel_iface_init (SwamiguiPanelIface *panel_iface);
 static gboolean fftune_gui_panel_iface_check_selection (IpatchList *selection,
@@ -97,6 +116,9 @@ static void fftune_gui_cb_tunings_change (FFTuneSpectra *spectra, guint count,
 					  gpointer user_data);
 static void fftune_gui_cb_mode_menu_changed (GtkComboBox *combo,
 					     gpointer user_data);
+static void fftune_gui_cb_limit_changed (GtkComboBox *combo, gpointer user_data);
+static void fftune_gui_cb_window_toggled (GtkToggleButton *button,
+                                          gpointer user_data);
 static void fftune_gui_cb_canvas_size_allocate (GtkWidget *widget,
 						GtkAllocation *allocation,
 						gpointer user_data);
@@ -292,6 +314,7 @@ fftune_gui_init (FFTuneGui *fftunegui)
   GtkStyle *style;
   GtkAdjustment *adj;
   GtkWidget *widg;
+  int i;
 
   fftunegui->snap_active = FALSE;
   fftunegui->snap_timeout_handler = 0;
@@ -301,6 +324,9 @@ fftune_gui_init (FFTuneGui *fftunegui)
 
   /* create spectrum tuning object */
   fftunegui->spectra = g_object_new (g_type_from_name ("FFTuneSpectra"), NULL);
+
+  /* Set default FFT limit */
+  g_object_set (fftunegui->spectra, "limit", limits[DEFAULT_LIMIT_INDEX].limit, NULL);
 
   /* connect to spectrum change signal */
   g_signal_connect (fftunegui->spectra, "spectrum-change",
@@ -314,7 +340,7 @@ fftune_gui_init (FFTuneGui *fftunegui)
   box = gtk_hbox_new (FALSE, 4);
   gtk_widget_show (box);
 
-  lbl = gtk_label_new (_("Sample data"));
+  lbl = gtk_label_new (_("Data"));
   gtk_widget_show (lbl);
   gtk_box_pack_start (GTK_BOX (box), lbl, FALSE, FALSE, 0);
 
@@ -328,6 +354,29 @@ fftune_gui_init (FFTuneGui *fftunegui)
 
   g_signal_connect (fftunegui->mode_menu, "changed",
 		    (GCallback)fftune_gui_cb_mode_menu_changed, fftunegui);
+
+  lbl = gtk_label_new (_("Limit"));
+  gtk_widget_show (lbl);
+  gtk_box_pack_start (GTK_BOX (box), lbl, FALSE, FALSE, 0);
+
+  widg = gtk_combo_box_new_text ();
+  gtk_widget_show (widg);
+  gtk_box_pack_start (GTK_BOX (box), widg, FALSE, FALSE, 0);
+
+  for (i = 0; i < G_N_ELEMENTS (limits); i++)
+    gtk_combo_box_append_text (GTK_COMBO_BOX (widg), _(limits[i].label));
+
+  gtk_combo_box_set_active (GTK_COMBO_BOX (widg), DEFAULT_LIMIT_INDEX);
+
+  g_signal_connect (widg, "changed",
+		    (GCallback)fftune_gui_cb_limit_changed, fftunegui);
+
+  widg = gtk_toggle_button_new_with_label (_("Window"));
+  gtk_widget_show (widg);
+  gtk_box_pack_start (GTK_BOX (box), widg, FALSE, FALSE, 0);
+
+  g_signal_connect (widg, "toggled",
+		    (GCallback)fftune_gui_cb_window_toggled, fftunegui);
 
   lbl = gtk_label_new (_("Root note"));
   gtk_widget_show (lbl);
@@ -577,7 +626,7 @@ fftune_gui_cb_tunings_change (FFTuneSpectra *spectra, guint count,
 {
   FFTuneGui *fftunegui = FFTUNE_GUI (user_data);
   GtkTreeIter iter;
-  double power, max_power, freq, cents;
+  double power, max_power = 0.0, freq, cents;
   char powerstr[6], freqstr[32], notestr[11], centsstr[16];
   int i, note;
 
@@ -632,6 +681,26 @@ fftune_gui_cb_mode_menu_changed (GtkComboBox *combo, gpointer user_data)
   active = gtk_combo_box_get_active (combo);
   if (active != -1)
     g_object_set (fftunegui->spectra, "sample-mode", active, NULL);
+}
+
+static void
+fftune_gui_cb_limit_changed (GtkComboBox *combo, gpointer user_data)
+{
+  FFTuneGui *fftunegui = FFTUNE_GUI (user_data);
+  int active;
+
+  active = gtk_combo_box_get_active (combo);
+  if (active != -1)
+    g_object_set (fftunegui->spectra, "limit", limits[active].limit, NULL);
+}
+
+static void
+fftune_gui_cb_window_toggled (GtkToggleButton *button, gpointer user_data)
+{
+  FFTuneGui *fftunegui = FFTUNE_GUI (user_data);
+
+  g_object_set (fftunegui->spectra, "enable-window",
+                gtk_toggle_button_get_active (button), NULL);
 }
 
 static void

@@ -764,7 +764,7 @@ swamigui_piano_draw_noteon (SwamiguiPiano *piano, int note, int velocity)
 {
   GnomeCanvasGroup *group = GNOME_CANVAS_GROUP (piano);
   KeyInfo *key_info;
-  double pos, w, h, vel;
+  double pos, w, vel;
   int note_ofs;
   gboolean black;
 
@@ -782,7 +782,6 @@ swamigui_piano_draw_noteon (SwamiguiPiano *piano, int note, int velocity)
 
       /* calculate size and velocity position of white key indicator */
       w = piano->key_width_half * PIANO_WHITE_INDICATOR_WIDTH_SCALE;
-      h = piano->world_height * (PIANO_WHITE_INDICATOR_HEIGHT_SCALE / 2.0);
       vel = velocity * piano->white_vel_range / 127.0 + piano->white_vel_ofs;
     }
   else				/* black key */
@@ -795,7 +794,6 @@ swamigui_piano_draw_noteon (SwamiguiPiano *piano, int note, int velocity)
 
       /* calculate size and velocity position of black key indicator */
       w = piano->key_width_half * PIANO_BLACK_INDICATOR_WIDTH_SCALE;
-      h = piano->black_height * (PIANO_BLACK_INDICATOR_HEIGHT_SCALE / 2.0);
       vel = velocity * piano->black_vel_range / 127.0 + piano->black_vel_ofs;
     }
 

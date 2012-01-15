@@ -1037,7 +1037,6 @@ swamigui_root_save_prefs (SwamiguiRoot *root)
 gboolean
 swamigui_root_load_prefs (SwamiguiRoot *root)
 {
-  IpatchXmlNode *xmlnode;
   GNode *xmltree, *n;
   char *pref_filename;
   GParamSpec *pspec;
@@ -1079,7 +1078,6 @@ swamigui_root_load_prefs (SwamiguiRoot *root)
 
   for (n = xmltree->children; n; n = n->next)
   {
-    xmlnode = (IpatchXmlNode *)(n->data);
     name = ipatch_xml_get_name (n);
     if (!name) continue;
 

@@ -186,7 +186,6 @@ swamigui_bar_cb_ptr_event (GnomeCanvasItem *item, GdkEvent *event,
   PtrInfo *ptrinfo = (PtrInfo *)data;
   SwamiguiBar *bar = SWAMIGUI_BAR (ptrinfo->bar);
   GdkEventButton *bevent;
-  GdkEventMotion *mevent;
 
   switch (event->type)
     {
@@ -211,7 +210,6 @@ swamigui_bar_cb_ptr_event (GnomeCanvasItem *item, GdkEvent *event,
       break;
     case GDK_MOTION_NOTIFY:
       if (!ptrinfo->mouse_sel) break; /* not selected? */
-      mevent = (GdkEventMotion *)event;
 
       break;
     default:

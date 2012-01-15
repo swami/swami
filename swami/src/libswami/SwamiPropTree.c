@@ -911,7 +911,7 @@ refresh_cache_value_L (GNode *node, CacheValue *cache)
 {
   SwamiPropTreeNode *treenode, *obj_treenode;
   SwamiPropTreeValue *treeval;
-  char *prop_name;
+  const char *prop_name;
   GType obj_type;
   GSList *p;
   int flags;

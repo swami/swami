@@ -47,7 +47,7 @@
 #define MAX_ALLOWED_TUNINGS 1024	/* absolute max tunings allowed */
 
 /* Sample format used internally */
-#define SAMPLE_FORMAT   IPATCH_SAMPLE_DOUBLE | IPATCH_SAMPLE_MONO | IPATCH_SAMPLE_ENDIAN_HOST
+#define SAMPLE_FORMAT   IPATCH_SAMPLE_FLOAT | IPATCH_SAMPLE_MONO | IPATCH_SAMPLE_ENDIAN_HOST
 
 enum
 {
@@ -58,6 +58,7 @@ enum
   PROP_SAMPLE_MODE,	/* sample calculation mode enum */
   PROP_SAMPLE_START,	/* start position in sample */
   PROP_SAMPLE_END,	/* end position in sample */
+  PROP_LIMIT,           /* maximum samples to process or 0 for unlimited */
   PROP_THRESHOLD,	/* power threshold for tuning suggestions */
   PROP_SEPARATION,	/* min freq between consecutive tuning suggestions */
   PROP_MIN_FREQ,	/* minimum frequency for tuning suggestions */
@@ -69,7 +70,9 @@ enum
   PROP_TUNE_COUNT,	/* count of available tuning suggestions */
   PROP_TUNE_INDEX,	/* index in spectrum data for this tuning suggestion */
   PROP_TUNE_POWER,	/* power of current tuning (0.0 if no more suggestions) */
-  PROP_TUNE_FREQ	/* frequency of current tuning */
+  PROP_TUNE_FREQ,	/* frequency of current tuning */
+  PROP_ENABLE_WINDOW,   /* Enable Hann window of sample data */
+  PROP_ELLAPSED_TIME    /* Ellapsed time of last execution in seconds */
 };
 
 enum
@@ -89,11 +92,9 @@ static void fftune_spectra_set_property (GObject *object, guint property_id,
 static void fftune_spectra_get_property (GObject *object, guint property_id,
 					 GValue *value, GParamSpec *pspec);
 static gboolean fftune_spectra_calc_spectrum (FFTuneSpectra *spectra);
+static double *fftune_spectra_run_fftw (void *data, int *dsize);
 static gboolean fftune_spectra_calc_tunings (FFTuneSpectra *spectra);
 static gint tuneval_compare_func (gconstpointer a, gconstpointer b);
-static gboolean fftune_load_sample_data (IpatchSample *sample, guint start,
-					 guint size, double *input,
-					 GError **err);
 
 /* set plugin information */
 SWAMI_PLUGIN_INFO (plugin_fftune_init, NULL);
@@ -120,7 +121,7 @@ plugin_fftune_init (SwamiPlugin *plugin, GError **err)
 		"version", "1.0",
 		"author", "Josh Green",
 		"copyright", "Copyright (C) 2004",
-	"descr", N_("Fast Fourier Transform sample tuner using FFTW library"),
+	"descr", N_("Fast Fourier Transform sample tuner"),
 		"license", "GPL",
 		NULL);
 
@@ -193,6 +194,9 @@ fftune_spectra_class_init (FFTuneSpectraClass *klass)
   g_object_class_install_property (obj_class, PROP_SAMPLE_END,
 	    g_param_spec_uint ("sample-end", _("Sample end"), _("Sample end"),
 			       0, G_MAXUINT, 0, G_PARAM_READWRITE));
+  g_object_class_install_property (obj_class, PROP_LIMIT,
+	    g_param_spec_uint ("limit", _("Limit"), _("Limit"),
+			       0, G_MAXUINT, 0, G_PARAM_READWRITE));
   g_object_class_install_property (obj_class, PROP_THRESHOLD,
 	    g_param_spec_float ("threshold", _("Threshold"),
 				_("Min ratio to max power of tuning suggestions"),
@@ -239,6 +243,13 @@ fftune_spectra_class_init (FFTuneSpectraClass *klass)
 	    g_param_spec_double ("tune-freq", _("Tune frequency"),
 				 _("Frequency of current tuning"),
 				 0.0, G_MAXDOUBLE, 0.0, G_PARAM_READABLE));
+  g_object_class_install_property (obj_class, PROP_ENABLE_WINDOW,
+	    g_param_spec_boolean ("enable-window", _("Enable window"), _("Enable window"),
+				  FALSE, G_PARAM_READWRITE));
+  g_object_class_install_property (obj_class, PROP_ELLAPSED_TIME,
+	    g_param_spec_float ("ellapsed-time", _("Ellapsed time"),
+				_("Ellapsed time of last execution in seconds"),
+				0.0, G_MAXFLOAT, 0.0, G_PARAM_READABLE));
 }
 
 static void
@@ -306,6 +317,12 @@ fftune_spectra_set_property (GObject *object, guint property_id,
       spectra->sample_end = g_value_get_uint (value);
       spectrum_update = TRUE;
       break;
+    case PROP_LIMIT:
+      if (g_value_get_uint (value) == spectra->limit) break;
+
+      spectra->limit = g_value_get_uint (value);
+      spectrum_update = TRUE;
+      break;
     case PROP_THRESHOLD:
       if (g_value_get_float (value) == spectra->threshold) break;
 
@@ -338,6 +355,12 @@ fftune_spectra_set_property (GObject *object, guint property_id,
       break;
     case PROP_TUNE_SELECT:
       spectra->tune_select = g_value_get_int (value);
+      break;
+    case PROP_ENABLE_WINDOW:
+      if (g_value_get_boolean (value) == spectra->enable_window) break;
+
+      spectra->enable_window = g_value_get_boolean (value);
+      spectrum_update = TRUE;
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -379,6 +402,9 @@ fftune_spectra_get_property (GObject *object, guint property_id,
       break;
     case PROP_SAMPLE_END:
       g_value_set_uint (value, spectra->sample_end);
+      break;
+    case PROP_LIMIT:
+      g_value_set_uint (value, spectra->limit);
       break;
     case PROP_THRESHOLD:
       g_value_set_float (value, spectra->threshold);
@@ -424,6 +450,12 @@ fftune_spectra_get_property (GObject *object, guint property_id,
 	}
       else g_value_set_double (value, 0.0);
       break;
+    case PROP_ENABLE_WINDOW:
+      g_value_set_boolean (value, spectra->enable_window);
+      break;
+    case PROP_ELLAPSED_TIME:
+      g_value_set_float (value, spectra->ellapsed_time);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -433,11 +465,15 @@ fftune_spectra_get_property (GObject *object, guint property_id,
 static gboolean
 fftune_spectra_calc_spectrum (FFTuneSpectra *spectra)
 {
-  fftw_plan fftplan;
   guint start, sample_size, loop_start, loop_end;
-  double *data;
-  int dsize;
-  int count, i, x;
+  IpatchSampleHandle handle;
+  GError *err = NULL;
+  void *data;           /* Stores sample data (floats) */
+  double *result;       /* FFT power spectrum result */
+  int dsize, result_size;
+  int count, i;
+  GTimeVal start_time, end_time;
+  float ellapsed;
 
   g_return_val_if_fail (spectra->sample != NULL, FALSE);
 
@@ -475,71 +511,130 @@ fftune_spectra_calc_spectrum (FFTuneSpectra *spectra)
 	    }
 	}
 
+      if (spectra->limit && count > spectra->limit) count = spectra->limit;
+
       dsize = count;
     }
 
-  data = fftw_malloc (sizeof (double) * dsize); /* allocate transform array */
+  /* Allocate sample/result buffer, sample data is stored as floats and result
+   * is stored as doubles (dsize / 2 + 1 in length). */
+  data = g_try_malloc (sizeof (double) * (dsize / 2 + 1)); /* allocate transform array */
 
   if (!data)
-    {
-      g_critical (_(ERRMSG_MALLOC_1), sizeof (double) * dsize);
-      return (FALSE);
-    }
+  {
+    g_critical (_(ERRMSG_MALLOC_1), sizeof (double) * (dsize / 2 + 1));
+    return (FALSE);
+  }
 
-  /* load the sample data into the input array */
-  /* FIXME - Error handling? */
-  if (!fftune_load_sample_data (spectra->sample, start, count, data, NULL))
-    {
-      fftw_free (data);
-      return (FALSE);
-    }
+  if (!ipatch_sample_handle_open (spectra->sample, &handle, 'r', SAMPLE_FORMAT,
+                                  IPATCH_SAMPLE_UNITY_CHANNEL_MAP, &err))
+  {
+    g_critical ("Failed to open sample in FFTune plugin: %s",
+                ipatch_gerror_message (err));
+    g_error_free (err);
+    g_free (data);
+    return (FALSE);
+  }
+
+  /* load the sample data */
+  if (!ipatch_sample_handle_read (&handle, start, count, data, &err))
+  {
+    g_critical ("Failed to read sample data in FFTune plugin: %s",
+                ipatch_gerror_message (err));
+    g_error_free (err);
+    ipatch_sample_handle_close (&handle);
+    g_free (data);
+    return (FALSE);
+  }
+
+  ipatch_sample_handle_close (&handle);
 
   if (spectra->sample_mode == FFTUNE_MODE_LOOP)	/* do 2 iterations for loops */
-    {
-      for (i=0; i < count; i++)
-	data[i + count] = data[i];
+  {
+    for (i=0; i < count; i++)
+      ((float *)data)[i + count] = ((float *)data)[i];
 
-      /* append first sample to end to complete the 2 cycles */
-      data[dsize - 1] = data[0];
-    }
+    /* append first sample to end to complete the 2 cycles */
+    ((float *)data)[dsize - 1] = ((float *)data)[0];
+  }
 
-  /* create FFTW plan (real to half complex, in place transform) */
-  fftplan = fftw_plan_r2r_1d (dsize, data, data, FFTW_R2HC, FFTW_ESTIMATE);
+  result_size = dsize;
 
-  fftw_execute (fftplan);	/* do the FFT calculation */
+  g_get_current_time (&start_time);
 
-  fftw_destroy_plan (fftplan);
+  if (spectra->enable_window)
+  {
+    for (i = 0; i < dsize; i++)
+      ((float *)data)[i] *= 0.5 * (1.0 - cos (2.0 * G_PI * ((float)i / (dsize - 1)))); 
+  }
 
-  /* compute power spectrum (its stored over the output array) */
-  data[0] = data[0] * data[0];	/* DC component */
+  /* Calculate FFT power spectrum of sample data. Result is returned in the same array. */
+  result = fftune_spectra_run_fftw (data, &result_size);
 
-  x = (dsize+1) / 2;
-  for (i=1; i < x; ++i)	/* (i < dsize/2 rounded up) */
-    data[i] = data[i] * data[i] + data[dsize - i] * data[dsize - i];
+  g_get_current_time (&end_time);
 
-  if (dsize % 2 == 0) /* count is even? */
-    data[dsize / 2] = data[dsize / 2] * data[dsize / 2]; /* Nyquist freq. */
+  ellapsed = (end_time.tv_sec - start_time.tv_sec)
+    + (end_time.tv_usec - start_time.tv_usec) / 1000000.0;
 
-  x = dsize / 2 + 1;	/* size of spectrum array */
+  spectra->ellapsed_time = ellapsed;
 
-  /* Spectrum array is twice the size of the output array, but realloc'ing it
-   * not possible, due to separate memory pools between fftw_malloc */
-
-  // data = realloc (data, sizeof (double) * x);  - Removed to fix bug on win32
+  if (!result)
+  {
+    g_free (data);
+    return (FALSE);
+  }
 
   /* emit spectrum-change signal */
-  g_signal_emit (spectra, obj_signals[SPECTRUM_CHANGE], 0, x, data);
+  g_signal_emit (spectra, obj_signals[SPECTRUM_CHANGE], 0, result_size, result);
 
-  if (spectra->spectrum)
-    {
-      fftw_free (spectra->spectrum);
-      spectra->spectrum = NULL;
-    }
-
-  spectra->spectrum_size = x;
-  spectra->spectrum = data;
+  g_free (spectra->spectrum);
+  spectra->spectrum = result;
+  spectra->spectrum_size = result_size;
 
   return (TRUE);
+}
+
+static double *
+fftune_spectra_run_fftw (void *data, int *dsize)
+{
+  fftwf_plan fftplan;
+  float *outdata;
+  int size = *dsize;
+  int outsize;
+  int i, x;
+
+  outsize = size / 2 + 1;
+  outdata = fftwf_malloc (sizeof (float) * size); /* allocate output transform array */
+
+  if (!outdata)
+  {
+    g_critical (_(ERRMSG_MALLOC_1), sizeof (float) * size);
+    return (NULL);
+  }
+
+  /* create FFTW plan (real to half complex, in place transform) */
+  fftplan = fftwf_plan_r2r_1d (size, data, outdata, FFTW_R2HC, FFTW_ESTIMATE);
+  fftwf_execute (fftplan);	/* do the FFT calculation */
+  fftwf_destroy_plan (fftplan);
+
+  /* compute power spectrum (its stored over the output array) */
+  ((double *)data)[0] = outdata[0] * outdata[0];	/* DC component */
+
+  x = (size+1) / 2;
+  for (i=1; i < x; ++i)	/* (i < size/2 rounded up) */
+    ((double *)data)[i] = outdata[i] * outdata[i] + outdata[size - i] * outdata[size - i];
+
+  if (size % 2 == 0) /* count is even? */
+    ((double *)data)[size / 2] = outdata[size / 2] * outdata[size / 2]; /* Nyquist freq. */
+
+  fftwf_free (outdata);
+
+  *dsize = outsize;
+
+  /* Resize data array to size of FFT power data */
+  data = realloc (data, sizeof (double) * outsize);
+
+  return (data);
 }
 
 /* typebag for temporary sorted GList of tunings.  Wouldn't need it if
@@ -691,23 +786,4 @@ tuneval_compare_func (gconstpointer a, gconstpointer b)
   if (f < 0.0) return -1;
   if (f > 0.0) return 1;
   return 0;
-}
-
-/* loads sample data into a FFTW input array */
-static gboolean
-fftune_load_sample_data (IpatchSample *sample, guint start, guint size,
-			 double *input, GError **err)
-{
-  IpatchSampleHandle handle;
-
-  if (!ipatch_sample_handle_open (IPATCH_SAMPLE (sample), &handle, 'r', SAMPLE_FORMAT,
-                                  IPATCH_SAMPLE_UNITY_CHANNEL_MAP, err))
-    return (FALSE);
-
-  if (!ipatch_sample_handle_read (&handle, start, size, input, err))
-    return (FALSE);
-
-  ipatch_sample_handle_close (&handle);
-
-  return (TRUE);
 }

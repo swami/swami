@@ -167,14 +167,11 @@ void
 swami_control_value_assign_value (SwamiControlValue *ctrlvalue,
 				  GValue *value, GDestroyNotify destroy)
 {
-  SwamiControl *control;
   GValue *destroy_value = NULL;
   GDestroyNotify destroy_func;
 
   g_return_if_fail (SWAMI_IS_CONTROL_VALUE (ctrlvalue));
   g_return_if_fail (value != NULL);
-
-  control = SWAMI_CONTROL (ctrlvalue);
 
   SWAMI_LOCK_WRITE (ctrlvalue);
 
@@ -220,14 +217,11 @@ swami_control_value_assign_value (SwamiControlValue *ctrlvalue,
 void
 swami_control_value_alloc_value (SwamiControlValue *ctrlvalue)
 {
-  SwamiControl *control;
   GValue *destroy_value = NULL;
   GDestroyNotify destroy_func;
   GValue *value;
   
   g_return_if_fail (SWAMI_IS_CONTROL_VALUE (ctrlvalue));
-
-  control = SWAMI_CONTROL (ctrlvalue);
 
   SWAMI_LOCK_WRITE (ctrlvalue);
 
