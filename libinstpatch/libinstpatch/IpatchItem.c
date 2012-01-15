@@ -292,10 +292,6 @@ ipatch_item_get_property (GObject *object, guint property_id,
 static void
 ipatch_item_init (IpatchItem *item)
 {
-  IpatchItemClass *klass;
-
-  klass = IPATCH_ITEM_GET_CLASS (item);
-
   /* always assign a mutex, will be freed and set to parent's mutex if the
      class has mutex_slave set (during ipatch_item_set_parent) */
   item->mutex = g_malloc (sizeof (GStaticRecMutex));

@@ -38,6 +38,8 @@ typedef IpatchConverter IpatchConverterFileToSF2;
 typedef IpatchConverterClass IpatchConverterFileToSF2Class;
 typedef IpatchConverter IpatchConverterFileToSF2Sample;
 typedef IpatchConverterClass IpatchConverterFileToSF2SampleClass;
+
+#if 0
 typedef IpatchConverter IpatchConverterSF2ToDLS2;
 typedef IpatchConverterClass IpatchConverterSF2ToDLS2Class;
 typedef IpatchConverter IpatchConverterDLS2ToSF2;
@@ -62,6 +64,7 @@ typedef IpatchConverter IpatchConverterSF2SampleToDLS2Sample;
 typedef IpatchConverterClass IpatchConverterSF2SampleToDLS2SampleClass;
 typedef IpatchConverter IpatchConverterDLS2SampleToSF2Sample;
 typedef IpatchConverterClass IpatchConverterDLS2SampleToSF2SampleClass;
+#endif
 
 
 #define IPATCH_TYPE_CONVERTER_SF2_TO_FILE \
@@ -70,6 +73,8 @@ typedef IpatchConverterClass IpatchConverterDLS2SampleToSF2SampleClass;
   (ipatch_converter_file_to_sf2_get_type ())
 #define IPATCH_TYPE_CONVERTER_FILE_TO_SF2_SAMPLE \
   (ipatch_converter_file_to_sf2_sample_get_type ())
+
+#if 0
 #define IPATCH_TYPE_CONVERTER_SF2_TO_DLS2 \
   (ipatch_converter_sf2_to_dls2_get_type ())
 #define IPATCH_TYPE_CONVERTER_DLS2_TO_SF2 \
@@ -94,11 +99,14 @@ typedef IpatchConverterClass IpatchConverterDLS2SampleToSF2SampleClass;
   (ipatch_converter_sf2_sample_to_dls2_sample_get_type ())
 #define IPATCH_TYPE_CONVERTER_DLS2_SAMPLE_TO_SF2_SAMPLE \
   (ipatch_converter_dls2_sample_to_sf2_sample_get_type ())
+#endif
 
 
 GType ipatch_converter_sf2_to_file_get_type (void);
 GType ipatch_converter_file_to_sf2_get_type (void);
 GType ipatch_converter_file_to_sf2_sample_get_type (void);
+
+#if 0
 GType ipatch_converter_sf2_to_dls2_get_type (void);
 GType ipatch_converter_dls2_to_sf2_get_type (void);
 GType ipatch_converter_sf2_preset_to_dls2_inst_get_type (void);
@@ -111,5 +119,7 @@ GType ipatch_converter_sf2_izone_to_dls2_region_get_type (void);
 GType ipatch_converter_dls2_region_to_sf2_izone_get_type (void);
 GType ipatch_converter_sf2_sample_to_dls2_sample_get_type (void);
 GType ipatch_converter_dls2_sample_to_sf2_sample_get_type (void);
+#endif
 
 #endif
+

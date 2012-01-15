@@ -96,7 +96,8 @@ ipatch_dls2_conn_duplicate (const IpatchDLS2Conn *conn)
 
 /**
  * ipatch_dls2_conn_list_set:
- * @list: Pointer to the root pointer of a connection list
+ * @list: (element-type IpatchDLS2Conn): Pointer to the root pointer of a
+ *   connection list
  * @conn: DLS connection to set in @list
  *
  * Set a connection in a connection list. The connection list is searched for
@@ -135,7 +136,8 @@ ipatch_dls2_conn_list_set (GSList **list, const IpatchDLS2Conn *conn)
 
 /**
  * ipatch_dls2_conn_list_unset:
- * @list: Pointer to the root pointer of a connection list
+ * @list: (element-type IpatchDLS2Conn): Pointer to the root pointer of a
+ *   connection list
  * @conn: DLS connection to remove from @list
  *
  * Remove a connection from a connection list. The connection list is
@@ -172,12 +174,13 @@ ipatch_dls2_conn_list_unset (GSList **list, const IpatchDLS2Conn *conn)
 
 /**
  * ipatch_dls2_conn_list_duplicate:
- * @list: GSList of #IpatchDLS2Conn structures to duplicate
+ * @list: (element-type IpatchDLS2Conn): GSList of #IpatchDLS2Conn structures
+ *   to duplicate
  *
  * Duplicates a connection list (GSList and connection data).
  *
- * Returns: New duplicate connection list which should be freed with
- * ipatch_dls2_conn_list_free() when finished with it.
+ * Returns: (element-type IpatchDLS2Conn): New duplicate connection list which
+ * should be freed with ipatch_dls2_conn_list_free() when finished with it.
  */
 GSList *
 ipatch_dls2_conn_list_duplicate (const GSList *list)
@@ -195,14 +198,15 @@ ipatch_dls2_conn_list_duplicate (const GSList *list)
 }
 
 /**
- * ipatch_dls2_conn_list_duplicate:
- * @list: GSList of #IpatchDLS2Conn structures to duplicate
+ * ipatch_dls2_conn_list_duplicate_fast:
+ * @list: (element-type IpatchDLS2Conn): GSList of #IpatchDLS2Conn structures
+ *   to duplicate
  *
  * Like ipatch_dls2_conn_list_duplicate() but optimized for speed, new list
  * is backwards from original.
  *
- * Returns: New duplicate connection list which should be freed with
- * ipatch_dls2_conn_list_free() when finished with it.
+ * Returns: (element-type IpatchDLS2Conn): New duplicate connection list which
+ *   should be freed with ipatch_dls2_conn_list_free() when finished with it.
  */
 GSList *
 ipatch_dls2_conn_list_duplicate_fast (const GSList *list)
@@ -221,7 +225,8 @@ ipatch_dls2_conn_list_duplicate_fast (const GSList *list)
 
 /**
  * ipatch_dls2_conn_list_free:
- * @list: Connection list to free
+ * @list: (element-type IpatchDLS2Conn): GSList of #IpatchDLS2Conn structures
+ *   to free
  * @free_conns: If %TRUE then the connections themselves are freed, %FALSE
  *   makes this function act just like g_slist_free() (only the list is
  *   freed not the connections).

@@ -527,8 +527,9 @@ ipatch_dls2_inst_compare (const IpatchDLS2Inst *p1,
  * ipatch_dls2_conn_list_free() (free_conns set to %TRUE) when finished
  * with it.
  *
- * Returns: New list of connections (#IpatchDLS2Conn) in @inst or
- * %NULL if no connections. Remember to free it when finished.
+ * Returns: (element-type IpatchDLS2Conn): New list of connections
+ *   (#IpatchDLS2Conn) in @inst or %NULL if no connections. Remember to free it
+ *   when finished.
  */
 GSList *
 ipatch_dls2_inst_get_conns (IpatchDLS2Inst *inst)

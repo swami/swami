@@ -936,7 +936,7 @@ ipatch_gig_reader_load_region_list (IpatchDLSReader *reader,
 /**
  * ipatch_dls_reader_load_art_list:
  * @reader: DLS/Gig reader
- * @conn_list: Pointer to a list to populate 
+ * @conn_list: (out) (element-type IpatchDLS2Conn): Pointer to a list to populate 
  * @err: Location to store error info or %NULL
  *
  * Loads DLS or GigaSampler articulator list from the current position in
@@ -1564,8 +1564,8 @@ ipatch_dls_load_sample_info (IpatchRiff *riff,
 /**
  * ipatch_dls_load_connection:
  * @riff: RIFF parser
- * @conn_list: Pointer to a list to populate with loaded #IpatchDLS2Conn
- *   structures.
+ * @conn_list: (out) (element-type IpatchDLS2Conn): Pointer to a list to populate
+ *   with loaded #IpatchDLS2Conn structures.
  * @err: Location to store error info or %NULL
  *
  * Load a DLS articulator chunk ("art1" or "art2") containing connection
@@ -2053,7 +2053,7 @@ ipatch_gig_load_dimension_names (IpatchRiff *riff,
 /**
  * ipatch_gig_load_group_names:
  * @riff: Riff parser
- * @name_list: List to add names to
+ * @name_list: (element-type char*): List to add names to
  * @err: Location to store error info or %NULL
  * 
  * Load a '3gri' sample group name chunk into a GSList of strings.  The

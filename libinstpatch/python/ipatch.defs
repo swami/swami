@@ -2787,6 +2787,11 @@
   (return-type "GType")
 )
 
+(define-function ipatch_file_handle_get_type
+  (c-name "ipatch_file_handle_get_type")
+  (return-type "GType")
+)
+
 (define-function ipatch_file_new
   (c-name "ipatch_file_new")
   (is-constructor-of "IpatchFile")

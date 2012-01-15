@@ -843,7 +843,7 @@ ipatch_converter_add_output (IpatchConverter *converter, GObject *object)
 /**
  * ipatch_converter_add_inputs:
  * @converter: Converter instance
- * @objects: List of objects to add
+ * @objects: (element-type GObject): List of objects to add
  *
  * Add a list of input objects to a converter object.
  */
@@ -867,7 +867,7 @@ ipatch_converter_add_inputs (IpatchConverter *converter, GList *objects)
 /**
  * ipatch_converter_add_outputs:
  * @converter: Converter instance
- * @objects: List of objects to add
+ * @objects: (element-type GObject): List of objects to add
  *
  * Add a list of output objects to a converter object.
  */

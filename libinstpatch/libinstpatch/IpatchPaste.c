@@ -765,7 +765,6 @@ ipatch_paste_object_add (IpatchPaste *paste, IpatchItem *additem,
 			 IpatchContainer *parent, IpatchItem *orig)
 {
   AddItemBag *addbag;
-  GSList *dummy;
 
   g_return_if_fail (IPATCH_IS_PASTE (paste));
   g_return_if_fail (IPATCH_IS_ITEM (additem));
@@ -781,7 +780,7 @@ ipatch_paste_object_add (IpatchPaste *paste, IpatchItem *additem,
 
   if (paste->add_list_last)
   {
-    dummy = g_slist_append (paste->add_list_last, addbag);
+    paste->add_list_last = g_slist_append (paste->add_list_last, addbag);
     paste->add_list_last = paste->add_list_last->next;
   }
   else  /* Empty list */
@@ -1046,7 +1045,7 @@ ipatch_paste_object_link (IpatchPaste *paste, IpatchItem *from, IpatchItem *to)
 gboolean
 ipatch_paste_default_test_func (IpatchItem *dest, IpatchItem *src)
 {
-  GType src_type, dest_type, link_type, type;
+  GType src_type, link_type, type;
   const GType *child_types = NULL, *ptype;
   GParamSpec *spec;
 
@@ -1054,7 +1053,6 @@ ipatch_paste_default_test_func (IpatchItem *dest, IpatchItem *src)
   g_return_val_if_fail (IPATCH_IS_ITEM (src), FALSE);
 
   src_type = G_OBJECT_TYPE (src);
-  dest_type = G_OBJECT_TYPE (dest);
 
   /* destination is a container? */
   if (IPATCH_IS_CONTAINER (dest))
@@ -1168,7 +1166,7 @@ ipatch_paste_default_exec_func (IpatchPaste *paste, IpatchItem *dest,
   IpatchItem *src_base, *dest_base;
   IpatchItem *link, *dup;
   GParamSpec *spec;
-  GType src_type, dest_type, link_type, type;
+  GType src_type, link_type, type;
   const GType *child_types = NULL, *ptype;
   IpatchConverterInfo *convinfo, *matchinfo;
   IpatchVirtualContainerConformFunc conform_func;
@@ -1182,7 +1180,6 @@ ipatch_paste_default_exec_func (IpatchPaste *paste, IpatchItem *dest,
   src_base = ipatch_item_get_base (src);
   dest_base = ipatch_item_get_base (dest);
   src_type = G_OBJECT_TYPE (src);
-  dest_type = G_OBJECT_TYPE (dest);
 
   /* destination is a container? */
   if (IPATCH_IS_CONTAINER (dest))

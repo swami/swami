@@ -161,6 +161,7 @@ struct _IpatchFileHandle
 
 
 GType ipatch_file_get_type (void);
+GType ipatch_file_handle_get_type (void);
 IpatchFile *ipatch_file_new (void);
 
 void ipatch_file_set_name (IpatchFile *file, const char *file_name);

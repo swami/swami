@@ -131,7 +131,7 @@ ipatch_iter_duplicate (IpatchIter *iter)
 }
 
 /**
- * ipatch_iter_GSList_init:
+ * ipatch_iter_GSList_init: (skip)
  * @iter: Iterator to initialize
  * @list: Pointer to root GSList pointer to initialize iterator to
  *
@@ -149,7 +149,7 @@ ipatch_iter_GSList_init (IpatchIter *iter, GSList **list)
 }
 
 /**
- * ipatch_iter_GSList_get:
+ * ipatch_iter_GSList_get: (skip)
  * @iter: Item iterator initialized with a GSList
  *
  * GSList item iterator method to get the current item.
@@ -168,7 +168,7 @@ ipatch_iter_GSList_get (IpatchIter *iter)
 }
 
 /**
- * ipatch_iter_GSList_next:
+ * ipatch_iter_GSList_next: (skip)
  * @iter: Item iterator initialized with a GSList
  *
  * GSList item iterator method to get the next item and advance the
@@ -190,7 +190,7 @@ ipatch_iter_GSList_next (IpatchIter *iter)
 }
 
 /**
- * ipatch_iter_GSList_first:
+ * ipatch_iter_GSList_first: (skip)
  * @iter: Item iterator initialized with a GSList
  *
  * GSList item iterator method to get the first item and set the
@@ -214,7 +214,7 @@ ipatch_iter_GSList_first (IpatchIter *iter)
 }
 
 /**
- * ipatch_iter_GSList_last:
+ * ipatch_iter_GSList_last: (skip)
  * @iter: Item iterator initialized with a GSList
  *
  * GSList item iterator method to get the last item and set the
@@ -238,7 +238,7 @@ ipatch_iter_GSList_last (IpatchIter *iter)
 }
 
 /**
- * ipatch_iter_GSList_index:
+ * ipatch_iter_GSList_index: (skip)
  * @iter: Item iterator initialized with a GSList
  * @index: Index, from 0, of item to get
  *
@@ -264,7 +264,7 @@ ipatch_iter_GSList_index (IpatchIter *iter, int index)
 }
 
 /**
- * ipatch_iter_GSList_insert:
+ * ipatch_iter_GSList_insert: (skip)
  * @iter: Item iterator initialized with a GSList
  * @item: Pointer to insert
  *
@@ -273,13 +273,13 @@ ipatch_iter_GSList_index (IpatchIter *iter, int index)
 void
 ipatch_iter_GSList_insert (IpatchIter *iter, gpointer item)
 {
-  GSList **list, *pos, *dummy;
+  GSList **list, *pos;
 
   g_return_if_fail (iter != NULL);
 
   if ((pos = IPATCH_ITER_GSLIST_GET_POS (iter))) /* position set? */
     {
-      dummy = g_slist_insert (pos, item, 1); /* insert after position */
+      pos = g_slist_insert (pos, item, 1); /* insert after position */
       IPATCH_ITER_GSLIST_SET_POS (iter, g_slist_next (pos)); /* update pos */
     }
   else				/* position not set */
@@ -294,7 +294,7 @@ ipatch_iter_GSList_insert (IpatchIter *iter, gpointer item)
 }
 
 /**
- * ipatch_iter_GSList_remove:
+ * ipatch_iter_GSList_remove: (skip)
  * @iter: Item iterator initialized with a GSList
  *
  * GSList item iterator method to remove the current item and advance
@@ -320,7 +320,7 @@ ipatch_iter_GSList_remove (IpatchIter *iter)
 }
 
 /**
- * ipatch_iter_GSList_count:
+ * ipatch_iter_GSList_count: (skip)
  * @iter: Item iterator initialized with a GSList
  *
  * GSList item iterator method to get the count of items.
@@ -342,7 +342,7 @@ ipatch_iter_GSList_count (IpatchIter *iter)
 
 
 /**
- * ipatch_iter_GList_init:
+ * ipatch_iter_GList_init: (skip)
  * @iter: Iterator to initialize
  * @list: Pointer to root GList pointer to initialize iterator to
  *
@@ -359,7 +359,7 @@ ipatch_iter_GList_init (IpatchIter *iter, GList **list)
 }
 
 /**
- * ipatch_iter_GList_get:
+ * ipatch_iter_GList_get: (skip)
  * @iter: Item iterator initialized with a GList
  *
  * GList item iterator method to get the current item.
@@ -378,7 +378,7 @@ ipatch_iter_GList_get (IpatchIter *iter)
 }
 
 /**
- * ipatch_iter_GList_next:
+ * ipatch_iter_GList_next: (skip)
  * @iter: Item iterator initialized with a GList
  *
  * GList item iterator method to get the next item and advance the
@@ -400,7 +400,7 @@ ipatch_iter_GList_next (IpatchIter *iter)
 }
 
 /**
- * ipatch_iter_GList_first:
+ * ipatch_iter_GList_first: (skip)
  * @iter: Item iterator initialized with a GList
  *
  * GList item iterator method to get the first item and set the
@@ -424,7 +424,7 @@ ipatch_iter_GList_first (IpatchIter *iter)
 }
 
 /**
- * ipatch_iter_GList_last:
+ * ipatch_iter_GList_last: (skip)
  * @iter: Item iterator initialized with a GList
  *
  * GList item iterator method to get the last item and set the
@@ -448,7 +448,7 @@ ipatch_iter_GList_last (IpatchIter *iter)
 }
 
 /**
- * ipatch_iter_GList_index:
+ * ipatch_iter_GList_index: (skip)
  * @iter: Item iterator initialized with a GList
  * @index: Index, from 0, of item to get
  *
@@ -474,7 +474,7 @@ ipatch_iter_GList_index (IpatchIter *iter, int index)
 }
 
 /**
- * ipatch_iter_GList_insert:
+ * ipatch_iter_GList_insert: (skip)
  * @iter: Item iterator initialized with a GList
  * @item: Pointer to insert
  *
@@ -483,13 +483,13 @@ ipatch_iter_GList_index (IpatchIter *iter, int index)
 void
 ipatch_iter_GList_insert (IpatchIter *iter, gpointer item)
 {
-  GList **list, *pos, *dummy;
+  GList **list, *pos;
 
   g_return_if_fail (iter != NULL);
 
   if ((pos = IPATCH_ITER_GLIST_GET_POS (iter))) /* position set? */
     {
-      dummy = g_list_insert (pos, item, 1); /* insert after position */
+      pos = g_list_insert (pos, item, 1); /* insert after position */
       IPATCH_ITER_GLIST_SET_POS (iter, g_list_next (pos)); /* update pos */
     }
   else				/* position not set */
@@ -504,7 +504,7 @@ ipatch_iter_GList_insert (IpatchIter *iter, gpointer item)
 }
 
 /**
- * ipatch_iter_GList_remove:
+ * ipatch_iter_GList_remove: (skip)
  * @iter: Item iterator initialized with a GList
  *
  * GList item iterator method to remove the current item and advance
@@ -530,7 +530,7 @@ ipatch_iter_GList_remove (IpatchIter *iter)
 }
 
 /**
- * ipatch_iter_GList_count:
+ * ipatch_iter_GList_count: (skip)
  * @iter: Item iterator initialized with a GList
  *
  * GList item iterator method to get the count of items.
@@ -552,7 +552,7 @@ ipatch_iter_GList_count (IpatchIter *iter)
 
 
 /**
- * ipatch_iter_array_init:
+ * ipatch_iter_array_init: (skip)
  * @iter: Iterator to initialize
  * @array: Pointer to an array of pointers
  * @size: Count of elements in @array.
@@ -572,7 +572,7 @@ ipatch_iter_array_init (IpatchIter *iter, gpointer *array, guint size)
 }
 
 /**
- * ipatch_iter_array_get:
+ * ipatch_iter_array_get: (skip)
  * @iter: Item iterator initialized with an array
  *
  * Array item iterator method to get the current item.
@@ -595,7 +595,7 @@ ipatch_iter_array_get (IpatchIter *iter)
 }
 
 /**
- * ipatch_iter_array_next:
+ * ipatch_iter_array_next: (skip)
  * @iter: Item iterator initialized with an array
  *
  * Array item iterator method to get the next item and advance the
@@ -627,7 +627,7 @@ ipatch_iter_array_next (IpatchIter *iter)
 }
 
 /**
- * ipatch_iter_array_first:
+ * ipatch_iter_array_first: (skip)
  * @iter: Item iterator initialized with an array
  *
  * Array item iterator method to get the first item and set the
@@ -656,7 +656,7 @@ ipatch_iter_array_first (IpatchIter *iter)
 }
 
 /**
- * ipatch_iter_array_last:
+ * ipatch_iter_array_last: (skip)
  * @iter: Item iterator initialized with an array
  *
  * Array item iterator method to get the last item and set the
@@ -686,7 +686,7 @@ ipatch_iter_array_last (IpatchIter *iter)
 }
 
 /**
- * ipatch_iter_array_index:
+ * ipatch_iter_array_index: (skip)
  * @iter: Item iterator initialized with an array
  * @index: Index, from 0, of item to get
  *
@@ -716,7 +716,7 @@ ipatch_iter_array_index (IpatchIter *iter, int index)
 }
 
 /**
- * ipatch_iter_array_insert:
+ * ipatch_iter_array_insert: (skip)
  * @iter: Item iterator initialized with a array
  * @item: Pointer to insert
  *
@@ -729,7 +729,7 @@ ipatch_iter_array_insert (IpatchIter *iter, gpointer item)
 }
 
 /**
- * ipatch_iter_array_remove:
+ * ipatch_iter_array_remove: (skip)
  * @iter: Item iterator initialized with a array
  *
  * array item iterator method to remove the current item and advance
@@ -742,7 +742,7 @@ ipatch_iter_array_remove (IpatchIter *iter)
 }
 
 /**
- * ipatch_iter_array_count:
+ * ipatch_iter_array_count: (skip)
  * @iter: Item iterator initialized with a array
  *
  * array item iterator method to get the count of items.

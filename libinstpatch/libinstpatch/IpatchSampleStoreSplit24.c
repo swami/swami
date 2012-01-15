@@ -161,7 +161,7 @@ ipatch_sample_store_split24_sample_iface_read (IpatchSampleHandle *handle,
   IpatchSampleStoreSplit24 *split24_store = (IpatchSampleStoreSplit24 *)(handle->sample);
   IpatchSampleStoreFile *file_store = (IpatchSampleStoreFile *)split24_store;
   guint samplepos, thissize, curofs;
-  gboolean lilendian, lilhost;
+  gboolean lilendian;
   IpatchFileHandle *fhandle = (IpatchFileHandle *)(handle->data1);
   guint8 *readbuf = (guint8 *)(handle->data2);
   guint8 *i8p;
@@ -169,7 +169,6 @@ ipatch_sample_store_split24_sample_iface_read (IpatchSampleHandle *handle,
 
   lilendian = (ipatch_sample_store_get_format (split24_store)
 	       & IPATCH_SAMPLE_ENDIAN_MASK) == IPATCH_SAMPLE_LENDIAN;
-  lilhost = G_BYTE_ORDER == G_LITTLE_ENDIAN;
 
   samplepos = 0;
   curofs = offset;

@@ -63,7 +63,7 @@ ipatch_snd_file_format_get_type (void)
 
       values[value_index].value = finfo.format;
       values[value_index].value_name = finfo.extension;
-      values[value_index].value_nick = finfo.name;
+      values[value_index].value_nick = finfo.extension;
       value_index++;
     }
 
@@ -82,6 +82,7 @@ GType
 ipatch_snd_file_sub_format_get_type (void)
 {
   static GType type = 0;
+  char *name, *s;
 
   if (!type)
   {
@@ -100,9 +101,15 @@ ipatch_snd_file_sub_format_get_type (void)
       sinfo.format = i;
       sf_command (NULL, SFC_GET_FORMAT_SUBTYPE, &sinfo, sizeof (sinfo));
 
+      name = g_ascii_strdown (sinfo.name, -1);        /* ++ alloc forever */
+
+      /* Replace spaces and '.' with dashes */
+      for (s = name; *s; s++)
+        if (*s == ' ' || *s == '.') *s = '-';
+
       values[value_index].value = sinfo.format;
-      values[value_index].value_name = sinfo.name;
-      values[value_index].value_nick = NULL;
+      values[value_index].value_name = name;
+      values[value_index].value_nick = name;
       value_index++;
     }
 

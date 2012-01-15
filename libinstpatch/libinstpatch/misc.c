@@ -165,6 +165,7 @@ ipatch_init (void)
   g_type_class_ref (IPATCH_TYPE_DLS_READER);
   g_type_class_ref (IPATCH_TYPE_DLS_WRITER);
   g_type_class_ref (IPATCH_TYPE_FILE);
+  ipatch_file_handle_get_type ();
   g_type_class_ref (IPATCH_TYPE_GIG_FILE);
   g_type_class_ref (IPATCH_TYPE_GIG);
   g_type_class_ref (IPATCH_TYPE_GIG_DIMENSION);

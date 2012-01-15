@@ -1376,14 +1376,13 @@ gig_write_dimension_info (IpatchDLSWriter *writer, IpatchGigRegion *region,
 {
   IpatchRiff *riff = IPATCH_RIFF (writer);
   IpatchGigDimension *dimension;
-  int count, bit_count;
+  int count;
   guint sample_index;
   int i;
 
   count = region->sub_region_count;
   ipatch_file_buf_write_u32 (riff->handle, count); /* count of sub regions */
 
-  bit_count = 0;
   for (i = 0; i < region->dimension_count; i++)
     {
       dimension = region->dimensions[i];

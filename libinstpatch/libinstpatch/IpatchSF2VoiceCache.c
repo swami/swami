@@ -188,7 +188,8 @@ ipatch_sf2_voice_cache_new (IpatchSF2VoiceSelInfo *info, int sel_count)
 /**
  * ipatch_sf2_voice_cache_set_default_mods:
  * @cache: Voice cache
- * @mods: SoundFont modulator list to use as default (used directly)
+ * @mods: (element-type IpatchSF2Mod) (transfer full): SoundFont modulator list
+ *   to use as default (used directly)
  *
  * Set the default modulator list for the voice cache.  Modulator list is used
  * directly and the allocation of the list is taken over by the voice cache.

@@ -69,8 +69,9 @@ ipatch_sf2_mod_item_iface_init (IpatchSF2ModItemIface *iface)
  * with ipatch_sf2_mod_list_free() (free_mods set to %TRUE) when finished
  * with it.
  *
- * Returns: New list of modulators (#IpatchSF2Mod) in @item or %NULL if no
- * modulators. Remember to free it with ipatch_sf2_mod_list_free() when finished.
+ * Returns: (element-type IpatchSF2Mod): New list of modulators (#IpatchSF2Mod)
+ *   in @item or %NULL if no modulators. Remember to free it with
+ *   ipatch_sf2_mod_list_free() when finished.
  */
 GSList *
 ipatch_sf2_mod_item_get_mods (IpatchSF2ModItem *item)
@@ -107,7 +108,7 @@ ipatch_sf2_mod_item_get_mods (IpatchSF2ModItem *item)
 /**
  * ipatch_sf2_mod_item_set_mods:
  * @item: Item with modulators
- * @mod_list: Modulator list to assign to zone.
+ * @mod_list: (element-type IpatchSF2Mod): Modulator list to assign to zone.
  * @flags: Flags for controlling list duplication and item property
  *   notification (#IpatchSF2ModFlags).  If #IPATCH_SF2_MOD_NO_DUPLICATE
  *   is set then ownership of @mod_list is taken over (not duplicated).

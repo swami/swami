@@ -96,6 +96,42 @@ static IpatchFileIOFuncs null_iofuncs =
 
 G_DEFINE_TYPE (IpatchFile, ipatch_file, IPATCH_TYPE_ITEM);
 
+static IpatchFileHandle *
+ipatch_file_handle_duplicate (IpatchFileHandle *handle)
+{
+  IpatchFileHandle *newhandle;
+
+  g_return_val_if_fail (handle != NULL, NULL);
+  g_return_val_if_fail (IPATCH_IS_FILE (handle->file), NULL);
+
+  newhandle = g_slice_new0 (IpatchFileHandle);     /* ++ alloc handle */
+  newhandle->file = g_object_ref (handle->file);        /* ++ ref file */
+
+  return (newhandle);
+}
+
+static void
+ipatch_file_handle_free (IpatchFileHandle *handle)
+{
+  g_return_if_fail (handle != NULL);
+  g_return_if_fail (IPATCH_IS_FILE (handle->file));
+
+  g_object_unref (handle->file);        /* -- unref file */
+  g_slice_free (IpatchFileHandle, handle);
+}
+
+GType
+ipatch_file_handle_get_type (void)
+{
+  static GType type = 0;
+
+  if (!type)
+    type = g_boxed_type_register_static ("IpatchFileHandle",
+                                         (GBoxedCopyFunc)ipatch_file_handle_duplicate,
+                                         (GBoxedFreeFunc)ipatch_file_handle_free);
+
+  return (type);
+}
 
 static void
 ipatch_file_class_init (IpatchFileClass *klass)
@@ -131,9 +167,6 @@ static void
 ipatch_file_finalize (GObject *gobject)
 {
   IpatchFile *file = IPATCH_FILE (gobject);
-  IpatchFileClass *file_class;
-
-  file_class = IPATCH_FILE_GET_CLASS (file);
 
   IPATCH_ITEM_WLOCK (file);
 

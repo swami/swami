@@ -62,7 +62,6 @@ _dls2_inst_to_sf2_voice_cache_convert (IpatchConverter *converter, GError **err)
   IpatchDLS2SampleInfo *sample_info;
   IpatchItem *solo_item;
   GObject *obj;
-  const GSList *defmods;
   GSList *p;
   int looptype;
 
@@ -76,8 +75,6 @@ _dls2_inst_to_sf2_voice_cache_convert (IpatchConverter *converter, GError **err)
   else inst = IPATCH_DLS2_INST (obj);
 
   ipatch_sf2_voice_cache_declare_item (cache, (GObject *)inst);
-
-  defmods = cache->default_mods;
 
   IPATCH_ITEM_RLOCK (inst);	/* ++ LOCK instrument */
 

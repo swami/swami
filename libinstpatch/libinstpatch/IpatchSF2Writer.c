@@ -1517,12 +1517,9 @@ sfont_write_shdrs (IpatchSF2Writer *writer, GError **err)
   IpatchIter iter;
   IpatchSampleStore *store;
   IpatchSF2Shdr shdr;
-  gboolean sample24;
   guint start;
   int location;
   int untitled = 0;
-
-  sample24 = (ipatch_item_get_flags (writer->sf) & IPATCH_SF2_SAMPLES_24BIT) != 0;
 
   ipatch_container_init_iter (IPATCH_CONTAINER (writer->sf), &iter,
 			      IPATCH_TYPE_SF2_SAMPLE);
