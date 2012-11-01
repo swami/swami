@@ -63,6 +63,7 @@
 #define SWAMIGUI_STOCK_SAMPLE		"swamigui_sample"
 #define SWAMIGUI_STOCK_SAMPLE_ROM	"swamigui_sample_rom"
 #define SWAMIGUI_STOCK_SAMPLE_VIEWER	"swamigui_sample_viewer"
+#define SWAMIGUI_STOCK_SLI		"swamigui_SLI"
 #define SWAMIGUI_STOCK_SOUNDFONT	"swamigui_SoundFont"
 #define SWAMIGUI_STOCK_SPLITS		"swamigui_splits"
 #define SWAMIGUI_STOCK_SWITCH_NEG_BI	"swamigui_switch_neg_bi"

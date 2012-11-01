@@ -21,6 +21,7 @@
 install ( FILES
     DLS.png
     GIG.png
+    SLI.png
     SoundFont.png
     concave_neg_bi.png
     concave_neg_uni.png
