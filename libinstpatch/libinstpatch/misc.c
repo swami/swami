@@ -48,6 +48,7 @@ void _ipatch_converter_init (void);	/* IpatchConverter.c */
 void _ipatch_convert_SF2_init (void);
 void _ipatch_convert_gig_init (void);
 void _ipatch_convert_DLS2_init (void);
+void _ipatch_convert_SLI_init (void);
 void _ipatch_sf2_voice_cache_init_DLS (void);
 void _ipatch_sf2_voice_cache_init_SF2 (void);
 void _ipatch_sf2_voice_cache_init_gig (void);
@@ -101,6 +102,10 @@ static TypePropInit type_props[] =
   { "IpatchSF2Preset", N_("Preset"), N_("SoundFont Preset"), IPATCH_CATEGORY_PROGRAM },
   { "IpatchSF2PZone", N_("Zone"), N_("SoundFont Preset Zone"), IPATCH_CATEGORY_INSTRUMENT_REF },
   { "IpatchSF2Sample", N_("Sample"), N_("SoundFont Sample"), IPATCH_CATEGORY_SAMPLE },
+  { "IpatchSLI", N_("Spectralis"), NULL, IPATCH_CATEGORY_BASE },
+  { "IpatchSLIInst", N_("Instrument"), N_("Spectralis Instrument"), IPATCH_CATEGORY_INSTRUMENT },
+  { "IpatchSLIZone", N_("Zone"), N_("Spectralis Instrument Zone"), IPATCH_CATEGORY_SAMPLE_REF },
+  { "IpatchSLISample", N_("Sample"), N_("Spectralis Sample"), IPATCH_CATEGORY_SAMPLE },
   { "IpatchVBank", N_("VBank"), N_("Virtual Bank"), IPATCH_CATEGORY_BASE },
   { "IpatchVBankInst", N_("Instrument"), N_("VBank Instrument"), IPATCH_CATEGORY_PROGRAM },
   { "IpatchVBankRegion", N_("Region"), N_("VBank Region"), IPATCH_CATEGORY_INSTRUMENT_REF }
@@ -200,6 +205,12 @@ ipatch_init (void)
   g_type_class_ref (IPATCH_TYPE_SF2_PRESET);
   g_type_class_ref (IPATCH_TYPE_SF2_PZONE);
   g_type_class_ref (IPATCH_TYPE_SF2_SAMPLE);
+  g_type_class_ref (IPATCH_TYPE_SLI_FILE);
+  g_type_class_ref (IPATCH_TYPE_SLI);
+  g_type_class_ref (IPATCH_TYPE_SLI_INST);
+  g_type_class_ref (IPATCH_TYPE_SLI_ZONE);
+  g_type_class_ref (IPATCH_TYPE_SLI_SAMPLE);
+  g_type_class_ref (IPATCH_TYPE_SLI_READER);
   g_type_class_ref (IPATCH_TYPE_VBANK);
   g_type_class_ref (IPATCH_TYPE_VBANK_INST);
   g_type_class_ref (IPATCH_TYPE_VBANK_REGION);
@@ -210,6 +221,7 @@ ipatch_init (void)
   _ipatch_convert_SF2_init ();
   _ipatch_convert_gig_init ();
   _ipatch_convert_DLS2_init ();
+  _ipatch_convert_SLI_init ();
 
   _ipatch_sf2_voice_cache_init_DLS ();
   _ipatch_sf2_voice_cache_init_SF2 ();
@@ -257,6 +269,9 @@ ipatch_init (void)
   ipatch_type_set (IPATCH_TYPE_SF2_IZONE, "link-type",
 		   IPATCH_TYPE_SF2_SAMPLE, NULL);
 
+  ipatch_type_set (IPATCH_TYPE_SLI_ZONE, "link-type",
+		   IPATCH_TYPE_SLI_SAMPLE, NULL);
+
   ipatch_type_set (IPATCH_TYPE_VBANK_REGION, "link-type",
 		   IPATCH_TYPE_ITEM, NULL);
 
@@ -270,6 +285,12 @@ ipatch_init (void)
 		   NULL);
   ipatch_type_set (IPATCH_TYPE_SF2_INST,
 		   "virtual-parent-type", IPATCH_TYPE_VIRTUAL_SF2_INST,
+		   NULL);
+  ipatch_type_set (IPATCH_TYPE_SLI_INST,
+		   "virtual-parent-type", IPATCH_TYPE_VIRTUAL_SLI_INST,
+		   NULL);
+  ipatch_type_set (IPATCH_TYPE_SLI_SAMPLE,
+		   "virtual-parent-type", IPATCH_TYPE_VIRTUAL_SLI_SAMPLES,
 		   NULL);
 
   /* dynamic virtual container properties (determined by object instance) */
@@ -331,6 +352,8 @@ ipatch_init (void)
 		   "splits-type", IPATCH_SPLITS_NORMAL, NULL);
   ipatch_type_set (IPATCH_TYPE_GIG_INST,
 		   "splits-type", IPATCH_SPLITS_NO_OVERLAP, NULL);
+  ipatch_type_set (IPATCH_TYPE_SLI_INST,
+		   "splits-type", IPATCH_SPLITS_NORMAL, NULL);
   ipatch_type_set (IPATCH_TYPE_VBANK_INST,
 		   "splits-type", IPATCH_SPLITS_NORMAL, NULL);
 }

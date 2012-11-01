@@ -40,6 +40,7 @@ ipatch_public_h_sources = \
 	IpatchConvert_DLS2.h \
 	IpatchConvert_Gig.h \
 	IpatchConvert_SF2.h \
+	IpatchConvert_SLI.h \
 	IpatchDLS2Conn.h \
 	IpatchDLS2.h \
 	IpatchDLS2Info.h \
@@ -97,6 +98,13 @@ ipatch_public_h_sources = \
 	IpatchSF2VoiceCache_VBank.h \
 	IpatchSF2Writer.h \
 	IpatchSF2Zone.h \
+	IpatchSLI.h \
+	IpatchSLIFile.h \
+	IpatchSLIInst.h \
+	IpatchSLIReader.h \
+	IpatchSLISample.h \
+	IpatchSLIWriter.h \
+	IpatchSLIZone.h \
 	IpatchSndFile.h \
 	IpatchTypeProp.h \
 	IpatchUnit.h \
@@ -126,6 +134,7 @@ ipatch_sources = \
 	IpatchConvert_DLS2.c \
 	IpatchConvert_Gig.c \
 	IpatchConvert_SF2.c \
+	IpatchConvert_SLI.c \
 	IpatchDLS2.c \
 	IpatchDLS2Conn.c \
 	IpatchDLS2Info.c \
@@ -187,6 +196,14 @@ ipatch_sources = \
 	IpatchSF2VoiceCache_VBank.c \
 	IpatchSF2Writer.c \
 	IpatchSF2Zone.c \
+	IpatchSLI.c \
+	IpatchSLIFile.c \
+	IpatchSLIInst.c \
+	IpatchSLIInst_CatMaps.c \
+	IpatchSLIReader.c \
+	IpatchSLISample.c \
+	IpatchSLIWriter.c \
+	IpatchSLIZone.c \
 	IpatchSndFile.c \
 	IpatchTypeProp.c \
 	IpatchUnit.c \

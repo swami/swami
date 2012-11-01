@@ -85,6 +85,13 @@ G_BEGIN_DECLS
 #include <libinstpatch/IpatchSF2VoiceCache.h>
 #include <libinstpatch/IpatchSF2Writer.h>
 #include <libinstpatch/IpatchSF2Zone.h>
+#include <libinstpatch/IpatchSLIFile.h>
+#include <libinstpatch/IpatchSLI.h>
+#include <libinstpatch/IpatchSLIInst.h>
+#include <libinstpatch/IpatchSLIReader.h>
+#include <libinstpatch/IpatchSLISample.h>
+#include <libinstpatch/IpatchSLIWriter.h>
+#include <libinstpatch/IpatchSLIZone.h>
 #include <libinstpatch/IpatchSndFile.h>
 #include <libinstpatch/IpatchTypeProp.h>
 #include <libinstpatch/IpatchUnit.h>

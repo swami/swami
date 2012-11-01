@@ -80,6 +80,15 @@
 #define IPATCH_IS_VIRTUAL_SF2_ROM(obj) \
   (G_TYPE_CHECK_INSTANCE_TYPE ((obj), IPATCH_TYPE_VIRTUAL_SF2_ROM))
 
+#define IPATCH_TYPE_VIRTUAL_SLI_INST \
+  (ipatch_virtual_sli_inst_get_type ())
+#define IPATCH_IS_VIRTUAL_SLI_INST(obj) \
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), IPATCH_TYPE_VIRTUAL_SLI_INST))
+#define IPATCH_TYPE_VIRTUAL_SLI_SAMPLES \
+  (ipatch_virtual_sli_samples_get_type ())
+#define IPATCH_IS_VIRTUAL_SLI_SAMPLES(obj) \
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), IPATCH_TYPE_VIRTUAL_SLI_SAMPLES))
+
 
 GType ipatch_virtual_dls2_melodic_get_type (void);
 GType ipatch_virtual_dls2_percussion_get_type (void);
@@ -94,5 +103,8 @@ GType ipatch_virtual_sf2_melodic_get_type (void);
 GType ipatch_virtual_sf2_percussion_get_type (void);
 GType ipatch_virtual_sf2_samples_get_type (void);
 GType ipatch_virtual_sf2_rom_get_type (void);
+
+GType ipatch_virtual_sli_inst_get_type (void);
+GType ipatch_virtual_sli_samples_get_type (void);
 
 #endif

@@ -38,6 +38,7 @@ set ( libinstpatch_public_HEADERS
     IpatchConvert_DLS2.h
     IpatchConvert_Gig.h
     IpatchConvert_SF2.h
+    IpatchConvert_SLI.h
     IpatchDLS2Conn.h
     IpatchDLS2.h
     IpatchDLS2Info.h
@@ -95,6 +96,13 @@ set ( libinstpatch_public_HEADERS
     IpatchSF2VoiceCache_VBank.h
     IpatchSF2Writer.h
     IpatchSF2Zone.h
+    IpatchSLI.h
+    IpatchSLIFile.h
+    IpatchSLIInst.h
+    IpatchSLIReader.h
+    IpatchSLISample.h
+    IpatchSLIWriter.h
+    IpatchSLIZone.h
     IpatchSndFile.h
     IpatchTypeProp.h
     IpatchUnit.h
@@ -124,6 +132,7 @@ set ( libinstpatch_SOURCES
     IpatchConvert_DLS2.c
     IpatchConvert_Gig.c
     IpatchConvert_SF2.c
+    IpatchConvert_SLI.c
     IpatchDLS2.c
     IpatchDLS2Conn.c
     IpatchDLS2Info.c
@@ -185,6 +194,14 @@ set ( libinstpatch_SOURCES
     IpatchSF2VoiceCache_VBank.c
     IpatchSF2Writer.c
     IpatchSF2Zone.c
+    IpatchSLI.c
+    IpatchSLIFile.c
+    IpatchSLIInst.c
+    IpatchSLIInst_CatMaps.c
+    IpatchSLIReader.c
+    IpatchSLISample.c
+    IpatchSLIWriter.c
+    IpatchSLIZone.c
     IpatchSndFile.c
     IpatchTypeProp.c
     IpatchUnit.c

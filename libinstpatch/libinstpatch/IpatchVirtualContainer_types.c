@@ -27,6 +27,8 @@
 #include "IpatchSF2Preset.h"
 #include "IpatchSF2Inst.h"
 #include "IpatchSF2Sample.h"
+#include "IpatchSLIInst.h"
+#include "IpatchSLISample.h"
 #include "IpatchTypeProp.h"
 #include "i18n.h"
 
@@ -70,3 +72,10 @@ IPATCH_VIRTUAL_CONTAINER_CREATE
 IPATCH_VIRTUAL_CONTAINER_CREATE
   (ipatch_virtual_sf2_rom, IpatchVirtualSF2Rom,
    _("ROM Samples"), _("ROM Samples"), IPATCH_TYPE_SF2_SAMPLE);
+
+IPATCH_VIRTUAL_CONTAINER_CREATE
+  (ipatch_virtual_sli_inst, IpatchVirtualSLIInst,
+   _("Instruments"), _("Instruments"), IPATCH_TYPE_SLI_INST);
+IPATCH_VIRTUAL_CONTAINER_CREATE
+  (ipatch_virtual_sli_samples, IpatchVirtualSLISamples,
+   _("Samples"), _("Samples"), IPATCH_TYPE_SLI_SAMPLE);
