@@ -121,6 +121,11 @@ static guint *swamigui_root_parse_piano_keys (const char *str);
 static char *swamigui_root_encode_piano_keys (const guint *keyvals);
 static GtkWidget *sf2_prop_handler (GtkWidget *widg, GObject *obj);
 static void current_date_btn_clicked (GtkButton *button, gpointer user_data);
+static void cat_map_to_tree_store (GtkTreeStore *store,
+                                   const IpatchSLIInstCatMapEntry *catmap,
+                                   GtkTreeIter *parent);
+static void category_changed_cb (GtkComboBox *combo, gpointer user_data);
+static GtkWidget *sli_inst_prop_handler (GtkWidget *widg, GObject *obj);
 
 static guint uiroot_signals[LAST_SIGNAL] = { 0 };
 
@@ -178,6 +183,7 @@ swamigui_init (int *argc, char **argv[])
   /* set type specific icons */
   ipatch_type_set (IPATCH_TYPE_DLS2, "icon", SWAMIGUI_STOCK_DLS, NULL);
   ipatch_type_set (IPATCH_TYPE_GIG, "icon", SWAMIGUI_STOCK_GIG, NULL);
+  ipatch_type_set (IPATCH_TYPE_SLI, "icon", SWAMIGUI_STOCK_SLI, NULL);
   ipatch_type_set (IPATCH_TYPE_SF2, "icon", SWAMIGUI_STOCK_SOUNDFONT, NULL);
 
   swamigui_util_init ();
@@ -244,6 +250,10 @@ swamigui_init (int *argc, char **argv[])
   swamigui_register_prop_glade_widg (IPATCH_TYPE_SF2_INST, "PropSF2Inst");
   swamigui_register_prop_glade_widg (IPATCH_TYPE_SF2_IZONE, "PropSF2IZone");
   swamigui_register_prop_glade_widg (IPATCH_TYPE_SF2_SAMPLE, "PropSF2Sample");
+
+  swamigui_register_prop_handler (IPATCH_TYPE_SLI_INST, sli_inst_prop_handler);
+  swamigui_register_prop_glade_widg (IPATCH_TYPE_SLI_ZONE, "PropSF2IZone");
+  swamigui_register_prop_glade_widg (IPATCH_TYPE_SLI_SAMPLE, "PropSF2Sample");
 
 #ifdef PYTHON_SUPPORT
   if (!swamigui_disable_python)
@@ -1550,4 +1560,128 @@ current_date_btn_clicked (GtkButton *button, gpointer user_data)
   strftime (datestr, sizeof (datestr), "%Y-%m-%d", date);
 
   gtk_entry_set_text (GTK_ENTRY (user_data), datestr);
+}
+
+/* handler for IpatchSLIInst glade property interface.
+ * Creates the Category combo box and selects its initial item */
+static GtkWidget *
+sli_inst_prop_handler (GtkWidget *widg, GObject *obj)
+{
+  GtkWidget *combo;
+  GtkTreeModel *model;
+  GtkCellRenderer *cell;
+  gchar *catpath;
+  GtkTreeIter iter;
+
+  if (!widg) /* create widget? */
+  {
+    /* get combo box widget */
+    widg = swamigui_util_glade_create ("PropSLIInst");
+    combo = swamigui_util_glade_lookup (widg, "ComboCategory");
+    gtk_combo_box_set_wrap_width (GTK_COMBO_BOX (combo), 2);
+    /* create and attach a tree model */
+    /* ++ ref new store */
+    model = GTK_TREE_MODEL (gtk_tree_store_new (1, G_TYPE_STRING));
+    cat_map_to_tree_store (GTK_TREE_STORE (model),
+                           ipatch_sli_inst_cat_map, NULL);
+    gtk_combo_box_set_model (GTK_COMBO_BOX (combo), model);
+    g_object_unref (model); /* -- unref store */
+    /* set cell renderer */
+    cell = gtk_cell_renderer_text_new ();
+    gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (combo), cell, FALSE);
+    gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (combo), cell, "text", 0);
+    /* connect callback function */
+    g_signal_connect (combo, "changed", G_CALLBACK (category_changed_cb), NULL);
+  } else {
+    combo = swamigui_util_glade_lookup (widg, "ComboCategory");
+  }
+
+  /* connect prop controls to supplied object */
+  swamigui_control_glade_prop_connect (widg, obj);
+  /* FIXME: setting object data may be a hack due to the lack of understanding
+   * if a better way exists to get this in the callback function */
+  g_object_set_data (G_OBJECT (combo), "controlled-object", obj);
+
+  /* set combo box to match category of the object */
+  /* (setting active item in combo box emits a changed signal) */
+  model = gtk_combo_box_get_model (GTK_COMBO_BOX (combo));
+  catpath = ipatch_sli_inst_get_category_as_path (IPATCH_SLI_INST (obj));
+  if (gtk_tree_model_get_iter_from_string (model, &iter, catpath))
+    gtk_combo_box_set_active_iter (GTK_COMBO_BOX (combo), &iter);
+  g_free (catpath);
+
+  return (widg);
+}
+
+static void
+cat_map_to_tree_store (GtkTreeStore *store, const IpatchSLIInstCatMapEntry *catmap, GtkTreeIter *parent)
+{
+  GtkTreeIter child;
+  guint i;
+  gchar *label, *prefix;
+
+  g_return_if_fail (store != NULL && catmap != NULL);
+
+  for (i = 0; catmap[i].code != '@'; i++)
+  {
+    if (parent)
+    {
+      gtk_tree_model_get (GTK_TREE_MODEL (store), parent, 0, &prefix, -1);
+      label = g_strjoin (" | ", prefix,
+                         ipatch_sli_inst_cat_strings[catmap[i].name_idx], NULL);
+      g_free (prefix);
+    } else
+      label = g_strdup (ipatch_sli_inst_cat_strings[catmap[i].name_idx]);
+    gtk_tree_store_append (store, &child, parent);
+    gtk_tree_store_set (store, &child, 0, label, -1);
+    g_free (label);
+    if (catmap[i].submap) /* recursion for subcat maps */
+      cat_map_to_tree_store (store, catmap[i].submap, &child);
+  }
+  /* Add Other category only at the topmost level */
+  if (!parent)
+  {
+    gtk_tree_store_append (store, &child, parent);
+    gtk_tree_store_set (store, &child, 0,
+                        ipatch_sli_inst_cat_strings[catmap[i].name_idx], -1);
+  }
+}
+
+/* callback when Category combo box is changed */
+static void
+category_changed_cb (GtkComboBox *combo, gpointer user_data)
+{
+  const IpatchSLIInstCatMapEntry *catmap = ipatch_sli_inst_cat_map;
+  IpatchSLIInst *inst;
+  gboolean ret;
+  GtkTreeModel *model;
+  GtkTreeIter iter;
+  GtkTreePath *path;
+  gint *pinds, d;
+  guint old_cat, new_cat, i;
+
+  inst = g_object_get_data (G_OBJECT (combo), "controlled-object");
+  g_return_if_fail (IPATCH_IS_SLI_INST (inst));
+
+  model = gtk_combo_box_get_model (combo);
+  ret = gtk_combo_box_get_active_iter (combo, &iter);
+  g_return_if_fail (ret == TRUE);
+  path = gtk_tree_model_get_path (model, &iter); /* ++ ref path */
+  pinds = gtk_tree_path_get_indices_with_depth (path, &d);
+  for (new_cat = 0, i = 0; catmap && i < d; i++)
+  {
+    new_cat <<= 8;
+    new_cat |= catmap[pinds[i]].code;
+    catmap = catmap[pinds[i]].submap;
+  }
+  if (i < 2) /* treat subcat as Other if only main category is selected */
+  {
+    new_cat <<= 8;
+    new_cat |= '@';
+  }    
+  gtk_tree_path_free (path); /* -- unref path */
+
+  g_object_get (inst, "category", &old_cat, NULL);
+  if (new_cat != old_cat)
+    g_object_set (inst, "category", new_cat, NULL);
 }
