@@ -304,7 +304,7 @@ ipatch_dls2_item_copy (IpatchItem *dest, IpatchItem *src,
       g_return_if_fail (newitem != NULL);
 
       dest_dls->samples = g_slist_prepend (dest_dls->samples, newitem);
-      ipatch_item_set_parent (newitem, IPATCH_ITEM (src_dls));
+      ipatch_item_set_parent (newitem, IPATCH_ITEM (dest_dls));
 
       /* add to sample pointer replacement hash */
       g_hash_table_insert (repl_samples, p->data, newitem);
@@ -322,7 +322,7 @@ ipatch_dls2_item_copy (IpatchItem *dest, IpatchItem *src,
       g_return_if_fail (newitem != NULL);
 
       dest_dls->insts = g_slist_prepend (dest_dls->insts, newitem);
-      ipatch_item_set_parent (newitem, IPATCH_ITEM (src_dls));
+      ipatch_item_set_parent (newitem, IPATCH_ITEM (dest_dls));
 
       p = g_slist_next (p);
     }
