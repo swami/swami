@@ -117,7 +117,7 @@ swamigui_register_prop_glade_widg (GType objtype, const char *name)
 }
 
 /**
- * swamigui_register_prop_glade_widg:
+ * swamigui_register_prop_handler:
  * @objtype: Type of object which the interface will control
  * @handler: Handler function to create the interface
  *
