@@ -29,7 +29,7 @@ set ( PACKAGE "swami" )
 set ( SWAMI_VERSION_MAJOR 2 )
 set ( SWAMI_VERSION_MINOR 0 )
 set ( SWAMI_VERSION_MICRO 0 )
-set ( VERSION "${SWAMI_VERSION_MAJOR}.${SWAMI_VERSION_MINOR}.${SWAMI_VERSION_MICRO}" )      
+set ( VERSION "${SWAMI_VERSION_MAJOR}.${SWAMI_VERSION_MINOR}.${SWAMI_VERSION_MICRO}" )
 set ( SWAMI_VERSION "\"${VERSION}\"" )
 
 # libswami/libswamigui - Library versions
@@ -143,6 +143,12 @@ pkg_check_modules ( GOBJECT REQUIRED gobject-2.0>=2.12 glib-2.0>=2.12 gmodule-2.
 
 # Mandatory library libglade
 pkg_check_modules ( LIBGLADE REQUIRED libglade-2.0 )
+
+# Needed on OS X
+if (APPLE)
+  find_library ( COREFOUNDATION NAMES CoreFoundation )
+  mark_as_advanced ( COREFOUNDATION )
+endif (APPLE)
 
 
 include ( UnsetPkgConfig )

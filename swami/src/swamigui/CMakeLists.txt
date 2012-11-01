@@ -148,6 +148,7 @@ target_link_libraries ( libswamigui
     ${GUI_LIBRARIES}
     ${LIBGLADE_LIBRARIES}
     ${LIBINSTPATCH_LIBRARIES}
+    ${COREFOUNDATION}
 )
 
 install ( FILES
@@ -155,6 +156,11 @@ install ( FILES
     ${public_main_HEADER}
     DESTINATION ${INCLUDE_INSTALL_DIR}/swami/libswamigui )
 
+if (APPLE)
+  set_property ( TARGET libswamigui
+      APPEND PROPERTY INCLUDE_DIRECTORIES "${COREFOUNDATION}/Headers"
+  )
+endif (APPLE)
 
 # ************ Swami GUI application ************
 
@@ -277,4 +283,4 @@ install ( TARGETS swami libswamigui
 
 install ( FILES
           swami-2.glade
-          DESTINATION ${DATA_INSTALL_DIR}/swami )
+          DESTINATION ${UIXML_DIR} )

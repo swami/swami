@@ -145,7 +145,8 @@ AM_CPPFLAGS = \
  -DLOCALEDIR=\"$(datadir)/locale\" \
  -I$(top_srcdir) -I$(top_srcdir)/src -I$(top_srcdir)/intl \
  @GUI_CFLAGS@ @LIBINSTPATCH_CFLAGS@ @LIBGLADE_CFLAGS@ \
- @GTK_SOURCE_VIEW_CFLAGS@ @PYGTK_CFLAGS@ @PYTHON_CFLAGS@
+ @GTK_SOURCE_VIEW_CFLAGS@ @PYGTK_CFLAGS@ @PYTHON_CFLAGS@ \
+ @APPLECF_CFLAGS@
 
 # Installed headers
 swamiguiincdir = $(includedir)/swami/swamigui

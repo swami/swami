@@ -32,6 +32,12 @@ typedef void (*UtilQuickFunc) (gpointer userdata, GtkWidget *popup);
 /** A guint RGBA color unit type for GParamSpec "unit-type" IpatchParamProp */
 #define SWAMIGUI_UNIT_RGBA_COLOR  swamigui_util_unit_rgba_color_get_type()
 
+typedef enum {
+  SWAMIGUI_RESOURCE_PATH_ROOT,
+  SWAMIGUI_RESOURCE_PATH_UIXML,
+  SWAMIGUI_RESOURCE_PATH_IMAGES
+} SwamiResourcePath;
+
 void swamigui_util_init (void);
 guint swamigui_util_unit_rgba_color_get_type (void);
 void swamigui_util_canvas_line_set (GnomeCanvasItem *item, double x1, double y1,
@@ -56,5 +62,7 @@ int swamigui_util_option_menu_index (GtkWidget *opmenu);
 char *swamigui_util_str_crlf2lf (char *str);
 char *swamigui_util_str_lf2crlf (char *str);
 int swamigui_util_substrcmp (char *sub, char *str);
+
+gchar *swamigui_util_get_resource_path (SwamiResourcePath kind);
 
 #endif

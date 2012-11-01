@@ -35,6 +35,10 @@
 #include "util.h"
 #include "i18n.h"
 
+#ifdef __APPLE__
+#include <CoreFoundation.h>
+#endif
+
 #if 0
 
 /* time interval (in milliseconds) to check if log view should be popped */
@@ -328,30 +332,13 @@ swamigui_util_custom_glade_widget_handler (GladeXML *xml, gchar *func_name,
 GtkWidget *
 swamigui_util_glade_create (const char *name)
 {
-  gboolean first_time = TRUE;
-  char *filename;
+  static gboolean first_time = TRUE;
+  gchar *resdir, *filename;
   GladeXML *xml;
 
-#ifdef MINGW32
-  char *appdir;
-  gboolean free_filename = FALSE;
-
-  appdir = g_win32_get_package_installation_directory_of_module (NULL); /* ++ alloc */
-
-  if (appdir)
-  {
-    filename = g_build_filename (appdir, "swami-2.glade", NULL);  /* ++ alloc */
-    free_filename = TRUE;
-    g_free (appdir);    /* -- free appdir */
-  }
-  else filename = UIXML_DIR G_DIR_SEPARATOR_S "swami-2.glade";
-#else
-#  ifdef SOURCE_BUILD
-  filename = SOURCE_DIR "/src/swamigui/swami-2.glade";
-#  else
-  filename = UIXML_DIR G_DIR_SEPARATOR_S "swami-2.glade";
-#  endif
-#endif
+  resdir = swamigui_util_get_resource_path (SWAMIGUI_RESOURCE_PATH_UIXML); /* ++ alloc */
+  filename = g_build_filename (resdir, "swami-2.glade", NULL);  /* ++ alloc */
+  g_free (resdir); /* -- free resdir */
 
   if (first_time)
   {
@@ -361,9 +348,7 @@ swamigui_util_glade_create (const char *name)
 
   xml = glade_xml_new (filename, name, NULL);
 
-#ifdef MINGW32
-  if (free_filename) g_free (filename);         /* -- free allocated filename */
-#endif
+  g_free (filename); /* -- free allocated filename */
 
   glade_xml_signal_autoconnect (xml);
 
@@ -617,4 +602,48 @@ swamigui_util_substrcmp (char *sub, char *str)
       str++;
     }
   return (FALSE);
+}
+
+gchar *
+swamigui_util_get_resource_path (SwamiResourcePath kind)
+{
+  static gchar *res_root;
+
+  /* Init res_root if not done yet */
+  if (!res_root) {
+#if defined (G_OS_WIN32)
+    res_root = g_win32_get_package_installation_directory_of_module (NULL);
+#elif defined (__APPLE__)
+    CFURLRef ResDirURL;
+    gchar buf[PATH_MAX];
+
+    /* Use bundled resources if we are in an app bundle */
+    ResDirURL = CFBundleCopyResourcesDirectoryURL (CFBundleGetMainBundle());
+    if (CFURLGetFileSystemRepresentation (ResDirURL, TRUE, (UInt8 *)buf, PATH_MAX)
+        && g_str_has_suffix (buf, ".app/Contents/Resources"))
+      res_root = g_strdup (buf);
+    CFRelease (ResDirURL);
+#endif
+#ifdef SOURCE_BUILD
+    g_free (res_root); /* drop previous value if any and replace with src dir */
+    res_root = g_build_filename (SOURCE_DIR, "/src/swamigui", NULL);
+#endif
+  }
+  /* default/fallback if all else fails: use default paths */
+  if (!res_root)
+    res_root = g_strdup ("");
+
+  switch (kind)
+  {
+    case SWAMIGUI_RESOURCE_PATH_ROOT:
+      return (*res_root ? g_strdup (res_root) : NULL);
+    case SWAMIGUI_RESOURCE_PATH_UIXML:
+      return (*res_root ? g_strdup (res_root) : g_strdup (UIXML_DIR));
+    case SWAMIGUI_RESOURCE_PATH_IMAGES:
+      return (*res_root ?
+              g_build_filename (res_root, "images", NULL) :
+              g_strdup (IMAGES_DIR));
+    default:
+      return NULL;
+  }
 }

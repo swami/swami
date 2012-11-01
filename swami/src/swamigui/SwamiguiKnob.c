@@ -21,10 +21,10 @@
 #include <librsvg/rsvg.h>
 #include <librsvg/rsvg-cairo.h>
 #include <math.h>
+#include "config.h"
 
 #include "SwamiguiKnob.h"
-
-#include "config.h"
+#include "util.h"
 
 /* SVG image dimensions */
 #define KNOB_WIDTH	48
@@ -73,29 +73,13 @@ swamigui_knob_init (SwamiguiKnob *knob)
   if (!knob_svg_data)
   {
     GError *err = NULL;
-    char *filename;
+    gchar *resdir, *filename;
 
-#ifdef MINGW32
-    char *appdir;
-    gboolean free_filename = FALSE;
-
-    appdir = g_win32_get_package_installation_directory_of_module (NULL); /* ++ alloc */
-
-    if (appdir)
-    {
-      filename = g_build_filename (appdir, "images", "knob.svg", NULL);  /* ++ alloc */
-      free_filename = TRUE;
-      g_free (appdir);    /* -- free appdir */
-    }
-    else filename = IMAGES_DIR G_DIR_SEPARATOR_S "knob.svg";
-#else
-#  ifdef SOURCE_BUILD		/* use source dir for loading icons? */
-    filename = SOURCE_DIR "/src/swamigui/images/knob.svg";
-#  else
-    filename = IMAGES_DIR G_DIR_SEPARATOR_S "knob.svg";
-#  endif
-#endif
-
+    /* ++ alloc resdir */
+    resdir = swamigui_util_get_resource_path (SWAMIGUI_RESOURCE_PATH_IMAGES);
+    /* ++ alloc filename */
+    filename = g_build_filename (resdir, "knob.svg", NULL);
+    g_free (resdir); /* -- free resdir */
     knob_svg_data = rsvg_handle_new_from_file (filename, &err);
 
     if (!knob_svg_data)
@@ -105,9 +89,7 @@ swamigui_knob_init (SwamiguiKnob *knob)
       g_clear_error (&err);
     }
 
-#ifdef MINGW32
-    if (free_filename) g_free (filename);       /* -- free allocated filename */
-#endif
+    g_free (filename); /* -- free allocated filename */
   }
 
   gtk_widget_set_size_request (GTK_WIDGET (knob), KNOB_SIZE_REQ, KNOB_SIZE_REQ);

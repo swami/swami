@@ -36,6 +36,10 @@
 #include "version.h"
 #include "i18n.h"
 
+#ifdef __APPLE__
+#include <CoreFoundation.h>
+#endif
+
 enum
 {
   PROP_0,
@@ -72,22 +76,32 @@ static gboolean swami_plugin_load_recurse (char *file, char *name);
 void
 _swami_plugin_initialize (void)
 {
-#ifdef MINGW32
-  char *appdir, *path;
+  gchar *path = NULL;
 
-  appdir = g_win32_get_package_installation_directory_of_module (NULL); /* ++ alloc */
+#if defined (__APPLE__)
+  CFURLRef ResDirURL;
+  gchar buf[PATH_MAX];
 
+  /* Use plugins within the bundle if we are in an app bundle */
+  ResDirURL = CFBundleCopyBuiltInPlugInsURL (CFBundleGetMainBundle());
+  if (CFURLGetFileSystemRepresentation (ResDirURL, TRUE, (UInt8 *)buf, PATH_MAX)
+      && g_str_has_suffix (buf, ".app/Contents/PlugIns"))
+    path = g_strdup (buf);
+  CFRelease (ResDirURL);
+#elif defined (G_OS_WIN32)
+  gchar *appdir;
+
+  appdir = g_win32_get_package_installation_directory_of_module (NULL);
   if (appdir)
   {
     path = g_build_filename (appdir, "plugins", NULL);  /* !! never freed */
     g_free (appdir);    /* -- free appdir */
   }
-  else path = PLUGINS_DIR;
-
-  plugin_paths = g_list_append (plugin_paths, path);
-#else
-  plugin_paths = g_list_append (plugin_paths, PLUGINS_DIR);
 #endif
+  if (path)
+    plugin_paths = g_list_append (plugin_paths, path);
+  else
+    plugin_paths = g_list_append (plugin_paths, PLUGINS_DIR);
 }
 
 GType
@@ -373,12 +387,12 @@ swami_plugin_load_all (void)
 
   while (path)
     {
-      g_message (_("Loading plugins from %s"), (char *)path->data);
+      /* g_message (_("Loading plugins from %s"), (char *)path->data); */
       swami_plugin_load_recurse (path->data, NULL);
       path = g_list_next (path);
     }
 
-  g_message (_("Loaded %d plugins"), plugin_seqno);
+  /* g_message (_("Loaded %d plugins"), plugin_seqno); */
 }
 
 static gboolean

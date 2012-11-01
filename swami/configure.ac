@@ -104,6 +104,20 @@ if test x"$native_win32" = xyes; then
 fi
 
 
+dnl - Check if we are building for Apple Darwin
+unset APPLECF_CFLAGS
+case "$target" in
+  *-*-darwin*)
+    dnl Try to make sure we are using the framework from the right SDK
+    if echo "$CFLAGS" | grep -q "\-isysroot"; then
+        APPLECF_CFLAGS=$(echo "$CFLAGS" | sed -e 's/.*-isysroot[[ ]]*\([[^ ]]*\).*/\1/')
+    fi
+    APPLECF_CFLAGS=-I$APPLECF_CFLAGS/System/Library/Frameworks/CoreFoundation.framework/Headers
+    ;;
+esac
+AC_SUBST(APPLECF_CFLAGS)
+
+
 dnl - Check for debugging and profiling flags
 AC_DEBUGGING
 AC_PROFILING

@@ -102,7 +102,7 @@ AM_CPPFLAGS = \
   -I$(top_srcdir)/src \
   -I$(top_srcdir)/src/include \
   -I$(top_srcdir)/intl \
-  @GOBJECT_CFLAGS@ @LIBINSTPATCH_CFLAGS@
+  @GOBJECT_CFLAGS@ @LIBINSTPATCH_CFLAGS@ @APPLECF_CFLAGS@
 
 # Installed headers
 swamiincdir = $(includedir)/swami/libswami

@@ -47,7 +47,7 @@ swamigui_splash_display (guint timeout)
 {
   GtkWidget *image;
   GdkPixbuf *pixbuf;
-  char *filename;
+  gchar *resdir, *filename;
 
   if (splash_win)		/* Only one instance at a time :) */
     {
@@ -55,13 +55,13 @@ swamigui_splash_display (guint timeout)
       return;
     }
 
-#ifdef SOURCE_BUILD		/* load splash image from source dir? */
-  filename = SOURCE_DIR "/src/swamigui/images/splash.png";
-#else
-  filename = IMAGES_DIR G_DIR_SEPARATOR_S "splash.png";
-#endif
-
+  /* ++ alloc resdir */
+  resdir = swamigui_util_get_resource_path (SWAMIGUI_RESOURCE_PATH_IMAGES);
+  /* ++ alloc filename */
+  filename = g_build_filename (resdir, "splash.png", NULL);
+  g_free (resdir); /* -- free resdir */
   pixbuf = gdk_pixbuf_new_from_file (filename, NULL); /* ++ ref new pixbuf */
+  g_free (filename); /* -- free filename */
   if (!pixbuf) return;	/* fail silently if splash image load fails */
 
   /* splash popup window */

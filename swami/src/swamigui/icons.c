@@ -28,6 +28,7 @@
 #include "config.h"
 
 #include "icons.h"
+#include "util.h"
 
 /* icon mappings for IpatchItem categories */
 struct
@@ -54,7 +55,7 @@ _swamigui_stock_icons_init (void)
   GtkIconFactory *factory;
   GtkIconTheme *theme = gtk_icon_theme_get_default ();
   int prefix_len = strlen ("swamigui_");
-  char *path;
+  gchar *path;
   int i;
 
   /* !! keep synchronized with icons.h !! */
@@ -120,26 +121,7 @@ _swamigui_stock_icons_init (void)
     };
 
   /* ++ alloc path */
-#ifdef MINGW32
-  char *appdir;
-  gboolean free_path = FALSE;
-
-  appdir = g_win32_get_package_installation_directory_of_module (NULL); /* ++ alloc */
-
-  if (appdir)
-  {
-    path = g_build_filename (appdir, "images", NULL);  /* ++ alloc */
-    free_path = TRUE;
-    g_free (appdir);    /* -- free appdir */
-  }
-  else path = IMAGES_DIR;
-#else
-#  ifdef SOURCE_BUILD		/* use source dir for loading icons? */
-  path = SOURCE_DIR "/src/swamigui/images";
-#  else
-  path = IMAGES_DIR;
-#  endif
-#endif
+  path = swamigui_util_get_resource_path (SWAMIGUI_RESOURCE_PATH_IMAGES);
 
   gtk_icon_theme_append_search_path (theme, path);
 
@@ -150,7 +132,7 @@ _swamigui_stock_icons_init (void)
     {
       GtkIconSet *icon_set;
       GdkPixbuf *pixbuf;
-      char *fn, *s;
+      gchar *fn, *s;
 
       s = g_strconcat (&items[i][prefix_len], ".png", NULL);
       fn = g_build_filename (path, s, NULL);
@@ -180,10 +162,7 @@ _swamigui_stock_icons_init (void)
     }
 
   g_object_unref (G_OBJECT (factory));
-
-#ifdef MINGW32
-    if (free_path) g_free (path);       /* -- free allocated path */
-#endif
+  g_free (path); /* -- free allocated path */
 
   /* set the default application icon name */
   gtk_window_set_default_icon_name ("swami");

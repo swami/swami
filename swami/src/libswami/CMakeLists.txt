@@ -187,7 +187,14 @@ add_custom_command (
 target_link_libraries ( libswami
     ${GOBJECT_LIBRARIES}
     ${LIBINSTPATCH_LIBRARIES}
+    ${COREFOUNDATION}
 )
+
+if (APPLE)
+  set_property ( TARGET libswami
+      APPEND PROPERTY INCLUDE_DIRECTORIES "${COREFOUNDATION}/Headers"
+  )
+endif (APPLE)
 
 if ( MACOSX_FRAMEWORK )
      set_property ( SOURCE ${libswami_public_HEADERS} 
