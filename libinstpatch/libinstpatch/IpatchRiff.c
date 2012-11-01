@@ -119,7 +119,7 @@ ipatch_riff_set_file_handle (IpatchRiff *riff, IpatchFileHandle *handle)
   g_array_set_size (riff->chunks, 0);	/* reset chunk state */
 
   /* Close old handle, if any */
-  if (riff->handle) ipatch_file_close (handle);
+  if (riff->handle) ipatch_file_close (riff->handle);
 
   riff->handle = handle;
 }
