@@ -246,7 +246,8 @@ AC_OUTPUT([
 	src/plugins/Makefile
 	src/python/Makefile
 	po/Makefile.in
-	package/Makefile])
+	package/Makefile
+	package/osxbundle/Makefile])
 
 
 _SUMMARY_ENABLED=

@@ -1,7 +1,5 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = osxbundle
-
-EXTRA_DIST = rpmpkg.sh
+EXTRA_DIST = Info.plist gtkrc swami.bundle swami.icns
 
 MAINTAINERCLEANFILES = Makefile.in
