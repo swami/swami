@@ -403,7 +403,8 @@ ipatch_file_buf_read (IpatchFileHandle *handle, gpointer buf, guint size)
  * @buf: Buffer to copy data from
  * @size: Amount of data to copy in bytes
  *
- * Write data to a file handle's buffer and advance the buffer's current position.
+ * Write data to a file handle's buffer and advance the buffer's current
+ * position. Buffer is expanded if necessary.
  * Data will not actually be written to file till ipatch_file_buf_commit() is
  * called.
  */
@@ -412,14 +413,19 @@ ipatch_file_buf_write (IpatchFileHandle *handle, gconstpointer buf, guint size)
 {
   g_return_if_fail (handle != NULL);
 
-  g_byte_array_append (handle->buf, buf, size);
-  handle->buf_position = handle->buf->len;
+  if (size == 0) return;
+
+  if (handle->buf_position + size > handle->buf->len)
+    g_byte_array_set_size (handle->buf, handle->buf_position + size);
+
+  memcpy (handle->buf->data + handle->buf_position, buf, size);
+  handle->buf_position += size;
   handle->position += size;
 }
 
 /**
  * ipatch_file_buf_memset:
- * @handle: File handle to append buffered data to
+ * @handle: File handle to set buffered data of
  * @c: Character to write
  * @size: Size of data to set
  *
@@ -439,6 +445,32 @@ ipatch_file_buf_memset (IpatchFileHandle *handle, char c, guint size)
   memset (handle->buf->data + handle->buf_position, c, size);
   handle->buf_position += size;
   handle->position += size;
+}
+
+/**
+ * ipatch_file_buf_set_size:
+ * @handle: File handle to adjust buffer of
+ * @size: New size of buffer
+ *
+ * Sets the size of the buffer of @handle to @size bytes. The buffer is
+ * expanded without initializing the newly allocated part or truncated
+ * as necessary discarding any content over the new size. The current position
+ * is updated to point to the end of the buffer if it would point outside the
+ * new size of the buffer after truncating it.
+ */
+void
+ipatch_file_buf_set_size (IpatchFileHandle *handle, guint size)
+{
+  g_return_if_fail (handle != NULL);
+
+  if (size == handle->buf->len) return;
+
+  g_byte_array_set_size (handle->buf, size);
+  if (handle->buf_position > size)
+  {
+    handle->position += size - handle->buf_position;
+    handle->buf_position = size;
+  }
 }
 
 /**

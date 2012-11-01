@@ -222,6 +222,7 @@ void ipatch_file_buf_write (IpatchFileHandle *handle, gconstpointer buf,
 #define ipatch_file_buf_zero(filebuf, size) \
   ipatch_file_buf_memset(filebuf, 0, size)
 void ipatch_file_buf_memset (IpatchFileHandle *handle, char c, guint size);
+void ipatch_file_buf_set_size (IpatchFileHandle *handle, guint size);
 gboolean ipatch_file_buf_commit (IpatchFileHandle *handle, GError **err);
 #define ipatch_file_buf_skip(filebuf, offset) \
   ipatch_file_buf_seek (filebuf, offset, G_SEEK_CUR)
