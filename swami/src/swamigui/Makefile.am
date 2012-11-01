@@ -136,7 +136,8 @@ swami_LDFLAGS = $(runtime_pseudo_reloc)
 
 swami_LDADD = libswamigui.la $(top_srcdir)/src/libswami/libswami.la \
  @LIBINSTPATCH_LIBS@ @GUI_LIBS@ @LIBGLADE_LIBS@ @LIBINTL@ \
- @GTK_SOURCE_VIEW_LIBS@ @PYGTK_LIBS@ @PYTHON_LIBS@
+ @GTK_SOURCE_VIEW_LIBS@ @PYGTK_LIBS@ @PYTHON_LIBS@ \
+ @MACINTEGRATION_LIBS@
 
 AM_CPPFLAGS = \
  -DIMAGES_DIR=\"$(pkgdatadir)/images\" \
@@ -146,7 +147,7 @@ AM_CPPFLAGS = \
  -I$(top_srcdir) -I$(top_srcdir)/src -I$(top_srcdir)/intl \
  @GUI_CFLAGS@ @LIBINSTPATCH_CFLAGS@ @LIBGLADE_CFLAGS@ \
  @GTK_SOURCE_VIEW_CFLAGS@ @PYGTK_CFLAGS@ @PYTHON_CFLAGS@ \
- @APPLECF_CFLAGS@
+ @MACINTEGRATION_CFLAGS@ @APPLECF_CFLAGS@
 
 # Installed headers
 swamiguiincdir = $(includedir)/swami/swamigui

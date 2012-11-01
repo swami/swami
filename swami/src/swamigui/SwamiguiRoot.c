@@ -33,6 +33,9 @@
 #include <libswami/version.h>
 #include <libinstpatch/IpatchParamProp.h>
 #include <libinstpatch/IpatchXml.h>
+#ifdef MAC_INTEGRATION
+#include <gtkosxapplication.h>
+#endif
 
 #include "swamigui.h"
 #include "i18n.h"
@@ -127,6 +130,13 @@ static void cat_map_to_tree_store (GtkTreeStore *store,
 static void category_changed_cb (GtkComboBox *combo, gpointer user_data);
 static GtkWidget *sli_inst_prop_handler (GtkWidget *widg, GObject *obj);
 
+#ifdef MAC_INTEGRATION
+static void
+osx_accel_map_foreach_lcb(gpointer data, const gchar *accel_path,
+                          guint accel_key, GdkModifierType accel_mods,
+                          gboolean changed);
+#endif
+
 static guint uiroot_signals[LAST_SIGNAL] = { 0 };
 
 SwamiguiRoot *swamigui_root = NULL;
@@ -167,6 +177,12 @@ swamigui_init (int *argc, char **argv[])
   /* set the application/program name, so things work right with recent file chooser
    * even when binary name is different (such as lt-swami) */
   g_set_application_name ("swami");
+
+#ifdef MAC_INTEGRATION
+  /* Create singleton app instance at startup, later calls will return this */
+  GtkosxApplication *theApp = g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
+  theApp = NULL; /* we don't use it now, silence compiler warning */
+#endif
 
   swami_init ();
 
@@ -1212,8 +1228,34 @@ swamigui_root_create_main_window (SwamiguiRoot *root)
   gtk_paned_pack1 (GTK_PANED (hpaned), tempbox, TRUE, TRUE);
 
   widg = swamigui_menu_new ();
+#ifndef MAC_INTEGRATION
   gtk_widget_show (widg);
   gtk_box_pack_start (GTK_BOX (tempbox), widg, FALSE, FALSE, 0);
+#else /* menu is handled a bit differently on OS X */
+  GtkosxApplication *theApp = g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
+  GtkUIManager *mgr = (SWAMIGUI_MENU (widg))->ui;
+  GtkWidget *mitem;
+
+  /* Set the global menu bar to the main menu */
+  mitem = gtk_ui_manager_get_widget(mgr, "/MenuBar");
+  gtkosx_application_set_menu_bar(theApp, GTK_MENU_SHELL (mitem));
+  /* Move Help/About and Edit/Preferences menu items to the app menu */
+  mitem = gtk_ui_manager_get_widget (mgr, "/MenuBar/HelpMenu/About");
+  gtkosx_application_insert_app_menu_item (theApp, mitem, 0);
+  mitem = gtk_separator_menu_item_new ();
+  gtkosx_application_insert_app_menu_item (theApp, mitem, 1);
+  mitem = gtk_ui_manager_get_widget (mgr, "/MenuBar/EditMenu/Preferences");
+  gtkosx_application_insert_app_menu_item (theApp, mitem, 2);
+  /* Hide Quit menu item which is added automatically to the app menu */
+  mitem = gtk_ui_manager_get_widget (mgr, "/MenuBar/FileMenu/Quit");
+  gtk_widget_hide(mitem);
+  /* Designate Help menu and create Window menu */
+  mitem = gtk_ui_manager_get_widget (mgr, "/MenuBar/HelpMenu");
+  gtkosx_application_set_help_menu (theApp, GTK_MENU_ITEM (mitem));
+  gtkosx_application_set_window_menu (theApp, NULL);
+  /* Convert menu accelerator key modifiers */
+  gtk_accel_map_foreach (NULL, osx_accel_map_foreach_lcb);
+#endif
 
   root->tree = swamigui_tree_new (root->tree_stores);
   gtk_widget_show (root->tree);
@@ -1354,6 +1396,10 @@ swamigui_root_create_main_window (SwamiguiRoot *root)
   g_object_unref (midihub);	/* -- unref creator's reference */
 
   gtk_widget_show (root->main_window);
+#ifdef MAC_INTEGRATION
+  /* Tell OS X that we are ready launching now */
+  gtkosx_application_ready (theApp);
+#endif
 }
 
 /* Callback for SwamiguiRoot::selection-single to update Wavetbl solo-item if enabled */
@@ -1685,3 +1731,20 @@ category_changed_cb (GtkComboBox *combo, gpointer user_data)
   if (new_cat != old_cat)
     g_object_set (inst, "category", new_cat, NULL);
 }
+
+#ifdef MAC_INTEGRATION
+/* Callback to convert Ctrl to Command in menu accelerator keys */
+static void
+osx_accel_map_foreach_lcb(gpointer data, const gchar *accel_path,
+                          guint accel_key, GdkModifierType accel_mods,
+                          gboolean changed)
+{
+  if (accel_mods & GDK_CONTROL_MASK)
+  { 
+    accel_mods &= ~GDK_CONTROL_MASK; 
+    accel_mods |= GDK_META_MASK;
+
+    gtk_accel_map_change_entry(accel_path, accel_key, accel_mods, FALSE);
+  } 
+}
+#endif
