@@ -397,7 +397,7 @@ create_patch_type_menu (SwamiguiMenu *guimenu)
 	  if (free_icon) g_free (free_icon);
 
 	  g_object_set_data (G_OBJECT (item), "patch-type",
-			     GUINT_TO_POINTER (*ptype));
+			     GSIZE_TO_POINTER (*ptype));
 	  gtk_widget_show_all (item);
 
 	  gtk_container_add (GTK_CONTAINER (menu), item);
@@ -445,7 +445,7 @@ swamigui_menu_cb_new_patch (GtkWidget *mitem, gpointer data)
 {
   GType patch_type;
 
-  patch_type = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT (mitem),
+  patch_type = GPOINTER_TO_SIZE (g_object_get_data (G_OBJECT (mitem),
 						    "patch-type"));
   if (patch_type)
     {

@@ -305,7 +305,7 @@ item_action_new_handler (SwamiguiItemMenu *menu, const char *action_id)
     newinfo.label = g_strdup_printf (_("New %s"), type_name ? type_name
 				     : g_type_name (type));
     g_free (type_name);
-    newinfo.data = GUINT_TO_POINTER (type);
+    newinfo.data = GSIZE_TO_POINTER (type);
 
     swamigui_item_menu_add (menu, &newinfo, action_id);
 
@@ -337,7 +337,7 @@ item_action_new_handler (SwamiguiItemMenu *menu, const char *action_id)
       newinfo.label = g_strdup_printf (_("New %s"), type_name ? type_name
 				       : g_type_name (*child_types));
       g_free (type_name);
-      newinfo.data = GUINT_TO_POINTER (*child_types);
+      newinfo.data = GSIZE_TO_POINTER (*child_types);
 
       swamigui_item_menu_add (menu, &newinfo, action_id);
 
@@ -414,7 +414,7 @@ item_cb_new (IpatchList *selection, gpointer data)
   if (!selection->items || selection->items->next) return;
 
   swamigui_new_item (IPATCH_ITEM (selection->items->data),
-		     (GType)GPOINTER_TO_UINT (data));
+		     (GType)GPOINTER_TO_SIZE (data));
 }
 
 static void
