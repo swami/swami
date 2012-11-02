@@ -157,7 +157,7 @@ swami_type_set_rank (GType type, GType group_type, int rank)
 
   G_LOCK (typerank);
 
-  grplist = g_hash_table_lookup (typerank_hash, GINT_TO_POINTER (group_type));
+  grplist = g_hash_table_lookup (typerank_hash, GSIZE_TO_POINTER (group_type));
   if (grplist)
     {
       p = grplist;
@@ -182,7 +182,7 @@ swami_type_set_rank (GType type, GType group_type, int rank)
 				       swami_gcompare_typerank_by_rank);
     }
 
-  g_hash_table_insert (typerank_hash, GINT_TO_POINTER (group_type), grplist);
+  g_hash_table_insert (typerank_hash, GSIZE_TO_POINTER (group_type), grplist);
 
   G_UNLOCK (typerank);
 }
@@ -223,7 +223,7 @@ swami_type_get_rank (GType type, GType group_type)
 
   G_LOCK (typerank);
 
-  grplist = g_hash_table_lookup (typerank_hash, GINT_TO_POINTER (group_type));
+  grplist = g_hash_table_lookup (typerank_hash, GSIZE_TO_POINTER (group_type));
   p = g_slist_find_custom (grplist, &find, swami_gcompare_typerank_by_type);
   if (p) rank = ((TypeRank *)(p->data))->rank;
 
@@ -260,12 +260,12 @@ swami_type_get_children (GType group_type)
   G_LOCK (typerank);
 
   /* sort typelist */
-  grplist = g_hash_table_lookup (typerank_hash, GINT_TO_POINTER (group_type));
+  grplist = g_hash_table_lookup (typerank_hash, GSIZE_TO_POINTER (group_type));
   p = grplist;
   while (p)
     {
       typerank = (TypeRank *)(p->data);
-      tp = g_list_find (typelist, GINT_TO_POINTER (typerank->type));
+      tp = g_list_find (typelist, GSIZE_TO_POINTER (typerank->type));
       if (tp)
 	{
 	  typelist = g_list_remove_link (typelist, tp);
@@ -299,7 +299,7 @@ swami_type_get_children (GType group_type)
   ap = retarray = g_malloc ((g_list_length (sortlist) + 1) * sizeof (GType));
   while (tp)
     {
-      *ap = GPOINTER_TO_INT (tp->data);	/* store GType into array element */
+      *ap = GPOINTER_TO_SIZE (tp->data);	/* store GType into array element */
       ap++;
       tp = g_list_delete_link (tp, tp);	/* delete and iterate */
     }
@@ -315,7 +315,7 @@ swami_type_recurse_make_list (GType type, GList **list)
   GType *children, *t;
 
   if (!G_TYPE_IS_ABSTRACT (type)) /* only add non-abstract types */
-    *list = g_list_prepend (*list, GINT_TO_POINTER (type));
+    *list = g_list_prepend (*list, GSIZE_TO_POINTER (type));
 
   children = g_type_children (type, NULL);
   t = children;
