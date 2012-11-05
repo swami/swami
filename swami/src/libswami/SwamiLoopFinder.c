@@ -22,6 +22,22 @@
 /*
  * Thanks to Luis Garrido for the original loop finder algorithm code and his
  * interest in creating this feature for Swami.
+ *
+ * The new loop finder algorithm was re-written and is described below:
+ *
+ * A multiplication analysis "window" array of floats is created which is
+ * analysis_size in length and contains a peak value in the center of the
+ * window, each point away from the center is half the value of its closer
+ * neighbor and all values in the window add up to 0.5.  0.5 was chosen
+ * because the maximum difference between two sample points is 2 (1 - -1 = 2),
+ * so this results in a maximum "quality" value of 1.0 (worst quality).
+ *
+ * The two search windows are exhaustively compared with two loops, one
+ * embedded in the other.  For each loop start/end candidate a quality
+ * factor is calculated.  The quality value is calculated from the sum of
+ * the absolute differences of the sample points surrounding the loop
+ * points (analysis window size) multiplied individually by values in the
+ * analysis_window[] array.
  */
 
 #include <stdio.h>
