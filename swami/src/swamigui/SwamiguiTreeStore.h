@@ -47,9 +47,6 @@ struct _SwamiguiTreeStore
 {
   GtkTreeStore parent_instance;	/* derived from GtkTreeStore */
   GHashTable *item_hash;	/* hash of GObject -> GtkTreeIter* */
-  GtkTreeIter devices;		/* "Devices" top level tree node */
-  GtkTreeIter layouts;		/* "Layouts" top level tree node */
-  GtkTreeIter samples;		/* "Samples" top level tree node */
 };
 
 /* Swami GUI tree store class */

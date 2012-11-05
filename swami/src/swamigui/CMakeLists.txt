@@ -66,6 +66,7 @@ set ( libswamigui_public_HEADERS
     SwamiguiStatusbar.h
     SwamiguiTree.h
     SwamiguiTreeStore.h
+    SwamiguiTreeStoreConfig.h
     SwamiguiTreeStorePatch.h
     help.h
     icons.h
@@ -110,6 +111,7 @@ set ( libswamigui_SOURCES
     SwamiguiStatusbar.c
     SwamiguiTree.c
     SwamiguiTreeStore.c
+    SwamiguiTreeStoreConfig.c
     SwamiguiTreeStorePatch.c
     help.c
     icons.c

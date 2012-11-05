@@ -58,6 +58,7 @@
 #include <swamigui/SwamiguiTree.h>
 #include <swamigui/SwamiguiTreeStore.h>
 #include <swamigui/SwamiguiTreeStorePatch.h>
+#include <swamigui/SwamiguiTreeStoreConfig.h>
 #include <swamigui/builtin_enums.h>
 #include <swamigui/help.h>
 #include <swamigui/icons.h>

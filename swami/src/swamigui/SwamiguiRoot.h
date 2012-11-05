@@ -55,6 +55,7 @@ struct _SwamiguiRoot
   SwamiRoot parent_instance;	/* derived from SwamiRoot */
 
   SwamiguiTreeStore *patch_store; /* patch tree store */
+  SwamiguiTreeStore *config_store; /* config tree store */
   IpatchList *tree_stores;	 /* list of tree stores (including above) */
 
   IpatchList *selection;	/* most recent item selection (trees, etc) */

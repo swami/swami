@@ -249,6 +249,7 @@ swamigui_init (int *argc, char **argv[])
   swamigui_tree_get_type ();
   swamigui_tree_store_get_type ();
   swamigui_tree_store_patch_get_type ();
+  swamigui_tree_store_config_get_type ();
   swamigui_util_unit_rgba_color_get_type ();
 
   _swamigui_item_menu_actions_init ();
@@ -619,11 +620,16 @@ swamigui_root_init (SwamiguiRoot *root)
 		    "flags", SWAMI_OBJECT_SAVE | SWAMI_OBJECT_USER,
 		    NULL);
 
-  /* create tree store */
+  /* create instrument tree store */
   root->patch_store = SWAMIGUI_TREE_STORE
     (swamigui_tree_store_patch_new ()); /* ++ ref */
   swami_object_set (G_OBJECT (root->patch_store), "name", "Patches", NULL);
   swami_root_add_object (SWAMI_ROOT (root), G_OBJECT (root->patch_store));
+
+  /* create config tree store */
+  root->config_store = swamigui_tree_store_config_new (); /* ++ ref */
+  swami_object_set (G_OBJECT (root->config_store), "name", "Config", NULL);
+  swami_root_add_object (SWAMI_ROOT (root), G_OBJECT (root->config_store));
 
   /* create GUI control queue */
   root->ctrl_queue = swami_control_queue_new (); /* ++ ref control queue */
@@ -677,6 +683,7 @@ swamigui_root_init (SwamiguiRoot *root)
   /* add patch store to tree store list */
   list = ipatch_list_new ();
   list->items = g_list_append (list->items, g_object_ref (root->patch_store));
+  list->items = g_list_append (list->items, g_object_ref (root->config_store));
   root->tree_stores = list;
 
   /* create the FluidSynth wavetable object */
@@ -687,6 +694,8 @@ swamigui_root_init (SwamiguiRoot *root)
   {
     swami_object_set (root->wavetbl, "name", "FluidSynth1", NULL);
     swami_root_add_object (SWAMI_ROOT (root), G_OBJECT (root->wavetbl));
+    swamigui_tree_store_insert (root->config_store, G_OBJECT (root->wavetbl),
+				NULL, NULL, NULL, 0, NULL);
   }
 }
 

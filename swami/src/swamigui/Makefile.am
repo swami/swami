@@ -67,6 +67,7 @@ libswamigui_public_h_sources = \
 	SwamiguiStatusbar.h \
 	SwamiguiTree.h \
 	SwamiguiTreeStore.h \
+	SwamiguiTreeStoreConfig.h \
 	SwamiguiTreeStorePatch.h \
         help.h \
 	icons.h \
@@ -115,6 +116,7 @@ libswamigui_sources = \
 	SwamiguiStatusbar.c \
 	SwamiguiTree.c \
 	SwamiguiTreeStore.c \
+	SwamiguiTreeStoreConfig.c \
 	SwamiguiTreeStorePatch.c \
 	help.c \
 	i18n.h \
