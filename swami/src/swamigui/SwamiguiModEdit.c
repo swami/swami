@@ -390,7 +390,8 @@ swamigui_mod_edit_panel_iface_check_selection (IpatchList *selection,
 					       GType *selection_types)
 { /* one item only and with mod item interface */
   return (!selection->items->next
-	  && g_type_is_a (*selection_types, IPATCH_TYPE_SF2_MOD_ITEM));
+	  && g_object_class_find_property (G_OBJECT_GET_CLASS (selection->items->data),
+                                           "modulators"));
 }
 
 static void
@@ -745,10 +746,10 @@ swamigui_mod_edit_real_set_selection (SwamiguiModEdit *modedit,
   g_return_val_if_fail (SWAMIGUI_IS_MOD_EDIT (modedit), FALSE);
   g_return_val_if_fail (!selection || IPATCH_IS_LIST (selection), FALSE);
 
-  /* valid if single item and it implements the IpatchSF2ModItem interface */
+  /* valid if single item and it has a "modulators" property */
   if (selection && selection->items && !selection->items->next
-      && g_type_is_a (G_OBJECT_TYPE (selection->items->data),
-		      IPATCH_TYPE_SF2_MOD_ITEM))
+      && g_object_class_find_property (G_OBJECT_GET_CLASS (selection->items->data),
+                                       "modulators"))
     item = G_OBJECT (selection->items->data);
 
   if (!item) selection = NULL;
