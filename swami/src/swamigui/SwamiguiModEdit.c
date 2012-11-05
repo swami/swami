@@ -43,7 +43,6 @@ enum
 };
 
 /* tree view list stuff */
-
 enum
 {
   DEST_LABEL,
@@ -54,6 +53,14 @@ enum
   AMT_VALUE,
   MOD_PTR,			/* modulator pointer */
   NUM_FIELDS
+};
+
+/* Source control GtkListStore fields */
+enum
+{
+  SRC_STORE_LABEL,      /* The text displayed in the combo box */
+  SRC_STORE_CTRLNUM,    /* The modulator source control value */
+  SRC_STORE_NUM_FIELDS
 };
 
 /* destination combo box tree store fields */
@@ -306,20 +313,19 @@ static void swamigui_mod_edit_selection_foreach (GtkTreeModel *model,
 						 gpointer data);
 static void swamigui_mod_edit_cb_pixcombo_changed (IconCombo *pixcombo, int id,
 						   SwamiguiModEdit *modedit);
-static void swamigui_mod_edit_cb_combo_list_select (GtkList *list,
-						    GtkWidget *litem,
-						    SwamiguiModEdit *modedit);
+static void swamigui_mod_edit_cb_combo_src_ctrl_changed (GtkComboBox *combo,
+                                                         gpointer user_data);
 static void swamigui_mod_edit_cb_amtsrc_changed (GtkAdjustment *adj,
 						 SwamiguiModEdit *modedit);
-static void swamigui_mod_edit_add_source_combo_strings (GtkCombo *combo);
 static void swamigui_mod_edit_update (SwamiguiModEdit *modedit);
 static void swamigui_mod_edit_update_store_row (SwamiguiModEdit *modedit,
 						GtkTreeIter *iter);
 static void swamigui_mod_edit_set_active_mod (SwamiguiModEdit *modedit,
 					      GtkTreeIter *iter,
 					      gboolean force);
-static gint swamigui_mod_edit_find_ctrl (gconstpointer a,
-					 gconstpointer ctrlnum);
+static gboolean swamigui_mod_edit_select_src_ctrl (GtkTreeModel *model, GtkTreePath *path,
+                                                   GtkTreeIter *iter, gpointer data);
+
 static char *swamigui_mod_edit_get_control_name (guint16 modsrc);
 static char *swamigui_mod_edit_find_transform_icon (guint16 modsrc);
 static int swamigui_mod_edit_find_gen_group (int genid, int *index);
@@ -448,6 +454,11 @@ swamigui_mod_edit_init (SwamiguiModEdit *modedit)
   GtkWidget *icon;
   GtkWidget *pixcombo;
   GtkWidget *widg;
+  GtkCellRenderer *renderer;
+  char *descr;
+  int i;
+  int ctrlnum;
+  GtkTreeIter iter;
 
   gtk_scrolled_window_set_hadjustment (GTK_SCROLLED_WINDOW (modedit), NULL);
   gtk_scrolled_window_set_vadjustment (GTK_SCROLLED_WINDOW (modedit), NULL);
@@ -510,23 +521,51 @@ swamigui_mod_edit_init (SwamiguiModEdit *modedit)
 		    G_CALLBACK (swamigui_mod_edit_cb_pixcombo_changed),
 		    modedit);
 
+  modedit->src_store = gtk_list_store_new (SRC_STORE_NUM_FIELDS,
+                                           G_TYPE_STRING, G_TYPE_INT);
+
+  /* add controls to the source control list store */
+  for (i = 0; i < MODCTRL_DESCR_COUNT + 120; i++)
+  {
+    ctrlnum = i < MODCTRL_DESCR_COUNT ? modctrl_descr[i].ctrlnum
+      : (i - MODCTRL_DESCR_COUNT) | IPATCH_SF2_MOD_CC_MIDI;
+
+    descr = swamigui_mod_edit_get_control_name (ctrlnum);
+    if (!descr) continue;
+
+    gtk_list_store_append (modedit->src_store, &iter);
+    gtk_list_store_set (modedit->src_store, &iter,
+                        SRC_STORE_LABEL, descr,
+                        SRC_STORE_CTRLNUM, ctrlnum,
+                        -1);
+    g_free (descr);
+  }
+
   /* add modulator source controller description strings to combos */
   widg = swamigui_util_glade_lookup (glade_widg, "COMSrcCtrl");
-  swamigui_mod_edit_add_source_combo_strings (GTK_COMBO (widg));
-  g_signal_connect (GTK_COMBO (widg)->list, "select-child",
-		    G_CALLBACK (swamigui_mod_edit_cb_combo_list_select),
-		    modedit);
+  gtk_combo_box_set_model (GTK_COMBO_BOX (widg), GTK_TREE_MODEL (modedit->src_store));
+  renderer = gtk_cell_renderer_text_new ();
+  gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (widg), renderer, TRUE);
+  gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (widg), renderer,
+				  "text", SRC_STORE_LABEL,
+				  NULL);
+  g_signal_connect (widg, "changed",
+		    G_CALLBACK (swamigui_mod_edit_cb_combo_src_ctrl_changed), modedit);
 
   widg = swamigui_util_glade_lookup (glade_widg, "COMAmtCtrl");
-  swamigui_mod_edit_add_source_combo_strings (GTK_COMBO (widg));
-  g_signal_connect (GTK_COMBO (widg)->list, "select-child",
-		    G_CALLBACK (swamigui_mod_edit_cb_combo_list_select),
-		    modedit);
+  gtk_combo_box_set_model (GTK_COMBO_BOX (widg), GTK_TREE_MODEL (modedit->src_store));
+  renderer = gtk_cell_renderer_text_new ();
+  gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (widg), renderer, TRUE);
+  gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (widg), renderer,
+				  "text", SRC_STORE_LABEL,
+				  NULL);
+  g_signal_connect (widg, "changed",
+		    G_CALLBACK (swamigui_mod_edit_cb_combo_src_ctrl_changed), modedit);
 
   /* add value changed signal to amount spin button */
   widg = swamigui_util_glade_lookup (glade_widg, "SPBAmount");
   g_signal_connect (gtk_spin_button_get_adjustment (GTK_SPIN_BUTTON (widg)),
-		    "value-changed",
+                    "value-changed",
 		    G_CALLBACK (swamigui_mod_edit_cb_amtsrc_changed), modedit);
 
   /* add generator groups to option menu */
@@ -994,16 +1033,18 @@ swamigui_mod_edit_cb_pixcombo_changed (IconCombo *pixcombo, int id,
   swamigui_mod_edit_update_store_row (modedit, &modedit->mod_iter);
 }
 
-/* callback for modulator source controller combo list */
+/* callback for modulator source controller combo changes */
 static void
-swamigui_mod_edit_cb_combo_list_select (GtkList *list, GtkWidget *litem,
-				      SwamiguiModEdit *modedit)
+swamigui_mod_edit_cb_combo_src_ctrl_changed (GtkComboBox *combo, gpointer user_data)
 {
+  SwamiguiModEdit *modedit = SWAMIGUI_MOD_EDIT (user_data);
   IpatchSF2Mod *oldmod, newmod;
+  GtkTreeIter active_iter;
   GtkWidget *widg;
   guint16 *src;
   int ctrl;
 
+  if (!gtk_combo_box_get_active_iter (combo, &active_iter)) return;
   if (modedit->block_callbacks || !modedit->mod_selected) return;
 
   /* get current modulator values (gtk_tree_model_get duplicates mod) */
@@ -1013,11 +1054,15 @@ swamigui_mod_edit_cb_combo_list_select (GtkList *list, GtkWidget *litem,
 
   /* which source controller combo list? */
   widg = swamigui_util_glade_lookup (modedit->glade_widg, "COMSrcCtrl");
-  if ((void *)list == (void *)(GTK_COMBO (widg)->list))
+
+  if ((void *)widg == (void *)combo)
     src = &newmod.src;
   else src = &newmod.amtsrc;
 
-  ctrl = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (litem), "ctrlnum"));
+  gtk_tree_model_get (GTK_TREE_MODEL (modedit->src_store), &active_iter,
+                      SRC_STORE_CTRLNUM, &ctrl,
+                      -1);
+
   *src &= ~(IPATCH_SF2_MOD_MASK_CONTROL | IPATCH_SF2_MOD_MASK_CC);
   *src |= ctrl;
 
@@ -1061,57 +1106,6 @@ swamigui_mod_edit_cb_amtsrc_changed (GtkAdjustment *adj,
 		      MOD_PTR, &newmod, -1);
 
   swamigui_mod_edit_update_store_row (modedit, &modedit->mod_iter);
-}
-
-/* add modulator source controller descriptions to a combo list */
-static void
-swamigui_mod_edit_add_source_combo_strings (GtkCombo *combo)
-{
-  GtkWidget *item;
-  char *descr, *s;
-  int i, descrndx;
-
-  /* add controls from the General Controller palette */
-  for (i = 0; i < MODCTRL_DESCR_COUNT; i++)
-    {
-      item = gtk_list_item_new_with_label (_(modctrl_descr[i].descr));
-      gtk_widget_show (item);
-
-      g_object_set_data (G_OBJECT (item), "ctrlnum",
-			 GINT_TO_POINTER (modctrl_descr[i].ctrlnum));
-
-      gtk_container_add (GTK_CONTAINER (GTK_COMBO (combo)->list), item);
-    }
-
-  /* loop over all MIDI CC controllers up to last valid one (119) */
-  for (i = 0, descrndx = 0; i < 120; i++)
-    {
-      if (midicc_descr[descrndx].ctrlnum == i)
-	{
-	  descr = _(midicc_descr[descrndx].descr);
-	  if (descrndx < MIDICC_DESCR_COUNT - 1) descrndx++;
-	}
-      else if ((i >= 20 && i <= 31) ||
-	       (i >= 70 && i <= 79) ||
-	       (i >= 84 && i <= 90) ||
-	       (i >= 102 && i <= 119))
-	descr = _("Undefined");
-      else descr = NULL;
-
-      if (descr)
-	{
-	  s = g_strdup_printf (_("CC %d %s"), i, descr);
-	  item = gtk_list_item_new_with_label (s);
-	  gtk_widget_show (item);
-	  g_free (s);
-
-	  /* use the MIDI ctrl number with the modulator CC flag set */
-	  g_object_set_data (G_OBJECT (item), "ctrlnum",
-			     GINT_TO_POINTER (i | IPATCH_SF2_MOD_CC_MIDI));
-
-	  gtk_container_add (GTK_CONTAINER (GTK_COMBO (combo)->list), item);
-	}
-    }
 }
 
 /* synchronizes modulator editor to current modulator list */
@@ -1171,6 +1165,9 @@ swamigui_mod_edit_update_store_row (SwamiguiModEdit *modedit,
 
   /* set source label */
   s = swamigui_mod_edit_get_control_name (mod->src);
+  if (!s) s = g_strdup_printf (_("Invalid (cc = %d, index = %d)"),
+			       ((mod->src & IPATCH_SF2_MOD_MASK_CC) != 0),
+                               mod->src & ~IPATCH_SF2_MOD_MASK_CC);
   gtk_list_store_set (modedit->list_store, iter, SRC_LABEL, s, -1);
   g_free (s);
 
@@ -1184,6 +1181,9 @@ swamigui_mod_edit_update_store_row (SwamiguiModEdit *modedit,
 
   /* set amount source label */
   s = swamigui_mod_edit_get_control_name (mod->amtsrc);
+ if (!s) s = g_strdup_printf (_("Invalid (cc = %d, index = %d)"),
+			      ((mod->amtsrc & IPATCH_SF2_MOD_MASK_CC) != 0),
+                              mod->amtsrc & ~IPATCH_SF2_MOD_MASK_CC);
   gtk_list_store_set (modedit->list_store, iter, AMT_LABEL, s, -1);
   g_free (s);
 
@@ -1192,6 +1192,13 @@ swamigui_mod_edit_update_store_row (SwamiguiModEdit *modedit,
 
   ipatch_sf2_mod_free (mod);	/* ## FREE modulator from gtk_tree_model_get */
 }
+
+/* Bag used for finding and selecting source control combo box items by ctrlnum */
+typedef struct
+{
+  GtkComboBox *combo;
+  int ctrlnum;
+} SelectSrcBag;
 
 /* set the modulator that is being edited, or NULL to disable. */
 static void
@@ -1202,8 +1209,8 @@ swamigui_mod_edit_set_active_mod (SwamiguiModEdit *modedit, GtkTreeIter *iter,
   GtkTreeIter destiter;
   IpatchSF2Mod *mod = NULL;
   GtkWidget *gw;
-  GList *children, *found;
   int transform, ctrlnum, group, index;
+  SelectSrcBag selectbag;
   int pathcmp = 1;
   char *pathstr;
   char *s;
@@ -1263,14 +1270,16 @@ swamigui_mod_edit_set_active_mod (SwamiguiModEdit *modedit, GtkTreeIter *iter,
   /* set control combo for source control */
   ctrlnum = mod ? mod->src & (IPATCH_SF2_MOD_MASK_CONTROL
 			      | IPATCH_SF2_MOD_MASK_CC) : 0;
-  children = gtk_container_children (GTK_CONTAINER (GTK_COMBO (comsrc)->list));
-  found = g_list_find_custom (children, GINT_TO_POINTER (ctrlnum),
-			      (GCompareFunc)swamigui_mod_edit_find_ctrl);
-  if (found) gtk_list_select_child (GTK_LIST (GTK_COMBO (comsrc)->list),
-				    GTK_WIDGET (found->data));
-  else gtk_list_select_item (GTK_LIST (GTK_COMBO (comsrc)->list), 0);
-  g_list_free (children);
 
+  selectbag.combo = GTK_COMBO_BOX (comsrc);
+  selectbag.ctrlnum = ctrlnum;
+
+  gtk_tree_model_foreach (GTK_TREE_MODEL (modedit->src_store),
+                          swamigui_mod_edit_select_src_ctrl, &selectbag);
+
+  if (selectbag.combo)  // Set to NULL if control was found and selected
+    gtk_combo_box_set_active (GTK_COMBO_BOX (comsrc), -1);
+  
   /* set destination generator group option menu */
   group = mod ? swamigui_mod_edit_find_gen_group (mod->dest, &index) : -1;
   if (group >= 0)
@@ -1305,34 +1314,47 @@ swamigui_mod_edit_set_active_mod (SwamiguiModEdit *modedit, GtkTreeIter *iter,
   /* set control combo for amount source control */
   ctrlnum = mod ? mod->amtsrc & (IPATCH_SF2_MOD_MASK_CONTROL
 				 | IPATCH_SF2_MOD_MASK_CC) : 0;
-  children = gtk_container_children (GTK_CONTAINER (GTK_COMBO (comamt)->list));
-  found = g_list_find_custom (children, GINT_TO_POINTER (ctrlnum),
-			      (GCompareFunc)swamigui_mod_edit_find_ctrl);
-  if (found) gtk_list_select_child (GTK_LIST (GTK_COMBO (comamt)->list),
-				    GTK_WIDGET (found->data));
-  else gtk_list_select_item (GTK_LIST (GTK_COMBO (comamt)->list), 0);
-  g_list_free (children);
+
+  selectbag.combo = GTK_COMBO_BOX (comamt);
+  selectbag.ctrlnum = ctrlnum;
+
+  gtk_tree_model_foreach (GTK_TREE_MODEL (modedit->src_store),
+                          swamigui_mod_edit_select_src_ctrl, &selectbag);
+
+  if (selectbag.combo)  // Set to NULL if control was found and selected
+    gtk_combo_box_set_active (GTK_COMBO_BOX (comsrc), -1);
 
   modedit->block_callbacks = FALSE; /* unblock callbacks */
 
   if (mod) ipatch_sf2_mod_free (mod);
 }
 
-/* a GCompareFunc for g_list_find_custom to locate a child GtkListItem in a
-   list with a particular modulator control index */
-static gint
-swamigui_mod_edit_find_ctrl (gconstpointer a, gconstpointer ctrlnum)
+/* Function for gtk_tree_model_foreach() which will select the source control
+ * by modulator control number */
+static gboolean
+swamigui_mod_edit_select_src_ctrl (GtkTreeModel *model, GtkTreePath *path,
+                                   GtkTreeIter *iter, gpointer data)
 {
-  GtkListItem *litem = GTK_LIST_ITEM ((GtkListItem *)a);
+  SelectSrcBag *bag = data;
+  int ctrlnum;
 
-  return (!(g_object_get_data (G_OBJECT (litem), "ctrlnum") == ctrlnum));
+  gtk_tree_model_get (model, iter, SRC_STORE_CTRLNUM, &ctrlnum, -1);
+
+  if (ctrlnum == bag->ctrlnum)
+  {
+    gtk_combo_box_set_active_iter (bag->combo, iter);
+    bag->combo = NULL;
+    return (TRUE);      // Stop iterating
+  }
+  else return (FALSE);
 }
 
 /* returns a description for the control of a modulator source enumeration,
-   string should be freed when finished with */
+   string should be freed when finished with.  Returns NULL if modsrc is invalid. */
 static char *
 swamigui_mod_edit_get_control_name (guint16 modsrc)
 {
+  const char *descr = NULL;
   int ctrlnum, i;
 
   ctrlnum = modsrc & IPATCH_SF2_MOD_MASK_CONTROL;
@@ -1343,15 +1365,20 @@ swamigui_mod_edit_get_control_name (guint16 modsrc)
 	  (ctrlnum >= 70 && ctrlnum <= 79) ||
 	  (ctrlnum >= 84 && ctrlnum <= 90) ||
 	  (ctrlnum >= 102 && ctrlnum <= 119))
-	return (g_strdup_printf (_("CC %d Undefined"), ctrlnum));
+        descr = "Undefined";
 
       /* loop over control descriptions */
       for (i = 0; i < MIDICC_DESCR_COUNT; i++)
 	{
 	  if (midicc_descr[i].ctrlnum == ctrlnum)
-	    return (g_strdup_printf (_("CC %d %s"), ctrlnum,
-				     _(midicc_descr[i].descr)));
+          {
+            descr = _(midicc_descr[i].descr);
+            break;
+          }
 	}
+
+      if (descr)
+        return (g_strdup_printf (_("CC %d %s"), ctrlnum, descr));
     }
   else
     { /* general modulator source controller */
@@ -1362,8 +1389,7 @@ swamigui_mod_edit_get_control_name (guint16 modsrc)
 	}
     }
 
-  return (g_strdup_printf (_("Invalid (cc = %d, index = %d)"),
-			   ((modsrc & IPATCH_SF2_MOD_MASK_CC) != 0), ctrlnum));
+  return (NULL);
 }
 
 /* returns the icon stock ID for the transform type of the given modulator

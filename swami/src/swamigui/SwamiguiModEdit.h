@@ -58,6 +58,8 @@ struct _SwamiguiModEdit
   gboolean block_callbacks;	/* blocks modulator editor callbacks */
 
   GtkTreeStore *dest_store;	/* destination combo box tree store */
+
+  GtkListStore *src_store;      /* Source control list store */
 };
 
 struct _SwamiguiModEditClass
