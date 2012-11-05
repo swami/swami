@@ -201,7 +201,7 @@ ipatch_sf2_voice_cache_set_default_mods (IpatchSF2VoiceCache *cache,
   g_return_if_fail (IPATCH_IS_SF2_VOICE_CACHE (cache));
 
   if (cache->default_mods)
-    ipatch_sf2_mod_list_free (mods, TRUE);
+    ipatch_sf2_mod_list_free (cache->default_mods, TRUE);
 
   cache->default_mods = mods;
 }
