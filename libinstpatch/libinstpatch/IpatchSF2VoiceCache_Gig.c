@@ -204,6 +204,9 @@ _gig_inst_to_sf2_voice_cache_convert (IpatchConverter *converter, GError **err)
 		    128 * v / sub_count, 128 * (v + 1) / sub_count - 1);
 	    }
 
+          voice->mod_list = ipatch_sf2_mod_list_override (cache->default_mods,
+                                                          cache->override_mods, TRUE);
+
 	  sample = (IpatchDLS2Sample *)(sub_region->sample);
 	  ipatch_sf2_voice_cache_declare_item (cache, (GObject *)sample);
 

@@ -1858,35 +1858,45 @@ sfloader_active_preset_noteon (fluid_preset_t *preset, fluid_synth_t *synth,
 static void
 cache_instrument (WavetblFluidSynth *wavetbl, IpatchItem *item)
 {
+  IpatchConverter *conv;
   IpatchSF2Voice *voice;
   IpatchSF2VoiceCache *cache;
-  IpatchList *list;
   IpatchItem *solo_item = NULL;
   int i, count;
 
-  /* no SF2 voice cache converter? */
-  if (!ipatch_find_converter (G_OBJECT_TYPE (item), IPATCH_TYPE_SF2_VOICE_CACHE))
-    return;
+  /* ++ ref - create SF2 voice cache converter */
+  conv = ipatch_create_converter (G_OBJECT_TYPE (item), IPATCH_TYPE_SF2_VOICE_CACHE);
+
+  /* no SF2 voice cache converter for this item type? */
+  if (!conv) return;
 
   SWAMI_LOCK_READ (wavetbl);
   if (wavetbl->solo_item)
     solo_item = g_object_ref (wavetbl->solo_item);        /* ++ ref solo item */
   SWAMI_UNLOCK_READ (wavetbl);
 
-  /* Convert item to SF2 voice cache and assign solo-item (if any)
-   * ++ ref list */
-  list = ipatch_convert_object_to_type_multi_set (G_OBJECT (item),
-                                                  IPATCH_TYPE_SF2_VOICE_CACHE, NULL,
-                                                  "solo-item", solo_item,
-                                                  NULL);
-  if (!list) return;
+  g_object_set (conv, "solo-item", solo_item, NULL);
 
-  /* ++ ref first object from the list (voice cache) */
-  cache = IPATCH_SF2_VOICE_CACHE (g_object_ref (list->items->data));
-  g_object_unref (list);        /* -- unref list */
+  cache = ipatch_sf2_voice_cache_new (NULL, 0);         /* ++ ref voice cache */
 
   /* copy session modulators to voice cache */
-  cache->default_mods = ipatch_sf2_mod_list_duplicate (wavetbl->mods);
+  cache->override_mods = ipatch_sf2_mod_list_duplicate (wavetbl->mods);
+
+  ipatch_converter_add_input (conv, G_OBJECT (item));
+  ipatch_converter_add_output (conv, G_OBJECT (cache));
+
+  /* Convert item to SF2 voice cache and assign solo-item (if any)
+   * ++ ref list */
+  if (!ipatch_converter_convert (conv, NULL))
+  {
+    g_object_unref (cache);     /* -- unref voice cache object */
+    if (solo_item) g_object_unref (solo_item);  /* -- unref solo item */
+    g_object_unref (conv);      /* -- unref converter */
+    return;
+  }
+
+  if (solo_item) g_object_unref (solo_item);  /* -- unref solo item */
+  g_object_unref (conv);        /* -- unref converter */
 
   /* Use voice->user_data to close open cached stores */
   cache->voice_user_data_destroy = (GDestroyNotify)ipatch_sample_store_cache_close;

@@ -94,6 +94,9 @@ _dls2_inst_to_sf2_voice_cache_convert (IpatchConverter *converter, GError **err)
 //      ipatch_dls2_region_load_sf2_gen_mods (region, &voice->gen_array,
 //                                            &voice->mod_list);
 
+      voice->mod_list = ipatch_sf2_mod_list_override (cache->default_mods,
+                                                      cache->override_mods, TRUE);
+
       /* set MIDI note and velocity ranges */
       ipatch_sf2_voice_cache_set_voice_range (cache, voice, 0,
                                 region->note_range_low, region->note_range_high);
@@ -180,6 +183,9 @@ _dls2_sample_to_sf2_voice_cache_convert (IpatchConverter *converter,
   amt = &voice->gen_array.values[IPATCH_SF2_GEN_VELOCITY_RANGE];
   ipatch_sf2_voice_cache_set_voice_range (cache, voice, 1,
 				amt->range.low, amt->range.high);
+
+  voice->mod_list = ipatch_sf2_mod_list_override (cache->default_mods,
+                                                  cache->override_mods, TRUE);
 
   ipatch_sf2_voice_set_sample_data (voice, sample->sample_data);
 

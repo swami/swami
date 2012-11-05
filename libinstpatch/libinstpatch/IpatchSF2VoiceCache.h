@@ -96,6 +96,9 @@ struct _IpatchSF2VoiceCache
   gpointer user_data;           /* Arbitrary data defined by IpatchSF2VoiceCache user */
   GDestroyNotify user_data_destroy; /* Optional callback to destroy user_data */
   GDestroyNotify voice_user_data_destroy; /* Optional callback to destroy user_data in each voice */
+
+  /* Added with version 1.2.0 */
+  GSList *override_mods;        /* override modulators (added with libInstPatch version 1.2.0) */
 };
 
 struct _IpatchSF2VoiceCacheClass
@@ -205,6 +208,8 @@ IpatchSF2VoiceCache *ipatch_sf2_voice_cache_new (IpatchSF2VoiceSelInfo *info,
 						 int sel_count);
 void ipatch_sf2_voice_cache_set_default_mods (IpatchSF2VoiceCache *cache,
 					      GSList *mods);
+void ipatch_sf2_voice_cache_set_override_mods (IpatchSF2VoiceCache *cache,
+                                               GSList *mods);
 
 IpatchSF2Voice *ipatch_sf2_voice_cache_add_voice (IpatchSF2VoiceCache *cache);
 void ipatch_sf2_voice_cache_set_voice_range (IpatchSF2VoiceCache *cache,

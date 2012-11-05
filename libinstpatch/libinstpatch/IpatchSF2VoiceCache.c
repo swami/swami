@@ -207,6 +207,27 @@ ipatch_sf2_voice_cache_set_default_mods (IpatchSF2VoiceCache *cache,
 }
 
 /**
+ * ipatch_sf2_voice_cache_set_override_mods:
+ * @cache: Voice cache
+ * @mods: (element-type IpatchSF2Mod) (transfer full): SoundFont modulator list
+ *   which overrides rendered voice modulators (used directly)
+ *
+ * Set the override modulator list for the voice cache.  Modulator list is used
+ * directly and the allocation of the list is taken over by the voice cache.
+ */
+void
+ipatch_sf2_voice_cache_set_override_mods (IpatchSF2VoiceCache *cache,
+                                          GSList *mods)
+{
+  g_return_if_fail (IPATCH_IS_SF2_VOICE_CACHE (cache));
+
+  if (cache->override_mods)
+    ipatch_sf2_mod_list_free (cache->override_mods, TRUE);
+
+  cache->override_mods = mods;
+}
+
+/**
  * ipatch_sf2_voice_cache_add_voice:
  * @cache: Voice cache to create voice for
  * 
