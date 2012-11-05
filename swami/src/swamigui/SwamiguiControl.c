@@ -26,7 +26,6 @@
 #include "SwamiguiControl.h"
 #include "SwamiguiRoot.h"
 #include "libswami/swami_priv.h"
-#include <glade/glade.h>
 
 /*
  * Notes about SwamiguiControl
@@ -520,21 +519,41 @@ swamigui_control_unregister (GType widg_type, GType value_type)
 		     g_type_name (widg_type), g_type_name (value_type));
 }
 
+/* Recursive function to walk a GtkContainer and add all widgets with GtkBuilder
+ * names beginning with PROP:: to a list */
+static void
+swamigui_control_glade_container_foreach (GtkWidget *widget, gpointer data)
+{
+  GSList **list = data;
+  const char *name;
+
+  name = gtk_buildable_get_name (GTK_BUILDABLE (widget));
+
+  if (name && strncmp (name, "PROP::", 6) == 0)
+    *list = g_slist_prepend (*list, widget);
+
+  if (GTK_IS_CONTAINER (widget))
+    gtk_container_foreach (GTK_CONTAINER (widget),
+                           swamigui_control_glade_container_foreach, list);
+}
+
 /**
  * swamigui_control_glade_prop_connect:
- * @widget: A GTK widget created by libglade
+ * @widget: A GTK widget created by GtkBuilder
  * @obj: Object to control properties of or %NULL to unset active object
  *
- * This function connects a libglade created @widget, with child widgets whose
+ * This function connects a GtkBuilder created @widget, with child widgets whose
  * names are of the form "PROP::[prop-name]", to the corresponding GObject
  * properties of @obj ([prop-name] values).  An example child widget name would be
  * "PROP::volume" which would control the "volume" property of an object.
  * This allows for object GUI interfaces to be created with a minimum of code.
+ * In order to work around issues with duplicate GtkBuilder names, a colon ':'
+ * and any arbitrary text (a number for example) can be used to make the name
+ * unique and is ignored.  "PROP::volume:1" for example.
  */
 void
 swamigui_control_glade_prop_connect (GtkWidget *widget, GObject *obj)
 {
-  GladeXML *gladexml;
   GtkWidget *widg;
   GParamSpec *pspec;
   const char *name;
@@ -542,13 +561,10 @@ swamigui_control_glade_prop_connect (GtkWidget *widget, GObject *obj)
   SwamiControl *propctrl, *widgctrl;
   GObjectClass *objclass = NULL;
   gboolean viewonly;
-  GList *list, *p;
+  GSList *list = NULL, *p;
 
   g_return_if_fail (GTK_IS_WIDGET (widget));
   g_return_if_fail (!obj || G_IS_OBJECT (obj));
-
-  gladexml = glade_get_widget_tree (widget);
-  g_return_if_fail (gladexml != NULL);
 
   if (obj)
   {
@@ -556,17 +572,20 @@ swamigui_control_glade_prop_connect (GtkWidget *widget, GObject *obj)
     g_return_if_fail (objclass != NULL);
   }
 
-  /* find all widgets whose glade names start with PROP:: */
-  list = glade_xml_get_widget_prefix (gladexml, "PROP::");	/* ++ alloc */
+  if (GTK_IS_CONTAINER (widget))        /* Recurse widget tree and add all PROP:: widgets */
+    gtk_container_foreach (GTK_CONTAINER (widget),
+                           swamigui_control_glade_container_foreach, &list);
+  else list = g_slist_prepend (list, widget);
+
 
   /* loop over widgets */
   for (p = list; p; p = p->next)
   {
     widg = (GtkWidget *)(p->data);
-    name = glade_get_widget_name (widg);	/* full name of widget */
+    name = gtk_buildable_get_name (GTK_BUILDABLE (widg));
     name += 6;	/* skip "PROP::" prefix */
 
-    /* to work around duplicate glade names, everything following a ':' char is ignored */
+    /* to work around duplicate names, everything following a ':' char is ignored */
     if ((propname = strchr (name, ':')))
       propname = g_strndup (name, propname - name);	/* ++ alloc */
     else propname = g_strdup (name);			/* ++ alloc */
@@ -631,7 +650,7 @@ swamigui_control_glade_prop_connect (GtkWidget *widget, GObject *obj)
     g_free (propname);	/* -- free */
   }
 
-  g_list_free (list);	/* -- free list */
+  g_slist_free (list);	/* -- free list */
 }
 
 /**

@@ -28,7 +28,6 @@
 
 #include <gtk/gtk.h>
 #include <glib-object.h>
-#include <glade/glade.h>
 
 #include <libinstpatch/libinstpatch.h>
 
@@ -63,11 +62,17 @@ gboolean unique_dialog_inited = FALSE;
 GArray *unique_dialog_array;
 
 static void swamigui_util_cb_waitfor_widget_destroyed (GtkWidget *widg, gpointer data);
-static GtkWidget *
-swamigui_util_custom_glade_widget_handler (GladeXML *xml, gchar *func_name,
-                                           gchar *name, gchar *string1,
-                                           gchar *string2, gint int1,
-                                           gint int2, gpointer user_data);
+static void
+ui_dep_xml_start_element (GMarkupParseContext *context, const gchar *element_name,
+                          const gchar **attribute_names, const gchar **attribute_values,
+                          gpointer user_data, GError **error);
+static void
+ui_dep_xml_end_element (GMarkupParseContext *context, const gchar *element_name,
+                        gpointer user_data, GError **error);
+static void
+ui_dep_xml_text (GMarkupParseContext *context, const gchar *text,
+                 gsize text_len, gpointer user_data, GError **error);
+
 
 // static gboolean log_check_popup (gpointer data);
 // static void log_view_cb_destroy (void);
@@ -292,76 +297,210 @@ swamigui_util_widget_action (GtkWidget *cbwidg, gpointer value)
   gtk_object_set_data (GTK_OBJECT (parent), "action", value);
 }
 
-/* Glade handler to create custom widgets */
-static GtkWidget *
-swamigui_util_custom_glade_widget_handler (GladeXML *xml, gchar *func_name,
-                                           gchar *name, gchar *string1,
-                                           gchar *string2, gint int1,
-                                           gint int2, gpointer user_data)
+/* Structure used by XML parser when finding UI dependencies */
+typedef struct
 {
-  GModule *module;
-  gpointer funcptr;
-  GtkWidget * (*newwidg)(void);
-  GtkWidget *widg = NULL;
-
-  module = g_module_open (NULL, 0);
-
-  if (g_module_symbol (module, func_name, &funcptr))
-  {
-    newwidg = funcptr;
-    widg = newwidg ();
-    gtk_widget_show (widg);
-  }
-  else g_warning ("Failed to create glade custom widget '%s' with function '%s'",
-                  name, func_name);
-
-  g_module_close (module);
-
-  return (widg);
-}
+  GHashTable *dephash;
+  char *object_id;              // Current toplevel object ID (if tracking for deps)
+  gboolean in_prop;             // TRUE if in dependent property element (model or adjustment) 
+  GPtrArray *deparray;          // Array of strings of the object ID dependencies
+} UiDepBag;
 
 /**
  * swamigui_util_glade_create:
- * @name: Name of the glade widget to create
+ * @name: Name of the GtkBuilder widget to create
  *
- * Creates a glade widget, by @name, from the main Swami glade XML file.
+ * Creates a GtkBuilder widget, by @name, from the main Swami UI XML file.
  * Prints a warning if the named widget does not exist.
  *
- * Returns: Newly created glade widget or %NULL on error
+ * Returns: Newly created GtkBuilder widget (which the caller owns a ref to)
+ *    or %NULL on error
  */
 GtkWidget *
 swamigui_util_glade_create (const char *name)
 {
-  static gboolean first_time = TRUE;
+  static GHashTable *dephash = NULL;    // Object dependency hash
+  char **object_ids, **dep_ids;
+  GtkBuilder *builder;
+  GError *err = NULL;
+  GtkWidget *widg;
   gchar *resdir, *filename;
-  GladeXML *xml;
+  int count;
 
   resdir = swamigui_util_get_resource_path (SWAMIGUI_RESOURCE_PATH_UIXML); /* ++ alloc */
-  filename = g_build_filename (resdir, "swami-2.glade", NULL);  /* ++ alloc */
+  filename = g_build_filename (resdir, "swami-2.ui", NULL);  /* ++ alloc */
   g_free (resdir); /* -- free resdir */
 
-  if (first_time)
+  /* One time creation of hash of object dependencies - Wish GtkBuilder did this */
+  if (!dephash)
   {
-    glade_set_custom_handler (swamigui_util_custom_glade_widget_handler, NULL);
-    first_time = FALSE;
+    GMarkupParser parser = { 0 };
+    GMarkupParseContext *context;
+    UiDepBag depbag = { 0 };
+    char *uixml = NULL;
+    gsize len;
+
+    dephash = g_hash_table_new (g_str_hash, g_str_equal);
+
+    depbag.dephash = dephash;
+    depbag.deparray = g_ptr_array_new ();
+    parser.start_element = ui_dep_xml_start_element;
+    parser.end_element = ui_dep_xml_end_element;
+    parser.text = ui_dep_xml_text;
+    context = g_markup_parse_context_new (&parser, 0, &depbag, NULL);
+
+    if (g_file_get_contents (filename, &uixml, &len, &err))
+    {
+      if (!g_markup_parse_context_parse (context, uixml, len, &err)
+          || !g_markup_parse_context_end_parse (context, &err))
+      {
+        g_critical ("Failed to parse UI XML file '%s': %s", filename,
+                    err->message);
+        g_clear_error (&err);
+      }
+
+      g_free (uixml);   /* -- free XML content */
+    }
+    else
+    {
+      g_critical ("Failed to load UI XML file '%s': %s", filename,
+                  err->message);
+      g_clear_error (&err);
+    }
+
+    g_ptr_array_free (depbag.deparray, TRUE);
+    g_markup_parse_context_free (context);
   }
 
-  xml = glade_xml_new (filename, name, NULL);
+  dep_ids = g_hash_table_lookup (dephash, name);
 
-  g_free (filename); /* -- free allocated filename */
+  if (dep_ids)
+    for (count = 0; dep_ids[count]; count++);
+  else count = 0;
 
-  glade_xml_signal_autoconnect (xml);
+  object_ids = g_new (char *, count + 2);       /* ++ object_ids */
+  if (dep_ids) memcpy (object_ids, dep_ids, count * sizeof (char *));
+  object_ids[count] = (char *)name;
+  object_ids[count + 1] = NULL;
 
-  return (glade_xml_get_widget (xml, name));
+  builder = gtk_builder_new ();         /* ++ ref new builder */
+
+  if (gtk_builder_add_objects_from_file (builder, filename, object_ids, &err) == 0)
+  {
+    g_critical ("Failed to load UI interface '%s': %s", name,
+                err->message);
+    g_clear_error (&err);
+
+    g_free (filename);          /* -- free allocated filename */
+    g_object_unref (builder);   /* -- unref builder */
+    g_free (object_ids);        /* -- free object IDs */
+
+    return (NULL);
+  }
+
+  g_free (filename);         /* -- free allocated filename */
+  g_free (object_ids);        /* -- free object IDs */
+
+  gtk_builder_connect_signals (builder, NULL);
+  widg = g_object_ref (gtk_builder_get_object (builder, name));  /* ++ ref for caller */
+  g_object_unref (builder);   /* -- unref builder */
+
+  return (widg);
+}
+
+/* UI object dependencies XML start element callback */
+static void
+ui_dep_xml_start_element (GMarkupParseContext *context, const gchar *element_name,
+                          const gchar **attribute_names, const gchar **attribute_values,
+                          gpointer user_data, GError **error)
+{
+  UiDepBag *bag = user_data;
+  const GSList *stack;
+  int i;
+
+  if (!bag->object_id)
+  {
+    stack = g_markup_parse_context_get_element_stack (context);
+
+    if (stack && stack->next && !stack->next->next
+        && strcmp (element_name, "object") == 0)
+    {
+      for (i = 0; attribute_names[i]; i++)
+        if (strcmp (attribute_names[i], "id") == 0)
+        {
+          bag->object_id = g_strdup (attribute_values[i]);
+          break;
+        }
+    }
+  }
+  else if (strcmp (element_name, "property") == 0)
+  {
+    for (i = 0; attribute_names[i]; i++)
+      if (strcmp (attribute_names[i], "name") == 0)
+      {
+        if (strcmp (attribute_values[i], "model") == 0
+            || strcmp (attribute_values[i], "adjustment") == 0)
+          bag->in_prop = TRUE;
+        break;
+      }
+  }
+}
+
+/* Callback for XML end of element for UI dependency search */
+static void
+ui_dep_xml_end_element (GMarkupParseContext *context, const gchar *element_name,
+                        gpointer user_data, GError **error)
+{
+  UiDepBag *bag = user_data;
+  const GSList *stack;
+  char **depids;
+
+  if (bag->in_prop)
+  {
+    bag->in_prop = FALSE;
+    return;
+  }
+  else if (bag->object_id)
+  {
+    stack = g_markup_parse_context_get_element_stack (context);
+
+    if (stack && stack->next && !stack->next->next)
+    {
+      if (bag->deparray->len > 0)
+      {
+        depids = g_new (char *, bag->deparray->len + 1);
+        memcpy (depids, bag->deparray->pdata, bag->deparray->len * sizeof (gpointer));
+        depids[bag->deparray->len] = NULL;    // NULL terminated
+
+        /* Hash takes over allocation of object_id and dependency object IDs (forever) */
+        g_hash_table_insert (bag->dephash, bag->object_id, depids);
+        g_ptr_array_set_size (bag->deparray, 0);
+      }
+      else g_free (bag->object_id);
+
+      bag->object_id = NULL;
+    }
+  }
+}
+
+/* Called for text values in GtkBuilder UI XML dependency search. */
+static void
+ui_dep_xml_text (GMarkupParseContext *context, const gchar *text,
+                 gsize text_len, gpointer user_data, GError **error)
+{
+  UiDepBag *bag = user_data;
+
+  if (!bag->in_prop) return;
+  g_ptr_array_add (bag->deparray, g_strdup (text));
 }
 
 /**
  * swamigui_util_glade_lookup:
- * @widget: A libglade generated widget or a child there of.
- * @name: Name of widget in same XML tree as @widget to get.
+ * @widget: A GtkBuilder generated widget or a child there of.
+ * @name: Name of widget in same GtkBuilder interface as @widget to get.
  *
- * Find a libglade generated widget, by @name, via any other widget in
- * the same XML widget tree.  A warning is printed if the widget is not found
+ * Find a GtkBuilder generated widget, by @name, via any other widget in
+ * the same widget interface.  A warning is printed if the widget is not found
  * to help with debugging, when a widget is expected.  Use
  * swamigui_util_glade_lookup_nowarn() to check if the named
  * widget does not exist, and not display a warning.
@@ -379,10 +518,39 @@ swamigui_util_glade_lookup (GtkWidget *widget, const char *name)
   return (w);
 }
 
+typedef struct
+{
+  GtkWidget *found;
+  const char *name;
+  GtkWidget *skip;
+} FindBag;
+
+/* Recursive function to walk a GtkContainer looking for a GtkBuilder widget by name */
+static void
+swamigui_util_glade_lookup_container_foreach (GtkWidget *widget, gpointer data)
+{
+  FindBag *findbag = data;
+  const char *name;
+
+  if (findbag->found || widget == findbag->skip) return;
+
+  name = gtk_buildable_get_name (GTK_BUILDABLE (widget));
+
+  if (name && strcmp (name, findbag->name) == 0)
+  {
+    findbag->found = widget;
+    return;
+  }
+
+  if (GTK_IS_CONTAINER (widget))
+    gtk_container_foreach (GTK_CONTAINER (widget),
+                           swamigui_util_glade_lookup_container_foreach, findbag);
+}
+
 /**
  * swamigui_util_glade_lookup_nowarn:
- * @widget: A libglade generated widget or a child there of.
- * @name: Name of widget in same tree as @widget to get.
+ * @widget: A GtkBuilder generated widget or a child there of.
+ * @name: Name of widget in same GtkBuilder interface as @widget to get.
  *
  * Like swamigui_util_glade_lookup() but does not print a warning if named
  * widget is not found.
@@ -392,18 +560,20 @@ swamigui_util_glade_lookup (GtkWidget *widget, const char *name)
 GtkWidget *
 swamigui_util_glade_lookup_nowarn (GtkWidget *widget, const char *name)
 {
-  GladeXML *glade_xml;
-  GtkWidget *w;
+  FindBag findbag = { 0 };
 
   g_return_val_if_fail (GTK_IS_WIDGET (widget), NULL);
 
-  glade_xml = glade_get_widget_tree (widget);
-  g_return_val_if_fail (glade_xml != NULL, NULL);
+  findbag.name = name;
 
-  w =  glade_xml_get_widget (glade_xml, name);
-  if (!w) g_warning ("libglade widget not found: %s", name);
+  for (; widget != NULL; widget = gtk_widget_get_parent (widget))
+  {
+    gtk_container_foreach (GTK_CONTAINER (widget),
+                           swamigui_util_glade_lookup_container_foreach, &findbag);
+    findbag.skip = widget;
+  }
 
-  return (w);
+  return (findbag.found);
 }
 
 int

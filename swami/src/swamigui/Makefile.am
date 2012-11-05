@@ -18,11 +18,11 @@ opt_swami_python_h = swami_python.h
 opt_swami_python_c = swami_python.c
 endif
 
-EXTRA_DIST = glade_strings.c marshals.list swami-2.glade SwamiguiPythonView.h \
+EXTRA_DIST = marshals.list swami-2.ui SwamiguiPythonView.h \
   SwamiguiPythonView.c swami_python.h swami_python.c
 
 uixmldir = $(pkgdatadir)
-uixml_DATA = swami-2.glade
+uixml_DATA = swami-2.ui
 
 BUILT_SOURCES = \
 	builtin_enums.c \
@@ -128,14 +128,14 @@ libswamigui_sources = \
 
 libswamigui_la_SOURCES = $(libswamigui_public_h_sources) $(libswamigui_sources)
 libswamigui_la_LIBADD = $(top_srcdir)/src/libswami/libswami.la \
- @LIBINSTPATCH_LIBS@ @GUI_LIBS@ @LIBGLADE_LIBS@ @LIBINTL@ \
+ @LIBINSTPATCH_LIBS@ @GUI_LIBS@ @LIBINTL@ \
  @GTK_SOURCE_VIEW_LIBS@ @PYGTK_LIBS@ @PYTHON_LIBS@
 
 swami_SOURCES = main.c
 swami_LDFLAGS = $(runtime_pseudo_reloc)
 
 swami_LDADD = libswamigui.la $(top_srcdir)/src/libswami/libswami.la \
- @LIBINSTPATCH_LIBS@ @GUI_LIBS@ @LIBGLADE_LIBS@ @LIBINTL@ \
+ @LIBINSTPATCH_LIBS@ @GUI_LIBS@ @LIBINTL@ \
  @GTK_SOURCE_VIEW_LIBS@ @PYGTK_LIBS@ @PYTHON_LIBS@ \
  @MACINTEGRATION_LIBS@
 
@@ -145,7 +145,7 @@ AM_CPPFLAGS = \
  -DSOURCE_DIR=\"$(abs_top_srcdir)\" \
  -DLOCALEDIR=\"$(datadir)/locale\" \
  -I$(top_srcdir) -I$(top_srcdir)/src -I$(top_srcdir)/intl \
- @GUI_CFLAGS@ @LIBINSTPATCH_CFLAGS@ @LIBGLADE_CFLAGS@ \
+ @GUI_CFLAGS@ @LIBINSTPATCH_CFLAGS@ \
  @GTK_SOURCE_VIEW_CFLAGS@ @PYGTK_CFLAGS@ @PYTHON_CFLAGS@ \
  @MACINTEGRATION_CFLAGS@ @APPLECF_CFLAGS@
 

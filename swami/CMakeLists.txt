@@ -141,9 +141,6 @@ pkg_check_modules ( GUI REQUIRED gtk+-2.0>=2.12 librsvg-2.0>=2.8 libgnomecanvas-
 # Mandatory libraries: gobject, glib, gmodule and gthread
 pkg_check_modules ( GOBJECT REQUIRED gobject-2.0>=2.12 glib-2.0>=2.12 gmodule-2.0>=2.12 gthread-2.0>=2.12 )
 
-# Mandatory library libglade
-pkg_check_modules ( LIBGLADE REQUIRED libglade-2.0 )
-
 # Needed on OS X
 if (APPLE)
   find_library ( COREFOUNDATION NAMES CoreFoundation )

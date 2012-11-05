@@ -33,7 +33,7 @@ swamiguimodule_la_LDFLAGS = -module -avoid-version -export-symbols-regex \
 swamiguimodule_la_LIBADD = \
     ../swamigui/libswamigui.la ../libswami/libswami.la \
     @PYGTK_LIBS@ @GOBJECT_LIBS@ @LIBINSTPATCH_LIBS@ \
-    @GUI_LIBS@ @GTK_SOURCE_VIEW_LIBS@ @LIBGLADE_LIBS@
+    @GUI_LIBS@ @GTK_SOURCE_VIEW_LIBS@
 swamiguimodule_la_CFLAGS = @GUI_CFLAGS@ @GTK_SOURCE_VIEW_CFLAGS@
 swamiguimodule_la_SOURCES = swamiguimodule.c swamigui_missing.c \
   swamigui_missing.h

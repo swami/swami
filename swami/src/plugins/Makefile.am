@@ -13,7 +13,7 @@ EXTRA_DIST = \
 	fftune_gui.h \
 	fftune_i18n.h \
 	fluidsynth.c \
-	fluidsynth.glade \
+	fluidsynth.ui \
 	fluidsynth_i18n.c \
 	fluidsynth_i18n.h \
 	fluidsynth_gui.c \
