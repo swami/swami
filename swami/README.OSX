@@ -29,7 +29,7 @@ Building an app bundle with GTK-OSX
 ===================================
 BALATON Zoltan <balaton at users dot sourceforge dot net>
 
-Last updated: 1st November, 2012
+Last updated: 6th November, 2012
 
 Resources:
 http://www.gtk.org/download/macos.php
@@ -75,24 +75,42 @@ $ jhbuild build meta-gtk-osx-core
 
   <include href="/Users/gtkosx/Source/jhbuild/modulesets/gtk-osx.modules"/>
 
+  <tarball id="libfftw3" version="3.3.2" supports-non-srcdir-builds="no"
+           autogenargs="--enable-shared --enable-float --enable-sse2">
+   <source href="http://www.fftw.org/fftw-3.3.2.tar.gz"
+    size="3908279" md5sum="6977ee770ed68c85698c7168ffa6e178"/>
+  </tarball>
+
   <tarball id="libsndfile" version="1.0.25" supports-non-srcdir-builds="no"
            autogenargs="CPPFLAGS=-I$DEVELOPER_DIR/Headers/FlatCarbon">
    <source href="http://www.mega-nerd.com/libsndfile/files/libsndfile-1.0.25.tar.gz"
     size="1060692" md5sum="e2b7bb637e01022c7d20f95f9c3990a2"/>
   </tarball>
 
+  <repository type="tarball" name="sourceforge"
+              href="http://downloads.sourceforge.net/sourceforge/"/>
+
+  <autotools id="fluidsynth">
+    <branch module="fluidsynth/fluidsynth-1.1.6.tar.bz2"
+            version="1.1.6" repo="sourceforge"
+            size="958735" md5sum="ae5aca6de824b4173667cbd3a310b263" />
+    <dependencies>
+      <dep package="glib"/>
+      <dep package="libsndfile"/>
+    </dependencies>
+  </autotools>
+
   <repository type="tarball" name="gnome"
               href="http://ftp.gnome.org/pub/GNOME/sources/" />
 
   <autotools id="libgnomecanvas">
     <branch module="libgnomecanvas/2.30/libgnomecanvas-2.30.3.tar.gz"
-            version="2.30.3" repo="gnome" autogenargs="--enable-glade"
+            version="2.30.3" repo="gnome"
             size="760152" md5sum="3dbf66a8c492f4e044991669671234e2" />
     <dependencies>
       <dep package="intltool"/>
       <dep package="gtk+"/>
       <dep package="libart_lgpl"/>
-      <dep package="libglade"/>
       <dep package="gnome-common"/>
     </dependencies>
   </autotools>
@@ -102,7 +120,8 @@ $ jhbuild build meta-gtk-osx-core
 - Build them:
 
 $ jhbuild shell # re-enter shell if exited from it, otherwise not needed
-$ jhbuild build libsndfile
+$ jhbuild build libfftw3
+$ jhbuild build fluidsynth
 $ jhbuild build libgnomecanvas
 
 3. Now we could teach jhbuild to also build libinstpatch and swami like above if
@@ -121,10 +140,14 @@ $ make && make install
 
 4. Now we have everything built, let's make an app bundle
 - Install gtk-mac-bundler (see https://live.gnome.org/GTK%2B/OSX/Bundling)
+
 $ cd $HOME/Source
 $ git clone git://git.gnome.org/gtk-mac-bundler
 $ cd gtk-mac-bundler
 $ make install
+
 - After reviewing the swami.bundle file for correct paths build a bundle:
+
 $ cd $HOME/swami/src/swami/package/osxbundle
 $ jhbuild run gtk-mac-bundler swami.bundle
+$ ln -s Resources/lib/swami $HOME/swami/Swami.app/Contents/PlugIns

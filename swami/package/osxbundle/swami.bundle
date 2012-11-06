@@ -53,6 +53,11 @@
 
   <main-binary>${prefix:app}/bin/swami</main-binary>
 
+  <!-- Plugins -->
+  <binary>
+     ${prefix:app}/lib/swami/*.so
+  </binary>
+
   <!-- Copy in GTK+ modules.  Note the ${gtkdir} macro, which expands
        to the correct library subdirectory for the specified gtk
        version.
