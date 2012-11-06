@@ -51,6 +51,7 @@ void _ipatch_convert_DLS2_init (void);
 void _ipatch_convert_SLI_init (void);
 void _ipatch_sf2_voice_cache_init_DLS (void);
 void _ipatch_sf2_voice_cache_init_SF2 (void);
+void _ipatch_sf2_voice_cache_init_SLI (void);
 void _ipatch_sf2_voice_cache_init_gig (void);
 void _ipatch_sf2_voice_cache_init_VBank (void);
 
@@ -225,6 +226,7 @@ ipatch_init (void)
 
   _ipatch_sf2_voice_cache_init_DLS ();
   _ipatch_sf2_voice_cache_init_SF2 ();
+  _ipatch_sf2_voice_cache_init_SLI ();
   _ipatch_sf2_voice_cache_init_gig ();
   _ipatch_sf2_voice_cache_init_VBank ();
 

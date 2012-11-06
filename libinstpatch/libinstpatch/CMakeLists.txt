@@ -92,6 +92,7 @@ set ( libinstpatch_public_HEADERS
     IpatchSF2VoiceCache.h
     IpatchSF2VoiceCache_DLS.h
     IpatchSF2VoiceCache_SF2.h
+    IpatchSF2VoiceCache_SLI.h
     IpatchSF2VoiceCache_Gig.h
     IpatchSF2VoiceCache_VBank.h
     IpatchSF2Writer.h
@@ -190,6 +191,7 @@ set ( libinstpatch_SOURCES
     IpatchSF2VoiceCache.c
     IpatchSF2VoiceCache_DLS.c
     IpatchSF2VoiceCache_SF2.c
+    IpatchSF2VoiceCache_SLI.c
     IpatchSF2VoiceCache_Gig.c
     IpatchSF2VoiceCache_VBank.c
     IpatchSF2Writer.c
