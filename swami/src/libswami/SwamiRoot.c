@@ -494,37 +494,19 @@ swami_root_patch_save (IpatchItem *item, const char *filename, GError **err)
   int tmpfd;
 
   g_return_val_if_fail (IPATCH_IS_ITEM (item), FALSE);
-  g_return_val_if_fail (filename != NULL, FALSE);
   g_return_val_if_fail (!err || !*err, FALSE);
 
-  /* if no filename specified use current one */
+  /* if no filename specified try to use current one */
   if (!filename)
     {
       g_object_get (item, "file-name", &prop_filename, NULL);
-      filename = prop_filename;
-
-      if (!filename)
+      if (!prop_filename)
 	{
 	  g_set_error (err, SWAMI_ERROR, SWAMI_ERROR_INVALID,
 		       _("File name not supplied and none currently assigned"));
 	  return (FALSE);
 	}
-    }
-
-  /* get the destination directory and create a temporary file template */
-  dir = g_path_get_dirname (filename);
-  tmpfname = g_strconcat (dir, G_DIR_SEPARATOR_S, "swami_tmpXXXXXX", NULL);
-  g_free (dir);
-
-  /* open temporary file in same directory as destination */
-  if ((tmpfd = g_mkstemp (tmpfname)) == -1)
-    {
-      g_set_error (err, SWAMI_ERROR, SWAMI_ERROR_IO,
-		   _("Unable to open temp file '%s' for writing: %s"),
-		   tmpfname, g_strerror (errno));
-      g_free (tmpfname);
-      g_free (prop_filename);
-      return (FALSE);
+      filename = prop_filename;
     }
 
   info = ipatch_lookup_converter_info (0, G_OBJECT_TYPE (item), IPATCH_TYPE_FILE);
@@ -533,8 +515,21 @@ swami_root_patch_save (IpatchItem *item, const char *filename, GError **err)
       g_set_error (err, SWAMI_ERROR, SWAMI_ERROR_UNSUPPORTED,
 		   _("Saving object of type '%s' to file '%s' not supported"),
                    g_type_name (G_OBJECT_TYPE (item)), filename);
-      close (tmpfd);
-      unlink (tmpfname);
+      g_free (prop_filename);
+      return (FALSE);
+    }
+
+  /* get the destination directory and create a temporary file template */
+  dir = g_path_get_dirname (filename);
+  tmpfname = g_build_filename (dir, "swami_tmpXXXXXX", NULL);
+  g_free (dir);
+
+  /* open temporary file in same directory as destination */
+  if ((tmpfd = g_mkstemp (tmpfname)) == -1)
+    {
+      g_set_error (err, SWAMI_ERROR, SWAMI_ERROR_IO,
+		   _("Unable to open temp file '%s' for writing: %s"),
+		   tmpfname, g_strerror (errno));
       g_free (tmpfname);
       g_free (prop_filename);
       return (FALSE);
@@ -555,7 +550,7 @@ swami_root_patch_save (IpatchItem *item, const char *filename, GError **err)
 
   g_object_unref (file);	/* -- unref creators reference */
 
-#ifdef MINGW32
+#ifdef G_OS_WIN32
   /* win32 rename won't overwrite files, so just blindly unlink destination */
   unlink (filename);
 #endif

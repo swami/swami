@@ -194,7 +194,8 @@ browse_clicked (GtkButton *button, gpointer user_data)
 				 GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 				 GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 				 NULL);
-  gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (filesel), fname);
+  if (fname)
+    gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (filesel), fname);
   g_signal_connect (filesel, "response",
 		    G_CALLBACK (browse_file_chooser_response), multi);
 
