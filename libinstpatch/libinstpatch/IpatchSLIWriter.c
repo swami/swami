@@ -274,6 +274,7 @@ ipatch_sli_writer_save (IpatchSLIWriter *writer, GError **err)
 end:
   g_slist_free_full (igs, (GDestroyNotify)g_ptr_array_unref); /* -- unref igs */
   g_object_unref (writer->sli); /* -- unref duplicate sli object */
+  writer->sli = NULL;
   return ret;
 }
 
