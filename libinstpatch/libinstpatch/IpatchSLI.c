@@ -35,12 +35,12 @@
 /* properties */
 enum {
   PROP_0,
-  PROP_NAME
+  PROP_TITLE
 };
 
 static void ipatch_sli_class_init (IpatchSLIClass *klass);
 static void ipatch_sli_init (IpatchSLI *sli);
-static void ipatch_sli_get_name (IpatchSLI *sli, GValue *value);
+static void ipatch_sli_get_title (IpatchSLI *sli, GValue *value);
 static void ipatch_sli_get_property (GObject *object, guint property_id,
                                      GValue *value, GParamSpec *pspec);
 static void ipatch_sli_item_copy (IpatchItem *dest, IpatchItem *src,
@@ -61,9 +61,6 @@ static GType sli_virt_types[3] = { 0 };
 
 /* for chaining to original file-name property */
 static IpatchItemClass *base_item_class;
-
-/* cached parameter spec values for speed */
-static GParamSpec *name_pspec;
 
 
 /* Spectralis item type creation function */
@@ -109,15 +106,7 @@ ipatch_sli_class_init (IpatchSLIClass *klass)
   container_class->init_iter = ipatch_sli_container_init_iter;
   container_class->make_unique = ipatch_sli_container_make_unique;
 
-  /* "name" property is used as the title */
-  g_object_class_override_property (obj_class, PROP_NAME, "title");
-
-  name_pspec = g_param_spec_string ("name", _("Name"), _("Name"), NULL,
-                                    G_PARAM_READABLE | IPATCH_PARAM_UNIQUE);
-  ipatch_param_set (name_pspec,
-		    "string-max-length", IPATCH_SLI_NAME_SIZE, /* max length */
-		    NULL);
-  g_object_class_install_property (obj_class, PROP_NAME, name_pspec);
+  g_object_class_override_property (obj_class, PROP_TITLE, "title");
 
   sli_child_types[0] = IPATCH_TYPE_SLI_INST;
   sli_child_types[1] = IPATCH_TYPE_SLI_SAMPLE;
@@ -130,14 +119,14 @@ static void
 ipatch_sli_init (IpatchSLI *sli)
 {
   ipatch_item_clear_flags (IPATCH_ITEM (sli), IPATCH_BASE_CHANGED);
-  /* add a prop notify on file name so sli can notify it's title also */
+  /* add a prop notify on file-name so sli can notify it's title also */
   ipatch_item_prop_connect_by_name (IPATCH_ITEM (sli), "file-name",
                                     ipatch_sli_parent_file_prop_notify, NULL,
                                     sli);
 }
 
 static void
-ipatch_sli_get_name (IpatchSLI *sli, GValue *value)
+ipatch_sli_get_title (IpatchSLI *sli, GValue *value)
 {
   char *filename;
   gchar *s;
@@ -165,8 +154,8 @@ ipatch_sli_get_property (GObject *object, guint property_id,
 
   switch (property_id)
     {
-    case PROP_NAME:
-      ipatch_sli_get_name (sli, value);
+    case PROP_TITLE:
+      ipatch_sli_get_title (sli, value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -288,12 +277,14 @@ ipatch_sli_container_make_unique (IpatchContainer *container,
   g_free (newname);
 }
 
-/* property notify for when parent's "file" property changes */
+/* property notify for when parent's "file-name" property changes */
 static void
 ipatch_sli_parent_file_prop_notify (IpatchItemPropNotify *info)
-{ /* notify that SLI's name changed */
+{
   IpatchItem *sli = (IpatchItem *)(info->user_data);
-  ipatch_item_prop_notify (sli, name_pspec, info->new_value, info->old_value);
+  /* notify that SLI's title has changed */
+  ipatch_item_prop_notify (sli, ipatch_item_pspec_title,
+                           info->new_value, info->old_value);
 }
 
 /**
