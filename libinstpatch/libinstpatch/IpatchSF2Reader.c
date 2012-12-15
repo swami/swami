@@ -502,24 +502,30 @@ sfload_infos (IpatchSF2Reader *reader, GError **err)
 	      /* make sure info chunk size is okay */
 	      maxsize = ipatch_sf2_get_info_max_size (chunk->id);
 	      if (maxsize == 0) maxsize = 256; /* unknown chunk size */
-	      if (maxsize && chunk->size > maxsize)
+	      if (chunk->size > 0 && chunk->size <= maxsize)
 		{
-		  g_critical (_("Invalid INFO chunk size"));
-		  return (FALSE);
-		}
+		  /* alloc for info string */
+		  s = g_malloc (chunk->size);
 
-	      /* alloc for info string */
-	      s = g_malloc (chunk->size);
+		  if (!ipatch_file_read (riff->handle, s, chunk->size, err))
+		    {
+		      g_free (s);
+		      return (FALSE);
+		    }
 
-	      if (!ipatch_file_read (riff->handle, s, chunk->size, err))
-		{
+		  s[chunk->size - 1] = '\0'; /* force terminate info string */
+		  ipatch_sf2_set_info (reader->sf, chunk->id, s);
 		  g_free (s);
+		}
+	      else if (chunk->id != IPATCH_SFONT_FOURCC_INAM &&
+		       chunk->id != IPATCH_SFONT_FOURCC_ISNG &&
+		       chunk->id != IPATCH_SFONT_FOURCC_ISFT)
+		{
+		  /* an info chunk which does not have a default value */
+		  g_critical (_("Invalid size %d for INFO chunk \"%.4s\""),
+			      chunk->size, chunk->idstr);
 		  return (FALSE);
 		}
-
-	      s[chunk->size - 1] = '\0'; /* force terminate info string */
-	      ipatch_sf2_set_info (reader->sf, chunk->id, s);
-	      g_free (s);
 	    }
 	} /* chunk->type == IPATCH_RIFF_CHUNK_SUB */
       if (!ipatch_riff_end_chunk (riff, err)) return (FALSE);
