@@ -491,42 +491,37 @@ sfload_infos (IpatchSF2Reader *reader, GError **err)
 	      reader->sf->romver_major = ipatch_file_buf_read_u16 (riff->handle);
 	      reader->sf->romver_minor = ipatch_file_buf_read_u16 (riff->handle);
 	    }
-	  else			/* regular string based info chunk */
+	  else if (ipatch_sf2_info_id_is_valid (chunk->id))	/* regular string based info chunk */
 	    {
-	      int maxsize;
+	      int maxsize, size;
 	      char *s;
 
-	      if (!ipatch_sf2_info_id_is_valid (chunk->id))
-		g_warning (_("Unknown INFO chunk \"%.4s\""), chunk->idstr);
-
-	      /* make sure info chunk size is okay */
-	      maxsize = ipatch_sf2_get_info_max_size (chunk->id);
-	      if (maxsize == 0) maxsize = 256; /* unknown chunk size */
-	      if (chunk->size > 0 && chunk->size <= maxsize)
+	      if (chunk->size > 0)
 		{
-		  /* alloc for info string */
-		  s = g_malloc (chunk->size);
+		  maxsize = ipatch_sf2_get_info_max_size (chunk->id);
 
-		  if (!ipatch_file_read (riff->handle, s, chunk->size, err))
+		  if (chunk->size > maxsize)
+		    {
+		      g_warning (_("Invalid size %d for INFO chunk \"%.4s\""),
+				 chunk->size, chunk->idstr);
+		      size = maxsize;
+		    }
+		  else size = chunk->size;
+
+		  s = g_malloc (size);   /* alloc for info string */
+
+		  if (!ipatch_file_read (riff->handle, s, size, err))
 		    {
 		      g_free (s);
 		      return (FALSE);
 		    }
 
-		  s[chunk->size - 1] = '\0'; /* force terminate info string */
+		  s[size - 1] = '\0'; /* force terminate info string */
 		  ipatch_sf2_set_info (reader->sf, chunk->id, s);
 		  g_free (s);
 		}
-	      else if (chunk->id != IPATCH_SFONT_FOURCC_INAM &&
-		       chunk->id != IPATCH_SFONT_FOURCC_ISNG &&
-		       chunk->id != IPATCH_SFONT_FOURCC_ISFT)
-		{
-		  /* an info chunk which does not have a default value */
-		  g_critical (_("Invalid size %d for INFO chunk \"%.4s\""),
-			      chunk->size, chunk->idstr);
-		  return (FALSE);
-		}
 	    }
+	    else g_warning (_("Unknown INFO chunk \"%.4s\""), chunk->idstr);
 	} /* chunk->type == IPATCH_RIFF_CHUNK_SUB */
       if (!ipatch_riff_end_chunk (riff, err)) return (FALSE);
     } /* while () */
