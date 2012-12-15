@@ -918,9 +918,8 @@ ipatch_sf2_info_id_is_valid (guint32 id)
  * NOTE: Max size includes terminating NULL character so subtract one from
  * returned value to get max allowed string length.
  *
- * Returns: Maximum info chunk size or 0 if invalid or variable length
- * info chunk type. Subtract one to get max allowed string length (if
- * returned value was not 0).
+ * Returns: Maximum info chunk size or 0 if invalid @infotype. Subtract one
+ * to get max allowed string length (if returned value was not 0).
  */
 int
 ipatch_sf2_get_info_max_size (IpatchSF2InfoType infotype)
