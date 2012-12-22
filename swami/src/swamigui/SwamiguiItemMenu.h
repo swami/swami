@@ -106,6 +106,9 @@ GtkWidget *swamigui_item_menu_add (SwamiguiItemMenu *menu,
 				   const char *action_id);
 GtkWidget *swamigui_item_menu_add_registered_info (SwamiguiItemMenu *menu,
 						   const char *action_id);
+GtkWidget *swamigui_item_menu_add_registered_info_inactive (SwamiguiItemMenu *menu,
+                                                            const char *action_id);
+
 void swamigui_item_menu_generate (SwamiguiItemMenu *menu);
 
 void swamigui_register_item_menu_action (char *action_id,

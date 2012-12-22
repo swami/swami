@@ -307,6 +307,9 @@ swamigui_item_menu_add (SwamiguiItemMenu *menu,
       g_free (accel_path);
     }
 
+  if (info->flags & SWAMIGUI_ITEM_MENU_INACTIVE)
+    gtk_widget_set_sensitive (GTK_WIDGET (mitem), FALSE);
+
   list = gtk_container_get_children (GTK_CONTAINER (menu));
 
   /* find insert position from order info parameter */
@@ -346,6 +349,35 @@ swamigui_item_menu_add_registered_info (SwamiguiItemMenu *menu,
   g_return_val_if_fail (found_action->info != NULL, NULL);
 
   return (swamigui_item_menu_add (menu, found_action->info, action_id));
+}
+
+/**
+ * swamigui_item_menu_add_registered_info_inactive:
+ * @menu: GUI menu to add item to
+ * @action_id: The action ID string that is adding the menu item
+ *
+ * Add an inactive menu item to a GUI menu using the default info added when the
+ * @action_id was registered.
+ *
+ * Returns: The new GtkMenuItem that was added to the menu.
+ */
+GtkWidget *
+swamigui_item_menu_add_registered_info_inactive (SwamiguiItemMenu *menu,
+					         const char *action_id)
+{
+  ActionBag *found_action;
+  SwamiguiItemMenuInfo info;
+
+  g_return_val_if_fail (SWAMIGUI_IS_ITEM_MENU (menu), NULL);
+
+  found_action = lookup_item_action_bag (action_id);
+  g_return_val_if_fail (found_action != NULL, NULL);
+  g_return_val_if_fail (found_action->info != NULL, NULL);
+
+  memcpy (&info, found_action->info, sizeof (info));
+  info.flags |= SWAMIGUI_ITEM_MENU_INACTIVE;
+
+  return (swamigui_item_menu_add (menu, &info, action_id));
 }
 
 /* lookup a registered action by its ID */
