@@ -960,3 +960,19 @@ swamigui_paste_items (IpatchItem *dstitem, GList *items)
 
   g_object_unref (paste);	/* -- unref paste instance */
 }
+
+/**
+ * swamigui_get_clipboard_items:
+ *
+ * Get the current item clipboard list used for copy/paste operations.
+ *
+ * Returns: Current clipboard item list or NULL.  Caller should not modify the list
+ *   but owns a reference and should unref the list object when finished using it.
+ */
+IpatchList *
+swamigui_get_clipboard_items (void)
+{
+  if (!item_clipboard) return (NULL);
+  return (g_object_ref (item_clipboard));
+}
+

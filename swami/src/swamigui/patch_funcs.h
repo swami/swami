@@ -41,5 +41,6 @@ void swamigui_load_samples (IpatchItem *parent_hint);
 void swamigui_export_samples (IpatchList *samples);
 void swamigui_copy_items (IpatchList *items);
 void swamigui_paste_items (IpatchItem *dstitem, GList *items);
+void swamigui_get_clipboard_items (void);
 
 #endif
