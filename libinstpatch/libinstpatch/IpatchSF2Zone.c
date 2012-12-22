@@ -307,7 +307,7 @@ ipatch_sf2_zone_set_link_item (IpatchSF2Zone *zone, IpatchItem *item)
  *   reference if specified.
  *
  * Like ipatch_sf2_zone_set_link_item() but performs no property or item
- * change notifications (shouldn't normally be used outside of derived types),
+ * change notifications for "link-item" property (shouldn't normally be used outside of derived types),
  * and the old value can be retrieved with the @olditem parameter.
  *
  * Returns: TRUE if property was changed, FALSE otherwise (invalid inputs)
@@ -317,11 +317,14 @@ ipatch_sf2_zone_set_link_item_no_notify (IpatchSF2Zone *zone, IpatchItem *item,
 					 IpatchItem **olditem)
 {
   IpatchItem *oldie;
+  GValue old_title = { 0 }, new_title = { 0 };
 
   if (olditem) *olditem = NULL;		/* in case of failure */
 
   g_return_val_if_fail (IPATCH_IS_SF2_ZONE (zone), FALSE);
   g_return_val_if_fail (IPATCH_IS_ITEM (item), FALSE);
+
+  ipatch_item_get_property_fast (IPATCH_ITEM (zone), ipatch_item_pspec_title, &old_title);      // ++ alloc value
 
   if (item) g_object_ref (item);	/* ref for zone */
 
@@ -342,6 +345,12 @@ ipatch_sf2_zone_set_link_item_no_notify (IpatchSF2Zone *zone, IpatchItem *item,
   /* either caller takes reference to old item or we unref it, unref outside of lock */
   if (olditem) *olditem = oldie;
   else if (oldie) g_object_unref (oldie);
+
+  ipatch_item_get_property_fast (IPATCH_ITEM (zone), ipatch_item_pspec_title, &new_title);    // ++ alloc value
+  ipatch_item_prop_notify ((IpatchItem *)zone, ipatch_item_pspec_title, &old_title, &new_title);
+
+  g_value_unset (&old_title);   // -- free value
+  g_value_unset (&new_title);   // -- free value
 
   return (TRUE);
 }
