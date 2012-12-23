@@ -145,7 +145,6 @@ _sli_sample_to_sf2_voice_cache_convert (IpatchConverter *converter,
   IpatchSF2VoiceCache *cache;
   IpatchSF2Voice *voice;
   IpatchSF2GenAmount *amt;
-  int loopmode;
 
   sample = IPATCH_SLI_SAMPLE (IPATCH_CONVERTER_INPUT (converter));
   cache = IPATCH_SF2_VOICE_CACHE (IPATCH_CONVERTER_OUTPUT (converter));
