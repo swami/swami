@@ -195,7 +195,7 @@ container_remove_notify (IpatchContainer *container, IpatchItem *item,
   item_remove = swami_event_item_remove_new ();
   item_remove->item = g_object_ref (item);
   item_remove->parent = ipatch_item_get_parent (item);
-  g_value_set_boxed_take_ownership (&event->value, item_remove);
+  g_value_take_boxed (&event->value, item_remove);
 
   swami_control_transmit_event (swami_patch_remove_control, event);
 

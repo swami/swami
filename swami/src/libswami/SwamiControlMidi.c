@@ -128,7 +128,7 @@ swami_control_midi_send (SwamiControlMidi *midi, SwamiMidiEventType type,
   swami_midi_event_set (event, type, channel, param1, param2);
 
   g_value_init (&value, SWAMI_TYPE_MIDI_EVENT);
-  g_value_set_boxed_take_ownership (&value, event);
+  g_value_take_boxed (&value, event);
 
   swami_control_set_value (SWAMI_CONTROL (midi), &value);
 
@@ -161,7 +161,7 @@ swami_control_midi_transmit (SwamiControlMidi *midi, SwamiMidiEventType type,
   swami_midi_event_set (event, type, channel, param1, param2);
 
   g_value_init (&value, SWAMI_TYPE_MIDI_EVENT);
-  g_value_set_boxed_take_ownership (&value, event);
+  g_value_take_boxed (&value, event);
 
   swami_control_transmit_value (SWAMI_CONTROL (midi), &value);
 

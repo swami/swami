@@ -1087,7 +1087,7 @@ wavetbl_fluidsynth_get_property (GObject *object, guint property_id,
       mods = ipatch_sf2_mod_list_duplicate (wavetbl->mods);
       SWAMI_UNLOCK_READ (wavetbl);
 
-      g_value_set_boxed_take_ownership (value, mods);
+      g_value_take_boxed (value, mods);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);

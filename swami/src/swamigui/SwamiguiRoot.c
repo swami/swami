@@ -542,12 +542,10 @@ swamigui_root_get_property (GObject *object, guint property_id,
       g_value_set_int (value, root->tips_position);
       break;
     case PROP_PIANO_LOWER_KEYS:
-      g_value_set_string_take_ownership (value, swamigui_root_encode_piano_keys
-					 (root->piano_lower_keys));
+      g_value_take_string (value, swamigui_root_encode_piano_keys (root->piano_lower_keys));
       break;
     case PROP_PIANO_UPPER_KEYS:
-      g_value_set_string_take_ownership (value, swamigui_root_encode_piano_keys
-					 (root->piano_upper_keys));
+      g_value_take_string (value, swamigui_root_encode_piano_keys (root->piano_upper_keys));
       break;
     case PROP_DEFAULT_PATCH_TYPE:
       g_value_set_gtype (value, root->default_patch_type);
