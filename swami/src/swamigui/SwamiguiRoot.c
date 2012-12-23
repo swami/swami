@@ -708,7 +708,12 @@ swamigui_root_finalize (GObject *object)
   g_object_unref (root->tree_stores);
 
   if (root->selection) g_object_unref (root->selection);
-  if (root->wavetbl) g_object_unref (root->wavetbl);
+
+  if (root->wavetbl)
+  {
+    swami_wavetbl_close (root->wavetbl);
+    g_object_unref (root->wavetbl);
+  }
 
   if (root->solo_item) g_object_unref (root->solo_item);
   if (root->solo_item_icon) g_free (root->solo_item_icon);
