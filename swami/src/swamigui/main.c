@@ -37,7 +37,9 @@
 #include "swami_python.h"
 #include "i18n.h"
 
+#ifdef PYTHON_SUPPORT
 static void log_python_output_func (const char *output, gboolean is_stderr);
+#endif
 
 /* global boolean feature hacks */
 extern gboolean swamigui_disable_python;
@@ -52,7 +54,6 @@ main (int argc, char *argv[])
   gboolean default_prefs = FALSE;
   gchar **scripts = NULL;
   gchar **files = NULL;
-  const char *loadfile;
   char *fname;
   GOptionContext *context;
   GError *err = NULL;
@@ -184,6 +185,8 @@ main (int argc, char *argv[])
   exit (0);
 }
 
+#ifdef PYTHON_SUPPORT
+
 /* output function which uses glib logging facility */
 static void
 log_python_output_func (const char *output, gboolean is_stderr)
@@ -208,3 +211,6 @@ log_python_output_func (const char *output, gboolean is_stderr)
 
   g_string_free (gs, TRUE);
 }
+
+#endif
+
