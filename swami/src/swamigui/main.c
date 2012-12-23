@@ -106,10 +106,6 @@ main (int argc, char *argv[])
   /* Activate the Swami object */
   swamigui_root_activate (root);
 
-  /* just for me for that added convenience, yah  -:] */
-  if ((loadfile = g_getenv ("SWAMI_LOAD_FILE")))
-    swami_root_patch_load (SWAMI_ROOT (root), loadfile, NULL, NULL);
-
   /* loop over command line non-options, assuming they're files to open */
   if (files)
   {
