@@ -52,6 +52,7 @@ fftune_gui_la_CFLAGS = @GUI_CFLAGS@ @LIBINSTPATCH_CFLAGS@
 fftune_gui_la_LDFLAGS = -module -avoid-version @GUI_LIBS@ @LIBINSTPATCH_LIBS@
 
 INCLUDES = -I$(top_srcdir)/src/libinstpatch -I$(top_srcdir)/src \
-	-I$(top_srcdir)/intl -DLOCALEDIR=\"$(datadir)/locale\"
+    -I$(top_srcdir)/intl -I$(top_builddir)/src \
+    -DLOCALEDIR=\"$(datadir)/locale\"
 
 MAINTAINERCLEANFILES = Makefile.in

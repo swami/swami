@@ -4,7 +4,7 @@ EXTRA_DIST = create_sf2.py
 noinst_PROGRAMS = create_sf2
 
 create_sf2_SOURCES = create_sf2.c
-create_sf2_LDADD = $(top_srcdir)/libinstpatch/libinstpatch-1.0.la @GOBJECT_LIBS@
+create_sf2_LDADD = $(top_builddir)/libinstpatch/libinstpatch-1.0.la @GOBJECT_LIBS@
 
 INCLUDES = -I$(top_srcdir) @GOBJECT_CFLAGS@
 
