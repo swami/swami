@@ -141,7 +141,7 @@ struct _IpatchSampleHandle
   IpatchSampleTransform *transform;   /* Set if sample is being converted */
   IpatchSampleHandleReadFunc read;    /* Read method pointer (copied from IpatchItem interface) */
   IpatchSampleHandleWriteFunc write;  /* Write method pointer (copied from IpatchItem interface) */
-  IpatchSampleHandleCloseFunc close;  /* Write method pointer (copied from IpatchItem interface) */
+  IpatchSampleHandleCloseFunc close;  /* Close method pointer (copied from IpatchItem interface) */
   guint32 read_mode : 1;              /* TRUE if read mode, FALSE if write mode */
   guint32 manual_transform : 1;       /* Methods handle sample transform */
   guint32 release_transform : 1;      /* TRUE if transform should be released from transform pool */

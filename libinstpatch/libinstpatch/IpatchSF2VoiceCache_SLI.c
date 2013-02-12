@@ -70,7 +70,7 @@ _sli_inst_to_sf2_voice_cache_convert (IpatchConverter *converter, GError **err)
   cache = IPATCH_SF2_VOICE_CACHE (IPATCH_CONVERTER_OUTPUT (converter));
   solo_item = ((IpatchConverterSF2VoiceCache *)converter)->solo_item;
 
-  /* check if its an instrument or a zone */
+  /* check if it is an instrument or a zone */
   if (IPATCH_IS_SLI_ZONE (obj))      /* ++ ref parent instrument */
     inst = IPATCH_SLI_INST (ipatch_item_get_parent (IPATCH_ITEM (obj)));
   else inst = IPATCH_SLI_INST (obj);
