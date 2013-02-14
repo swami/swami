@@ -71,7 +71,7 @@ static IpatchItem *paste_copy_link_func_deep (IpatchItem *item,
 					      IpatchItem *link,
 					      gpointer user_data);
 
-G_LOCK_DEFINE_STATIC (paste_handlers);
+static GRecMutex paste_handlers_m;
 static GSList *paste_handlers = NULL;	/* list of PasteHandler structs */
 
 static gpointer parent_class = NULL;
@@ -104,10 +104,10 @@ ipatch_register_paste_handler (IpatchPasteTestFunc test_func,
   handler->exec_func = exec_func;
   handler->flags = flags;
 
-  G_LOCK (paste_handlers);
+  g_rec_mutex_lock (&paste_handlers_m);
   paste_handlers = g_slist_insert_sorted (paste_handlers, handler,
 					  handler_priority_GCompareFunc);
-  G_UNLOCK (paste_handlers);
+  g_rec_mutex_unlock (&paste_handlers_m);
 }
 
 static gint
@@ -179,7 +179,7 @@ ipatch_is_paste_possible (IpatchItem *dest, IpatchItem *src)
   g_return_val_if_fail (IPATCH_IS_ITEM (dest), FALSE);
   g_return_val_if_fail (IPATCH_IS_ITEM (src), FALSE);
 
-  G_LOCK (paste_handlers);
+  g_rec_mutex_lock (&paste_handlers_m);
 
   for (p = paste_handlers; p; p = p->next)
     {
@@ -187,7 +187,7 @@ ipatch_is_paste_possible (IpatchItem *dest, IpatchItem *src)
       if (handler->test_func (dest, src)) break;
     }
 
-  G_UNLOCK (paste_handlers);
+  g_rec_mutex_unlock (&paste_handlers_m);
 
   return (p != NULL);
 }
@@ -302,7 +302,7 @@ ipatch_paste_objects (IpatchPaste *paste, IpatchItem *dest, IpatchItem *src,
   g_return_val_if_fail (IPATCH_IS_ITEM (src), FALSE);
   g_return_val_if_fail (!err || !*err, FALSE);
 
-  G_LOCK (paste_handlers);
+  g_rec_mutex_lock (&paste_handlers_m);
 
   for (p = paste_handlers; p; p = p->next)
     {
@@ -310,7 +310,7 @@ ipatch_paste_objects (IpatchPaste *paste, IpatchItem *dest, IpatchItem *src,
       if (handler->test_func (dest, src)) break;
     }
 
-  G_UNLOCK (paste_handlers);
+  g_rec_mutex_unlock (&paste_handlers_m);
 
   if (!p)
     {
@@ -1076,12 +1076,26 @@ ipatch_paste_default_test_func (IpatchItem *dest, IpatchItem *src)
     }
   else if (IPATCH_IS_VIRTUAL_CONTAINER (dest))	/* dest is a virtual container? */
     {
+      IpatchItem *child_obj;
+
       /* get the child type of the virtual container */
       ipatch_type_get (G_OBJECT_TYPE (dest), "virtual-child-type", &type, NULL);
 
       /* does source object conform to the virtual container child type? */
       if (type && g_type_is_a (G_OBJECT_TYPE (src), type))
 	return (TRUE);
+
+      /* or can it be pasted to the child type recursively? */
+      child_obj = g_object_new (type, NULL); /* ++ ref child object */
+      if (child_obj)
+      {
+	if (ipatch_is_paste_possible(child_obj, src))
+	{
+	  g_object_unref (child_obj);	/* -- unref child_obj */
+	  return (TRUE); /* can be pasted recursively into the child type */
+	}
+	g_object_unref (child_obj);	/* -- unref child_obj */
+      }
     }
   else	/* destination is not a container - src is link type of dest? */
     {
@@ -1237,6 +1251,9 @@ ipatch_paste_default_exec_func (IpatchPaste *paste, IpatchItem *dest,
     }
   else if (IPATCH_IS_VIRTUAL_CONTAINER (dest))	/* dest is a virtual container? */
     {
+      IpatchItem *newchild;
+      GValue val = { 0 };
+
       /* get the child type of the virtual container */
       ipatch_type_get (G_OBJECT_TYPE (dest),
 		       "virtual-child-type", &type,
@@ -1258,6 +1275,35 @@ ipatch_paste_default_exec_func (IpatchPaste *paste, IpatchItem *dest,
 
 	  return (TRUE);	/* paste was handled */
 	}
+
+      /* can it be pasted into the child type recursively? */
+      newchild = g_object_new (type, NULL);	/* ++ ref new child object */
+      if (!newchild)
+      {
+	g_warning ("Failed to create child of type %s", g_type_name (type));
+	goto not_handled;
+      }
+      if (ipatch_is_paste_possible(newchild, src))
+      {
+	if (!ipatch_simple_paste(newchild, src, err))
+	{
+	  g_object_unref (newchild);	/* -- unref creator's ref */
+	  return (FALSE);	/* paste not handled */
+	}
+
+	/* Inherit title of the new item from the pasted one */
+	g_value_init (&val, G_TYPE_STRING);
+	g_object_get_property (G_OBJECT (src), "title", &val);
+	g_object_set_property (G_OBJECT (newchild), "name", &val);
+	g_value_unset (&val);
+
+	/* add the object add operation of the new child */
+	ipatch_paste_object_add (paste, IPATCH_ITEM (newchild),
+				 IPATCH_CONTAINER (dest_base), NULL);
+	g_object_unref (newchild);	/* -- unref creator's ref */
+	return (TRUE);	/* paste was handled */
+      }
+      g_object_unref (newchild);	/* -- unref creator's ref */
     }
   else	/* destination is not a container - src is link type of dest? */
     {
