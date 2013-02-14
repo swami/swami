@@ -1296,6 +1296,7 @@ ipatch_paste_default_exec_func (IpatchPaste *paste, IpatchItem *dest,
 	g_object_get_property (G_OBJECT (src), "title", &val);
 	g_object_set_property (G_OBJECT (newchild), "name", &val);
 	g_value_unset (&val);
+	ipatch_container_make_unique (IPATCH_CONTAINER (dest_base), newchild);
 
 	/* add the object add operation of the new child */
 	ipatch_paste_object_add (paste, IPATCH_ITEM (newchild),
