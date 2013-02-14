@@ -852,7 +852,7 @@ swamigui_cb_export_samples_response (GtkWidget *dialog, gint response,
 	{
 	  char *name, *temp;
 
-	  g_object_get (sample, "name", &name, NULL);
+	  g_object_get (sample, "title", &name, NULL);
 	  temp = g_strconcat (name, ".", format_name, NULL);
 	  g_free (name);
 
