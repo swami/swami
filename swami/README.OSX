@@ -29,7 +29,7 @@ Building an app bundle with GTK-OSX
 ===================================
 BALATON Zoltan <balaton at users dot sourceforge dot net>
 
-Last updated: 6th November, 2012
+Last updated: 18th February, 2013
 
 Resources:
 http://www.gtk.org/download/macos.php
@@ -62,6 +62,7 @@ moduleset=os.environ['HOME'] + '/custom.modules'
 $ jhbuild shell # make sure to enter the jhbuild shell first
 $ jhbuild bootstrap
 $ jhbuild build meta-gtk-osx-bootstrap
+$ jhbuild build meta-gtk-osx-freetype
 $ jhbuild build meta-gtk-osx-core
 
 2. Teach jhbuild about some more dependencies and build them
@@ -75,10 +76,10 @@ $ jhbuild build meta-gtk-osx-core
 
   <include href="/Users/gtkosx/Source/jhbuild/modulesets/gtk-osx.modules"/>
 
-  <tarball id="libfftw3" version="3.3.2" supports-non-srcdir-builds="no"
+  <tarball id="libfftw3" version="3.3.3" supports-non-srcdir-builds="no"
            autogenargs="--enable-shared --enable-float --enable-sse2">
-   <source href="http://www.fftw.org/fftw-3.3.2.tar.gz"
-    size="3908279" md5sum="6977ee770ed68c85698c7168ffa6e178"/>
+   <source href="http://www.fftw.org/fftw-3.3.3.tar.gz"
+    size="3920661" md5sum="0a05ca9c7b3bfddc8278e7c40791a1c2"/>
   </tarball>
 
   <tarball id="libsndfile" version="1.0.25" supports-non-srcdir-builds="no"
@@ -90,8 +91,8 @@ $ jhbuild build meta-gtk-osx-core
   <repository type="tarball" name="sourceforge"
               href="http://downloads.sourceforge.net/sourceforge/"/>
 
-  <autotools id="fluidsynth">
-    <branch module="fluidsynth/fluidsynth-1.1.6.tar.bz2"
+  <autotools id="fluidsynth" autogenargs="--without-readline">
+    <branch module="fluidsynth/fluidsynth-1.1.6.tar.gz"
             version="1.1.6" repo="sourceforge"
             size="958735" md5sum="ae5aca6de824b4173667cbd3a310b263" />
     <dependencies>
@@ -123,6 +124,7 @@ $ jhbuild shell # re-enter shell if exited from it, otherwise not needed
 $ jhbuild build libfftw3
 $ jhbuild build fluidsynth
 $ jhbuild build libgnomecanvas
+$ jhbuild build librsvg
 
 3. Now we could teach jhbuild to also build libinstpatch and swami like above if
    we built a release from tarballs but I simply built these by hand instead:
