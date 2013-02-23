@@ -29,6 +29,7 @@
 #include "IpatchSLIFile.h"
 #include "IpatchParamProp.h"
 #include "IpatchTypeProp.h"
+#include "IpatchSF2VoiceCache.h"
 #include "ipatch_priv.h"
 #include "builtin_enums.h"
 
@@ -64,6 +65,14 @@ static void ipatch_sli_sample_item_copy (IpatchItem *dest, IpatchItem *src,
 					 IpatchItemCopyLinkFunc link_func,
 					 gpointer user_data);
 static void ipatch_sli_sample_item_remove (IpatchItem *item);
+static int
+ipatch_sli_sample_voice_cache_update_handler (IpatchSF2VoiceCache *cache,
+					      int *select_values,
+					      GObject *cache_item,
+					      GObject *item, GParamSpec *pspec,
+					      const GValue *value,
+					      IpatchSF2VoiceUpdate *updates,
+					      guint max_updates);
 static void ipatch_sli_sample_real_set_name (IpatchSLISample *sample,
                                              const char *name,
                                              gboolean name_notify);
@@ -100,6 +109,7 @@ ipatch_sli_sample_class_init (IpatchSLISampleClass *klass)
 {
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
   IpatchItemClass *item_class = IPATCH_ITEM_CLASS (klass);
+  GParamSpec *pspec;
 
   obj_class->finalize = ipatch_sli_sample_finalize;
   obj_class->get_property = ipatch_sli_sample_get_property;
@@ -124,17 +134,31 @@ ipatch_sli_sample_class_init (IpatchSLISampleClass *klass)
                                            "sample-size");
   ipatch_sample_install_property_readonly (obj_class, PROP_SAMPLE_FORMAT,
                                            "sample-format");
-  ipatch_sample_install_property (obj_class, PROP_SAMPLE_RATE, "sample-rate");
+  pspec = ipatch_sample_install_property (obj_class, PROP_SAMPLE_RATE,
+                                           "sample-rate");
+  pspec->flags |= IPATCH_PARAM_SYNTH;
+
+  /* IpatchSLISample objects don't have a loop type field really */
+  ipatch_sample_install_property_readonly (obj_class, PROP_LOOP_TYPE, "loop-type");
+
+  pspec = ipatch_sample_install_property (obj_class, PROP_LOOP_START, "loop-start");
+  pspec->flags |= IPATCH_PARAM_SYNTH | IPATCH_PARAM_SYNTH_REALTIME;
+
+  pspec = ipatch_sample_install_property (obj_class, PROP_LOOP_END, "loop-end");
+  pspec->flags |= IPATCH_PARAM_SYNTH | IPATCH_PARAM_SYNTH_REALTIME;
+
+  pspec = ipatch_sample_install_property (obj_class, PROP_ROOT_NOTE, "root-note");
+  pspec->flags |= IPATCH_PARAM_SYNTH;
+
+  pspec = ipatch_sample_install_property (obj_class, PROP_FINE_TUNE, "fine-tune");
+  pspec->flags |= IPATCH_PARAM_SYNTH | IPATCH_PARAM_SYNTH_REALTIME;
+
   sample_data_pspec = ipatch_sample_install_property (obj_class,
                                              PROP_SAMPLE_DATA, "sample-data");
 
-  /* IpatchSLISample objects don't have a loop type field really */
-  ipatch_sample_install_property_readonly (obj_class, PROP_LOOP_TYPE,
-                                           "loop-type");
-  ipatch_sample_install_property (obj_class, PROP_LOOP_START, "loop-start");
-  ipatch_sample_install_property (obj_class, PROP_LOOP_END, "loop-end");
-  ipatch_sample_install_property (obj_class, PROP_ROOT_NOTE, "root-note");
-  ipatch_sample_install_property (obj_class, PROP_FINE_TUNE, "fine-tune");
+  /* install IpatchSF2VoiceCache update handler for real time effects */
+  ipatch_type_set (IPATCH_TYPE_SLI_SAMPLE, "sf2voice-update-func",
+		   ipatch_sli_sample_voice_cache_update_handler, NULL);
 }
 
 static void
@@ -326,6 +350,63 @@ ipatch_sli_sample_item_remove (IpatchItem *item)
     ipatch_container_remove (IPATCH_CONTAINER (parent), item);
     g_object_unref (parent);	/* -- unref parent */
   }
+}
+
+/* IpatchSF2VoiceCache update function for realtime effects */
+static int
+ipatch_sli_sample_voice_cache_update_handler (IpatchSF2VoiceCache *cache,
+					      int *select_values,
+					      GObject *cache_item,
+					      GObject *item, GParamSpec *pspec,
+					      const GValue *value,
+					      IpatchSF2VoiceUpdate *updates,
+					      guint max_updates)
+{
+  IpatchSF2Voice *voice;
+  guint8 genid, genid2 = 255;
+  gint16 val = 0, val2 = 0;
+  int ival;
+
+  g_return_val_if_fail (cache->voices->len > 0, 0);
+
+  voice = IPATCH_SF2_VOICE_CACHE_GET_VOICE (cache, 0);
+
+  switch (IPATCH_PARAM_SPEC_ID (pspec))
+  {
+    case PROP_LOOP_START:
+      genid = IPATCH_SF2_GEN_SAMPLE_LOOP_START;
+      genid2 = IPATCH_SF2_GEN_SAMPLE_COARSE_LOOP_START;
+      ival = (int)g_value_get_uint (value) - voice->loop_start;
+      val = ival % 32768;
+      val2 = ival / 32768;
+      break;
+    case PROP_LOOP_END:
+      genid = IPATCH_SF2_GEN_SAMPLE_LOOP_END;
+      genid2 = IPATCH_SF2_GEN_SAMPLE_COARSE_LOOP_END;
+      ival = (int)g_value_get_uint (value) - voice->loop_end;
+      val = ival % 32768;
+      val2 = ival / 32768;
+      break;
+    case PROP_FINE_TUNE:
+      genid = IPATCH_SF2_GEN_FINE_TUNE_OVERRIDE;
+      ival = g_value_get_int (value);
+      break;
+    default:
+      return (0);
+  }
+
+  updates->voice = 0;
+  updates->genid = genid;
+  updates->ival = val;
+
+  if (genid2 != 255 && max_updates >= 2)
+  {
+    updates[1].voice = 0;
+    updates[1].genid = genid2;
+    updates[1].ival = val2;
+    return (2);
+  }
+  else return (1);
 }
 
 /**
