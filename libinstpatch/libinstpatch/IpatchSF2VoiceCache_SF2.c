@@ -175,15 +175,15 @@ _sf2_preset_to_sf2_voice_cache_convert (IpatchConverter *converter,
 	  /* igens += pgens */
 	  ipatch_sf2_gen_array_offset (&voice->gen_array, &pz);
 
-          if (cache->override_mods)
-          {
-            tmpmods = imods;
-            imods = ipatch_sf2_mod_list_override (imods, cache->override_mods, FALSE);
-            if (tmpmods != gimods) ipatch_sf2_mod_list_free (tmpmods, FALSE);
-          }
-
           /* ++ new modulator list of imods + pmods */
 	  voice->mod_list = ipatch_sf2_mod_list_offset (imods, pmods);
+
+          if (cache->override_mods)
+          {
+            tmpmods = voice->mod_list;
+            voice->mod_list = ipatch_sf2_mod_list_override (tmpmods, cache->override_mods, TRUE);
+            if (tmpmods) ipatch_sf2_mod_list_free (tmpmods, TRUE);
+          }
 
 	  /* set MIDI note and velocity ranges */
 	  amt = &voice->gen_array.values[IPATCH_SF2_GEN_NOTE_RANGE];
@@ -305,7 +305,7 @@ _sf2_inst_to_sf2_voice_cache_convert (IpatchConverter *converter, GError **err)
       
       if (cache->override_mods)
       { /* Override global/default mods with zone (no copy) and then with cache override mods (copy) */
-        tmpmods = ipatch_sf2_mod_list_override (gimods, izone->mods, FALSE);;
+        tmpmods = ipatch_sf2_mod_list_override (gimods, izone->mods, FALSE);
         voice->mod_list = ipatch_sf2_mod_list_override (tmpmods, cache->override_mods, TRUE);
         ipatch_sf2_mod_list_free (tmpmods, FALSE);
       } /* override global/default mods with zone (copy) */
