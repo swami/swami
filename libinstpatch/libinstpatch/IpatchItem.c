@@ -294,8 +294,8 @@ ipatch_item_init (IpatchItem *item)
 {
   /* always assign a mutex, will be freed and set to parent's mutex if the
      class has mutex_slave set (during ipatch_item_set_parent) */
-  item->mutex = g_malloc (sizeof (GStaticRecMutex));
-  g_static_rec_mutex_init (item->mutex);
+  item->mutex = g_malloc (sizeof (GRecMutex));
+  g_rec_mutex_init (item->mutex);
 
   ipatch_item_set_flags (item, IPATCH_ITEM_FREE_MUTEX);
 }
@@ -307,7 +307,7 @@ ipatch_item_finalize (GObject *object)
 
   if (ipatch_item_get_flags (item) & IPATCH_ITEM_FREE_MUTEX)
     {
-      g_static_rec_mutex_free (item->mutex);
+      g_rec_mutex_clear (item->mutex);
       g_free (item->mutex);
     }
 
@@ -332,7 +332,8 @@ ipatch_item_finalize (GObject *object)
  * NOTE: If the @item has mutex_slave set in its class then the item will use
  * @parent object's mutex.  During the call to this function @item should not
  * be accessed by any other threads, otherwise problems may occur when the
- * mutex is changed.  Normally this shouldn't be much of an issue, since new
+ * mutex is changed.  There must also not be any locks held on @item, even by
+ * the calling thread.  Normally this shouldn't be much of an issue, since new
  * item's are often only accessed by 1 thread until being parented.
  */
 void
@@ -341,8 +342,6 @@ ipatch_item_set_parent (IpatchItem *item, IpatchItem *parent)
   IpatchItemClass *klass;
   gboolean is_container;
   SetParentBag bag;
-  guint depth;
-  int i;
 
   g_return_if_fail (IPATCH_IS_ITEM (item));
   g_return_if_fail (IPATCH_IS_ITEM (parent));
@@ -354,7 +353,7 @@ ipatch_item_set_parent (IpatchItem *item, IpatchItem *parent)
   /* get value of parent's hook flag */
   bag.hooks_active = ipatch_item_get_flags (parent) & IPATCH_ITEM_HOOKS_ACTIVE;
 
-  IPATCH_ITEM_WLOCK (item);
+  IPATCH_ITEM_WLOCK (item);             // ++ Lock item
   if (log_if_fail (item->parent == NULL))
     {
       IPATCH_ITEM_WUNLOCK (item);
@@ -365,21 +364,18 @@ ipatch_item_set_parent (IpatchItem *item, IpatchItem *parent)
   klass = IPATCH_ITEM_GET_CLASS (item);
   if (klass->mutex_slave)
     {
-      depth = g_static_rec_mutex_unlock_full (item->mutex);
+      IPATCH_ITEM_WUNLOCK (item);       // -- Unlock item to change mutex
+
       if (ipatch_item_get_flags (item) & IPATCH_ITEM_FREE_MUTEX)
-	{
-	  g_static_rec_mutex_free (item->mutex);
+	{ // !! It is assumed that there are no other locks !!
+	  g_rec_mutex_clear (item->mutex);
 	  g_free (item->mutex);
 	}
 
       item->mutex = parent->mutex;
       ipatch_item_clear_flags (item, IPATCH_ITEM_FREE_MUTEX);
 
-      /* lock it the number of times old mutex was locked, we don't use
-	 g_static_rec_mutex_lock_full because it could set depth rather than
-	 add to it */
-      for (i = 0; i < depth; i++)
-	g_static_rec_mutex_lock (item->mutex);
+      IPATCH_ITEM_WLOCK (item);         // ++ Lock item to even things out for unlock below
     }
 
   item->parent = parent;

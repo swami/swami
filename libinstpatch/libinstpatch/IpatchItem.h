@@ -80,7 +80,7 @@ struct _IpatchItem
   int flags;		/* flag field (atomic int ops used) */
   IpatchItem *parent;	/* parent item or NULL if not parented or root */
   IpatchItem *base; 	/* base parent object or NULL */
-  GStaticRecMutex *mutex;  /* pointer to mutex (could be a parent's mutex) */
+  GRecMutex *mutex;     /* pointer to mutex (could be a parent's mutex) */
 };
 
 /* Base patch item class */
@@ -110,11 +110,11 @@ typedef enum
 #define IPATCH_ITEM_UNUSED_FLAG_SHIFT 4
 
 /* Multi-thread locking macros. For now there is no distinction between
-   write and read locking since GStaticRWLock is not recursive. */
+   write and read locking since GRWLock is not recursive. */
 #define IPATCH_ITEM_WLOCK(item)	\
-    g_static_rec_mutex_lock (((IpatchItem *)(item))->mutex)
+    g_rec_mutex_lock (((IpatchItem *)(item))->mutex)
 #define IPATCH_ITEM_WUNLOCK(item) \
-    g_static_rec_mutex_unlock (((IpatchItem *)(item))->mutex)
+    g_rec_mutex_unlock (((IpatchItem *)(item))->mutex)
 #define IPATCH_ITEM_RLOCK(item)		IPATCH_ITEM_WLOCK(item)
 #define IPATCH_ITEM_RUNLOCK(item)	IPATCH_ITEM_WUNLOCK(item)
 

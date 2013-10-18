@@ -73,8 +73,8 @@ static guint64 sample_cache_total_size = 0;     /* Total size of cached samples 
 static guint64 sample_cache_unused_size = 0;    /* Size of unused cached samples */
 
 /* Variables used to ensure that duplicate sample caching does not occur */
-static GMutex *caching_mutex;
-static GCond *caching_cond;
+static GMutex caching_mutex;
+static GCond caching_cond;
 static GSList *caching_list = NULL;
 
 
@@ -157,9 +157,6 @@ ipatch_sample_data_class_init (IpatchSampleDataClass *klass)
   ipatch_sample_install_property_readonly (obj_class, PROP_LOOP_END, "loop-end");
   ipatch_sample_install_property_readonly (obj_class, PROP_ROOT_NOTE, "root-note");
   ipatch_sample_install_property_readonly (obj_class, PROP_FINE_TUNE, "fine-tune");
-
-  caching_mutex = g_mutex_new ();
-  caching_cond = g_cond_new ();
 }
 
 static void
@@ -610,7 +607,7 @@ try_again:
   if (!new_cinfo) new_cinfo = g_slice_new (CachingInfo);
 
   /* Check if another thread is currently caching the same sample */
-  g_mutex_lock (caching_mutex);
+  g_mutex_lock (&caching_mutex);
 
   for (p = caching_list; p; p = p->next)
   {
@@ -623,8 +620,8 @@ try_again:
 
   if (p)        /* Matching cache operation in progress? */
   {
-    g_cond_wait (caching_cond, caching_mutex);
-    g_mutex_unlock (caching_mutex);
+    g_cond_wait (&caching_cond, &caching_mutex);
+    g_mutex_unlock (&caching_mutex);
     goto try_again;
   }
 
@@ -634,7 +631,7 @@ try_again:
   new_cinfo->channel_map = channel_map;
   caching_list = g_slist_prepend (caching_list, new_cinfo);
 
-  g_mutex_unlock (caching_mutex);
+  g_mutex_unlock (&caching_mutex);
 
 
   /* Cache the sample outside of lock */
@@ -680,7 +677,7 @@ try_again:
 
 caching_err:    /* If caching operation fails, make sure we remove CachingInfo from list */
 
-  g_mutex_lock (caching_mutex);
+  g_mutex_lock (&caching_mutex);
 
   for (p = caching_list; p; prev = p, p = p->next)
   {
@@ -695,7 +692,7 @@ caching_err:    /* If caching operation fails, make sure we remove CachingInfo f
     }
   }
 
-  g_mutex_unlock (caching_mutex);
+  g_mutex_unlock (&caching_mutex);
 
   g_slice_free (CachingInfo, cinfo);
   g_slist_free1 (p);

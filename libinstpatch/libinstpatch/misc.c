@@ -133,10 +133,8 @@ ipatch_init (void)
   if (initialized) return;
   initialized = TRUE;
 
+  /* FIXME - Remove depricated symbol, libglib >= 2.36.0 requirement */
   g_type_init ();
-
-  if (!g_thread_supported ())
-    g_thread_init (NULL);
 
   /* bind the gettext domain */
 #if defined(ENABLE_NLS)
