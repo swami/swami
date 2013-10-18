@@ -131,7 +131,7 @@ AC_SUBST(GUI_CFLAGS)
 AC_SUBST(GUI_LIBS)
 
 PKG_CHECK_MODULES(GOBJECT,
-  gobject-2.0 >= 2.12 glib-2.0 >= 2.12 gmodule-2.0 >= 2.12 gthread-2.0 >= 2.12)
+  gobject-2.0 >= 2.32 glib-2.0 >= 2.32 gmodule-2.0 >= 2.32 gthread-2.0 >= 2.32)
 AC_SUBST(GOBJECT_CFLAGS)
 AC_SUBST(GOBJECT_LIBS)
 
