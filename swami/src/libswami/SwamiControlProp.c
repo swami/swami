@@ -81,7 +81,7 @@ static GHashTable *control_prop_reverse_hash = NULL;
 /* thread private variable for preventing IpatchItem property loops,
    stores current origin SwamiControlEvent for property changes during
    IpatchItem property set, NULL when not in use */
-static GStaticPrivate prop_notify_origin = G_STATIC_PRIVATE_INIT;
+static GPrivate prop_notify_origin;
 
 
 /**
@@ -471,8 +471,7 @@ control_prop_set_value_method (SwamiControl *control, SwamiControlEvent *event,
   if (item_handler_id) /* IpatchItem object? */
     { 
       /* set current thread IpatchItem origin event to prevent event loops */
-      g_static_private_set (&prop_notify_origin,
-			    event->origin ? event->origin : event, NULL);
+      g_private_set (&prop_notify_origin, event->origin ? event->origin : event);
 
       /* OPTME - Faster but can't use for overridden properties (wrong param_id) */
       // klass->set_property (object, SWAMI_PARAM_SPEC_ID (spec), value, spec);
@@ -480,7 +479,7 @@ control_prop_set_value_method (SwamiControl *control, SwamiControlEvent *event,
       g_object_set_property (object, spec->name, value);
 
       /* IpatchItem set property no longer active for this thread */
-      g_static_private_set (&prop_notify_origin, NULL, NULL);
+      g_private_set (&prop_notify_origin, NULL);
     }
   else				/* non IpatchItem object */
     {
@@ -704,7 +703,7 @@ swami_control_prop_item_cb_notify (IpatchItemPropNotify *notify)
 
   /* IpatchItem property loop prevention, get current IpatchItem
      property origin event for this thread (if any) */
-  if ((origin = g_static_private_get (&prop_notify_origin)))
+  if ((origin = g_private_get (&prop_notify_origin)))
     swami_control_event_set_origin (ctrlevent, origin);
 
   /* transmit the new event to the controls destinations */
@@ -739,7 +738,7 @@ swami_control_prop_item_cb_notify_event (IpatchItemPropNotify *notify)
 
   /* IpatchItem property loop prevention, get current IpatchItem
      property origin event for this thread (if any) */
-  if ((origin = g_static_private_get (&prop_notify_origin)))
+  if ((origin = g_private_get (&prop_notify_origin)))
     swami_control_event_set_origin (ctrlevent, origin);
 
   /* transmit the new event to the controls destinations */

@@ -19,7 +19,6 @@
  */
 #include <gtk/gtk.h>
 #include <librsvg/rsvg.h>
-#include <librsvg/rsvg-cairo.h>
 #include <math.h>
 #include "config.h"
 
