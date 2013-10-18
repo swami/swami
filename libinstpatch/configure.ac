@@ -127,7 +127,7 @@ if test x"$native_win32" = xyes; then
 fi
 
 PKG_CHECK_MODULES(GOBJECT,
-  gobject-2.0 >= 2.14 glib-2.0 >= 2.14 gthread-2.0 >= 2.14)
+  gobject-2.0 >= 2.32 glib-2.0 >= 2.32 gthread-2.0 >= 2.32)
 AC_SUBST(GOBJECT_CFLAGS)
 AC_SUBST(GOBJECT_LIBS)
 

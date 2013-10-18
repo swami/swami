@@ -123,7 +123,7 @@ endif ( CMAKE_BUILD_TYPE MATCHES "Debug" )
 find_package ( PkgConfig REQUIRED )
 
 # Mandatory libraries: gobject, glib and gthread
-pkg_check_modules ( GOBJECT REQUIRED gobject-2.0>=2.14 glib-2.0>=2.14 gthread-2.0>=2.14 )
+pkg_check_modules ( GOBJECT REQUIRED gobject-2.0>=2.32 glib-2.0>=2.32 gthread-2.0>=2.32 )
 
 include ( UnsetPkgConfig )
 
