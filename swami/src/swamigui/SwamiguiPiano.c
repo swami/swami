@@ -502,21 +502,21 @@ swamigui_piano_midi_ctrl_callback (SwamiControl *control,
 				  const GValue *value)
 {
   SwamiguiPiano *piano = SWAMIGUI_PIANO (SWAMI_CONTROL_FUNC(control)->user_data);
-  GValueArray *valarray = NULL;
+  GArray *valarray = NULL;
   SwamiMidiEvent *midi;
   int i, count = 1;		/* default for single values */
 
   /* if its multiple values, fetch the value array */
-  if (G_VALUE_TYPE (value) == G_TYPE_VALUE_ARRAY)
+  if (G_VALUE_TYPE (value) == G_TYPE_ARRAY)
     {
       valarray = g_value_get_boxed (value);
-      count = valarray->n_values;
+      count = valarray->len;
     }
 
   i = 0;
   while (i < count)
     {
-      if (valarray) value = g_value_array_get_nth (valarray, i);
+      if (valarray) value = &g_array_index (valarray, GValue, i);
 
       if (G_VALUE_TYPE (value) == SWAMI_TYPE_MIDI_EVENT
 	  && (midi = g_value_get_boxed (value)))

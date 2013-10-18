@@ -307,6 +307,7 @@ swamigui_loop_finder_cb_find (GtkButton *button, gpointer user_data)
   GtkWidget *dialog;
   IpatchSample *sample;
   GtkWidget *label;
+  GThread *thread;
   GError *err = NULL;
   gboolean active;
 
@@ -372,13 +373,17 @@ swamigui_loop_finder_cb_find (GtkButton *button, gpointer user_data)
 #endif
 
   /* create a thread to do the work */
-  if (!g_thread_create (find_loop_thread, finder, FALSE, &err))
+  thread = g_thread_try_new ("LoopFinder", find_loop_thread, finder, &err);     // ++ ref thread
+
+  if (!thread)
     {
       g_critical (_("Failed to start loop finder thread: %s"),
 		  ipatch_gerror_message (err));
       if (err) g_error_free (err);
       return;
     }  
+
+  g_thread_unref (thread);      // -- unref thread
 
   /* update the find button to "Stop" state */
   swamigui_loop_finder_update_find_button (finder, FALSE);

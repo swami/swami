@@ -30,36 +30,37 @@
 
 /* --- private function prototypes --- */
 
+static void swami_lock_class_init (SwamiLockClass *klass);
 static void swami_lock_init (SwamiLock *lock);
+static void swami_lock_finalize (GObject *object);
 
+G_DEFINE_ABSTRACT_TYPE (SwamiLock, swami_lock, G_TYPE_OBJECT);
 
 /* --- functions --- */
 
 
-GType
-swami_lock_get_type (void)
+static void
+swami_lock_class_init (SwamiLockClass *klass)
 {
-  static GType item_type = 0;
-
-  if (!item_type) {
-    static const GTypeInfo item_info = {
-      sizeof (SwamiLockClass), NULL, NULL,
-      (GClassInitFunc) NULL, NULL, NULL,
-      sizeof (SwamiLock), 0,
-      (GInstanceInitFunc) swami_lock_init,
-    };
-
-    item_type = g_type_register_static (G_TYPE_OBJECT, "SwamiLock",
-					&item_info, G_TYPE_FLAG_ABSTRACT);
-  }
-
-  return (item_type);
+  GObjectClass *obj_class = G_OBJECT_CLASS (klass);
+  obj_class->finalize = swami_lock_finalize;
 }
 
 static void
 swami_lock_init (SwamiLock *lock)
 {
-  g_static_rec_mutex_init (&lock->mutex);
+  g_rec_mutex_init (&lock->mutex);
+}
+
+static void
+swami_lock_finalize (GObject *object)
+{
+  SwamiLock *lock = SWAMI_LOCK (object);
+
+  g_rec_mutex_clear (&lock->mutex);
+
+  if (G_OBJECT_CLASS (swami_lock_parent_class)->finalize)
+    G_OBJECT_CLASS (swami_lock_parent_class)->finalize (object);
 }
 
 /**
