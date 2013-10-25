@@ -329,7 +329,7 @@ typedef struct
 { /* NOTE: item and parent are ref'd by paste->add_list, no need here */
   IpatchItem *item;		/* item for these property values */
   IpatchContainer *parent;	/* parent of item (or proposed parent) */
-  GValueArray *valarray;	/* array of all of item's unique prop. values */
+  GArray *valarray;	/* array of all of item's unique prop. values */
   GParamSpec **pspecs;	/* parameter specs for these properties (NULL term.) */
   guint8 index;		/* index to first value/pspec of this unique group */
   guint8 count;		/* # of values/pspecs in this unique prop group */
@@ -372,7 +372,7 @@ ipatch_paste_resolve (IpatchPaste *paste, IpatchPasteResolveFunc resolve_func,
   AddItemBag *addbag, *confl_addbag;
   ResolveHashKey *key, skey;
   CheckBag checkbag;
-  GValueArray *valarray;
+  GArray *valarray;
   gboolean free_valarray;
   guint32 groups;
   GSList *p;
@@ -406,7 +406,7 @@ ipatch_paste_resolve (IpatchPaste *paste, IpatchPasteResolveFunc resolve_func,
 						   &groups);
       if (!pspecs)	/* should never happen! */
 	{
-	  g_value_array_free (valarray);
+	  ipatch_item_free_unique_props (valarray);
 	  continue;
 	}
 
@@ -453,6 +453,7 @@ ipatch_paste_resolve (IpatchPaste *paste, IpatchPasteResolveFunc resolve_func,
 		    {
 		      g_hash_table_destroy (confl_hash);
 		      g_hash_table_destroy (check_hash);
+                      /* FIXME - Does this leave valarray possibly still allocated? */
 		      return (FALSE);
 		    }
 
@@ -468,7 +469,7 @@ ipatch_paste_resolve (IpatchPaste *paste, IpatchPasteResolveFunc resolve_func,
 	}
 
       /* if valarray was not used in hash, then free it here */
-      if (free_valarray) g_value_array_free (valarray);
+      if (free_valarray) ipatch_item_free_unique_props (valarray);
     }
 
   /* bag for passing multilple variables to hash foreach function */
@@ -492,7 +493,7 @@ static guint
 resolve_hash_func (gconstpointer key)
 {
   ResolveHashKey *rkey = (ResolveHashKey *)key;
-  GValueArray *valarray;
+  GArray *valarray;
   GValue *value;
   guint hashval;
   int i, end;
@@ -510,7 +511,7 @@ resolve_hash_func (gconstpointer key)
 
   for (; i < end; i++)	/* hash the property values for this group */
     {
-      value = g_value_array_get_nth (valarray, i);
+      value = &g_array_index (valarray, GValue, i);
       hashval += ipatch_util_value_hash (value);
     }
 
@@ -536,8 +537,8 @@ resolve_equal_func (gconstpointer a, gconstpointer b)
 
   for (; i < end; i++)	/* see if the property values are the same */
     {
-      aval = g_value_array_get_nth (akey->valarray, i);
-      bval = g_value_array_get_nth (bkey->valarray, i);
+      aval = &g_array_index (akey->valarray, GValue, i);
+      bval = &g_array_index (bkey->valarray, GValue, i);
 
       if (g_param_values_cmp (akey->pspecs[i], aval, bval) != 0)
 	return (FALSE);
@@ -551,7 +552,7 @@ resolve_key_destroy_func (gpointer data)
 {
   ResolveHashKey *rkey = (ResolveHashKey *)data;
 
-  if (rkey->free_valarray) g_value_array_free (rkey->valarray);
+  if (rkey->free_valarray) ipatch_item_free_unique_props (rkey->valarray);
   g_free (rkey);
 }
 
@@ -587,7 +588,7 @@ check_item_conflicts_GHFunc (gpointer key, gpointer value,
   IpatchPasteResolveFunc resolve_func = (IpatchPasteResolveFunc)user_data;
   AddItemBag *confl_addbag;
   GParamSpec **pspecs, **ps;
-  GValueArray *valarray;
+  GArray *valarray;
   guint32 groups;
   IpatchIter iter;
   IpatchItem *item;
@@ -638,7 +639,7 @@ check_item_conflicts_GHFunc (gpointer key, gpointer value,
 		  if (choice == IPATCH_PASTE_CHOICE_CANCEL)
 		    {
 		      checkbag->cancel = TRUE;
-		      g_value_array_free (valarray);
+		      ipatch_item_free_unique_props (valarray);
 		      g_object_unref (list);	/* -- unref list */
 		      return;
 		    }
@@ -653,7 +654,7 @@ check_item_conflicts_GHFunc (gpointer key, gpointer value,
 	    }
 	  else count++;	/* not end of group, increment current val count */
 
-	g_value_array_free (valarray);
+	ipatch_item_free_unique_props (valarray);
 
       }	/* for each unique parameter group */
 

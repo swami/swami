@@ -74,10 +74,8 @@ ipatch_vbank_region_class_init (IpatchVBankRegionClass *klass)
 					 IPATCH_TYPE_ITEM,
 					 G_PARAM_READWRITE));
   g_object_class_install_property (obj_class, PROP_ID_PROPS,
-      g_param_spec_value_array ("id-props", _("ID props"),
-				_("Identification properties"),
-	  g_param_spec_string ("name-value", "Name value", "Name value pairs",
-			       NULL, G_PARAM_READWRITE), G_PARAM_READWRITE));
+      g_param_spec_boxed ("id-props", _("ID props"), _("Identification properties"),
+	                  G_TYPE_STRV, G_PARAM_READWRITE));
   g_object_class_install_property (obj_class, PROP_FILE_INDEX,
 	      g_param_spec_uint ("file-index", _("File index"), _("File index"),
 				 0, G_MAXUINT, 0, G_PARAM_READABLE));
@@ -124,11 +122,9 @@ ipatch_vbank_region_set_property (GObject *object, guint property_id,
 				  const GValue *value, GParamSpec *pspec)
 {
   IpatchVBankRegion *region = IPATCH_VBANK_REGION (object);
-  GValueArray *valarray;
   IpatchRange *range;
   GObject *obj;
   char **strv;
-  int i;
 
   switch (property_id)
   {
@@ -144,21 +140,8 @@ ipatch_vbank_region_set_property (GObject *object, guint property_id,
       IPATCH_ITEM_WUNLOCK (region);
       break;
     case PROP_ID_PROPS:
-      valarray = g_value_get_boxed (value);
-
-      if (valarray)
-      {
-	strv = g_new (char *, valarray->n_values + 1);	/* ++ alloc */
-
-	for (i = 0; i < valarray->n_values; i++)
-	  strv[i] = (char *)g_value_get_string (g_value_array_get_nth (valarray, i));
-
-	strv[valarray->n_values] = NULL;
-
-	ipatch_vbank_region_real_set_id_props (region, strv, FALSE);
-
-	g_free (strv);	/* -- free - strings themselves were not allocated */
-      }
+      strv = g_value_get_boxed (value);
+      ipatch_vbank_region_real_set_id_props (region, strv, FALSE);
       break;
     case PROP_NOTE_RANGE:
       range = ipatch_value_get_range (value);
@@ -187,13 +170,9 @@ ipatch_vbank_region_get_property (GObject *object, guint property_id,
 				  GValue *value, GParamSpec *pspec)
 {
   IpatchVBankRegion *region = IPATCH_VBANK_REGION (object);
-  GValueArray *valarray;
   IpatchRange range;
-  guint n_elements;
   GObject *obj;
   char **strv;
-  GValue val = { 0 };
-  int i;
 
   switch (property_id)
   {
@@ -209,26 +188,8 @@ ipatch_vbank_region_get_property (GObject *object, guint property_id,
       g_value_take_object (value, obj);
       break;
     case PROP_ID_PROPS:
-      strv = ipatch_vbank_region_get_id_props (region, &n_elements);	/* ++ alloc */
-
-      if (strv)
-      {
-	valarray = g_value_array_new (n_elements);	/* ++ alloc */
-	g_value_init (&val, G_TYPE_STRING);
-
-	for (i = 0; i < n_elements; i++)
-	{
-	  g_value_set_string (&val, strv[i]);	/* ++ alloc */
-	  g_value_array_append (valarray, &val);
-	  g_value_reset (&val);			/* -- free */
-	}
-
-	g_value_unset (&val);
-
-	g_value_take_boxed (value, valarray);	/* !! owned */
-	g_strfreev (strv);	/* -- free */
-      }
-      else g_value_set_boxed (value, NULL);
+      strv = ipatch_vbank_region_get_id_props (region, NULL);   // ++ alloc strv
+      g_value_take_boxed (value, strv);                         // !! value takes over strv
       break;
     case PROP_FILE_INDEX:
       g_value_set_uint (value, region->file_index);

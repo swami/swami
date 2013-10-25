@@ -17,6 +17,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+#include <string.h>
+
 #include "IpatchSampleList.h"
 #include "ipatch_priv.h"
 
@@ -36,6 +38,18 @@ ipatch_sample_list_get_type (void)
     type = g_boxed_type_register_static ("IpatchSampleList",
                                 (GBoxedCopyFunc)ipatch_sample_list_duplicate,
                                 (GBoxedFreeFunc)ipatch_sample_list_free);
+  return (type);
+}
+
+GType
+ipatch_sample_list_array_get_type (void)
+{
+  static GType type = 0;
+
+  if (!type)
+    type = g_boxed_type_register_static ("IpatchSampleListArray",
+                                (GBoxedCopyFunc)ipatch_sample_list_array_duplicate,
+                                (GBoxedFreeFunc)ipatch_sample_list_array_free);
   return (type);
 }
 
@@ -495,6 +509,105 @@ ipatch_sample_list_render (IpatchSampleList *list, gpointer buf,
   g_return_val_if_fail (size == 0, FALSE);	/* means total_size is out of sync! */
 
   return (TRUE);
+}
+
+/**
+ * ipatch_sample_list_array_new:
+ * @list1: First sample list (array takes over ownership)
+ * @...: Additional #IpatchSampleList items, terminated with %NULL (array takes over ownership)
+ *
+ * Create a sample list array, for multi-channel audio.
+ *
+ * Returns: New allocated sample list array which is %NULL terminated, free with ipatch_sample_list_array_free().
+ */
+IpatchSampleList **
+ipatch_sample_list_array_new (IpatchSampleList *list1, ...)
+{
+  IpatchSampleList **array;
+
+  va_list args;
+
+  va_start (args, list1);
+  array = ipatch_sample_list_array_newv (list1, args);
+  va_end (args);
+
+  return (array);
+}
+
+/**
+ * ipatch_sample_list_array_newv:
+ * @list1: First sample list
+ * @nlists: Additional varargs #IpatchSampleList items, terminated with %NULL
+ *
+ * Create a sample list array, for multi-channel audio, from combining single list and varargs list.
+ *
+ * Returns: New allocated sample list array which is %NULL terminated, free with ipatch_sample_list_array_free().
+ */
+IpatchSampleList **
+ipatch_sample_list_array_newv (IpatchSampleList *list1, va_list nlists)
+{
+  IpatchSampleList **array;
+  IpatchSampleList *list;
+  int size = 2;                 // Default to stereo lists
+  int i;
+
+  if (!list1) return (g_new0 (IpatchSampleList *, 1));  // Handle empty array
+
+  array = g_new (IpatchSampleList *, size + 1);         // ++ Allocate array + terminator
+  array[0] = list1;
+
+  for (i = 1; (list = va_arg (nlists, IpatchSampleList *)) != NULL; i++)
+  {
+    if (i >= size) array = g_realloc (array, (++size + 1) * sizeof (IpatchSampleList *));       // !! Increase size of array as needed
+    array[i] = list;
+  }
+
+  array[size] = NULL;
+
+  return (array);       // !! Caller takes over array
+}
+
+/**
+ * ipatch_sample_list_array_duplicate:
+ * @array: Sample list array to duplicate
+ *
+ * Duplicate a sample list array.
+ *
+ * Returns: Duplicated %NULL terminated sample list array.
+ */
+IpatchSampleList **
+ipatch_sample_list_array_duplicate (IpatchSampleList **array)
+{
+  IpatchSampleList **p, **newarray;
+  int count;
+
+  g_return_val_if_fail (array != NULL, NULL);
+
+  for (count = 0, p = array; *p; p++);  // Count array entries
+
+  newarray = g_new (IpatchSampleList *, count + 1);
+  memcpy (newarray, array, (count + 1) * sizeof (IpatchSampleList *));
+
+  return (newarray);
+}
+
+/**
+ * ipatch_sample_list_array_free:
+ * @array: Sample list array to free
+ *
+ * Free a sample list array.
+ */
+void
+ipatch_sample_list_array_free (IpatchSampleList **array)
+{
+  IpatchSampleList **p;
+
+  g_return_if_fail (array != NULL);
+
+  for (p = array; *p; p++)
+    ipatch_sample_list_free (*p);
+
+  g_free (array);
 }
 
 #ifdef IPATCH_DEBUG

@@ -53,7 +53,6 @@ _ipatch_util_init (void)
 guint
 ipatch_util_value_hash (GValue *val)
 {
-  GValueArray *valarray;
   GType valtype;
   const char *sval;
 
@@ -71,7 +70,7 @@ ipatch_util_value_hash (GValue *val)
   switch (G_TYPE_FUNDAMENTAL (valtype))
     {
     case G_TYPE_CHAR:
-      return (g_value_get_char (val));
+      return (g_value_get_schar (val));
     case G_TYPE_UCHAR:
       return (g_value_get_uchar (val));
     case G_TYPE_BOOLEAN:
@@ -104,12 +103,7 @@ ipatch_util_value_hash (GValue *val)
     case G_TYPE_POINTER:
       return (GPOINTER_TO_UINT (g_value_get_pointer (val)));
     case G_TYPE_BOXED:
-      if (valtype == G_TYPE_VALUE_ARRAY)	/* value array? */
-	{
-	  valarray = g_value_get_boxed (val);
-	  return (ipatch_util_value_array_hash (valarray));
-	}
-      else return (GPOINTER_TO_UINT (g_value_get_boxed (val)));
+      return (GPOINTER_TO_UINT (g_value_get_boxed (val)));
     case G_TYPE_PARAM:
       return (GPOINTER_TO_UINT (g_value_get_param (val)));
     case G_TYPE_OBJECT:
@@ -118,34 +112,6 @@ ipatch_util_value_hash (GValue *val)
       g_assert_not_reached ();
       return (0);	/* to keep compiler happy */
     }
-}
-
-/**
- * ipatch_util_value_array_hash:
- * @valarray: GValueArray to hash
- *
- * Hash a GValueArray.  The hash value can then be used in a GHashTable for
- * example.
- *
- * Returns: Hash value corresponding to the sum of all values returned
- * by ipatch_util_value_hash() for each GValue in the array.
- */
-guint
-ipatch_util_value_array_hash (GValueArray *valarray)
-{
-  GValue *value;
-  guint hashval = 0;
-  int i;
-
-  if (!valarray) return (0);
-
-  for (i = 0; i < valarray->n_values; i++)
-    {
-      value = g_value_array_get_nth (valarray, i);
-      hashval += ipatch_util_value_hash (value);
-    }
-
-  return (hashval);
 }
 
 /**

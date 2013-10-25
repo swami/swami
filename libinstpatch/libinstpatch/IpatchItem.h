@@ -281,7 +281,8 @@ IpatchItem *ipatch_item_copy_link_func_hash (IpatchItem *item, IpatchItem *link,
 gboolean ipatch_item_type_can_conflict (GType item_type);
 GParamSpec **ipatch_item_type_get_unique_specs (GType item_type,
 						guint32 *groups);
-GValueArray *ipatch_item_get_unique_props (IpatchItem *item);
+GArray *ipatch_item_get_unique_props (IpatchItem *item);
+void ipatch_item_free_unique_props (GArray *array);
 guint ipatch_item_test_conflict (IpatchItem *item1, IpatchItem *item2);
 void ipatch_item_set_atomic (gpointer item,
 			     const char *first_property_name, ...);

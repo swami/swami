@@ -574,7 +574,7 @@ ipatch_xml_default_encode_value_func (GNode *node, GObject *object,
   switch (G_TYPE_FUNDAMENTAL (valtype))
   {
     case G_TYPE_CHAR:
-      ipatch_xml_set_value_printf (node, "%d", g_value_get_char (value));
+      ipatch_xml_set_value_printf (node, "%d", g_value_get_schar (value));
       return (TRUE);
     case G_TYPE_UCHAR:
       ipatch_xml_set_value_printf (node, "%u", g_value_get_uchar (value));
@@ -763,7 +763,7 @@ ipatch_xml_default_decode_value_func (GNode *node, GObject *object,
     case G_TYPE_CHAR:
       if (sscanf (xml, "%d", &i) != 1) goto malformed_err;
       if (i < G_MININT8 || i > G_MAXINT8) goto range_err;
-      g_value_set_char (value, i);
+      g_value_set_schar (value, i);
       break;
     case G_TYPE_UCHAR:
       if (sscanf (xml, "%u", &u) != 1) goto malformed_err;

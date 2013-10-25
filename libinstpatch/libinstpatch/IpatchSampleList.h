@@ -39,8 +39,9 @@ typedef struct _IpatchSampleListItem IpatchSampleListItem;
 
 #include <libinstpatch/IpatchSample.h>
 
-/* Boxed type for sample list */
-#define IPATCH_TYPE_SAMPLE_LIST   (ipatch_sample_list_get_type ())
+/* Boxed type for sample list and list array */
+#define IPATCH_TYPE_SAMPLE_LIST         (ipatch_sample_list_get_type ())
+#define IPATCH_TYPE_SAMPLE_LIST_ARRAY   (ipatch_sample_list_array_get_type ())
 
 /**
  * IpatchSampleList:
@@ -70,6 +71,8 @@ struct _IpatchSampleListItem
 
 
 GType ipatch_sample_list_get_type (void);
+GType ipatch_sample_list_array_get_type (void);
+
 IpatchSampleList *ipatch_sample_list_new (void);
 void ipatch_sample_list_free (IpatchSampleList *list);
 IpatchSampleList *ipatch_sample_list_duplicate (IpatchSampleList *list);
@@ -92,4 +95,10 @@ void ipatch_sample_list_insert (IpatchSampleList *list, guint pos,
 void ipatch_sample_list_cut (IpatchSampleList *list, guint pos, guint size);
 gboolean ipatch_sample_list_render (IpatchSampleList *list, gpointer buf,
                                     guint pos, guint size, int format, GError **err);
+IpatchSampleList **ipatch_sample_list_array_new (IpatchSampleList *list1, ...) G_GNUC_NULL_TERMINATED;
+IpatchSampleList **ipatch_sample_list_array_newv (IpatchSampleList *list1, va_list nlists);
+IpatchSampleList **ipatch_sample_list_array_duplicate (IpatchSampleList **array);
+void ipatch_sample_list_array_free (IpatchSampleList **array);
+
 #endif
+

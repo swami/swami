@@ -74,10 +74,8 @@ ipatch_sample_store_virtual_class_init (IpatchSampleStoreVirtualClass *klass)
 
 
   g_object_class_install_property (obj_class, PROP_SAMPLE_LISTS,
-      g_param_spec_value_array ("sample-lists", "Sample lists", "Sample lists",
-                                g_param_spec_boxed ("value", "value", "value",
-                                                    IPATCH_TYPE_SAMPLE_LIST, G_PARAM_READWRITE),
-                                G_PARAM_READWRITE));
+      g_param_spec_boxed ("sample-lists", "Sample lists", "Sample lists",
+                          IPATCH_TYPE_SAMPLE_LIST_ARRAY, G_PARAM_READWRITE));
 }
 
 static void
@@ -86,7 +84,7 @@ ipatch_sample_store_virtual_set_property (GObject *object, guint property_id,
 {
   IpatchSampleStoreVirtual *store = IPATCH_SAMPLE_STORE_VIRTUAL (object);
   IpatchSampleList *list;
-  GValueArray *array;
+  IpatchSampleList **array;
   int chan;
 
   switch (property_id)
@@ -96,8 +94,11 @@ ipatch_sample_store_virtual_set_property (GObject *object, guint property_id,
 
       for (chan = 0; chan < 2; chan++)
       {
-        if (array && chan < array->n_values)
-          list = g_value_dup_boxed (g_value_array_get_nth (array, chan));
+        if (*array)
+        {
+          list = ipatch_sample_list_duplicate (*array);
+          array++;
+        }
         else list = NULL;
 
         ipatch_sample_store_virtual_set_list (store, chan, list);
@@ -114,24 +115,13 @@ ipatch_sample_store_virtual_get_property (GObject *object, guint property_id,
                                           GValue *value, GParamSpec *pspec)
 {
   IpatchSampleStoreVirtual *store = IPATCH_SAMPLE_STORE_VIRTUAL (object);
-  GValueArray *array;
-  GValue local_value = { 0 };
-  int chan;
+  IpatchSampleList **array;
 
   switch (property_id)
   {
     case PROP_SAMPLE_LISTS:
-      array = g_value_array_new (0);    /* ++ alloc new value array */
-
-      for (chan = 0; chan < 2 && store->lists[chan]; chan++)
-      {
-        g_value_init (&local_value, IPATCH_TYPE_SAMPLE_LIST);
-        g_value_set_boxed (&local_value, store->lists[chan]);
-        g_value_array_append (array, &local_value);
-        g_value_unset (&local_value);
-      }
-
-      g_value_take_boxed (value, array);        /* !takes over ownership of array */
+      array = ipatch_sample_list_array_new (store->lists[0], store->lists[1], NULL);    // ++ alloc sample list array
+      g_value_take_boxed (value, array);        /* !! takes over ownership of array */
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);

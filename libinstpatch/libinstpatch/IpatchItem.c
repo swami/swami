@@ -1126,17 +1126,17 @@ ipatch_item_type_get_unique_specs (GType item_type, guint32 *groups)
  * doing conflict detection processing and more flexibility is desired than
  * with ipatch_item_test_conflict().
  *
- * Returns: GValueArray of the unique property values of @item in the same
+ * Returns: GArray of GValue structures of the unique property values of @item in the same
  * order as the parameter specs returned by ipatch_item_type_get_unique_specs().
  * %NULL is returned if @item doesn't have any unique properties.
- * Use g_value_array_free() to free the array when finished using it.
+ * Use g_array_free() to free the array when finished using it.
  */
-GValueArray *
+GArray *
 ipatch_item_get_unique_props (IpatchItem *item)
 {
   GParamSpec **ps;
   UniqueBag *unique;
-  GValueArray *vals;
+  GArray *vals;
   GValue *value;
   int count, i;
 
@@ -1149,16 +1149,27 @@ ipatch_item_get_unique_props (IpatchItem *item)
   /* count param specs */
   for (count = 0, ps = unique->pspecs; *ps; count++, ps++);
 
-  vals = g_value_array_new (count);
+  vals = g_array_sized_new (FALSE, TRUE, sizeof (GValue), count);
+  g_array_set_clear_func (vals, (GDestroyNotify)g_value_unset);
 
   for (i = 0, ps = unique->pspecs; i < count; i++, ps++)
     { /* NULL will append an unset value, saves a value copy operation */
-      g_value_array_append (vals, NULL);
-      value = g_value_array_get_nth (vals, i);
+      g_array_set_size (vals, i + 1);
+      value = &g_array_index (vals, GValue, i);
       ipatch_item_get_property_fast (item, *ps, value);
     }
 
   return (vals);
+}
+
+/**
+ * Free value array returned by ipatch_item_get_unique_props().
+ * @array: Array returned from ipatch_item_get_unique_props() to free.
+ */
+void
+ipatch_item_free_unique_props (GArray *array)
+{
+  g_array_free (array, TRUE);
 }
 
 /**
