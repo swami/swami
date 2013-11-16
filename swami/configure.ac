@@ -18,7 +18,7 @@ dnl - Check build environment
 AC_CANONICAL_SYSTEM
 
 AM_INIT_AUTOMAKE(swami, $SWAMI_VERSION)
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS(config.h)
 
 SWAMI_VERSION="\"$VERSION\""
 CFLAGS="$CFLAGS -Wall"
