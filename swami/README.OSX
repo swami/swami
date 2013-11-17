@@ -29,7 +29,7 @@ Building an app bundle with GTK-OSX
 ===================================
 BALATON Zoltan <balaton at users dot sourceforge dot net>
 
-Last updated: 18th February, 2013
+Last updated: 16th November, 2013
 
 Resources:
 http://www.gtk.org/download/macos.php
@@ -56,6 +56,8 @@ $ . $HOME/.profile
 
 setup_sdk("10.6", sdk_version="10.6", architectures=["i386"])
 moduleset=os.environ['HOME'] + '/custom.modules'
+module_autogenargs['cairo'] = '--enable-ft=no'
+skip=["gnome-doc-utils", "cups"]
 
 - Bootstrap jhbuild and build some packages
 
@@ -63,6 +65,7 @@ $ jhbuild shell # make sure to enter the jhbuild shell first
 $ jhbuild bootstrap
 $ jhbuild build meta-gtk-osx-bootstrap
 $ jhbuild build meta-gtk-osx-freetype
+$ jhbuild build python
 $ jhbuild build meta-gtk-osx-core
 
 2. Teach jhbuild about some more dependencies and build them
@@ -124,6 +127,7 @@ $ jhbuild shell # re-enter shell if exited from it, otherwise not needed
 $ jhbuild build libfftw3
 $ jhbuild build fluidsynth
 $ jhbuild build libgnomecanvas
+$ jhbuild build libxml2
 $ jhbuild build librsvg
 
 3. Now we could teach jhbuild to also build libinstpatch and swami like above if
@@ -131,12 +135,12 @@ $ jhbuild build librsvg
 
 $ jhbuild shell # always use the shell for anything needing stuff built by jhbuild
 $ cd $HOME/swami/src/libinstpatch
-$ ./configure --prefix=$HOME/swami/inst --build=i386-apple-darwin12.2.0 \
---host=i386-apple-darwin12.2.0 --target=i386-apple-darwin12.2.0
+$ ./configure --prefix=$HOME/swami/inst --build=i386-apple-darwin12.5.0 \
+--host=i386-apple-darwin12.5.0 --target=i386-apple-darwin12.5.0
 $ make && make install
 $ cd $HOME/swami/src/swami
-$ ./configure --prefix=$HOME/swami/inst --build=i386-apple-darwin12.2.0 \
---host=i386-apple-darwin12.2.0 --target=i386-apple-darwin12.2.0 \
+$ ./configure --prefix=$HOME/swami/inst --build=i386-apple-darwin12.5.0 \
+--host=i386-apple-darwin12.5.0 --target=i386-apple-darwin12.5.0 \
 PKG_CONFIG_PATH=$HOME/swami/inst/lib/pkgconfig:$PKG_CONFIG_PATH
 $ make && make install
 
