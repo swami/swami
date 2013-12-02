@@ -31,6 +31,10 @@
 #include <glib-object.h>
 #include "IpatchFile.h"
 #include "ipatch_priv.h"
+#include "util.h"
+
+// Count of new files in file pool hash before garbage collection cleanup is run
+#define IPATCH_FILE_POOL_CREATE_COUNT_CLEANUP   100
 
 enum
 {
@@ -96,6 +100,11 @@ static IpatchFileIOFuncs null_iofuncs =
 
 G_DEFINE_TYPE (IpatchFile, ipatch_file, IPATCH_TYPE_ITEM);
 
+/* Lock and hash for file pool */
+G_LOCK_DEFINE_STATIC (ipatch_file_pool);
+static GHashTable *ipatch_file_pool = NULL;     // Hash of fileNames -> GWeakRef(IpatchFile)
+
+
 static IpatchFileHandle *
 ipatch_file_handle_duplicate (IpatchFileHandle *handle)
 {
@@ -151,6 +160,9 @@ ipatch_file_class_init (IpatchFileClass *klass)
 					     "File Name",
 					     NULL,
 					     G_PARAM_READWRITE));
+
+  ipatch_file_pool = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                            g_free, ipatch_util_weakref_destroy);
 }
 
 static void
@@ -161,6 +173,9 @@ ipatch_file_init (IpatchFile *file)
 
   if (G_BYTE_ORDER != G_LITTLE_ENDIAN)
     ipatch_item_set_flags (file, IPATCH_FILE_FLAG_SWAP);
+
+  file->ref_hash = g_hash_table_new_full (g_direct_hash, g_direct_equal,
+                                          NULL, ipatch_util_weakref_destroy);
 }
 
 static void
@@ -185,6 +200,8 @@ ipatch_file_finalize (GObject *gobject)
 
   if (file->iochan)
     g_io_channel_unref (file->iochan);
+
+  g_hash_table_destroy (file->ref_hash);
 
   IPATCH_ITEM_WUNLOCK (file);
 
@@ -240,6 +257,262 @@ ipatch_file_new (void)
 }
 
 /**
+ * ipatch_file_pool_new:
+ * @file_name: File name (converted to an absolute file name if it isn't already)
+ * @created: Location to store %TRUE if file object was newly created, %FALSE if not (%NULL to ignore)
+ *
+ * Lookup existing file object from file pool by file name or create a new one if not open.
+ *
+ * Returns: File object with the assigned @file_name and an added reference which the caller owns
+ */
+IpatchFile *
+ipatch_file_pool_new (const char *file_name, gboolean *created)
+{
+  IpatchFile *file, *lookup_file = NULL;
+  char *abs_filename;
+  GWeakRef *weakref, *lookup;
+  static int createCount = 0;   // Counter for garbage collection (destroyed file objects)
+
+  if (created) *created = FALSE;        // Initialize in case of bail out..
+
+  g_return_val_if_fail (file_name != NULL, NULL);
+
+  file = ipatch_file_new ();            // ++ ref
+  weakref = g_slice_new (GWeakRef);     // ++ allocate weak reference
+  g_weak_ref_init (weakref, file);
+  abs_filename = ipatch_util_abs_filename (file_name);  // ++ allocate absolute filename
+
+  G_LOCK (ipatch_file_pool);
+
+  lookup = g_hash_table_lookup (ipatch_file_pool, abs_filename);
+
+  if (lookup)
+  {
+    lookup_file = g_weak_ref_get (lookup);              // ++ ref object
+    if (!lookup_file) g_weak_ref_set (lookup, file);    // !! Re-use weak reference (it was NULL)
+  }
+  else g_hash_table_insert (ipatch_file_pool, abs_filename, weakref);   // !! hash takes over filename and weakref
+
+  if (!lookup_file)
+  {
+    if (++createCount >= IPATCH_FILE_POOL_CREATE_COUNT_CLEANUP) // Garbage collection for destroyed file objects
+    {
+      GHashTableIter iter;
+      gpointer key, value;
+      IpatchFile *value_file;
+
+      createCount = 0;
+
+      g_hash_table_iter_init (&iter, ipatch_file_pool);
+
+      while (g_hash_table_iter_next (&iter, &key, &value))
+      {
+        value_file = g_weak_ref_get ((GWeakRef *)value);    // ++ ref
+
+        if (value_file) g_object_unref (value_file); // -- unref file value
+        else g_hash_table_iter_remove (&iter);  // Weak reference empty (file object destroyed) - remove
+      }
+    }
+  }
+
+  G_UNLOCK (ipatch_file_pool);
+
+  if (lookup_file)
+  {
+    g_free (abs_filename);      // -- free absolute filename
+    g_weak_ref_clear (weakref); // -- clear weak reference
+    g_slice_free (GWeakRef, weakref);   // -- free weak reference
+    g_object_unref (file);      // -- unref
+    return (lookup_file);       // !! caller takes over ref
+  }
+
+  if (created) *created = TRUE;
+
+  if (lookup)
+  {
+    g_free (abs_filename);      // -- free absolute filename
+    g_weak_ref_clear (weakref); // -- clear weak reference
+    g_slice_free (GWeakRef, weakref);   // -- free weak reference
+  }
+
+  return (file);        // !! caller takes over ref
+}
+
+/**
+ * ipatch_file_pool_lookup:
+ * @file_name: File name to lookup existing file object for
+ *
+ * Lookup an existing file object in the file pool, by file name. Does not
+ * create a new object, if not found, like ipatch_file_pool_new() does.
+ *
+ * Returns: Matching file object with a reference that the caller owns
+ *   or %NULL if not found
+ */
+IpatchFile *
+ipatch_file_pool_lookup (const char *file_name)
+{
+  IpatchFile *lookup_file = NULL;
+  char *abs_filename;
+  GWeakRef *lookup;
+
+  g_return_val_if_fail (file_name != NULL, NULL);
+
+  abs_filename = ipatch_util_abs_filename (file_name);  // ++ allocate absolute filename
+
+  G_LOCK (ipatch_file_pool);
+  lookup = g_hash_table_lookup (ipatch_file_pool, abs_filename);
+  if (lookup) lookup_file = g_weak_ref_get (lookup);              // ++ ref object
+  G_UNLOCK (ipatch_file_pool);
+
+  g_free (abs_filename);        // -- free absolute filename
+
+  return (lookup_file);         // !! caller takes over ref
+}
+
+/**
+ * ipatch_file_ref_from_object:
+ * @file: File object to add a reference to (g_object_ref() called)
+ * @object: Object which is referencing the @file
+ *
+ * Reference a file object from another object and keep track of the
+ * external reference (using a #GWeakRef). References can be obtained with
+ * ipatch_file_get_refs(). Use ipatch_file_unref_from_object() to remove
+ * the reference, although the registration will be removed regardless at some
+ * point if @object gets destroyed and ipatch_file_get_refs() or
+ * ipatch_file_get_refs_by_type() is called.
+ */
+void
+ipatch_file_ref_from_object (IpatchFile *file, GObject *object)
+{
+  GWeakRef *weakref;
+
+  g_return_if_fail (IPATCH_IS_FILE (file));
+  g_return_if_fail (G_IS_OBJECT (object));
+
+  weakref = g_slice_new (GWeakRef);     // ++ allocate weak reference
+  g_weak_ref_init (weakref, object);    // ++ initialize the weak reference with object
+
+  IPATCH_ITEM_WLOCK (file);
+  g_hash_table_insert (file->ref_hash, object, weakref);        // !! list takes over weak reference
+  IPATCH_ITEM_WUNLOCK (file);
+
+  g_object_ref (file);                  // ++ ref file object for object
+}
+
+/**
+ * ipatch_file_unref_from_object:
+ * @file: File object to remove a reference from (g_object_unref() called)
+ * @object: Object which is unreferencing the @file
+ *
+ * Remove a reference previously registered with ipatch_file_ref_from_object().
+ * This will get done eventually if @object gets destroyed and ipatch_file_get_refs()
+ * or ipatch_file_get_refs_by_type() is called, however.
+ */
+void
+ipatch_file_unref_from_object (IpatchFile *file, GObject *object)
+{
+  g_return_if_fail (IPATCH_IS_FILE (file));
+  g_return_if_fail (object != NULL);            // We only need the pointer value really
+
+  IPATCH_ITEM_WLOCK (file);
+  g_hash_table_remove (file->ref_hash, object);
+  IPATCH_ITEM_WUNLOCK (file);
+
+  g_object_unref (file);                // -- ref file object for object
+}
+
+/**
+ * ipatch_file_test_ref_object:
+ * @file: File object to test reference to
+ * @object: Object to test for reference to @file
+ *
+ * Check if a given @object is referencing @file. Must have been
+ * referenced with ipatch_file_ref_from_object().
+ *
+ * Returns: %TRUE if @object references @file, %FALSE otherwise
+ */
+gboolean
+ipatch_file_test_ref_object (IpatchFile *file, GObject *object)
+{
+  gboolean retval;
+
+  g_return_if_fail (IPATCH_IS_FILE (file));
+  g_return_if_fail (object != NULL);            // We only need the pointer value really
+
+  IPATCH_ITEM_WLOCK (file);
+  retval = g_hash_table_lookup (file->ref_hash, object) != NULL;
+  IPATCH_ITEM_WUNLOCK (file);
+
+  return (retval);
+}
+
+/**
+ * ipatch_file_get_refs:
+ * @file: File object to get external references of
+ *
+ * Get list of objects referencing a file object.
+ * NOTE: A side effect of calling this function is that any references from
+ * destroyed objects are removed (if ipatch_file_unref_from_object() was not used).
+ *
+ * Returns: New object list which caller owns a reference to,
+ *   unreference when finished using it.
+ */
+IpatchList *
+ipatch_file_get_refs (IpatchFile *file)
+{
+  return (ipatch_file_get_refs_by_type (file, G_TYPE_NONE));
+}
+
+/**
+ * ipatch_file_get_refs_by_type:
+ * @file: File object to get external references of
+ * @type: Object type to match (or a descendant thereof) or #G_TYPE_NONE
+ *   to match any type
+ *
+ * Like ipatch_file_get_refs() but only returns objects matching a given type
+ * or a descendant thereof.
+ *
+ * Returns: New object list which caller owns a reference to,
+ *   unreference when finished using it.
+ */
+IpatchList *
+ipatch_file_get_refs_by_type (IpatchFile *file, GType type)
+{
+  GHashTableIter iter;
+  gpointer key;
+  GObject *refobj;
+  GWeakRef *weakref;
+  IpatchList *list;
+
+  g_return_val_if_fail (IPATCH_IS_FILE (file), NULL);
+  if (type == G_TYPE_OBJECT) type = G_TYPE_NONE;        // G_TYPE_OBJECT is equivalent to G_TYPE_NONE (i.e., all objects)
+  g_return_val_if_fail (type == G_TYPE_NONE || g_type_is_a (type, G_TYPE_OBJECT), NULL);
+
+  list = ipatch_list_new ();            // ++ ref object list
+
+  IPATCH_ITEM_WLOCK (file);
+
+  g_hash_table_iter_init (&iter, file->ref_hash);
+
+  while (g_hash_table_iter_next (&iter, &key, (gpointer *)&weakref))
+  {
+    refobj = g_weak_ref_get (weakref);  // ++ ref object
+
+    if (refobj)         // Object still alive?
+    { // type not specified or object matches type?
+      if (type == G_TYPE_NONE || g_type_is_a (G_OBJECT_TYPE (refobj), type))
+        list->items = g_list_prepend (list->items, refobj);    // Prepend object to list
+      else g_object_unref (refobj);     // -- unref object (did not match type criteria)
+    }
+    else g_hash_table_iter_remove (&iter);      // Object destroyed - remove from hash
+  }
+
+  IPATCH_ITEM_WUNLOCK (file);
+
+  return (list);                // !! caller takes over list reference
+}
+
+/**
  * ipatch_file_set_name:
  * @file: File object to assign file name to
  * @file_name: File name or %NULL to unset the file name
@@ -258,13 +531,18 @@ ipatch_file_set_name (IpatchFile *file, const char *file_name)
 static gboolean
 ipatch_file_real_set_name (IpatchFile *file, const char *file_name)
 {
+  char *new_filename, *old_filename;
+
   g_return_val_if_fail (IPATCH_IS_FILE (file), FALSE);
 
+  new_filename = g_strdup (file_name);  // ++ alloc file name for file object
+
   IPATCH_ITEM_WLOCK (file);
-  g_free (file->file_name);
-  if (file_name) file->file_name = g_strdup (file_name);
-  else file->file_name = NULL;
+  old_filename = file->file_name;
+  file->file_name = new_filename;       // !! takes over allocation
   IPATCH_ITEM_WUNLOCK (file);
+
+  g_free (old_filename);                // -- free old file name
 
   return (TRUE);
 }
@@ -290,6 +568,246 @@ ipatch_file_get_name (IpatchFile *file)
   IPATCH_ITEM_RUNLOCK (file);
 
   return (file_name);
+}
+
+/**
+ * ipatch_file_rename:
+ * @file: File object to rename
+ * @new_name: New file name (can be a full path to move the file)
+ * @err: Location to store error info or %NULL to ignore
+ *
+ * Physically rename the file referenced by a @file object. The given file
+ * object must have a file name assigned and no file descriptor or I/O channel.
+ * On Windows, the file must also not have any open handles.
+ *
+ * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set)
+ */
+gboolean
+ipatch_file_rename (IpatchFile *file, const char *new_name, GError **err)
+{
+  char *dup_newname, *old_filename;
+
+  g_return_val_if_fail (IPATCH_IS_FILE (file), FALSE);
+  g_return_val_if_fail (new_name != NULL, FALSE);
+  g_return_val_if_fail (!err || !*err, FALSE);
+
+  dup_newname = g_strdup (new_name);    // ++ allocate for use by file object
+
+  IPATCH_ITEM_WLOCK (file);
+
+  if (log_if_fail (file->iochan == NULL)) goto error;
+  if (log_if_fail (file->file_name != NULL)) goto error;
+
+  // Don't even try renaming the file on Windows if it is open, should be fine on Unix for most purposes
+#ifdef G_OS_WIN32
+  if (file->open_count > 0)
+  {
+    g_set_error (err, IPATCH_ERROR, IPATCH_ERROR_BUSY,
+                 "File '%s' has open handles", file->file_name);
+    goto error;
+  }
+#endif
+
+  if (g_rename (file->file_name, dup_newname) != 0)
+  {
+    g_set_error (err, IPATCH_ERROR, IPATCH_ERROR_IO,
+                 "I/O error renaming file '%s' to '%s': %s", file->file_name,
+                 dup_newname, g_strerror (errno));
+    goto error;
+  }
+
+  old_filename = file->file_name;
+  file->file_name = dup_newname;        // !! takes over allocation
+
+  IPATCH_ITEM_WUNLOCK (file);
+
+  g_free (old_filename);        // -- free old file name
+
+  return (TRUE);
+
+error:
+  IPATCH_ITEM_WUNLOCK (file);
+  g_free (dup_newname);         // -- free duplicate copy of original new_name
+  return (FALSE);
+}
+
+/**
+ * ipatch_file_unlink:
+ * @file: File object to rename
+ * @new_name: New file name (can be a full path to move the file)
+ * @err: Location to store error info or %NULL to ignore
+ *
+ * Physically delete the file referenced by a @file object. The given file
+ * object must have a file name assigned and no file descriptor or I/O channel.
+ * On Windows, the file must also not have any open handles.
+ * The file object will remain alive, but the underlying file will be unlinked.
+ *
+ * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set)
+ */
+gboolean
+ipatch_file_unlink (IpatchFile *file, GError **err)
+{
+  g_return_val_if_fail (IPATCH_IS_FILE (file), FALSE);
+  g_return_val_if_fail (!err || !*err, FALSE);
+
+  IPATCH_ITEM_WLOCK (file);
+
+  if (log_if_fail (file->iochan == NULL)) goto error;
+  if (log_if_fail (file->file_name != NULL)) goto error;
+
+  // Don't even try deleting the file on Windows if it is open, should be fine on Unix for most purposes
+#ifdef G_OS_WIN32
+  if (file->open_count > 0)
+  {
+    g_set_error (err, IPATCH_ERROR, IPATCH_ERROR_BUSY,
+                 "File '%s' has open handles", file->file_name);
+    goto error;
+  }
+#endif
+
+  if (g_unlink (file->file_name) != 0)
+  {
+    g_set_error (err, IPATCH_ERROR, IPATCH_ERROR_IO,
+                 "I/O error unlinking file '%s': %s", file->file_name,
+                 g_strerror (errno));
+    goto error;
+  }
+
+  IPATCH_ITEM_WUNLOCK (file);
+
+  return (TRUE);
+
+error:
+  IPATCH_ITEM_WUNLOCK (file);
+  return (FALSE);
+}
+
+/**
+ * ipatch_file_replace:
+ * @newfile: New file to replace the @oldfile with (must have an assigned #IpatchFile::file-name property)
+ * @oldfile: The old file to replace (must have an assigned #IpatchFile::file-name property)
+ * @err: Location to store error info or %NULL to ignore
+ *
+ * Replace one file object with another.  After successful execution of this function
+ * @oldfile will have an unset file name, @newfile will be assigned what was the oldfile name,
+ * and the file data of the old file on the filesystem will have been replaced by new file.
+ *
+ * NOTE: On Windows both files must not have any open file handles.
+ *
+ * NOTE: In the event an error occurs, recovery will be attempted, but may also fail, resulting in
+ * loss of @oldfile data.
+ *
+ * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set)
+ */
+gboolean
+ipatch_file_replace (IpatchFile *newfile, IpatchFile *oldfile, GError **err)
+{
+  char *filename, *free_filename;
+
+  g_return_val_if_fail (IPATCH_IS_FILE (newfile), FALSE);
+  g_return_val_if_fail (IPATCH_IS_FILE (oldfile), FALSE);
+  g_return_val_if_fail (!err || !*err, FALSE);
+
+  // Sanity check of files, prior to doing any funny business
+
+  IPATCH_ITEM_RLOCK (oldfile);
+
+  if (log_if_fail (oldfile->iochan == NULL)
+      || log_if_fail (oldfile->file_name != NULL))
+  {
+    IPATCH_ITEM_RUNLOCK (oldfile);
+    return (FALSE);
+  }
+
+  // Don't even try replacing the oldfile on Windows if open, should be fine on Unix for most purposes
+#ifdef G_OS_WIN32
+  if (oldfile->open_count > 0)
+  {
+    g_set_error (err, IPATCH_ERROR, IPATCH_ERROR_BUSY,
+                 "Old file '%s' has open handles", oldfile->file_name);
+    IPATCH_ITEM_RUNLOCK (oldfile);
+    return (FALSE);
+  }
+#endif
+
+  IPATCH_ITEM_RUNLOCK (oldfile);
+
+  IPATCH_ITEM_RLOCK (newfile);
+
+  if (log_if_fail (newfile->iochan == NULL)
+      || log_if_fail (newfile->file_name != NULL))
+  {
+    IPATCH_ITEM_RUNLOCK (newfile);
+    return (FALSE);
+  }
+
+  // Don't even try renaming the newfile on Windows if open, should be fine on Unix for most purposes
+#ifdef G_OS_WIN32
+  if (newfile->open_count > 0)
+  {
+    g_set_error (err, IPATCH_ERROR, IPATCH_ERROR_BUSY,
+                 "New file '%s' has open handles", newfile->file_name);
+    IPATCH_ITEM_RUNLOCK (newfile);
+    return (FALSE);
+  }
+#endif
+
+  IPATCH_ITEM_RUNLOCK (newfile);
+
+
+  // Steal filename from oldfile and delete file (on Windows)
+  IPATCH_ITEM_WLOCK (oldfile);
+
+#ifdef G_OS_WIN32
+  if (g_unlink (filename) != 0)
+  {
+    g_set_error (err, IPATCH_ERROR, IPATCH_ERROR_IO,
+                 "I/O error unlinking old file '%s': %s", filename,
+                 g_strerror (errno));
+    IPATCH_ITEM_WUNLOCK (oldfile);
+    return (FALSE);
+  }
+#endif
+
+  filename = oldfile->file_name;        // ++ filename takes over allocation
+  oldfile->file_name = NULL;
+
+  IPATCH_ITEM_WUNLOCK (oldfile);
+
+
+  // Rename newfile to oldfile name and assign the file name to it
+  IPATCH_ITEM_WLOCK (newfile);
+
+  if (g_rename (newfile->file_name, filename) != 0)
+  { // WARNING - On windows, if rename fails, oldfile is lost..  Unlikely to happen though.
+    g_set_error (err, IPATCH_ERROR, IPATCH_ERROR_IO,
+                 "I/O error renaming file '%s' to '%s': %s", newfile->file_name,
+                 filename, g_strerror (errno));
+    IPATCH_ITEM_WUNLOCK (newfile);
+
+#ifdef G_OS_WIN32
+    g_free (filename);                  // -- free the oldfile filename (on Windows oldfile has been deleted)
+#else
+    // Restore oldfile file name on Unix
+    IPATCH_ITEM_WLOCK (oldfile);
+    free_filename = oldfile->file_name; // ++ take over file name which may have been assigned by another thread (highly unlikely..)
+    oldfile->file_name = filename;
+    IPATCH_ITEM_WUNLOCK (oldfile);
+
+    g_free (free_filename);             // -- free possibly newly assigned file name
+#endif
+
+    return (FALSE);
+  }
+
+  free_filename = newfile->file_name;   // ++ free_filename takes over allocation
+  newfile->file_name = filename;        // !! newfile takes over allocation
+
+  IPATCH_ITEM_WUNLOCK (newfile);
+
+  g_free (free_filename);               // -- free the previous newfile file name
+
+  return (TRUE);
 }
 
 /**
@@ -350,6 +868,8 @@ ipatch_file_open (IpatchFile *file, const char *file_name, const char *mode,
   }
 
   retval = file->iofuncs->open (handle, mode, err);
+
+  if (retval) file->open_count++;
 
   IPATCH_ITEM_WUNLOCK (file);
 
@@ -480,8 +1000,14 @@ ipatch_file_close (IpatchFileHandle *handle)
   g_return_if_fail (handle != NULL);
   g_return_if_fail (IPATCH_IS_FILE (handle->file));
 
+  IPATCH_ITEM_WLOCK (handle->file);
+
   if (handle->file->iofuncs && handle->file->iofuncs->close)
     handle->file->iofuncs->close (handle);
+
+  handle->file->open_count--;
+
+  IPATCH_ITEM_WUNLOCK (handle->file);
 
   g_object_unref (handle->file);
   if (handle->buf) g_byte_array_free (handle->buf, TRUE);

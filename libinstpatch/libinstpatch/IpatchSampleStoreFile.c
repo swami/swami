@@ -119,7 +119,8 @@ ipatch_sample_store_file_set_property (GObject *object, guint property_id,
   {
     case PROP_FILE:
       g_return_if_fail (store->file == NULL);
-      store->file = g_value_dup_object (value);
+      store->file = g_value_get_object (value);
+      ipatch_file_ref_from_object (store->file, object);        // ++ ref file from store
 
       /* IpatchItem notify for "title" property */
       {
@@ -174,7 +175,7 @@ ipatch_sample_store_file_finalize (GObject *object)
 {
   IpatchSampleStoreFile *store = IPATCH_SAMPLE_STORE_FILE (object);
 
-  if (store->file) g_object_unref (store->file);
+  if (store->file) ipatch_file_unref_from_object (store->file, object);         // -- unref from object
 
   if (G_OBJECT_CLASS (ipatch_sample_store_file_parent_class)->finalize)
     G_OBJECT_CLASS (ipatch_sample_store_file_parent_class)->finalize (object);

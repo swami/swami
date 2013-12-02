@@ -43,7 +43,8 @@ typedef enum
   IPATCH_ERROR_NOMEM,		/* out of memory error */
   IPATCH_ERROR_UNSUPPORTED,	/* unsupported feature */
   IPATCH_ERROR_UNEXPECTED_EOF,	/* unexpected end of file */
-  IPATCH_ERROR_UNHANDLED_CONVERSION	/* unhandled object conversion */
+  IPATCH_ERROR_UNHANDLED_CONVERSION,	/* unhandled object conversion */
+  IPATCH_ERROR_BUSY		/* a resource is busy (still open, etc) */
 } IpatchError;
 
 #ifdef G_HAVE_ISO_VARARGS

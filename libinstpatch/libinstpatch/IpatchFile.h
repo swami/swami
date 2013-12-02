@@ -76,6 +76,8 @@ struct _IpatchFile
   IpatchFileIOFuncs *iofuncs;	/* per instance I/O methods */
   char *file_name;		/* not always set */
   GIOChannel *iochan;           /* assigned directly with ipatch_file_set_(fd/iochan) */
+  GHashTable *ref_hash;         /* registered objects referencing this file: objectPtr -> GWeakRef */
+  guint open_count;             /* count of open file handles */
 };
 
 /* File object class */
@@ -163,9 +165,20 @@ struct _IpatchFileHandle
 GType ipatch_file_get_type (void);
 GType ipatch_file_handle_get_type (void);
 IpatchFile *ipatch_file_new (void);
+IpatchFile *ipatch_file_pool_new (const char *file_name, gboolean *created);
+IpatchFile *ipatch_file_pool_lookup (const char *file_name);
+
+void ipatch_file_ref_from_object (IpatchFile *file, GObject *object);
+void ipatch_file_unref_from_object (IpatchFile *file, GObject *object);
+gboolean ipatch_file_test_ref_object (IpatchFile *file, GObject *object);
+IpatchList *ipatch_file_get_refs (IpatchFile *file);
+IpatchList *ipatch_file_get_refs_by_type (IpatchFile *file, GType type);
 
 void ipatch_file_set_name (IpatchFile *file, const char *file_name);
 char *ipatch_file_get_name (IpatchFile *file);
+gboolean ipatch_file_rename (IpatchFile *file, const char *new_name, GError **err);
+gboolean ipatch_file_unlink (IpatchFile *file, GError **err);
+gboolean ipatch_file_replace (IpatchFile *newfile, IpatchFile *oldfile, GError **err);
 IpatchFileHandle *ipatch_file_open (IpatchFile *file, const char *file_name,
                                     const char *mode, GError **err);
 void ipatch_file_assign_fd (IpatchFile *file, int fd, gboolean close_on_finalize);

@@ -175,3 +175,45 @@ ipatch_util_file_size (const char *fname, GError **err)
 
   return (st.st_size);
 }
+
+/**
+ * ipatch_util_abs_filename:
+ * @filename: File name to make absolute
+ *
+ * Make a file name absolute, if it isn't already.
+ *
+ * Returns: Newly allocated filename, converted to an absolute filename (if necessary)
+ *   or NULL if @filename was NULL
+ */
+char *
+ipatch_util_abs_filename (const char *filename)
+{
+  char *dirname, *abs_filename;
+
+  if (!filename) return (NULL);
+
+  if (g_path_is_absolute (filename))
+    return (g_strdup (filename));       // !! caller takes over allocation
+
+  dirname = g_get_current_dir ();       // ++ alloc
+  abs_filename = g_build_filename (dirname, filename, NULL);
+  g_free (dirname);                     // -- free
+
+  return (abs_filename);                // !! caller takes over allocation
+}
+
+/**
+ * ipatch_util_weakref_destroy:
+ * @value: Slice allocated GWeakRef to destroy
+ *
+ * A GDestroyNotify function for freeing a slice allocated
+ * GWeakRef.
+ */
+void
+ipatch_util_weakref_destroy (gpointer value)
+{
+  GWeakRef *weakref = value;
+  g_weak_ref_clear (weakref);
+  g_slice_free (GWeakRef, weakref);
+}
+

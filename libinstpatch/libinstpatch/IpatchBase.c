@@ -102,7 +102,7 @@ ipatch_base_finalize (GObject *gobject)
 
   IPATCH_ITEM_WLOCK (base);
 
-  if (base->file) g_object_unref (base->file);
+  if (base->file) ipatch_file_unref_from_object (base->file, gobject);  // -- unref file from object
   base->file = NULL;
 
   IPATCH_ITEM_WUNLOCK (base);
@@ -203,11 +203,16 @@ ipatch_base_set_file (IpatchBase *base, IpatchFile *file)
 static void
 ipatch_base_real_set_file (IpatchBase *base, IpatchFile *file)
 {
+  IpatchFile *oldfile;
+
+  ipatch_file_ref_from_object (file, (GObject *)base);                          // ++ ref new file from object
+
   IPATCH_ITEM_WLOCK (base);
-  g_object_ref (file);
-  if (base->file) g_object_unref (base->file);
+  oldfile = base->file;
   base->file = file;
   IPATCH_ITEM_WUNLOCK (base);
+
+  if (oldfile) ipatch_file_unref_from_object (oldfile, (GObject *)base);        // -- remove reference to old file
 }
 
 /**
