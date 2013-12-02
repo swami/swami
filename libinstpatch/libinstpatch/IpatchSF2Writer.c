@@ -79,8 +79,6 @@ static void ipatch_sf2_writer_get_property (GObject *object, guint property_id,
 static SampleHashValue *ipatch_sf2_writer_sample_hash_value_new (void);
 static void ipatch_sf2_writer_sample_hash_value_destroy (gpointer value);
 static void ipatch_sf2_writer_finalize (GObject *object);
-static gboolean sfont_writer_migrate_samples (IpatchSF2Writer *writer,
-					      GError **err);
 static gboolean ipatch_sf2_write_level_0 (IpatchSF2Writer *writer,
 					  GError **err);
 static gboolean sfont_write_info (IpatchSF2Writer *writer, GError **err);
@@ -111,6 +109,14 @@ ipatch_sf2_writer_class_init (IpatchSF2WriterClass *klass)
   obj_class->get_property = ipatch_sf2_writer_get_property;
   obj_class->finalize = ipatch_sf2_writer_finalize;
 
+  /**
+   * IpatchSF2Writer:migrate-samples:
+   *
+   * Was supposed to migrate sample data to the new file, was not implemented properly though.
+   * Does nothing now.
+   *
+   * Deprecated: 1.1.0: Use ipatch_sf2_writer_create_stores() instead.
+   **/
   g_object_class_install_property (obj_class, PROP_MIGRATE_SAMPLES,
 		g_param_spec_boolean ("migrate-samples", _("Migrate Samples"),
 				      _("Migrate samples to new file"),
@@ -121,12 +127,9 @@ static void
 ipatch_sf2_writer_set_property (GObject *object, guint property_id,
 				const GValue *value, GParamSpec *pspec)
 {
-  IpatchSF2Writer *writer = IPATCH_SF2_WRITER (object);
-
   switch (property_id)
     {
     case PROP_MIGRATE_SAMPLES:
-      writer->migrate_samples = g_value_get_boolean (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -138,12 +141,9 @@ static void
 ipatch_sf2_writer_get_property (GObject *object, guint property_id,
 				GValue *value, GParamSpec *pspec)
 {
-  IpatchSF2Writer *writer = IPATCH_SF2_WRITER (object);
-
   switch (property_id)
     {
     case PROP_MIGRATE_SAMPLES:
-      g_value_set_boolean (value, writer->migrate_samples);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -154,7 +154,6 @@ ipatch_sf2_writer_get_property (GObject *object, guint property_id,
 static void
 ipatch_sf2_writer_init (IpatchSF2Writer *writer)
 {
-  writer->migrate_samples = FALSE;
   writer->inst_hash = g_hash_table_new (NULL, NULL);
   writer->sample_hash = g_hash_table_new_full (NULL, NULL, NULL,
                                                ipatch_sf2_writer_sample_hash_value_destroy);
@@ -177,22 +176,11 @@ ipatch_sf2_writer_finalize (GObject *object)
 {
   IpatchSF2Writer *writer = IPATCH_SF2_WRITER (object);
 
-  if (writer->orig_sf)
-    {
-      g_object_unref (writer->orig_sf);
-      writer->orig_sf = NULL;
-    }
-
-  if (writer->sf)
-    {
-      g_object_unref (writer->sf);
-      writer->sf = NULL;
-    }
-
+  if (writer->orig_sf) g_object_unref (writer->orig_sf);
+  if (writer->sf) g_object_unref (writer->sf);
   g_hash_table_destroy (writer->inst_hash);
   g_hash_table_destroy (writer->sample_hash);
-  writer->inst_hash = NULL;
-  writer->sample_hash = NULL;
+  if (writer->store_list) g_object_unref (writer->store_list);
 
   if (G_OBJECT_CLASS (ipatch_sf2_writer_parent_class)->finalize)
     G_OBJECT_CLASS (ipatch_sf2_writer_parent_class)->finalize (object);
@@ -303,10 +291,6 @@ ipatch_sf2_writer_save (IpatchSF2Writer *writer, GError **err)
   /* close the RIFF chunk */
   if (!ipatch_riff_close_chunk (riff, -1, err)) return (FALSE);
 
-  /* migrate samples if requested */
-  if (writer->migrate_samples && !sfont_writer_migrate_samples (writer, err))
-    goto err;
-
   g_object_set (writer->orig_sf,
 		"changed", FALSE, /* file and object are in sync */
 		"saved", TRUE,	/* has now been saved */
@@ -325,13 +309,17 @@ ipatch_sf2_writer_save (IpatchSF2Writer *writer, GError **err)
   return (FALSE);
 }
 
-/* Sample stores of the samples that have been saved are migrated to the new
- * file. Samples that reference the SoundFont's old file handle but are not in
- * the new file are moved to the sample buffer.  Also the saved SoundFont's
- * file object is set to the new file.
+/**
+ * ipatch_sf2_writer_create_stores:
+ * @writer: SoundFont writer object
+ *
+ * Create sample stores and add them to applicable #IpatchSampleData objects and return object list.
+ * This function can be called multiple times, additional calls will return the same list.
+ *
+ * Returns: List of sample stores which the caller owns a reference to or %NULL
  */
-static gboolean
-sfont_writer_migrate_samples (IpatchSF2Writer *writer, GError **err)
+IpatchList *
+ipatch_sf2_writer_create_stores (IpatchSF2Writer *writer)
 {
   SampleHashValue *hash_value;
   IpatchSample *newstore;
@@ -339,10 +327,17 @@ sfont_writer_migrate_samples (IpatchSF2Writer *writer, GError **err)
   IpatchSF2Sample *sample;
   IpatchIter iter;
   gboolean smpl24;
+  IpatchList *list;
   int rate;
+
+  // Return existing store list (if this function has been called before)
+  if (writer->store_list)
+    return (g_object_ref (writer->store_list));         // ++ ref for caller
 
   save_file = IPATCH_RIFF (writer)->handle->file;
   smpl24 = (ipatch_item_get_flags (writer->sf) & IPATCH_SF2_SAMPLES_24BIT) != 0;
+
+  list = ipatch_list_new ();            // ++ ref list
 
   ipatch_container_init_iter (IPATCH_CONTAINER (writer->sf), &iter,
 			      IPATCH_TYPE_SF2_SAMPLE);
@@ -368,16 +363,14 @@ sfont_writer_migrate_samples (IpatchSF2Writer *writer, GError **err)
     g_object_get (sample, "sample-rate", &rate, NULL);
     g_object_set (newstore, "sample-rate", rate, NULL);
 
-    /* Replace the native sample with the new store referencing the saved file */
-    ipatch_sample_data_replace_native_sample (sample->sample_data,
-                                              (IpatchSampleStore *)newstore);
+    ipatch_sample_data_add (sample->sample_data, (IpatchSampleStore *)newstore);
 
-    g_object_unref (newstore);  /* -- unref newstore */
+    list->items = g_list_prepend (list->items, newstore);       // !! list takes over reference
   }
 
-  ipatch_sf2_set_file (writer->orig_sf, IPATCH_SF2_FILE (save_file));
+  writer->store_list = g_object_ref (list);     // ++ ref for writer object
 
-  return (TRUE);
+  return (list);        // !! caller takes over reference
 }
 
 /**

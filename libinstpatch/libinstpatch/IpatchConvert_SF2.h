@@ -32,7 +32,14 @@
 #include <glib-object.h>
 #include <libinstpatch/IpatchConverter.h>
 
-typedef IpatchConverter IpatchConverterSF2ToFile;
+typedef struct
+{
+  IpatchConverter parent_instance;
+
+  /*< private >*/
+  gboolean create_stores;
+} IpatchConverterSF2ToFile;
+
 typedef IpatchConverterClass IpatchConverterSF2ToFileClass;
 typedef IpatchConverter IpatchConverterFileToSF2;
 typedef IpatchConverterClass IpatchConverterFileToSF2Class;

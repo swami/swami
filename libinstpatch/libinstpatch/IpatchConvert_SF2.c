@@ -50,6 +50,12 @@
 #include "IpatchFile.h"
 #include "i18n.h"
 
+enum
+{
+  PROP_0,
+  PROP_SF2_TO_FILE_CREATE_STORES
+};
+
 /*
  * SoundFont conversion handlers
  * IpatchSF2 <==> IpatchSF2File
@@ -58,6 +64,10 @@
 
 static IpatchSF2Sample *create_sf2_sample_helper (IpatchSampleStoreSndFile *store,
                                                   gboolean left);
+static void _sf2_to_file_get_property (GObject *object, guint property_id,
+                                       GValue *value, GParamSpec *pspec);
+static void _sf2_to_file_set_property (GObject *object, guint property_id,
+                                       const GValue *value, GParamSpec *pspec);
 
 /* init routine for SF2 conversion types */
 void
@@ -89,6 +99,8 @@ _sf2_to_file_convert (IpatchConverter *converter, GError **err)
   IpatchSF2File *file;
   IpatchFileHandle *handle;
   IpatchSF2Writer *writer;
+  gboolean create_stores;
+  IpatchList *stores;
   int retval;
 
   sfont = IPATCH_SF2 (IPATCH_CONVERTER_INPUT (converter));
@@ -99,6 +111,20 @@ _sf2_to_file_convert (IpatchConverter *converter, GError **err)
 
   writer = ipatch_sf2_writer_new (handle, sfont);	/* ++ ref new writer */
   retval = ipatch_sf2_writer_save (writer, err);
+
+  g_object_get (converter, "create-stores", &create_stores, NULL);
+
+  if (retval && create_stores)
+  {
+    stores = ipatch_sf2_writer_create_stores (writer);     // ++ reference sample stores
+
+    if (stores)
+    {
+      ipatch_converter_add_output (converter, G_OBJECT (stores));
+      g_object_unref (stores);                          // -- unref sample stores
+    }
+  }
+
   g_object_unref (writer);	/* -- unref writer */
 
   return (retval);
@@ -311,10 +337,62 @@ create_sf2_sample_helper (IpatchSampleStoreSndFile *store, gboolean left)
   return (sf2sample);   /* !! caller takes over reference */
 }
 
-CONVERTER_CLASS_INIT(sf2_to_file);
+/* SF2 -> File class is handled manually to install properties */
+static void
+_sf2_to_file_class_init (IpatchConverterClass *klass)
+{
+  GObjectClass *obj_class = G_OBJECT_CLASS (klass);
+
+  obj_class->get_property = _sf2_to_file_get_property;
+  obj_class->set_property = _sf2_to_file_set_property;
+
+  klass->verify = NULL;
+  klass->notes = NULL;
+  klass->convert = _sf2_to_file_convert;
+
+  g_object_class_install_property (obj_class, PROP_SF2_TO_FILE_CREATE_STORES,
+                    g_param_spec_boolean ("create-stores", "Create stores", "Create sample stores",
+                                          FALSE, G_PARAM_READWRITE));
+}
+
+static void
+_sf2_to_file_get_property (GObject *object, guint property_id,
+                           GValue *value, GParamSpec *pspec)
+{
+  IpatchConverterSF2ToFile *converter = (IpatchConverterSF2ToFile *)object;
+
+  switch (property_id)
+  {
+    case PROP_SF2_TO_FILE_CREATE_STORES:
+      g_value_set_boolean (value, converter->create_stores);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
+  }
+}
+
+static void
+_sf2_to_file_set_property (GObject *object, guint property_id,
+                           const GValue *value, GParamSpec *pspec)
+{
+  IpatchConverterSF2ToFile *converter = (IpatchConverterSF2ToFile *)object;
+
+  switch (property_id)
+  {
+    case PROP_SF2_TO_FILE_CREATE_STORES:
+      converter->create_stores = g_value_get_boolean (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
+  }
+}
+
 CONVERTER_CLASS_INIT(file_to_sf2);
 CONVERTER_CLASS_INIT(file_to_sf2_sample);
 
 CONVERTER_GET_TYPE(sf2_to_file, SF2ToFile);
 CONVERTER_GET_TYPE(file_to_sf2, FileToSF2);
 CONVERTER_GET_TYPE(file_to_sf2_sample, FileToSF2Sample);
+
