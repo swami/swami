@@ -19,9 +19,28 @@
  */
 /**
  * SECTION: IpatchSampleStoreSwap
- * @short_description: Sample storage object for audio in a temporary swap file
+ * @short_description: Sample storage object for audio in memory or temporary
+ *   swap file
  * @see_also: 
  * @stability: Stable
+ *
+ * Swap sample stores are used for data which does not have a safe external
+ * source, for example if a sample was originally loaded from an external
+ * audio file or an instrument file that was closed.
+ *
+ * Swap sample stores are stored in RAM up to the total size set by
+ * ipatch_sample_store_swap_set_max_memory().  Additional sample stores
+ * are written to the swap file, whose file name is set by
+ * ipatch_sample_store_set_file_name() with a fallback to a temporary file
+ * name if not set.
+ *
+ * Currently there is a global lock on read or write accesses of sample stores
+ * in the swap file.  This is contrary to most other sample store types.
+ *
+ * When a sample store in the swap file is no longer used, it is added to a
+ * recover list, which new sample stores may utilize.  This cuts down on unused
+ * space in the swap file (ipatch_sample_store_swap_get_unused_size()), which
+ * can be compacted with ipatch_sample_store_swap_compact().
  */
 #ifndef __IPATCH_SAMPLE_STORE_SWAP_H__
 #define __IPATCH_SAMPLE_STORE_SWAP_H__
@@ -50,21 +69,29 @@ typedef struct _IpatchSampleStoreSwapClass IpatchSampleStoreSwapClass;
 /* Swap file sample store instance (derived from FILE sample store) */
 struct _IpatchSampleStoreSwap
 {
-  IpatchSampleStoreFile parent_instance;
+  IpatchSampleStore parent_instance;
+  gpointer ram_location;        // Pointer to memory location or NULL if stored in file
+  guint location;               // Position in file of the sample data (if ram_location is NULL)
 };
 
 /* Swap file sample store class (derived from FILE sample store) */
 struct _IpatchSampleStoreSwapClass
 {
-  IpatchSampleStoreFileClass parent_class;
+  IpatchSampleStoreClass parent_class;
 };
 
 /* we reserve 1 private flag */
 #define IPATCH_SAMPLE_STORE_SWAP_UNUSED_FLAG_SHIFT \
-  (IPATCH_SAMPLE_STORE_FILE_UNUSED_FLAG_SHIFT + 1)
+  (IPATCH_SAMPLE_STORE_UNUSED_FLAG_SHIFT + 1)
 
 GType ipatch_sample_store_swap_get_type (void);
+void ipatch_sample_store_set_swap_file_name (const char *filename);
+char *ipatch_sample_store_get_swap_file_name (void);
 IpatchSample *ipatch_sample_store_swap_new (void);
-int ipatch_sample_store_swap_get_unused_size (void);
+int ipatch_sample_store_get_swap_unused_size (void);
+void ipatch_sample_store_set_swap_max_memory (int size);
+int ipatch_sample_store_get_swap_max_memory (void);
+gboolean ipatch_sample_store_compact_swap (GError **err);
 
 #endif
+
