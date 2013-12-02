@@ -104,4 +104,7 @@ void ipatch_base_find_unused_midi_locale (IpatchBase *base,
 IpatchItem *ipatch_base_find_item_by_midi_locale (IpatchBase *base, int bank,
 						  int program);
 
+gboolean ipatch_base_save (IpatchBase *base, const char *filename, GError **err);
+
 #endif
+

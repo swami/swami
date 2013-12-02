@@ -19,10 +19,16 @@
  *
  */
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <errno.h>
 #include <glib.h>
+#include <glib/gstdio.h>
 #include <glib-object.h>
 #include "IpatchBase.h"
+#include "IpatchConverter.h"
 #include "IpatchParamProp.h"
+#include "util.h"
 #include "ipatch_priv.h"
 
 enum {
@@ -373,3 +379,157 @@ ipatch_base_find_item_by_midi_locale (IpatchBase *base, int bank, int program)
     return (klass->find_item_by_locale (base, bank, program));
   else return (NULL);
 }
+
+/**
+ * ipatch_base_save:
+ * @base: Base item to save
+ * @filename: New file name to save to or %NULL to use current one
+ * @err: Location to store error info or %NULL
+ *
+ * Save a patch item to a file.  This function handles saving over the existing
+ * file and migrates sample stores as needed.  It is an error to try to save
+ * over an open file that is not owned by @base though.
+ * A new file object is created and assigned to the @base object.
+ *
+ * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set)
+ */
+gboolean
+ipatch_base_save (IpatchBase *base, const char *filename, GError **err)
+{
+  IpatchConverterInfo *info;
+  IpatchFile *lookup_file, *newfile = NULL, *oldfile = NULL;
+  char *tmp_fname = NULL, *base_fname, *abs_fname = NULL, *bak_fname = NULL;
+  IpatchConverter *converter;
+  gboolean replacing = FALSE;
+  GError *local_err = NULL;
+  int tmpfd;
+
+  g_return_val_if_fail (IPATCH_IS_BASE (base), FALSE);
+  g_return_val_if_fail (!err || !*err, FALSE);
+
+  g_object_get (base, "file", &oldfile, NULL);          // ++ ref old file (if any)
+
+  /* Check if file name specified would overwrite another open file */
+  if (filename)
+  {
+    abs_fname = ipatch_util_abs_filename (filename);    // ++ allocate absolute filename
+    lookup_file = ipatch_file_pool_lookup (abs_fname);  // ++ ref file matching filename
+    if (lookup_file) g_object_unref (lookup_file);      // -- unref file (we only need the pointer value)
+
+    if (lookup_file && lookup_file != oldfile)
+    {
+      g_set_error (err, IPATCH_ERROR, IPATCH_ERROR_BUSY,
+                   _("Refusing to save over other open file '%s'"), abs_fname);
+      goto error;
+    }
+  }
+
+  g_object_get (base, "file-name", &base_fname, NULL);       // ++ allocate patch file name
+
+  /* if no filename specified try to use current one */
+  if (!abs_fname)
+  {
+    if (!base_fname)
+    {
+      g_set_error (err, IPATCH_ERROR, IPATCH_ERROR_INVALID,
+                   _("File name not supplied and none assigned"));
+      goto error;
+    }
+
+    abs_fname = base_fname;
+  }
+
+  /* Check if request is to overwrite the existing file (requested file name and base
+   * file name are equal and file actually exists). */
+  replacing = strcmp (abs_fname, base_fname) == 0 && g_file_test (abs_fname, G_FILE_TEST_EXISTS);
+
+  g_free (base_fname);       // -- free base filename
+
+  /* Find a converter from base object to file */
+  info = ipatch_lookup_converter_info (0, G_OBJECT_TYPE (base), IPATCH_TYPE_FILE);
+
+  if (!info)
+  {
+    g_set_error (err, IPATCH_ERROR, IPATCH_ERROR_UNSUPPORTED,
+                 _("Saving object of type '%s' to file '%s' not supported"),
+                 g_type_name (G_OBJECT_TYPE (base)), abs_fname);
+    goto error;
+  }
+
+  tmp_fname = g_build_filename (abs_fname, "_tmpXXXXXX", NULL);       // ++ alloc temporary file name
+
+  // open temporary file in same directory as destination
+  if ((tmpfd = g_mkstemp (tmp_fname)) == -1)
+  {
+    g_set_error (err, G_FILE_ERROR, g_file_error_from_errno (errno),
+                 _("Unable to open temp file '%s' for writing: %s"),
+                 tmp_fname, g_strerror (errno));
+    goto error;
+  }
+
+  newfile = IPATCH_FILE (g_object_new (info->dest_type, "name", tmp_fname, NULL));       /* ++ ref new file */
+  ipatch_file_assign_fd (newfile, tmpfd, TRUE);         /* Assign file descriptor and set close on finalize */
+
+  // ++ Create new converter and set create-stores property if file is being replaced
+  converter = IPATCH_CONVERTER (g_object_new (info->conv_type, "create-stores", replacing, NULL));
+
+  ipatch_converter_add_input (converter, G_OBJECT (base));
+  ipatch_converter_add_output (converter, G_OBJECT (newfile));
+
+  /* attempt to save patch file */
+  if (!ipatch_converter_convert (converter, err))
+  {
+    g_object_unref (converter);                 // -- unref converter
+    goto error;
+  }
+
+  g_object_unref (converter);                   // -- unref converter
+
+  ipatch_file_assign_fd (newfile, -1, FALSE);      // Unset file descriptor of file (now using file name), closes file descriptor
+
+  // Sample migration is called whether or not replacing, so samples can be migrated out of SWAP
+  if (!ipatch_migrate_file_sample_data (oldfile, newfile, IPATCH_SAMPLE_DATA_MIGRATE_REMOVE_NEW_IF_UNUSED
+                                        | IPATCH_SAMPLE_DATA_MIGRATE_REPLACE, err))
+    goto error;
+
+  if (!replacing && !ipatch_file_rename (newfile, abs_fname, err))
+    goto error;
+
+  g_free (bak_fname);           // -- unref backup file name
+  g_object_unref (newfile);	// -- unref creators reference
+  g_free (tmp_fname);            // -- free temp file name
+  g_free (abs_fname);        // -- free file name
+  if (oldfile) g_object_unref (oldfile);        // -- unref old file
+
+  return (TRUE);
+
+error:
+
+  if (newfile)
+  {
+    if (!ipatch_file_unlink (newfile, &local_err))   // -- Delete new file
+    {
+      g_warning (_("Failed to remove file after save failure: %s"),
+                 ipatch_gerror_message (local_err));
+      g_clear_error (&local_err);
+    }
+
+    g_object_unref (newfile);   // -- unref creators reference
+  }
+
+  if (bak_fname && !ipatch_file_rename (oldfile, abs_fname, &local_err))
+  {
+    g_critical (_("Failed to restore backup '%s' after save failure: %s"),
+                bak_fname, ipatch_gerror_message (local_err));
+    g_clear_error (&local_err);
+  }
+
+  g_free (bak_fname);           // -- unref backup file name
+
+  g_free (tmp_fname);           // -- free temp file name
+  g_free (abs_fname);           // -- free file name
+  if (oldfile) g_object_unref (oldfile);        // -- unref old file
+
+  return (FALSE);
+}
+
