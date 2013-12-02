@@ -28,7 +28,7 @@ set ( PACKAGE "libinstpatch" )
 
 # libInstPatch package version
 set ( IPATCH_VERSION_MAJOR 1 )
-set ( IPATCH_VERSION_MINOR 2 )
+set ( IPATCH_VERSION_MINOR 1 )
 set ( IPATCH_VERSION_MICRO 0 )
 set ( VERSION "${IPATCH_VERSION_MAJOR}.${IPATCH_VERSION_MINOR}.${IPATCH_VERSION_MICRO}" )      
 set ( IPATCH_VERSION "\"${VERSION}\"" )
@@ -123,7 +123,10 @@ endif ( CMAKE_BUILD_TYPE MATCHES "Debug" )
 find_package ( PkgConfig REQUIRED )
 
 # Mandatory libraries: gobject, glib and gthread
-pkg_check_modules ( GOBJECT REQUIRED gobject-2.0>=2.14 glib-2.0>=2.14 gthread-2.0>=2.14 )
+pkg_check_modules ( GOBJECT REQUIRED gobject-2.0>=2.32 glib-2.0>=2.32 gthread-2.0>=2.32 )
+
+# Disable deprecation warnings for now (fixed in master)
+add_definitions ( -DGLIB_DISABLE_DEPRECATION_WARNINGS )
 
 include ( UnsetPkgConfig )
 

@@ -13,7 +13,7 @@ AC_INIT(libinstpatch/misc.c)
 #   set IPATCH_BINARY_AGE and IPATCH_INTERFACE_AGE to 0.
 #
 IPATCH_VERSION_MAJOR=1
-IPATCH_VERSION_MINOR=2
+IPATCH_VERSION_MINOR=1
 IPATCH_VERSION_MICRO=0
 IPATCH_INTERFACE_AGE=0
 IPATCH_BINARY_AGE=1
@@ -127,7 +127,7 @@ if test x"$native_win32" = xyes; then
 fi
 
 PKG_CHECK_MODULES(GOBJECT,
-  gobject-2.0 >= 2.14 glib-2.0 >= 2.14 gthread-2.0 >= 2.14)
+  gobject-2.0 >= 2.32 glib-2.0 >= 2.32 gthread-2.0 >= 2.32)
 AC_SUBST(GOBJECT_CFLAGS)
 AC_SUBST(GOBJECT_LIBS)
 
