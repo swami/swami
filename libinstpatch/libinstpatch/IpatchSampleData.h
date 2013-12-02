@@ -42,6 +42,7 @@ typedef struct _IpatchSampleDataClass IpatchSampleDataClass;
 
 #include <libinstpatch/IpatchItem.h>
 #include <libinstpatch/IpatchSampleStore.h>
+#include <libinstpatch/IpatchFile.h>
 
 #define IPATCH_TYPE_SAMPLE_DATA  (ipatch_sample_data_get_type ())
 #define IPATCH_SAMPLE_DATA(obj) \
@@ -71,8 +72,26 @@ struct _IpatchSampleDataClass
 #define IPATCH_SAMPLE_DATA_UNUSED_FLAG_SHIFT \
   (IPATCH_CONTAINER_UNUSED_FLAG_SHIFT + 3)
 
+/**
+ * IpatchSampleDataMigrateFlags:
+ * @IPATCH_SAMPLE_DATA_MIGRATE_REMOVE_NEW_IF_UNUSED: Remove unused #IpatchSampleStore objects referencing newfile.
+ * @IPATCH_SAMPLE_DATA_MIGRATE_TO_NEWFILE: Migrate all #IpatchSampleData objects to newfile which have a #IpatchSampleStore
+ *   with the same format as the native format therein, default is to only migrate those with their native samples in
+ *   oldfile or swap storage.
+ * @IPATCH_SAMPLE_DATA_MIGRATE_LEAVE_IN_SWAP: Leave native samples in #IpatchSampleData objects in swap, even if present in
+ *   newfile, default is to migrate samples out of swap in preference for newfile.
+ * @IPATCH_SAMPLE_DATA_MIGRATE_REPLACE: Replace oldfile with newfile (has no effect if newfile is %NULL)
+ */
+typedef enum
+{
+  IPATCH_SAMPLE_DATA_MIGRATE_REMOVE_NEW_IF_UNUSED       = 1 << 0,
+  IPATCH_SAMPLE_DATA_MIGRATE_TO_NEWFILE                 = 1 << 1,
+  IPATCH_SAMPLE_DATA_MIGRATE_LEAVE_IN_SWAP              = 1 << 2,
+  IPATCH_SAMPLE_DATA_MIGRATE_REPLACE                    = 1 << 3
+} IpatchSampleDataMigrateFlags;
 
 IpatchList *ipatch_get_sample_data_list (void);
+gboolean ipatch_migrate_file_sample_data (IpatchFile *oldfile, IpatchFile *newfile, guint flags, GError **err);
 
 GType ipatch_sample_data_get_type (void);
 IpatchSampleData *ipatch_sample_data_new (void);
