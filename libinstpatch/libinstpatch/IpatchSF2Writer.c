@@ -296,9 +296,6 @@ ipatch_sf2_writer_save (IpatchSF2Writer *writer, GError **err)
 		"saved", TRUE,	/* has now been saved */
 		NULL);
 
-  g_object_unref (writer->sf); /* -- unref duplicate SoundFont */
-  writer->sf = NULL;
-
   return (TRUE);
 
  err:
@@ -328,7 +325,10 @@ ipatch_sf2_writer_create_stores (IpatchSF2Writer *writer)
   IpatchIter iter;
   gboolean smpl24;
   IpatchList *list;
-  int rate;
+  int rate, format;
+  guint size;
+
+  g_return_val_if_fail (writer->sf != NULL, NULL);
 
   // Return existing store list (if this function has been called before)
   if (writer->store_list)
@@ -351,17 +351,30 @@ ipatch_sf2_writer_create_stores (IpatchSF2Writer *writer)
     /* Skip ROM samples, hash_value should never be NULL, but.. */
     if (!hash_value || hash_value->position == 0) continue;
 
-    if (!smpl24)
+    g_object_get (sample,
+                  "sample-format", &format,
+                  "sample-size", &size,
+                  "sample-rate", &rate,
+                  NULL);
+
+    // Create 16 bit sample store if SoundFont does not contain 24 bit or original sample was 16 bit or less
+    if (!smpl24 || IPATCH_SAMPLE_FORMAT_GET_WIDTH (format) <= IPATCH_SAMPLE_16BIT)
     {           /* ++ ref newstore */
       newstore = ipatch_sample_store_file_new (save_file, hash_value->position);
-      ipatch_sample_set_format ((IpatchSample *)newstore, FORMAT_16BIT);
+      format = FORMAT_16BIT;
     }
     else        /* ++ ref newstore */
+    {
       newstore = ipatch_sample_store_split24_new (save_file, hash_value->position,
                                                   hash_value->position24);
+      format = FORMAT_24BIT;
+    }
 
-    g_object_get (sample, "sample-rate", &rate, NULL);
-    g_object_set (newstore, "sample-rate", rate, NULL);
+    g_object_set (newstore,
+                  "sample-format", format,
+                  "sample-size", size,
+                  "sample-rate", rate,
+                  NULL);
 
     ipatch_sample_data_add (sample->sample_data, (IpatchSampleStore *)newstore);
 
