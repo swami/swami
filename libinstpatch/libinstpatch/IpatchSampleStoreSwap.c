@@ -27,6 +27,7 @@
 #include "IpatchSampleStoreSwap.h"
 #include "ipatch_priv.h"
 #include "i18n.h"
+#include "config.h"
 
 #define MAX_RAM_SWAP            (32*1024*1024)          // Default maximum RAM memory swap
 
@@ -688,4 +689,63 @@ error:
 
   return (FALSE);
 }
+
+#ifdef IPATCH_DEBUG
+/**
+ * ipatch_sample_store_swap_dump:
+ *
+ * Dump information about sample swap to stdout for debugging.
+ */
+void
+ipatch_sample_store_swap_dump (void)
+{
+  IpatchSampleStoreSwap *swap_store;
+  SwapRecover *recover;
+  GSList *p;
+
+  G_LOCK (swap);                // ++ lock swap
+
+  printf ("Swap file: %s\n", swap_file_name);
+  printf ("Pos=%u Unused=%d RamUse=%d RamMax=%d\n", swap_position, swap_unused_size, swap_ram_used, swap_ram_max);
+  printf ("\nSwap Samples:\n");
+
+  for (p = swap_list; p; p = p->next)
+  {
+    int sample_format, sample_rate, loop_type, root_note, fine_tune;
+    guint sample_size, loop_start, loop_end;
+    char *title;
+
+    swap_store = IPATCH_SAMPLE_STORE_SWAP (p->data);
+
+    g_object_get (swap_store,
+                  "title", &title,
+                  "sample-size", &sample_size,          // ++ allocate title
+                  "sample-format", &sample_format,
+                  "sample-rate", &sample_rate,
+                  "loop-type", &loop_type,
+                  "loop-start", &loop_start,
+                  "loop-end", &loop_end,
+                  "root-note", &root_note,
+                  "fine-tune", &fine_tune,
+                  NULL);
+
+    printf ("  Store 0x%p: loc=%u title='%s' size=%u fmt=0x%X rate=%d ltype=%d lstart=%u lend=%u root=%d fine=%d\n",
+            swap_store, swap_store->location, title, sample_size, sample_format,
+            sample_rate, loop_type, loop_start, loop_end, root_note, fine_tune);
+
+    g_free (title);                                     // -- free title
+  }
+
+  printf ("\nRecover Segments:\n");
+
+  for (p = swap_recover_loc_list; p; p = p->next)
+  {
+    recover = (SwapRecover *)(p->data);
+    printf ("%08X: size=%u\n", recover->location, recover->size);
+  }
+
+  G_UNLOCK (swap);              // -- unlock swap
+}
+
+#endif
 
