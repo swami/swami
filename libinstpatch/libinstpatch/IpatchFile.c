@@ -578,7 +578,9 @@ ipatch_file_get_name (IpatchFile *file)
  *
  * Physically rename the file referenced by a @file object. The given file
  * object must have a file name assigned and no file descriptor or I/O channel.
- * On Windows, the file must also not have any open handles.
+ * On Windows, the file must also not have any open handles.  If a file with
+ * @new_name already exists, it will be replaced and should not be referenced by
+ * any file object.
  *
  * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set)
  */
@@ -586,10 +588,27 @@ gboolean
 ipatch_file_rename (IpatchFile *file, const char *new_name, GError **err)
 {
   char *dup_newname, *old_filename;
+  IpatchFile *new_name_file;
 
   g_return_val_if_fail (IPATCH_IS_FILE (file), FALSE);
   g_return_val_if_fail (new_name != NULL, FALSE);
   g_return_val_if_fail (!err || !*err, FALSE);
+
+  // Check if new file name is already referenced by a file object
+  new_name_file = ipatch_file_pool_lookup (new_name);   // ++ ref file object
+  g_object_unref (new_name_file);                       // -- unref file object (only need pointer value)
+
+  if (new_name_file)
+  {
+    g_set_error (err, IPATCH_ERROR, IPATCH_ERROR_BUSY,
+                 "New file name '%s' is already claimed", new_name);
+    return (FALSE);
+  }
+
+#ifdef G_OS_WIN32
+  if (g_file_test (new_name, G_FILE_TEST_EXISTS))
+    g_unlink (filename);                // Just blindly unlink the file
+#endif
 
   dup_newname = g_strdup (new_name);    // ++ allocate for use by file object
 
@@ -759,14 +778,8 @@ ipatch_file_replace (IpatchFile *newfile, IpatchFile *oldfile, GError **err)
   IPATCH_ITEM_WLOCK (oldfile);
 
 #ifdef G_OS_WIN32
-  if (g_unlink (filename) != 0)
-  {
-    g_set_error (err, IPATCH_ERROR, IPATCH_ERROR_IO,
-                 "I/O error unlinking old file '%s': %s", filename,
-                 g_strerror (errno));
-    IPATCH_ITEM_WUNLOCK (oldfile);
-    return (FALSE);
-  }
+  // Just blindly unlink the file
+  g_unlink (filename);
 #endif
 
   filename = oldfile->file_name;        // ++ filename takes over allocation
@@ -907,6 +920,12 @@ ipatch_file_assign_fd (IpatchFile *file, int fd, gboolean close_on_finalize)
 
   g_return_if_fail (IPATCH_IS_FILE (file));
 
+  if (fd == -1)
+  {
+    ipatch_file_assign_io_channel (file, NULL);
+    return;
+  }
+
   iochan = g_io_channel_unix_new (fd); /* ++ ref new io channel */
   g_io_channel_set_close_on_unref (iochan, close_on_finalize);
   g_io_channel_set_encoding (iochan, NULL, NULL);
@@ -937,7 +956,7 @@ ipatch_file_assign_io_channel (IpatchFile *file, GIOChannel *iochan)
   file->iochan = iochan;
   IPATCH_ITEM_WUNLOCK (file);
 
-  if (old_iochan) g_io_channel_unref (file->iochan);
+  if (old_iochan) g_io_channel_unref (old_iochan);
 }
 
 /**
