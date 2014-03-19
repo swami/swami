@@ -380,28 +380,43 @@ ipatch_base_find_item_by_midi_locale (IpatchBase *base, int bank, int program)
   else return (NULL);
 }
 
+/* GFunc used by g_list_foreach() to remove created sample stores */
+static void
+remove_created_stores (gpointer data, gpointer user_data)
+{
+  IpatchSampleStore *store = data;
+  IpatchSampleData *sampledata;
+
+  sampledata = (IpatchSampleData *)ipatch_item_get_parent ((IpatchItem *)store);        // ++ ref parent sampledata
+  if (sampledata) ipatch_sample_data_remove (sampledata, store);
+  g_object_unref (sampledata);          // -- unref sampledata
+}
+
 /**
  * ipatch_base_save:
  * @base: Base item to save
  * @filename: New file name to save to or %NULL to use current one
+ * @flags: (type IpatchBaseSaveFlags): Save flags
  * @err: Location to store error info or %NULL
  *
- * Save a patch item to a file.  This function handles saving over the existing
+ * Save a patch item to a file.  This function handles saving over an existing
  * file and migrates sample stores as needed.  It is an error to try to save
  * over an open file that is not owned by @base though.
- * A new file object is created and assigned to the @base object.
+ * A new file object is created and assigned to the @base object, except when
+ * #IPATCH_BASE_SAVE_A_COPY flag is passed in @flags.
  *
  * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set)
  */
 gboolean
-ipatch_base_save (IpatchBase *base, const char *filename, GError **err)
+ipatch_base_save (IpatchBase *base, const char *filename, int flags, GError **err)
 {
   IpatchConverterInfo *info;
   IpatchFile *lookup_file, *newfile = NULL, *oldfile = NULL;
-  char *tmp_fname = NULL, *base_fname, *abs_fname = NULL, *bak_fname = NULL;
+  char *tmp_fname = NULL, *abs_fname = NULL, *base_fname = NULL;
   IpatchConverter *converter;
-  gboolean replacing = FALSE;
+  gboolean tempsave = FALSE;    // Set to TRUE if writing to a temp file first, before replacing a file
   GError *local_err = NULL;
+  IpatchList *created_stores = NULL;
   int tmpfd;
 
   g_return_val_if_fail (IPATCH_IS_BASE (base), FALSE);
@@ -424,7 +439,11 @@ ipatch_base_save (IpatchBase *base, const char *filename, GError **err)
     }
   }
 
-  g_object_get (base, "file-name", &base_fname, NULL);       // ++ allocate patch file name
+  if (oldfile) g_object_get (base, "file-name", &base_fname, NULL);     // ++ allocate base file name
+
+  // Write to temporary file if saving over or new file name exists
+  tempsave = !abs_fname || (base_fname && strcmp (abs_fname, base_fname) == 0)
+    || g_file_test (abs_fname, G_FILE_TEST_EXISTS);
 
   /* if no filename specified try to use current one */
   if (!abs_fname)
@@ -436,14 +455,10 @@ ipatch_base_save (IpatchBase *base, const char *filename, GError **err)
       goto error;
     }
 
-    abs_fname = base_fname;
+    abs_fname = base_fname;     // !! abs_fname takes over base_fname
+    base_fname = NULL;
   }
-
-  /* Check if request is to overwrite the existing file (requested file name and base
-   * file name are equal and file actually exists). */
-  replacing = strcmp (abs_fname, base_fname) == 0 && g_file_test (abs_fname, G_FILE_TEST_EXISTS);
-
-  g_free (base_fname);       // -- free base filename
+  else g_free (base_fname);     // -- free base file name
 
   /* Find a converter from base object to file */
   info = ipatch_lookup_converter_info (0, G_OBJECT_TYPE (base), IPATCH_TYPE_FILE);
@@ -456,22 +471,28 @@ ipatch_base_save (IpatchBase *base, const char *filename, GError **err)
     goto error;
   }
 
-  tmp_fname = g_build_filename (abs_fname, "_tmpXXXXXX", NULL);       // ++ alloc temporary file name
-
-  // open temporary file in same directory as destination
-  if ((tmpfd = g_mkstemp (tmp_fname)) == -1)
+  if (tempsave) // Saving to a temporary file?
   {
-    g_set_error (err, G_FILE_ERROR, g_file_error_from_errno (errno),
-                 _("Unable to open temp file '%s' for writing: %s"),
-                 tmp_fname, g_strerror (errno));
-    goto error;
+    tmp_fname = g_strconcat (abs_fname, "_tmpXXXXXX", NULL);         // ++ alloc temporary file name
+
+    // open temporary file in same directory as destination
+    if ((tmpfd = g_mkstemp (tmp_fname)) == -1)
+    {
+      g_set_error (err, G_FILE_ERROR, g_file_error_from_errno (errno),
+                   _("Unable to open temp file '%s' for writing: %s"),
+                   tmp_fname, g_strerror (errno));
+      goto error;
+    }
+
+    newfile = IPATCH_FILE (g_object_new (info->dest_type, "file-name", tmp_fname, NULL));       /* ++ ref new file */
+    ipatch_file_assign_fd (newfile, tmpfd, TRUE);         /* Assign file descriptor and set close on finalize */
   }
+  else  // Not replacing a file, just save it directly without using a temporary file
+    newfile = IPATCH_FILE (g_object_new (info->dest_type, "file-name", abs_fname, NULL));       /* ++ ref new file */
 
-  newfile = IPATCH_FILE (g_object_new (info->dest_type, "name", tmp_fname, NULL));       /* ++ ref new file */
-  ipatch_file_assign_fd (newfile, tmpfd, TRUE);         /* Assign file descriptor and set close on finalize */
-
-  // ++ Create new converter and set create-stores property if file is being replaced
-  converter = IPATCH_CONVERTER (g_object_new (info->conv_type, "create-stores", replacing, NULL));
+  // ++ Create new converter and set create-stores property if not "save a copy" mode
+  converter = IPATCH_CONVERTER (g_object_new (info->conv_type, "create-stores",
+                                (flags & IPATCH_BASE_SAVE_A_COPY) == 0, NULL));
 
   ipatch_converter_add_input (converter, G_OBJECT (base));
   ipatch_converter_add_output (converter, G_OBJECT (newfile));
@@ -483,27 +504,47 @@ ipatch_base_save (IpatchBase *base, const char *filename, GError **err)
     goto error;
   }
 
+  // If "create-stores" was set, then we get the list of stores in case of error, so new stores can be removed
+  if ((flags & IPATCH_BASE_SAVE_A_COPY) == 0)
+  {
+    IpatchList *out_list = ipatch_converter_get_outputs (converter);    // ++ ref output object list
+    created_stores = (IpatchList *)g_list_nth_data (out_list->items, 1);
+    if (created_stores) g_object_ref (created_stores);          // ++ ref created stores list
+    g_object_unref (out_list);          // -- unref output object list
+  }
+
   g_object_unref (converter);                   // -- unref converter
 
-  ipatch_file_assign_fd (newfile, -1, FALSE);      // Unset file descriptor of file (now using file name), closes file descriptor
+  if (tempsave)
+    ipatch_file_assign_fd (newfile, -1, FALSE); // Unset file descriptor of file (now using file name), closes file descriptor
 
-  // Sample migration is called whether or not replacing, so samples can be migrated out of SWAP
-  if (!ipatch_migrate_file_sample_data (oldfile, newfile, IPATCH_SAMPLE_DATA_MIGRATE_REMOVE_NEW_IF_UNUSED
-                                        | IPATCH_SAMPLE_DATA_MIGRATE_REPLACE, err))
+  // Migrate samples
+  if ((flags & IPATCH_BASE_SAVE_A_COPY) == 0)
+  {
+    if (!ipatch_migrate_file_sample_data (oldfile, newfile, abs_fname, IPATCH_SAMPLE_DATA_MIGRATE_REMOVE_NEW_IF_UNUSED
+                                          | (tempsave ? IPATCH_SAMPLE_DATA_MIGRATE_REPLACE : 0), err))
+      goto error;
+
+    ipatch_base_set_file (IPATCH_BASE (base), newfile); // Assign new file to base object
+  }
+  else if (tempsave && !ipatch_file_rename (newfile, abs_fname, err))   // If "save a copy" mode and saved to a temporary file, rename it here
     goto error;
 
-  if (!replacing && !ipatch_file_rename (newfile, abs_fname, err))
-    goto error;
-
-  g_free (bak_fname);           // -- unref backup file name
-  g_object_unref (newfile);	// -- unref creators reference
-  g_free (tmp_fname);            // -- free temp file name
-  g_free (abs_fname);        // -- free file name
-  if (oldfile) g_object_unref (oldfile);        // -- unref old file
+  if (created_stores) g_object_unref (created_stores);  // -- unref created stores
+  g_object_unref (newfile);	                        // -- unref creators reference
+  g_free (tmp_fname);                                   // -- free temp file name
+  g_free (abs_fname);                                   // -- free file name
+  if (oldfile) g_object_unref (oldfile);                // -- unref old file
 
   return (TRUE);
 
 error:
+
+  if (created_stores)   // Remove new created stores
+  {
+    g_list_foreach (created_stores->items, remove_created_stores, NULL);
+    g_object_unref (created_stores);  // -- unref created stores
+  }
 
   if (newfile)
   {
@@ -516,15 +557,6 @@ error:
 
     g_object_unref (newfile);   // -- unref creators reference
   }
-
-  if (bak_fname && !ipatch_file_rename (oldfile, abs_fname, &local_err))
-  {
-    g_critical (_("Failed to restore backup '%s' after save failure: %s"),
-                bak_fname, ipatch_gerror_message (local_err));
-    g_clear_error (&local_err);
-  }
-
-  g_free (bak_fname);           // -- unref backup file name
 
   g_free (tmp_fname);           // -- free temp file name
   g_free (abs_fname);           // -- free file name
