@@ -1353,7 +1353,11 @@ sfload_shdrs (IpatchSF2Reader *reader, GError **err)
 				        | IPATCH_SAMPLE_LENDIAN);
 	    }
 
-          ipatch_sample_set_size (store, shdr.end - shdr.start);
+          g_object_set (store,
+                        "sample-size", shdr.end - shdr.start,
+                        "sample-rate", shdr.rate,
+                        NULL);
+
           sampledata = ipatch_sample_data_new ();	/* ++ ref */
           ipatch_sample_data_add (sampledata, (IpatchSampleStore *)store);
           ipatch_sf2_sample_set_data (sample, sampledata);
