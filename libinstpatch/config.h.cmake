@@ -61,5 +61,8 @@
 /* Version number of package */
 #cmakedefine VERSION @IPATCH_VERSION@
 
+/* Enable this to include extra debug functions */
+#cmakedefine IPATCH_DEBUG @IPATCH_DEBUG@
+
 #endif /* CONFIG_H */
 

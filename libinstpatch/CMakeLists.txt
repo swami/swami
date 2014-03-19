@@ -99,6 +99,7 @@ endif ( CMAKE_COMPILER_IS_GNUCC )
 if ( enable-debug )  
     set ( CMAKE_BUILD_TYPE "Debug" CACHE STRING
           "Choose the build type, options: Debug Release RelWithDebInfo" FORCE )
+    set ( IPATCH_DEBUG 1 )
 endif ( enable-debug )
 
 unset ( MINGW32 CACHE )
