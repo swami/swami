@@ -28,6 +28,7 @@
 #include "IpatchSample.h"
 #include "ipatch_priv.h"
 #include "builtin_enums.h"
+#include "config.h"
 
 enum
 {
@@ -116,50 +117,52 @@ ipatch_get_sample_data_list (void)
   return (list);		/* !! caller takes over reference */
 }
 
-/* GDestroyNotify function for g_slist_free_full to remove a store from its parent sample data and unref */
+/* GHFunc for g_hash_table_foreach() to remove a store from its parent sample data */
 static void
-remove_store_and_unref (gpointer data)
+remove_stores (gpointer key, gpointer value, gpointer user_data)
 {
-  IpatchSampleStore *store = data;
+  IpatchSampleStore *store = key;
   IpatchSampleData *sampledata;
 
   sampledata = (IpatchSampleData *)ipatch_item_get_parent ((IpatchItem *)store);  // ++ ref parent sample data
   ipatch_sample_data_remove (sampledata, store);
   g_object_unref (sampledata);          // -- unref parent sample data
-
-  g_object_unref (store);       // -- unref store
 }
 
 /**
  * ipatch_migrate_file_sample_data:
- * @oldfile: Old file to migrate samples from
- * @newfile: New file which has stores which may be used for migration (can be %NULL)
+ * @oldfile: (allow-none): Old file to migrate samples from (can be %NULL, but not both @oldfile and @newfile)
+ * @newfile: (allow-none): New file which has stores which may be used for migration
+ *   (can be %NULL, but not both @oldfile and @newfile)
+ * @filename: (allow-none): File name used for replace if @oldfile is %NULL and
+ *   #IPATCH_SAMPLE_DATA_MIGRATE_REPLACE is set in @flags
  * @flags: (type IpatchSampleDataMigrateFlags): Flag options for migration
  * @err: Location to store error info or %NULL to ignore
  *
- * Migrate sample data for those which have native sample references to @oldfile.  This function is used
- * prior to overwriting or closing an instrument file which may have #IpatchSampleStore objects
- * that reference it.
+ * Used for migrating sample data when saving, deleting, replacing or closing instrument files.
  *
- * When replacing a file, @newfile can be set.  In this case #IpatchSampleStore objects should have already been
+ * If @oldfile is set, sample data will be migrated for those that have native sample references to it, and the
+ * old sample stores are removed.
+ *
+ * When saving a file, @newfile can be set.  In this case new #IpatchSampleStore objects should have already been
  * added to their applicable #IpatchSampleData objects.  #IpatchSampleData objects will be migrated to these stores
  * if they match the native format and the criteria set by the @flags parameter.
  *
  * If sample data needs to be migrated but there is no format identical store from @newfile, then
  * a new duplicate #IpatchSampleStoreSwap will be created and set as the new native sample.
- * As a last step, all old #IpatchSampleStore objects which were migrated are removed.
  *
  * If the #IPATCH_SAMPLE_DATA_MIGRATE_REMOVE_NEW_IF_UNUSED flag is set in @flags, then unused #IpatchSampleStore
  * objects referencing @newfile will be removed if unused.
  *
- * The #IPATCH_SAMPLE_DATA_MIGRATE_TO_NEWFILE flag can be used to migrate samples when possible, even if they are
- * not referencing @oldfile.
+ * The #IPATCH_SAMPLE_DATA_MIGRATE_TO_NEWFILE flag can be used to migrate all native compatible samples to @newfile.
+ * Default is to only migrate samples which reference @oldfile or swap.
  *
  * The #IPATCH_SAMPLE_DATA_MIGRATE_LEAVE_IN_SWAP flag can be used to not migrate samples out of swap.  The default
  * is to migrate samples out of swap to @newfile if possible.
  *
  * The #IPATCH_SAMPLE_DATA_MIGRATE_REPLACE flag can be used to replace @oldfile with @newfile using
- * ipatch_file_replace().  Ignored if @newfile is %NULL.
+ * ipatch_file_replace().  If @oldfile is not set, @filename can be used to replace a file, which should not
+ * be referenced by any other #IpatchFile object.  If neither of these is set, then this flag is ignored.
  *
  * NOTE - Not really thread safe.  It is assumed that sample stores referencing @oldfile or @newfile
  * will not be added or removed (respectively) by other threads during this function.  The side
@@ -169,27 +172,38 @@ remove_store_and_unref (gpointer data)
  * Returns: %TRUE on succcess, %FALSE otherwise (in which case @err may be set)
  */
 gboolean
-ipatch_migrate_file_sample_data (IpatchFile *oldfile, IpatchFile *newfile, guint flags,
-                                 GError **err)
+ipatch_migrate_file_sample_data (IpatchFile *oldfile, IpatchFile *newfile, const char *filename,
+                                 guint flags, GError **err)
 {
   IpatchSampleData *sampledata;
   IpatchSampleStore *old_store, *store, *native_store, *new_store;
   IpatchList *old_list, *store_list;
-  GSList *replace_list = NULL;          // List of new stores to use to replace native stores
-  GSList *remove_list = NULL;           // List of new stores to remove (not needed)
-  GSList *swap_list = NULL;             // List of created swap stores to replace native stores
+  GHashTable *replace_hash;     // Hash of new stores to use to replace native stores
+  GHashTable *remove_hash;      // Hash of new stores to remove
+  GHashTable *swap_hash;        // Hash of created swap stores to replace native stores
+  GHashTableIter iter;
+  gpointer key, value;
   GList *p, *p2;
-  GSList *sp;
   int native_fmt, new_fmt;
   int sample_rate;
 
-  g_return_val_if_fail (IPATCH_IS_FILE (oldfile), FALSE);
+  g_return_val_if_fail (!oldfile || IPATCH_IS_FILE (oldfile), FALSE);
   g_return_val_if_fail (!newfile || IPATCH_IS_FILE (newfile), FALSE);
+  g_return_val_if_fail (oldfile || newfile, FALSE);
   g_return_val_if_fail (!err || !*err, FALSE);
 
-  old_list = ipatch_file_get_refs_by_type (oldfile, IPATCH_TYPE_SAMPLE_STORE);  // ++ ref list of stores referencing oldfile
+  replace_hash = g_hash_table_new_full (g_direct_hash, g_direct_equal, g_object_unref, NULL);
+  remove_hash = g_hash_table_new_full (g_direct_hash, g_direct_equal, g_object_unref, NULL);
+  swap_hash = g_hash_table_new_full (g_direct_hash, g_direct_equal, g_object_unref, NULL);
 
-  for (p = old_list->items; p; p = p->next)
+  if (oldfile)
+  {
+    old_list = ipatch_file_get_refs_by_type (oldfile, IPATCH_TYPE_SAMPLE_STORE);  // ++ ref list of stores referencing oldfile
+    p = old_list->items;
+  }
+  else p = NULL;
+
+  for (; p; p = p->next)
   {
     old_store = (IpatchSampleStore *)(p->data);
     sampledata = (IpatchSampleData *)ipatch_item_get_parent ((IpatchItem *)old_store);  // ++ ref parent sample data
@@ -236,7 +250,7 @@ ipatch_migrate_file_sample_data (IpatchFile *oldfile, IpatchFile *newfile, guint
       if (!new_store || new_fmt != native_fmt)
       { // Add new store to remove list if requested
         if (new_store && (flags & IPATCH_SAMPLE_DATA_MIGRATE_REMOVE_NEW_IF_UNUSED))
-          remove_list = g_slist_prepend (remove_list, g_object_ref (new_store));        // ++ ref for remove list
+          g_hash_table_insert (remove_hash, g_object_ref (new_store), GUINT_TO_POINTER (1));    // ++ ref for remove hash
 
         g_object_get (old_store, "sample-rate", &sample_rate, NULL);
 
@@ -249,70 +263,111 @@ ipatch_migrate_file_sample_data (IpatchFile *oldfile, IpatchFile *newfile, guint
         {
           g_object_unref (store);                               // -- unref swap sample store
           g_object_unref (sampledata);                          // -- unref sample data
-          g_slist_free_full (replace_list, g_object_unref);     // -- Free replace list and unref objects
-          g_slist_free_full (remove_list, g_object_unref);      // -- Free remove list and unref objects
-          g_slist_free_full (swap_list, remove_store_and_unref);        // -- Free swap list and unref objects
+          g_hash_table_destroy (replace_hash);                  // -- Free replace hash
+          g_hash_table_destroy (remove_hash);                   // -- Free remove hash
+          g_hash_table_foreach (swap_hash, remove_stores, NULL);        // -- Remove swap stores
+          g_hash_table_destroy (swap_hash);                     // -- Free swap hash
           g_object_unref (store_list);                          // -- unref sample data store list
-          g_object_unref (old_list);                            // -- unref store list
+
+          if (oldfile) g_object_unref (old_list);               // -- unref store list
           return (FALSE);
         }
 
-        swap_list = g_slist_prepend (swap_list, store);         // !! list takes over swap reference
+        g_hash_table_insert (swap_hash, store, GUINT_TO_POINTER (1));   // !! hash takes over swap reference
       } // Compatible store in newfile - add to replace list
-      else replace_list = g_slist_prepend (replace_list, g_object_ref (new_store));     // ++ ref for replace list
-
-      remove_list = g_slist_prepend (remove_list, g_object_ref (old_store));            // ++ ref old store for remove list
-    } // Migration not necessary for this sample - remove new store if present and remove new unused requested
+      else g_hash_table_insert (replace_hash, g_object_ref (new_store), GUINT_TO_POINTER (1));  // ++ ref for replace hash
+    } // Migration not necessary for this sample - remove new store if present and REMOVE_NEW_IF_UNUSED requested
     else if (new_store && (flags & IPATCH_SAMPLE_DATA_MIGRATE_REMOVE_NEW_IF_UNUSED))
-      remove_list = g_slist_prepend (remove_list, g_object_ref (new_store));            // ++ ref for remove list
+      g_hash_table_insert (remove_hash, g_object_ref (new_store), GUINT_TO_POINTER (1));        // ++ ref new store for remove hash
 
     g_object_unref (store_list);        // -- unref sample data store list
     g_object_unref (sampledata);        // -- unref sample data
   }
 
-  g_object_unref (old_list);            // -- unref store list
+  if (oldfile) g_object_unref (old_list);       // -- unref store list
 
-  // Replace oldfile with newfile if requested
-  if ((flags & IPATCH_SAMPLE_DATA_MIGRATE_REPLACE) && oldfile)
+  // Replace oldfile/filename with newfile if requested
+  if ((flags & IPATCH_SAMPLE_DATA_MIGRATE_REPLACE) && newfile)
   {
-    if (!ipatch_file_replace (newfile, oldfile, err))
+    if ((oldfile && !ipatch_file_replace (newfile, oldfile, err))
+        || (!oldfile && filename && !ipatch_file_rename (newfile, filename, err)))
     {
-      g_slist_free_full (replace_list, g_object_unref);         // -- Free replace list and unref objects
-      g_slist_free_full (remove_list, g_object_unref);          // -- Free remove list and unref objects
-      g_slist_free_full (swap_list, remove_store_and_unref);    // -- Free swap list and unref objects
+      g_hash_table_destroy (replace_hash);              // -- Free replace hash
+      g_hash_table_destroy (remove_hash);               // -- Free remove hash
+      g_hash_table_foreach (swap_hash, remove_stores, NULL);    // -- Remove swap stores
+      g_hash_table_destroy (swap_hash);                 // -- Free swap hash
       return (FALSE);
     }
   }
 
-  // Replace native stores with those in list (already added to sample data objects)
-  for (sp = replace_list; sp; sp = g_slist_delete_link (sp, sp))        // !! free list nodes
+  // Process new stores if newfile specified and REMOVE_NEW_IF_UNUSED or TO_NEWFILE flags are set
+  if (newfile && (flags & (IPATCH_SAMPLE_DATA_MIGRATE_REMOVE_NEW_IF_UNUSED | IPATCH_SAMPLE_DATA_MIGRATE_TO_NEWFILE)))
   {
-    store = (IpatchSampleStore *)(sp->data);
+    store_list = ipatch_file_get_refs_by_type (newfile, IPATCH_TYPE_SAMPLE_STORE);  // ++ ref list of stores referencing newfile
+
+    for (p = store_list->items; p; p = p->next)
+    {
+      store = (IpatchSampleStore *)(p->data);
+      if (g_hash_table_lookup (replace_hash, store)) continue;          // Already in replace hash? - skip
+
+      // If TO_NEWFILE check if sample can be migrated to this store
+      if (flags & IPATCH_SAMPLE_DATA_MIGRATE_TO_NEWFILE)
+      {
+        sampledata = (IpatchSampleData *)ipatch_item_get_parent ((IpatchItem *)store);  // ++ ref parent sample data
+        if (!sampledata) continue;          // Probably shouldn't happen, right?
+
+        native_store = ipatch_sample_data_get_native_sample (sampledata);               // ++ ref native sample store
+        if (native_store) native_fmt = ipatch_sample_store_get_format (native_store);
+
+        g_object_unref (native_store);          // -- unref native store (only need the pointer value)
+        g_object_unref (sampledata);            // -- unref sample data
+
+        if (store == native_store) continue;      // already the native store? - skip
+
+        if (native_fmt == ipatch_sample_store_get_format (store))
+        {
+          g_hash_table_insert (replace_hash, g_object_ref (store), GUINT_TO_POINTER (1));       // ++ ref store for replace hash
+          continue;
+        }
+      }
+
+      if (flags & IPATCH_SAMPLE_DATA_MIGRATE_REMOVE_NEW_IF_UNUSED)
+        g_hash_table_insert (remove_hash, g_object_ref (store), GUINT_TO_POINTER (1));    // ++ ref store for remove hash
+    }
+
+    g_object_unref (store_list);                // -- unref newfile stores
+  }
+
+  // Replace native stores with those in replace hash (already added to sample data objects)
+  for (g_hash_table_iter_init (&iter, replace_hash); g_hash_table_iter_next (&iter, &key, &value); )
+  {
+    store = (IpatchSampleStore *)key;
     sampledata = (IpatchSampleData *)ipatch_item_get_parent ((IpatchItem *)store);      // ++ ref parent sample data
     ipatch_sample_data_replace_native_sample (sampledata, store);
     g_object_unref (sampledata);                // -- unref sample data
-    g_object_unref (store);                     // -- unref store from list
   }
 
-  // Replace native stores with those in swap list (already added to sample data objects)
-  for (sp = swap_list; sp; sp = g_slist_delete_link (sp, sp))           // !! free list nodes
+  // Replace native stores with those in swap hash (already added to sample data objects)
+  for (g_hash_table_iter_init (&iter, swap_hash); g_hash_table_iter_next (&iter, &key, &value); )
   {
-    store = (IpatchSampleStore *)(sp->data);
+    store = (IpatchSampleStore *)key;
     sampledata = (IpatchSampleData *)ipatch_item_get_parent ((IpatchItem *)store);      // ++ ref parent sample data
     ipatch_sample_data_replace_native_sample (sampledata, store);
     g_object_unref (sampledata);                // -- unref sample data
-    g_object_unref (store);                     // -- unref store from list
   }
 
-  // Remove stores in remove list
-  for (sp = remove_list; sp; sp = g_slist_delete_link (sp, sp))         // !! free list nodes
+  // Remove stores in remove hash
+  for (g_hash_table_iter_init (&iter, remove_hash); g_hash_table_iter_next (&iter, &key, &value); )
   {
-    store = (IpatchSampleStore *)(sp->data);
+    store = (IpatchSampleStore *)key;
     sampledata = (IpatchSampleData *)ipatch_item_get_parent ((IpatchItem *)store);      // ++ ref parent sample data
     ipatch_sample_data_remove (sampledata, store);
     g_object_unref (sampledata);                // -- unref sample data
-    g_object_unref (store);                     // -- unref store from list
   }
+
+  g_hash_table_destroy (replace_hash);              // -- Free replace hash
+  g_hash_table_destroy (remove_hash);               // -- Free remove hash
+  g_hash_table_destroy (swap_hash);                 // -- Free swap hash
 
   return (TRUE);
 }
@@ -1215,3 +1270,86 @@ _ipatch_sample_data_cache_add_unused_size (int size)
   sample_cache_unused_size += size;
   G_UNLOCK (sample_cache_vars);
 }
+
+#ifdef IPATCH_DEBUG
+/**
+ * ipatch_sample_data_dump:
+ *
+ * Dump sample data information to stdout for debugging purposes.
+ */
+void
+ipatch_sample_data_dump (void)
+{
+  IpatchList *data_list;
+  IpatchList *store_list;
+  IpatchSampleStore *store;
+  GList *pdata, *pstore;
+
+  data_list = ipatch_get_sample_data_list ();           // ++ ref sample data list
+
+  for (pdata = data_list->items; pdata; pdata = pdata->next)
+  {
+    store_list = ipatch_sample_data_get_samples (IPATCH_SAMPLE_DATA (pdata->data));     // ++ ref stores list
+
+    printf ("Data 0x%p: samples=%d\n", pdata->data, g_list_length (store_list->items));
+
+    for (pstore = store_list->items; pstore; pstore = pstore->next)
+    {
+      int sample_format, sample_rate, loop_type, root_note, fine_tune;
+      guint sample_size, loop_start, loop_end;
+      char *title;
+
+      store = IPATCH_SAMPLE_STORE (pstore->data);
+
+      g_object_get (store,
+                    "title", &title,
+                    "sample-size", &sample_size,        // ++ allocate title
+                    "sample-format", &sample_format,
+                    "sample-rate", &sample_rate,
+                    "loop-type", &loop_type,
+                    "loop-start", &loop_start,
+                    "loop-end", &loop_end,
+                    "root-note", &root_note,
+                    "fine-tune", &fine_tune,
+                    NULL);
+
+      printf ("  Store 0x%p (%s): title='%s' size=%u fmt=0x%X rate=%d ltype=%d lstart=%u lend=%u root=%d fine=%d\n",
+              store, g_type_name (G_OBJECT_TYPE (store)), title, sample_size, sample_format,
+              sample_rate, loop_type, loop_start, loop_end, root_note, fine_tune);
+
+      g_free (title);                                   // -- free title
+
+      // Show some details about file stores
+      if (IPATCH_IS_SAMPLE_STORE_FILE (store))
+      {
+        IpatchFile *file;
+        char *filename = NULL;
+        guint location;
+
+        g_object_get (store, "file", &file, "location", &location, NULL);        // ++ ref file object
+
+        if (file) filename = ipatch_file_get_name (file);                       // ++ alloc file name
+
+        printf ("    File 0x%p (%s): filename='%s' location=%u\n", file, g_type_name (G_OBJECT_TYPE (file)),
+                filename, location);
+
+        g_free (filename);                                                      // -- free file name
+        g_object_unref (file);                                                  // -- unref file
+      } // Show details about swap stores
+      else if (IPATCH_IS_SAMPLE_STORE_SWAP (store))
+      {
+        IpatchSampleStoreSwap *swap_store = (IpatchSampleStoreSwap *)store;
+
+        if (swap_store->ram_location)
+          printf ("    RAM 0x%p\n", swap_store->ram_location);
+        else printf ("    Swap %u\n", swap_store->location);
+      }
+    }
+
+    g_object_unref (store_list);                        // -- unref stores list
+  }
+
+  g_object_unref (data_list);                           // -- unref sample data list
+}
+#endif
+

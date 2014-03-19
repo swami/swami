@@ -91,7 +91,8 @@ typedef enum
 } IpatchSampleDataMigrateFlags;
 
 IpatchList *ipatch_get_sample_data_list (void);
-gboolean ipatch_migrate_file_sample_data (IpatchFile *oldfile, IpatchFile *newfile, guint flags, GError **err);
+gboolean ipatch_migrate_file_sample_data (IpatchFile *oldfile, IpatchFile *newfile, const char *filename,
+                                          guint flags, GError **err);
 
 GType ipatch_sample_data_get_type (void);
 IpatchSampleData *ipatch_sample_data_new (void);
