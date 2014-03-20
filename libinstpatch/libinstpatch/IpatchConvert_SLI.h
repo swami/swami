@@ -33,7 +33,14 @@
 #include <glib-object.h>
 #include <libinstpatch/IpatchConverter.h>
 
-typedef IpatchConverter IpatchConverterSLIToFile;
+typedef struct
+{
+  IpatchConverter parent_instance;
+
+  /*< private >*/
+  gboolean create_stores;
+} IpatchConverterSLIToFile;
+
 typedef IpatchConverterClass IpatchConverterSLIToFileClass;
 typedef IpatchConverter IpatchConverterFileToSLI;
 typedef IpatchConverterClass IpatchConverterFileToSLIClass;

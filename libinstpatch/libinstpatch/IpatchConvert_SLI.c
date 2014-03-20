@@ -38,17 +38,28 @@
 #include "IpatchFile.h"
 #include "i18n.h"
 
+enum
+{
+  PROP_0,
+  PROP_SLI_TO_FILE_CREATE_STORES
+};
+
 /*
  * Spectralis conversion handlers
  * IpatchSLI <==> IpatchSLIFile
  * IpatchSndFile => IpatchSLISample
  */
 
+static void _sli_to_file_get_property (GObject *object, guint property_id,
+                                       GValue *value, GParamSpec *pspec);
+static void _sli_to_file_set_property (GObject *object, guint property_id,
+                                       const GValue *value, GParamSpec *pspec);
+
 /* init routine for SLI conversion types */
 void
 _ipatch_convert_SLI_init (void)
 {
-  /*  g_type_class_ref (IPATCH_TYPE_CONVERTER_SLI_TO_FILE); */
+  g_type_class_ref (IPATCH_TYPE_CONVERTER_SLI_TO_FILE);
   g_type_class_ref (IPATCH_TYPE_CONVERTER_FILE_TO_SLI);
   g_type_class_ref (IPATCH_TYPE_CONVERTER_FILE_TO_SLI_SAMPLE);
 
@@ -74,6 +85,8 @@ _sli_to_file_convert (IpatchConverter *converter, GError **err)
   IpatchSLIFile *file;
   IpatchFileHandle *handle;
   IpatchSLIWriter *writer;
+  gboolean create_stores;
+  IpatchList *stores;
   int retval;
 
   sli = IPATCH_SLI (IPATCH_CONVERTER_INPUT (converter));
@@ -84,6 +97,21 @@ _sli_to_file_convert (IpatchConverter *converter, GError **err)
 
   writer = ipatch_sli_writer_new (handle, sli); /* ++ ref new writer */
   retval = ipatch_sli_writer_save (writer, err);
+
+  g_object_get (converter, "create-stores", &create_stores, NULL);
+
+  if (retval && create_stores)
+  {
+    /* ++ reference sample stores */
+    stores = ipatch_sli_writer_create_stores (writer);
+
+    if (stores)
+    {
+      ipatch_converter_add_output (converter, G_OBJECT (stores));
+      g_object_unref (stores); /* -- unref sample stores */
+    }
+  }
+
   g_object_unref (writer); /* -- unref writer */
 
   return (retval);
@@ -204,7 +232,61 @@ bad:
   return (FALSE);
 }
 
-CONVERTER_CLASS_INIT(sli_to_file);
+/* SLI -> File class is handled manually to install properties */
+static void
+_sli_to_file_class_init (IpatchConverterClass *klass)
+{
+  GObjectClass *obj_class = G_OBJECT_CLASS (klass);
+
+  obj_class->get_property = _sli_to_file_get_property;
+  obj_class->set_property = _sli_to_file_set_property;
+
+  klass->verify = NULL;
+  klass->notes = NULL;
+  klass->convert = _sli_to_file_convert;
+
+  g_object_class_install_property (obj_class, PROP_SLI_TO_FILE_CREATE_STORES,
+                                   g_param_spec_boolean ("create-stores",
+                                                         "Create stores",
+                                                         "Create sample stores",
+                                                         FALSE,
+                                                         G_PARAM_READWRITE));
+}
+
+static void
+_sli_to_file_get_property (GObject *object, guint property_id,
+                           GValue *value, GParamSpec *pspec)
+{
+  IpatchConverterSLIToFile *converter = (IpatchConverterSLIToFile *)object;
+
+  switch (property_id)
+  {
+    case PROP_SLI_TO_FILE_CREATE_STORES:
+      g_value_set_boolean (value, converter->create_stores);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
+  }
+}
+
+static void
+_sli_to_file_set_property (GObject *object, guint property_id,
+                           const GValue *value, GParamSpec *pspec)
+{
+  IpatchConverterSLIToFile *converter = (IpatchConverterSLIToFile *)object;
+
+  switch (property_id)
+  {
+    case PROP_SLI_TO_FILE_CREATE_STORES:
+      converter->create_stores = g_value_get_boolean (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
+  }
+}
+
 CONVERTER_CLASS_INIT(file_to_sli);
 CONVERTER_CLASS_INIT(file_to_sli_sample);
 

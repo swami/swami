@@ -32,6 +32,7 @@
 #include <glib.h>
 #include <libinstpatch/IpatchSLIFile.h>
 #include <libinstpatch/IpatchSLI.h>
+#include <libinstpatch/IpatchList.h>
 
 typedef struct _IpatchSLIWriter IpatchSLIWriter; /* private structure */
 typedef struct _IpatchSLIWriterClass IpatchSLIWriterClass;
@@ -58,6 +59,7 @@ struct _IpatchSLIWriter
   IpatchSLI *orig_sli;	        /* original SLI object */
   IpatchSLI *sli;	        /* duplicated SLI object to save */
   GHashTable *sample_hash;	/* sample => SampleHashValue hash */
+  IpatchList *store_list;       /* list of stores, only set if ipatch_sli_writer_get_stores() was called */
 };
 
 /* Spectralis SLI/SLC writer class */
@@ -71,5 +73,6 @@ IpatchSLIWriter *ipatch_sli_writer_new (IpatchFileHandle *handle, IpatchSLI *sli
 void ipatch_sli_writer_set_patch (IpatchSLIWriter *writer, IpatchSLI *sli);
 void ipatch_sli_writer_set_file_handle (IpatchSLIWriter *writer, IpatchFileHandle *handle);
 gboolean ipatch_sli_writer_save (IpatchSLIWriter *writer, GError **err);
+IpatchList *ipatch_sli_writer_create_stores (IpatchSLIWriter *writer);
 
 #endif

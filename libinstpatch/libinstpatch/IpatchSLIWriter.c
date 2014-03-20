@@ -23,9 +23,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "IpatchSLIWriter.h"
-#include "IpatchRiff.h"
-#include "IpatchSF2GenItem.h"
+#include <libinstpatch/IpatchSLIWriter.h>
+#include <libinstpatch/IpatchRiff.h>
+#include <libinstpatch/IpatchSF2GenItem.h>
+#include <libinstpatch/IpatchSampleStoreFile.h>
 #include "ipatch_priv.h"
 #include "i18n.h"
 
@@ -41,6 +42,7 @@
 typedef struct
 {
   guint index;          /* sample index */
+  guint position;       /* position in file */
   guint offset;         /* offset in chunk */
   guint length;         /* data length in bytes */
   guint channels;       /* channel count */
@@ -66,7 +68,7 @@ static void ipatch_sli_writer_write_zone_header (IpatchFileHandle *handle,
                                                  IpatchSLIZone *zone,
                                                  guint sample_idx);
 static void ipatch_sli_writer_write_sample_header (IpatchFileHandle *handle,
-                                                   GHashTable *sample_hash,
+                                                   SampleHashValue *sample_info,
                                                    IpatchSLISample *sample);
 static void ipatch_sli_writer_write_sidp (IpatchFileHandle *handle,
                                           IpatchSLISiDp *sidp);
@@ -273,9 +275,78 @@ ipatch_sli_writer_save (IpatchSLIWriter *writer, GError **err)
                 NULL);
 end:
   g_slist_free_full (igs, (GDestroyNotify)g_ptr_array_unref); /* -- unref igs */
-  g_object_unref (writer->sli); /* -- unref duplicate sli object */
-  writer->sli = NULL;
+  /* keep duplicated sli object for create_stores unless there was an error */
+  if (!ret)
+  {
+    g_object_unref (writer->sli); /* -- unref duplicate sli object */
+    writer->sli = NULL;
+  }
   return ret;
+}
+
+
+/**
+ * ipatch_sli_writer_create_stores:
+ * @writer: SLI writer object
+ *
+ * Create sample stores and add them to applicable #IpatchSampleData objects and return object list.
+ * This function can be called multiple times, additional calls will return the same list.
+ *
+ * Returns: List of sample stores which the caller owns a reference to or %NULL
+ */
+IpatchList *
+ipatch_sli_writer_create_stores (IpatchSLIWriter *writer)
+{
+  SampleHashValue *hash_value;
+  IpatchSample *newstore;
+  IpatchSLISample *sample;
+  IpatchIter iter;
+  IpatchList *list;
+  int rate, format;
+  guint size;
+
+  g_return_val_if_fail (writer->sli != NULL, NULL);
+
+  /* Return existing store list (if this function has been called before) */
+  if (writer->store_list)
+    return (g_object_ref (writer->store_list));  /* ++ ref for caller */
+
+  list = ipatch_list_new ();  /* ++ ref list */
+
+  ipatch_container_init_iter(IPATCH_CONTAINER (writer->sli), &iter,
+                             IPATCH_TYPE_SLI_SAMPLE);
+
+  /* traverse samples */
+  for (sample = ipatch_sli_sample_first (&iter); sample;
+       sample = ipatch_sli_sample_next (&iter))
+  {
+    hash_value = g_hash_table_lookup (writer->sample_hash, sample);
+
+    /* hash_value should never be NULL, but.. */
+    if (!hash_value) continue;
+
+    g_object_get (sample,
+                  "sample-format", &format,
+                  "sample-size", &size,
+                  "sample-rate", &rate,
+                  NULL);
+
+    /* ++ ref newstore */
+    newstore = ipatch_sample_store_file_new (writer->handle->file,
+                                             hash_value->position);
+    g_object_set (newstore,
+                  "sample-format", format,
+                  "sample-size", size,
+                  "sample-rate", rate,
+                  NULL);
+
+    ipatch_sample_data_add (sample->sample_data, (IpatchSampleStore *)newstore);
+    /* !! list takes over reference */
+    list->items = g_list_prepend (list->items, newstore);
+  }
+
+  writer->store_list = g_object_ref (list);  /* ++ ref for writer object */
+  return (list);  /* !! caller takes over reference */
 }
 
 static gint
@@ -437,6 +508,7 @@ ipatch_sli_writer_write_group (IpatchSLIWriter *writer, GPtrArray *ig, GError **
       g_ptr_array_add (samples, sample);
       ipatch_sample_get_size (IPATCH_SAMPLE (sample), &val);
       sample_info->offset = smpdata_size;
+      sample_info->position = pos + sample_info->offset;
       sample_info->length = val;
       /* plus 64 zero bytes written for each channel*/
       smpdata_size += val + sample_info->channels * 64;
@@ -473,8 +545,12 @@ ipatch_sli_writer_write_group (IpatchSLIWriter *writer, GPtrArray *ig, GError **
   /* write sample headers */
   ipatch_file_buf_seek (writer->handle, siig.smphdr_offs, G_SEEK_SET);
   for (i = 0; i < samples->len; i++)
-    ipatch_sli_writer_write_sample_header (writer->handle, writer->sample_hash,
+  {
+    sample_info = g_hash_table_lookup (writer->sample_hash, sample);
+    sample_info->position += siig.smphdr_offs;
+    ipatch_sli_writer_write_sample_header (writer->handle, sample_info,
                                            g_ptr_array_index (samples, i));
+  }
 
   /* finished assembling headers, commit to the file now */
   ipatch_file_buf_set_size (writer->handle,
@@ -697,12 +773,12 @@ ipatch_sli_writer_write_zone_header (IpatchFileHandle *handle, IpatchSLIZone *zo
 }
 
 static void
-ipatch_sli_writer_write_sample_header (IpatchFileHandle *handle, GHashTable *sample_hash, IpatchSLISample *sample)
+ipatch_sli_writer_write_sample_header (IpatchFileHandle *handle,
+                                       SampleHashValue *sample_info,
+                                       IpatchSLISample *sample)
 {
-  SampleHashValue *sample_info;
   char sname[IPATCH_SLI_NAME_SIZE];
 
-  sample_info = g_hash_table_lookup (sample_hash, sample);
   strncpy (sname, sample->name, IPATCH_SLI_NAME_SIZE);
   ipatch_file_buf_write (handle, sname, IPATCH_SLI_NAME_SIZE);
   ipatch_file_buf_write_u32 (handle, sample_info->offset);
