@@ -119,6 +119,12 @@ ipatch_sli_writer_finalize (GObject *object)
     writer->sample_hash = NULL;
   }
 
+  if (writer->store_list)
+  {
+    g_object_unref (writer->store_list);
+    writer->store_list = NULL;
+  }
+
   if (G_OBJECT_CLASS (ipatch_sli_writer_parent_class)->finalize)
     G_OBJECT_CLASS (ipatch_sli_writer_parent_class)->finalize (object);
 }
