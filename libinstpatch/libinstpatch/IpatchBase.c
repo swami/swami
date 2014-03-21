@@ -209,6 +209,7 @@ ipatch_base_set_file (IpatchBase *base, IpatchFile *file)
 static void
 ipatch_base_real_set_file (IpatchBase *base, IpatchFile *file)
 {
+  GValue value = { 0 }, oldval = { 0 };
   IpatchFile *oldfile;
 
   ipatch_file_ref_from_object (file, (GObject *)base);                          // ++ ref new file from object
@@ -218,7 +219,22 @@ ipatch_base_real_set_file (IpatchBase *base, IpatchFile *file)
   base->file = file;
   IPATCH_ITEM_WUNLOCK (base);
 
-  if (oldfile) ipatch_file_unref_from_object (oldfile, (GObject *)base);        // -- remove reference to old file
+  g_value_init (&oldval, G_TYPE_STRING);
+
+  if (oldfile)
+  {
+    g_value_take_string (&oldval, ipatch_file_get_name (oldfile));
+    ipatch_file_unref_from_object (oldfile, (GObject *)base);        // -- remove reference to old file
+  }
+
+  g_value_init (&value, G_TYPE_STRING);
+  g_value_take_string (&value, ipatch_file_get_name (file));
+
+  // Notify file-name property change as well
+  ipatch_item_prop_notify ((IpatchItem *)base, file_name_pspec, &value, &oldval);
+
+  g_value_unset (&value);
+  g_value_unset (&oldval);
 }
 
 /**
