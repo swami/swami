@@ -650,7 +650,7 @@ ipatch_sample_store_compact_swap (GError **err)
 
   g_atomic_int_set (&swap_unused_size, 0);      // Set unused size back to 0
 
-  g_close (swap_fd, NULL);
+  close (swap_fd);
   g_unlink (swap_file_name);    // unlink old file
   swap_fd = newfd;
 
@@ -681,7 +681,7 @@ ipatch_sample_store_compact_swap (GError **err)
 
 error:
   G_UNLOCK (swap);      // -- unlock swap
-  g_close (newfd, NULL);        // -- close new swap file
+  close (newfd);        // -- close new swap file
   g_unlink (newname);   // -- unlink new swap file
   g_free (newname);     // -- free newname
   g_free (buf);         // -- free buffer
