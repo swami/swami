@@ -235,7 +235,7 @@ libinstpatch_1_0_la_LIBADD = @SNDFILE_LIBS@ @GOBJECT_LIBS@ -lm
 ipatchincdir = $(includedir)/libinstpatch-1.0/libinstpatch
 ipatchinc_HEADERS = $(ipatch_public_h_sources) builtin_enums.h libinstpatch.h
 
-INCLUDES = @GOBJECT_CFLAGS@ @SNDFILE_CFLAGS@ -I$(top_srcdir) \
+AM_CPPFLAGS = @GOBJECT_CFLAGS@ @SNDFILE_CFLAGS@ -I$(top_srcdir) \
    -DLIBINSTPATCH_COMPILATION -DG_LOG_DOMAIN=\"libInstPatch\" \
    -DLOCALEDIR=\"$(datadir)/locale\"
 

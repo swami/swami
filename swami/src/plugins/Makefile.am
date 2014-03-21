@@ -51,7 +51,7 @@ fftune_gui_la_SOURCES = fftune_gui.c fftune_gui.h fftune_i18n.h
 fftune_gui_la_CFLAGS = @GUI_CFLAGS@ @LIBINSTPATCH_CFLAGS@
 fftune_gui_la_LDFLAGS = -module -avoid-version @GUI_LIBS@ @LIBINSTPATCH_LIBS@
 
-INCLUDES = -I$(top_srcdir)/src/libinstpatch -I$(top_srcdir)/src \
+AM_CPPFLAGS = -I$(top_srcdir)/src/libinstpatch -I$(top_srcdir)/src \
     -I$(top_srcdir)/intl -I$(top_builddir)/src \
     -DLOCALEDIR=\"$(datadir)/locale\"
 

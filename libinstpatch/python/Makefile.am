@@ -3,7 +3,7 @@ H2DEF=$(PYGTK_CODEGEN_DIR)/h2def.py
 
 AUTOMAKE_OPTIONS=1.5
 
-INCLUDES = -I$(top_srcdir) $(PYTHON_CFLAGS) $(PYGTK_CFLAGS) $(GOBJECT_CFLAGS)
+AM_CPPFLAGS = -I$(top_srcdir) $(PYTHON_CFLAGS) $(PYGTK_CFLAGS) $(GOBJECT_CFLAGS)
 
 if PYTHON_SUPPORT
 ipatchmodule_cond = ipatchmodule.la

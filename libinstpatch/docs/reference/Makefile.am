@@ -77,9 +77,9 @@ expand_content_files=
 # CFLAGS and LDFLAGS for compiling gtkdoc-scangobj with your library.
 # Only needed if you are using gtkdoc-scangobj to dynamically query widget
 # signals and properties.
-# e.g. INCLUDES=-I$(top_srcdir) -I$(top_builddir) $(GTK_DEBUG_FLAGS)
+# e.g. GTKDOC_CFLAGS=-I$(top_srcdir) -I$(top_builddir) $(GTK_DEBUG_FLAGS)
 # e.g. GTKDOC_LIBS=$(top_builddir)/gtk/$(gtktargetlib)
-INCLUDES = -I$(top_srcdir) @GOBJECT_CFLAGS@ @SNDFILE_CFLAGS@
+GTKDOC_CFLAGS = -I$(top_srcdir) @GOBJECT_CFLAGS@ @SNDFILE_CFLAGS@
 GTKDOC_LIBS = @GOBJECT_LIBS@ @SNDFILE_LIBS@ \
   $(top_srcdir)/libinstpatch/libinstpatch-1.0.la
 

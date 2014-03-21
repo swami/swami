@@ -6,6 +6,6 @@ noinst_PROGRAMS = create_sf2
 create_sf2_SOURCES = create_sf2.c
 create_sf2_LDADD = $(top_builddir)/libinstpatch/libinstpatch-1.0.la @GOBJECT_LIBS@
 
-INCLUDES = -I$(top_srcdir) @GOBJECT_CFLAGS@
+AM_CPPFLAGS = -I$(top_srcdir) @GOBJECT_CFLAGS@
 
 MAINTAINERCLEANFILES = Makefile.in

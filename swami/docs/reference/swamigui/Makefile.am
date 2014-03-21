@@ -64,9 +64,9 @@ expand_content_files=
 # CFLAGS and LDFLAGS for compiling gtkdoc-scangobj with your library.
 # Only needed if you are using gtkdoc-scangobj to dynamically query widget
 # signals and properties.
-# e.g. INCLUDES=-I$(top_srcdir) -I$(top_builddir) $(GTK_DEBUG_FLAGS)
+# e.g. GTKDOC_CFLAGS=-I$(top_srcdir) -I$(top_builddir) $(GTK_DEBUG_FLAGS)
 # e.g. GTKDOC_LIBS=$(top_builddir)/gtk/$(gtktargetlib)
-INCLUDES = -I$(top_srcdir)/src/swamigui -I$(top_srcdir)/src \
+GTKDOC_CFLAGS = -I$(top_srcdir)/src/swamigui -I$(top_srcdir)/src \
   @GUI_CFLAGS@ @LIBINSTPATCH_CFLAGS@
 GTKDOC_LIBS = $(top_srcdir)/src/swamigui/libswamigui.la \
 $(top_srcdir)/src/libswami/libswami.la @GUI_LIBS@ @LIBGLADE_LIBS@ \

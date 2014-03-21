@@ -5,6 +5,6 @@ riff_dump_SOURCES = riff_dump.c
 riff_dump_LDADD = @GOBJECT_LIBS@ \
   $(top_builddir)/libinstpatch/libinstpatch-1.0.la -lm
 
-INCLUDES = -I$(top_srcdir) @GOBJECT_CFLAGS@
+AM_CPPFLAGS = -I$(top_srcdir) @GOBJECT_CFLAGS@
 
 MAINTAINERCLEANFILES = Makefile.in
