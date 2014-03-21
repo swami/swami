@@ -436,8 +436,8 @@ ipatch_file_test_ref_object (IpatchFile *file, GObject *object)
 {
   gboolean retval;
 
-  g_return_if_fail (IPATCH_IS_FILE (file));
-  g_return_if_fail (object != NULL);            // We only need the pointer value really
+  g_return_val_if_fail (IPATCH_IS_FILE (file), FALSE);
+  g_return_val_if_fail (object != NULL, FALSE); // We only need the pointer value really
 
   IPATCH_ITEM_WLOCK (file);
   retval = g_hash_table_lookup (file->ref_hash, object) != NULL;
