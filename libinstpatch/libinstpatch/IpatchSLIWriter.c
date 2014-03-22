@@ -496,7 +496,17 @@ ipatch_sli_writer_write_group (IpatchSLIWriter *writer, GPtrArray *ig, GError **
       if (sample_info) continue;
       /* else check sample format and add info to sample hash */
       val = ipatch_sample_get_format ((IpatchSample *)sample);
-
+      if (!(IPATCH_SAMPLE_FORMAT_GET_WIDTH(val) == IPATCH_SAMPLE_16BIT &&
+            IPATCH_SAMPLE_FORMAT_IS_SIGNED(val) &&
+            IPATCH_SAMPLE_FORMAT_IS_LENDIAN(val)))
+      {
+        char *n = ipatch_sli_sample_get_name (sample);
+        g_set_error (err, IPATCH_ERROR, IPATCH_ERROR_UNSUPPORTED,
+                     _("Unsupported sample format in sample '%s'"), n);
+        if (n) free(n);
+        g_object_unref (inst_zones); /* -- unref inst_zones */
+        return (FALSE);
+      }
       sample_info = ipatch_sli_writer_sample_hash_value_new ();
       sample_info->index = samples->len;
       sample_info->channels = IPATCH_SAMPLE_FORMAT_GET_CHANNEL_COUNT(val);
