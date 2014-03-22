@@ -197,16 +197,6 @@ _file_to_sli_sample_convert (IpatchConverter *converter, GError **err)
     goto bad;
   }
 
-  /* FIXME: may need to convert unsupported formats here */
-  if (!(IPATCH_SAMPLE_FORMAT_GET_WIDTH(format) == IPATCH_SAMPLE_16BIT &&
-        IPATCH_SAMPLE_FORMAT_IS_SIGNED(format) &&
-        IPATCH_SAMPLE_FORMAT_IS_LENDIAN(format)))
-  {
-    g_set_error (err, IPATCH_ERROR, IPATCH_ERROR_UNSUPPORTED,
-                 _("Unsupported sample format in sample '%s'"), title);
-    goto bad;
-  }
-
   sampledata = ipatch_sample_data_new (); /* ++ ref sampledata */
   ipatch_sample_data_add (sampledata, IPATCH_SAMPLE_STORE (store));
   g_object_unref (store); /* -- unref store */

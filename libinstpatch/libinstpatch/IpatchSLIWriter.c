@@ -48,6 +48,8 @@ typedef struct
   guint channels;       /* channel count */
 } SampleHashValue;
 
+#define FORMAT_16BIT  IPATCH_SAMPLE_16BIT | IPATCH_SAMPLE_SIGNED | IPATCH_SAMPLE_LENDIAN
+
 static void ipatch_sli_writer_finalize (GObject *object);
 
 static GQuark ipatch_sli_writer_error_quark (void);
@@ -309,7 +311,6 @@ ipatch_sli_writer_create_stores (IpatchSLIWriter *writer)
   IpatchIter iter;
   IpatchList *list;
   int rate, format;
-  guint size;
 
   g_return_val_if_fail (writer->sli != NULL, NULL);
 
@@ -333,16 +334,17 @@ ipatch_sli_writer_create_stores (IpatchSLIWriter *writer)
 
     g_object_get (sample,
                   "sample-format", &format,
-                  "sample-size", &size,
                   "sample-rate", &rate,
                   NULL);
 
     /* ++ ref newstore */
     newstore = ipatch_sample_store_file_new (writer->handle->file,
                                              hash_value->position);
+    format &= IPATCH_SAMPLE_CHANNEL_MASK;
+    format |= FORMAT_16BIT;
     g_object_set (newstore,
                   "sample-format", format,
-                  "sample-size", size,
+                  "sample-size", hash_value->length,
                   "sample-rate", rate,
                   NULL);
 
@@ -486,7 +488,7 @@ ipatch_sli_writer_write_group (IpatchSLIWriter *writer, GPtrArray *ig, GError **
          zone;
          zone = ipatch_sli_zone_next (&iz_iter))
     {
-      guint val;
+      int format;
       /* write zone header */
       sample = ipatch_sli_zone_peek_sample (zone);
       sample_info = g_hash_table_lookup (writer->sample_hash, sample);
@@ -495,29 +497,30 @@ ipatch_sli_writer_write_group (IpatchSLIWriter *writer, GPtrArray *ig, GError **
       /* check referenced sample: if already counted then continue */
       if (sample_info) continue;
       /* else check sample format and add info to sample hash */
-      val = ipatch_sample_get_format ((IpatchSample *)sample);
-      if (!(IPATCH_SAMPLE_FORMAT_GET_WIDTH(val) == IPATCH_SAMPLE_16BIT &&
-            IPATCH_SAMPLE_FORMAT_IS_SIGNED(val) &&
-            IPATCH_SAMPLE_FORMAT_IS_LENDIAN(val)))
+      format = ipatch_sample_get_format ((IpatchSample *)sample);
+      if (IPATCH_SAMPLE_FORMAT_GET_CHANNEL_COUNT(format) > 2)
       {
         char *n = ipatch_sli_sample_get_name (sample);
         g_set_error (err, IPATCH_ERROR, IPATCH_ERROR_UNSUPPORTED,
-                     _("Unsupported sample format in sample '%s'"), n);
+                     _("Unsupported channel count in sample '%s'"), n);
         if (n) free(n);
         g_object_unref (inst_zones); /* -- unref inst_zones */
         return (FALSE);
       }
+      format &= IPATCH_SAMPLE_CHANNEL_MASK;
+      format |= FORMAT_16BIT;
       sample_info = ipatch_sli_writer_sample_hash_value_new ();
       sample_info->index = samples->len;
-      sample_info->channels = IPATCH_SAMPLE_FORMAT_GET_CHANNEL_COUNT(val);
+      sample_info->channels = IPATCH_SAMPLE_FORMAT_GET_CHANNEL_COUNT(format);
       g_hash_table_insert (writer->sample_hash, sample, sample_info);
       g_ptr_array_add (samples, sample);
-      ipatch_sample_get_size (IPATCH_SAMPLE (sample), &val);
       sample_info->offset = smpdata_size;
       sample_info->position = pos + sample_info->offset;
-      sample_info->length = val;
+      sample_info->length =
+        ipatch_sample_get_size (IPATCH_SAMPLE (sample), NULL) *
+        ipatch_sample_format_size (format);
       /* plus 64 zero bytes written for each channel*/
-      smpdata_size += val + sample_info->channels * 64;
+      smpdata_size += sample_info->length + sample_info->channels * 64;
     }
     g_object_unref (inst_zones); /* -- unref inst_zones */
   }
@@ -813,12 +816,13 @@ ipatch_sli_writer_write_sample_data (IpatchFileHandle *handle, IpatchSLISample *
 {
   IpatchSampleHandle shandle;
   gpointer buf;
-  guint samsize, format, fmt_size, read_size, offs;
+  guint samsize, fmt_size, read_size, offs;
+  int format;
 
   samsize = ipatch_sample_get_size (IPATCH_SAMPLE (sample->sample_data), NULL);
   format = ipatch_sample_get_format (IPATCH_SAMPLE (sample->sample_data));
   format &= IPATCH_SAMPLE_CHANNEL_MASK;
-  format |= IPATCH_SAMPLE_16BIT | IPATCH_SAMPLE_SIGNED | IPATCH_SAMPLE_LENDIAN;
+  format |= FORMAT_16BIT;
   fmt_size = ipatch_sample_format_size (format);
   /* ++ open sample handle */
   if (!ipatch_sample_data_open_native_sample (sample->sample_data,
