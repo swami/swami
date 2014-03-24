@@ -126,12 +126,16 @@ swami_prop_tree_finalize (GObject *object)
   SwamiPropTree *proptree = SWAMI_PROP_TREE (object);
 
   SWAMI_LOCK_WRITE (proptree);
-  recursive_remove_nodes (proptree->tree, proptree); /* recursive remove */
-  SWAMI_UNLOCK_WRITE (proptree);
+
+  if (proptree->tree)
+    recursive_remove_nodes (proptree->tree, proptree); /* recursive remove */
 
   g_hash_table_destroy (proptree->object_hash);
 
-  parent_class->finalize (object);
+  SWAMI_UNLOCK_WRITE (proptree);
+
+  if (parent_class->finalize)
+    parent_class->finalize (object);
 }
 
 /**
@@ -377,6 +381,9 @@ swami_prop_tree_remove_recursive (SwamiPropTree *proptree, GObject *obj)
 
   recursive_remove_nodes (obj_node, proptree); /* recursive remove */
 
+  if (obj_node == proptree->tree)
+    proptree->tree = NULL;
+
   SWAMI_UNLOCK_WRITE (proptree);
 }
 
@@ -385,9 +392,21 @@ static void
 swami_prop_tree_object_weak_notify (gpointer user_data, GObject *object)
 {
   SwamiPropTree *proptree = SWAMI_PROP_TREE (user_data);
+  GNode *obj_node;
 
   SWAMI_LOCK_WRITE (proptree);
-  g_hash_table_remove (proptree->object_hash, object);
+
+  obj_node = g_hash_table_lookup (proptree->object_hash, object);
+
+  if (obj_node && proptree->tree)
+  {
+    ((SwamiPropTreeNode *)(obj_node->data))->object = NULL;
+    recursive_remove_nodes (obj_node, proptree); /* recursive remove */
+
+    if (obj_node == proptree->tree)
+      proptree->tree = NULL;
+  }
+
   SWAMI_UNLOCK_WRITE (proptree);
 }
 
