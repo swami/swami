@@ -61,7 +61,7 @@ static gboolean ipatch_sample_data_sample_iface_open (IpatchSampleHandle *handle
                                                       GError **err);
 static void ipatch_sample_data_get_property (GObject *object, guint property_id,
                                              GValue *value, GParamSpec *pspec);
-static void ipatch_sample_data_finalize (GObject *gobject);
+static void ipatch_sample_data_dispose (GObject *gobject);
 static void ipatch_sample_data_release_store (IpatchSampleStore *store);
 static gint sample_cache_clean_sort (gconstpointer a, gconstpointer b);
 
@@ -401,7 +401,7 @@ ipatch_sample_data_class_init (IpatchSampleDataClass *klass)
 {
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
 
-  obj_class->finalize = ipatch_sample_data_finalize;
+  obj_class->dispose = ipatch_sample_data_dispose;
   obj_class->get_property = ipatch_sample_data_get_property;
 
   g_object_class_override_property (obj_class, PROP_TITLE, "title");
@@ -484,17 +484,28 @@ ipatch_sample_data_init (IpatchSampleData *sampledata)
 }
 
 static void
-ipatch_sample_data_finalize (GObject *gobject)
+ipatch_sample_data_dispose (GObject *gobject)
 {
   IpatchSampleData *sampledata = IPATCH_SAMPLE_DATA (gobject);
+  GSList *p;
+
+  IPATCH_ITEM_WLOCK (sampledata);
+
+  for (p = sampledata->samples; p; p = g_slist_delete_link (p, p))
+    ipatch_sample_data_release_store (IPATCH_SAMPLE_STORE (p->data));
+
+  sampledata->samples = NULL;
+
+  IPATCH_ITEM_WUNLOCK (sampledata);
+
 
   /* remove from master list */
   G_LOCK (sample_data_list);
   sample_data_list = g_slist_remove (sample_data_list, sampledata);
   G_UNLOCK (sample_data_list);
 
-  if (G_OBJECT_CLASS (ipatch_sample_data_parent_class)->finalize)
-    G_OBJECT_CLASS (ipatch_sample_data_parent_class)->finalize (gobject);
+  if (G_OBJECT_CLASS (ipatch_sample_data_parent_class)->dispose)
+    G_OBJECT_CLASS (ipatch_sample_data_parent_class)->dispose (gobject);
 }
 
 /**
