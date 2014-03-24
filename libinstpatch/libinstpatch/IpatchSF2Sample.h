@@ -69,7 +69,7 @@ struct _IpatchSF2Sample
   guint8 root_note;		/* root midi note number */
   gint8 fine_tune;		/* fine tuning in cents */
   guint8 channel;		/* IpatchSF2SampleChannel */
-  IpatchSF2Sample *linked;	/* linked sample pointer or NULL */
+  GWeakRef linked;	        /* linked sample pointer or NULL */
 };
 
 struct _IpatchSF2SampleClass

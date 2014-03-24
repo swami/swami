@@ -1519,7 +1519,7 @@ sfont_write_shdrs (IpatchSF2Writer *writer, GError **err)
   IpatchRiff *riff = IPATCH_RIFF (writer);
   IpatchSF2File *sf2file = IPATCH_SF2_FILE (riff->handle->file);
   SampleHashValue *sample_hash_value;
-  IpatchSF2Sample *sample;
+  IpatchSF2Sample *sample, *linked;
   IpatchIter iter;
   IpatchSampleStore *store;
   IpatchSF2Shdr shdr;
@@ -1581,9 +1581,12 @@ sfont_write_shdrs (IpatchSF2Writer *writer, GError **err)
       }
 
       shdr.link_index = 0;
-      if (sample->linked)
+
+      linked = ipatch_sf2_sample_peek_linked (sample);
+
+      if (linked)
 	{
-	  sample_hash_value = g_hash_table_lookup (writer->sample_hash, sample->linked);
+	  sample_hash_value = g_hash_table_lookup (writer->sample_hash, linked);
 	  g_return_val_if_fail (sample_hash_value != NULL, FALSE);
 	  shdr.link_index = sample_hash_value->index;
 	}

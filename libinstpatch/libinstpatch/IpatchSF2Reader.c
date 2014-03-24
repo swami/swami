@@ -1291,7 +1291,7 @@ sfload_shdrs (IpatchSF2Reader *reader, GError **err)
 	      if (shdr.link_index < i) /* can we fixup link? */
 		{
 		  link_sample = reader->sample_table[shdr.link_index];
-		  if (!link_sample->linked) /* sample not already linked? */
+		  if (!ipatch_sf2_sample_peek_linked (link_sample))     /* sample not already linked? */
 		    {
 		      /* FIXME - Ensure same size samples */
 
@@ -1383,7 +1383,7 @@ sfload_shdrs (IpatchSF2Reader *reader, GError **err)
       for (i = 0; i < reader->sample_count; i++)
 	{
 	  sample = reader->sample_table[i];
-	  if ((ipatch_item_get_flags (sample) & (1 << 31)) && !sample->linked)
+	  if ((ipatch_item_get_flags (sample) & (1 << 31)) && !ipatch_sf2_sample_peek_linked (sample))
 	    {
 	      g_warning (_("Invalid stereo link for sample '%s'"), sample->name);
 	      sample->channel = IPATCH_SF2_SAMPLE_CHANNEL_MONO;

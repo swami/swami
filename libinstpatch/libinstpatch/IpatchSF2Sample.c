@@ -186,6 +186,7 @@ ipatch_sf2_sample_init (IpatchSF2Sample *sample)
 {
   ipatch_sf2_sample_set_blank (sample);
   sample->rate = IPATCH_SAMPLE_RATE_DEFAULT;
+  g_weak_ref_init (&sample->linked, NULL);
 }
 
 static void
@@ -206,11 +207,7 @@ ipatch_sf2_sample_finalize (GObject *gobject)
       sample->sample_data = NULL;
     }
 
-  if (sample->linked)
-    {
-      g_object_unref (sample->linked);
-      sample->linked = NULL;
-    }
+  g_weak_ref_clear (&sample->linked);
 
   g_free (sample->name);
   sample->name = NULL;
@@ -350,7 +347,7 @@ ipatch_sf2_sample_item_copy (IpatchItem *dest, IpatchItem *src,
 			     gpointer user_data)
 {
   IpatchSF2Sample *src_sam, *dest_sam;
-  IpatchItem *linked;
+  IpatchItem *linked, *src_linked;
 
   src_sam = IPATCH_SF2_SAMPLE (src);
   dest_sam = IPATCH_SF2_SAMPLE (dest);
@@ -370,10 +367,16 @@ ipatch_sf2_sample_item_copy (IpatchItem *dest, IpatchItem *src,
   if (ipatch_item_get_flags (src_sam) & IPATCH_SF2_SAMPLE_FLAG_ROM)
     ipatch_item_set_flags (dest_sam, IPATCH_SF2_SAMPLE_FLAG_ROM);
 
-  linked = IPATCH_ITEM_COPY_LINK_FUNC (dest, IPATCH_ITEM (src_sam->linked),
-				       link_func, user_data);
-  if (linked)
-    ipatch_sf2_sample_set_linked (dest_sam, IPATCH_SF2_SAMPLE (linked));
+  src_linked = (IpatchItem *)ipatch_sf2_sample_get_linked (src_sam);    // ++ ref src linked sample
+
+  if (src_linked)
+  {
+    linked = IPATCH_ITEM_COPY_LINK_FUNC (dest, src_linked, link_func, user_data);
+    g_object_unref (src_linked);                                        // -- unref src linked sample
+
+    if (linked)
+      ipatch_sf2_sample_set_linked (dest_sam, IPATCH_SF2_SAMPLE (linked));
+  }
 
   IPATCH_ITEM_RUNLOCK (src_sam);
 }
@@ -715,19 +718,18 @@ ipatch_sf2_sample_real_set_linked (IpatchSF2Sample *sample,
 				   gboolean linked_notify)
 {
   GValue oldval = { 0 }, newval = { 0 };
-
-  if (linked_notify) g_value_init (&oldval, IPATCH_TYPE_SF2_SAMPLE);
-  if (linked) g_object_ref (linked);
+  GObject *old_linked;
 
   IPATCH_ITEM_WLOCK (sample);
-  if (linked_notify) g_value_take_object (&oldval, sample->linked);
-  else if (sample->linked) g_object_unref (sample->linked);
-
-  sample->linked = linked;
+  if (linked_notify) old_linked = g_weak_ref_get (&sample->linked);     // ++ ref old linked item
+  g_weak_ref_set (&sample->linked, linked);
   IPATCH_ITEM_WUNLOCK (sample);
 
   if (linked_notify)
     {
+      g_value_init (&oldval, IPATCH_TYPE_SF2_SAMPLE);
+      g_value_take_object (&oldval, old_linked);                        // !! value takes over old linked item
+
       g_value_init (&newval, IPATCH_TYPE_SF2_SAMPLE);
       g_value_set_object (&newval, linked);
 
@@ -755,11 +757,10 @@ ipatch_sf2_sample_get_linked (IpatchSF2Sample *sample)
   IpatchSF2Sample *linked;
 
   IPATCH_ITEM_RLOCK (sample);
-  linked = sample->linked;
-  if (linked) g_object_ref (linked);
+  linked = g_weak_ref_get (&sample->linked);    // ++ ref linked
   IPATCH_ITEM_RUNLOCK (sample);
 
-  return (linked);
+  return (linked);      // !! caller takes over reference
 }
 
 /**
@@ -782,8 +783,10 @@ ipatch_sf2_sample_peek_linked (IpatchSF2Sample *sample)
   g_return_val_if_fail (IPATCH_IS_SF2_SAMPLE (sample), NULL);
 
   IPATCH_ITEM_RLOCK (sample);
-  linked = sample->linked;
+  linked = g_weak_ref_get (&sample->linked);    // ++ ref linked
   IPATCH_ITEM_RUNLOCK (sample);
+
+  if (linked) g_object_unref (linked);          // -- unref linked
 
   return (linked);
 }

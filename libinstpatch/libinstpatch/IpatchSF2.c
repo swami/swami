@@ -397,7 +397,8 @@ ipatch_sf2_item_copy (IpatchItem *dest, IpatchItem *src,
       g_hash_table_insert (repl_samples, p->data, newitem);
 
       /* check if sample is stereo linked */
-      if (((IpatchSF2Sample *)newitem)->linked) has_linked = TRUE;
+      if (ipatch_sf2_sample_peek_linked ((IpatchSF2Sample *)newitem))
+        has_linked = TRUE;
 
       p = g_slist_next (p);
     }
