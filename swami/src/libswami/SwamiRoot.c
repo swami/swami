@@ -64,39 +64,17 @@ enum
 
 /* --- private function prototypes --- */
 
-static void swami_root_class_init (SwamiRootClass *klass);
 static void swami_root_set_property (GObject *object, guint property_id,
 				     const GValue *value, GParamSpec *pspec);
 static void swami_root_get_property (GObject *object, guint property_id,
 				     GValue *value, GParamSpec *pspec);
-static void swami_root_init (SwamiRoot *root);
+static void swami_root_finalize (GObject *object);
 
 guint root_signals[LAST_SIGNAL] = { 0 };
 
 
-GType
-swami_root_get_type (void)
-{
-  static GType item_type = 0;
+G_DEFINE_TYPE (SwamiRoot, swami_root, SWAMI_TYPE_LOCK);
 
-  if (!item_type)
-    {
-      static const GTypeInfo item_info =
-	{
-	  sizeof (SwamiRootClass),
-	  (GBaseInitFunc) NULL,
-	  (GBaseFinalizeFunc) NULL,
-	  (GClassInitFunc) swami_root_class_init, NULL, NULL,
-	  sizeof (SwamiRoot), 0,
-	  (GInstanceInitFunc) swami_root_init,
-	};
-
-      item_type = g_type_register_static (SWAMI_TYPE_LOCK, "SwamiRoot",
-					  &item_info, 0);
-    }
-
-  return (item_type);
-}
 
 static void
 swami_root_class_init (SwamiRootClass *klass)
@@ -118,6 +96,7 @@ swami_root_class_init (SwamiRootClass *klass)
 		  g_cclosure_marshal_VOID__OBJECT,
 		  G_TYPE_NONE, 1, G_TYPE_OBJECT);
 
+  obj_class->finalize = swami_root_finalize;
   obj_class->set_property = swami_root_set_property;
   obj_class->get_property = swami_root_get_property;
 
@@ -242,6 +221,22 @@ swami_root_init (SwamiRoot *root)
 			 IPATCH_ITEM_HOOKS_ACTIVE);
   root->proptree = swami_prop_tree_new (); /* ++ ref property tree */
   swami_prop_tree_set_root (root->proptree, G_OBJECT (root));
+}
+
+static void
+swami_root_finalize (GObject *object)
+{
+  SwamiRoot *root = SWAMI_ROOT (object);
+
+  g_object_unref (root->patch_root);
+  g_object_unref (root->proptree);
+  g_free (root->patch_search_path);
+  g_free (root->patch_path);
+  g_free (root->sample_path);
+  g_free (root->sample_format);
+
+  if (G_OBJECT_CLASS (swami_root_parent_class)->finalize)
+    G_OBJECT_CLASS (swami_root_parent_class)->finalize (object);
 }
 
 /**
