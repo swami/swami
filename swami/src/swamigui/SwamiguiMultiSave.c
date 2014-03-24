@@ -340,7 +340,28 @@ multi_save_response (GtkDialog *dialog, int response, gpointer user_data)
 
     /* Close if in close mode */
     if (close_ok && (multi->flags & SWAMIGUI_MULTI_SAVE_CLOSE_MODE))
-      ipatch_item_remove (item);
+    {
+      if (!ipatch_base_close (IPATCH_BASE (item), &err))
+      {
+	msgdialog = gtk_message_dialog_new (GTK_WINDOW (dialog), 0,
+					    GTK_MESSAGE_ERROR,
+					    GTK_BUTTONS_OK_CANCEL,
+					    _("Error closing '%s': %s"),
+					    path, ipatch_gerror_message (err));
+	g_clear_error (&err);
+
+	result = gtk_dialog_run (GTK_DIALOG (msgdialog));
+	if (result != GTK_RESPONSE_NONE)
+	  gtk_widget_destroy (msgdialog);
+
+	if (result == GTK_RESPONSE_CANCEL)
+	{
+	  g_free (path);                /* -- free path */
+	  g_object_unref (item);        /* -- unref item */
+	  return;
+	}
+      }
+    }
 
     g_free (path);              /* -- free path */
     g_object_unref (item);      /* -- unref item */
