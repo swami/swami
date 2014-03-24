@@ -424,7 +424,7 @@ ipatch_sample_store_swap_finalize (GObject *gobject)
   SwapRecover *recover;
   guint size;
 
-  ipatch_sample_get_size (IPATCH_SAMPLE (gobject), &size);
+  size = ipatch_sample_store_get_size ((IpatchSampleStore *)store);
 
   if (store->ram_location)                      // Allocated in RAM?
   {
