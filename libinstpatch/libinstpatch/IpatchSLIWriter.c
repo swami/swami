@@ -311,6 +311,7 @@ ipatch_sli_writer_create_stores (IpatchSLIWriter *writer)
   IpatchIter iter;
   IpatchList *list;
   int rate, format;
+  guint size;
 
   g_return_val_if_fail (writer->sli != NULL, NULL);
 
@@ -334,6 +335,7 @@ ipatch_sli_writer_create_stores (IpatchSLIWriter *writer)
 
     g_object_get (sample,
                   "sample-format", &format,
+                  "sample-size", &size,
                   "sample-rate", &rate,
                   NULL);
 
@@ -344,7 +346,7 @@ ipatch_sli_writer_create_stores (IpatchSLIWriter *writer)
     format |= FORMAT_16BIT;
     g_object_set (newstore,
                   "sample-format", format,
-                  "sample-size", hash_value->length,
+                  "sample-size", size,
                   "sample-rate", rate,
                   NULL);
 
