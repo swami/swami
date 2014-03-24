@@ -31,7 +31,7 @@ extern void ipatch_container_remove_notify (IpatchContainer *container,
 					    IpatchItem *child);
 
 static void ipatch_container_init_class (IpatchContainerClass *klass);
-static void ipatch_container_finalize (GObject *object);
+static void ipatch_container_dispose (GObject *object);
 
 static GObjectClass *parent_class = NULL;
 
@@ -70,11 +70,11 @@ ipatch_container_init_class (IpatchContainerClass *klass)
   parent_class = g_type_class_peek_parent (klass);
   real_container_class = klass;
 
-  obj_class->finalize = ipatch_container_finalize;
+  obj_class->dispose = ipatch_container_dispose;
 }
 
 static void
-ipatch_container_finalize (GObject *object)
+ipatch_container_dispose (GObject *object)
 {
   /* clear hooks flag, we are finalizing, shouldn't be any hook callbacks
      or should there be?  FIXME */
@@ -82,8 +82,8 @@ ipatch_container_finalize (GObject *object)
 
   ipatch_container_remove_all (IPATCH_CONTAINER (object));
 
-  if (parent_class->finalize)
-    parent_class->finalize (object);
+  if (parent_class->dispose)
+    parent_class->dispose (object);
 }
 
 /**
