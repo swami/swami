@@ -440,8 +440,12 @@ swamigui_tree_store_node_get_item (SwamiguiTreeStore *store, GtkTreeIter *iter)
   g_return_val_if_fail (iter != NULL, NULL);
 
   gtk_tree_model_get (GTK_TREE_MODEL (store), iter,
-		      SWAMIGUI_TREE_STORE_OBJECT_COLUMN, &item,
+		      SWAMIGUI_TREE_STORE_OBJECT_COLUMN, &item,         // ++ ref item
 		      -1);
+
+  if (item)
+    g_object_unref (item);                                              // -- unref item
+
   return (item);
 }
 
