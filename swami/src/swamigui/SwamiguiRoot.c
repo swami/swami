@@ -700,9 +700,12 @@ swamigui_root_finalize (GObject *object)
   SwamiguiRoot *root = SWAMIGUI_ROOT (object);
 
   g_object_unref (root->patch_store);
+  g_object_unref (root->config_store);
   g_object_unref (root->tree_stores);
 
   if (root->selection) g_object_unref (root->selection);
+
+  gtk_object_destroy (GTK_OBJECT (root->main_window));
 
   if (root->wavetbl)
   {
@@ -711,7 +714,7 @@ swamigui_root_finalize (GObject *object)
   }
 
   if (root->solo_item) g_object_unref (root->solo_item);
-  if (root->solo_item_icon) g_free (root->solo_item_icon);
+  g_free (root->solo_item_icon);
 
   g_object_unref (root->ctrl_queue);
 
@@ -722,9 +725,12 @@ swamigui_root_finalize (GObject *object)
   g_object_unref (root->ctrl_add);
   g_object_unref (root->ctrl_remove);
 
+  g_free (root->piano_lower_keys);
+  g_free (root->piano_upper_keys);
+
   if (root->loaded_xml_config) ipatch_xml_destroy (root->loaded_xml_config);
 
-  if (parent_class)
+  if (parent_class->finalize)
     parent_class->finalize (object);
 }
 
