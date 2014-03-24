@@ -286,7 +286,7 @@ fluid_synth_gui_control_init (FluidSynthGuiControl *fsctrl)
   gtk_box_pack_start (GTK_BOX (fsctrl), fsctrl->ctrl_widg, FALSE, FALSE, 0);
 
   wavetbl = (SwamiWavetbl *)swami_object_get_by_type (G_OBJECT (swamigui_root),
-						      "WavetblFluidSynth");
+						      "WavetblFluidSynth");     // ++ ref wavetbl
   if (!wavetbl) return;
 
   for (i = 0; i < G_N_ELEMENTS (knobnames); i++)
@@ -321,4 +321,7 @@ fluid_synth_gui_control_init (FluidSynthGuiControl *fsctrl)
   widgctrl = swamigui_control_new_for_widget_full (G_OBJECT (widg), type, NULL, 0);
   swami_control_connect (propctrl, widgctrl, SWAMI_CONTROL_CONN_BIDIR
 			 | SWAMI_CONTROL_CONN_INIT | SWAMI_CONTROL_CONN_SPEC);
+
+  g_object_unref (wavetbl);     // -- unref wavetbl
 }
+
