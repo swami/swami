@@ -581,3 +581,34 @@ error:
   return (FALSE);
 }
 
+/**
+ * ipatch_base_close:
+ * @base: Base item to close
+ * @err: Location to store error info or %NULL
+ *
+ * Close a base instrument object (using ipatch_item_remove()), migrating sample data as needed.
+ *
+ * Returns: TRUE on success, FALSE otherwise (in which case @err may be set)
+ */
+gboolean
+ipatch_base_close (IpatchBase *base, GError **err)
+{
+  IpatchFile *file;
+
+  g_return_val_if_fail (IPATCH_IS_BASE (base), FALSE);
+  g_return_val_if_fail (!err || !*err, FALSE);
+
+  g_object_get (base, "file", &file, NULL);     // ++ ref file (if any)
+
+  if (file && !ipatch_migrate_file_sample_data (file, NULL, NULL, 0, err))
+  {
+    g_object_unref (file);                      // -- unref file
+    return (FALSE);
+  }
+
+  g_object_unref (file);                        // -- unref file
+  ipatch_item_remove (IPATCH_ITEM (base));
+
+  return (TRUE);
+}
+
