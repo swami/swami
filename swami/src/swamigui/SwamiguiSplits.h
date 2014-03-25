@@ -63,17 +63,6 @@ typedef enum
 } SwamiguiSplitsStatus;
 
 /**
- * SwamiguiSplitsMoveFlags:
- * @SWAMIGUI_SPLITS_MOVE_RANGES: Move note ranges
- * @SWAMIGUI_SPLITS_MOVE_PARAM1: Move parameter 1 (default is root notes)
- */
-typedef enum
-{
-  SWAMIGUI_SPLITS_MOVE_RANGES = 1 << 0,
-  SWAMIGUI_SPLITS_MOVE_PARAM1 = 1 << 1
-} SwamiguiSplitsMoveFlags;
-
-/**
  * SwamiguiSplitsHandler:
  * @splits: Splits object
  *
@@ -113,7 +102,6 @@ struct _SwamiguiSplits
   SwamiguiSplitsStatus status;	/* current status (for handlers) */
   int mode;			/* current mode (SWAMIGUI_SPLITS_NOTE or
 				   SWAMIGUI_SPLITS_VELOCITY) */
-  int move_flags;		/* current move flags (SwamiguiSplitsMoveFlags) */
   IpatchList *selection;        /* selected items (parent OR child splits) */
   IpatchItem *splits_item;      /* active item which contains splits */
   SwamiguiSplitsHandler handler;	/* active splits handler or NULL */
@@ -128,7 +116,6 @@ struct _SwamiguiSplits
 
   GtkWidget *notes_btn;		/* Notes toggle button */
   GtkWidget *velocity_btn;	/* Velocity toggle button */
-  GtkWidget *move_combo;	/* Move combo box */
 
   gboolean width_set;	/* TRUE when width set, FALSE to resize to window */
 

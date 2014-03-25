@@ -4142,50 +4142,6 @@ BALATON Zoltan &lt;balaton@users.sourceforge.net&gt; (Spectralis support, Mac OS
               </packing>
             </child>
             <child>
-              <object class="GtkHBox" id="hbox17">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="has_tooltip">True</property>
-                <property name="tooltip_text" translatable="yes">What gets moved on middle click drag (ranges and/or root notes)</property>
-                <property name="spacing">1</property>
-                <child>
-                  <object class="GtkLabel" id="label42">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Move</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="ComboMove">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="model">model1</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="renderer1"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkHBox" id="hbox1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
@@ -5007,23 +4963,6 @@ BALATON Zoltan &lt;balaton@users.sourceforge.net&gt; (Spectralis support, Mac OS
     <property name="value">1</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
-  </object>
-  <object class="GtkListStore" id="model1">
-    <columns>
-      <!-- column-name gchararray -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">Note Ranges</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Root Notes</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Both</col>
-      </row>
-    </data>
   </object>
   <object class="GtkListStore" id="model10">
     <columns>

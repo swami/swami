@@ -49,8 +49,9 @@ typedef enum
   ACTIVE_LOW,		/* Dragging low handle of span */
   ACTIVE_HIGH,		/* Dragging upper handle of span */
   ACTIVE_UNDECIDED,	/* Not yet decided which handle of span to drag */
-  ACTIVE_MOVE,		/* Moving span (both handles and possibly root note too) */
-  ACTIVE_ROOTNOTE	/* Dragging root note */
+  ACTIVE_MOVE_ROOTNOTES, /* Moving root note(s) */
+  ACTIVE_MOVE_RANGES,	/* Dragging note/velocity range(s) */
+  ACTIVE_MOVE_BOTH      /* Moving both root notes and range(s) */
 } ActiveDrag;
 
 /* min/max width of piano/splits in pixels */
@@ -61,7 +62,7 @@ typedef enum
 #define SPAN_DEFAULT_SPACING 3	/* vertical spacing between spans in pixels */
 #define MOVEMENT_THRESHOLD 3 /* pixels of mouse movement till threshold */
 
-#define SPLIT_IS_SELECTED(entry)  ((entry->flags & SPLIT_SELECTED) != 0)
+#define SPLIT_IS_SELECTED(entry)  (((entry)->flags & SPLIT_SELECTED) != 0)
 
 /* default colors */
 #define DEFAULT_BG_COLOR		GNOME_CANVAS_COLOR (255, 255, 178)
@@ -102,7 +103,6 @@ struct _SwamiguiSplitsEntry
 
 static void swamigui_splits_class_init (SwamiguiSplitsClass *klass);
 static void splits_cb_mode_btn_clicked (GtkButton *button, gpointer user_data);
-static void splits_cb_move_combo_changed (GtkComboBox *combo, gpointer user_data);
 static void swamigui_splits_cb_canvas_size_allocate (GtkWidget *widget,
 						     GtkAllocation *allocation,
 						     gpointer user_data);
@@ -317,7 +317,6 @@ swamigui_splits_init (SwamiguiSplits *splits)
   GtkStyle *style;
   GdkPixbuf *pixbuf;
 
-  splits->move_flags = SWAMIGUI_SPLITS_MOVE_RANGES;
   splits->anchor = -1;		/* no split selection anchor set */
   splits->active_drag = ACTIVE_NONE; /* no active click drag */
 
@@ -361,11 +360,6 @@ swamigui_splits_init (SwamiguiSplits *splits)
   widg = swamigui_util_glade_lookup (gladewidg, "BtnVelocityImage");
   gtk_image_set_from_stock (GTK_IMAGE (widg), SWAMIGUI_STOCK_VELOCITY,
 			    GTK_ICON_SIZE_SMALL_TOOLBAR);
-
-  splits->move_combo = swamigui_util_glade_lookup (gladewidg, "ComboMove");
-  gtk_combo_box_set_active (GTK_COMBO_BOX (splits->move_combo), 0);
-  g_signal_connect (splits->move_combo, "changed",
-		    G_CALLBACK (splits_cb_move_combo_changed), splits);
 
   splits->vertical_scrollbar
     = swamigui_util_glade_lookup (gladewidg, "SplitsVScrollBar");
@@ -475,29 +469,6 @@ splits_cb_mode_btn_clicked (GtkButton *button, gpointer user_data)
   g_signal_handlers_unblock_by_func (splits->velocity_btn, splits_cb_mode_btn_clicked, splits);
 }
 
-/* Callback when move flags combo box is changed */
-static void
-splits_cb_move_combo_changed (GtkComboBox *combo, gpointer user_data)
-{
-  SwamiguiSplits *splits = SWAMIGUI_SPLITS (user_data);
-  int index;
-
-  index = gtk_combo_box_get_active (combo);
-
-  switch (index)
-  {
-    case 0:
-      splits->move_flags = SWAMIGUI_SPLITS_MOVE_RANGES;
-      break;
-    case 1:
-      splits->move_flags = SWAMIGUI_SPLITS_MOVE_PARAM1;
-      break;
-    case 2:
-      splits->move_flags = SWAMIGUI_SPLITS_MOVE_RANGES | SWAMIGUI_SPLITS_MOVE_PARAM1;
-      break;
-  }
-}
-
 static void
 swamigui_splits_cb_canvas_size_allocate (GtkWidget *widget,
 					 GtkAllocation *allocation,
@@ -545,37 +516,9 @@ swamigui_splits_cb_low_canvas_event (GnomeCanvasItem *item, GdkEvent *event,
       selsplit = (SwamiguiSplitsEntry *)(p->data);
       selsplitp = p;
 
-      /* ALT-Click sets low range, root note and upper range for left, middle
-	 and right mouse buttons respectively */
-      if (bevent->state & GDK_MOD1_MASK)
-      {
-	note = swamigui_piano_pos_to_note (splits->piano, bevent->x, 0.0, NULL, NULL);
-
-	splits->active_split = selsplitp;
-	splits->active_drag_btn = bevent->button;
-
-	if (bevent->button == 1 && selsplit->span)
-	{
-	  swamigui_splits_entry_set_span_control (selsplit, note, selsplit->range.high);
-	  splits->active_drag = ACTIVE_LOW;
-	}
-	else if (bevent->button == 2 && selsplit->rootnote)
-	{
-	  swamigui_splits_entry_set_root_note_control (selsplit, note);
-	  splits->active_drag = ACTIVE_ROOTNOTE;
-	}
-	else if (bevent->button == 3 && selsplit->span)
-	{
-	  swamigui_splits_entry_set_span_control (selsplit, selsplit->range.low, note);
-	  splits->active_drag = ACTIVE_HIGH;
-	}
-
-	break;
-      }
-
       if (bevent->button != 1 && bevent->button != 2) break;
 
-      /* deselect all spans if CTRL or SHIFT not pressed */
+      /* deselect all spans if CTRL and SHIFT not pressed and Left click or Middle on unselected item */
       if (!(bevent->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK))
 	  && !(bevent->button == 2 && SPLIT_IS_SELECTED (selsplit)))
 	{
@@ -589,6 +532,85 @@ swamigui_splits_cb_low_canvas_event (GnomeCanvasItem *item, GdkEvent *event,
 		  updatesel = TRUE;
 		}
 	    }
+	}
+
+      /* no CTRL or SHIFT, single select */
+      if (!(bevent->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK)))
+      {
+        if (!SPLIT_IS_SELECTED (selsplit))
+        {
+          selsplit->flags |= SPLIT_SELECTED;
+          swamigui_splits_update_item_sel (selsplit);
+          updatesel = TRUE;
+        }
+
+        splits->anchor = index;
+
+        /* not yet decided if to edit handle */
+        if (bevent->button == 1)
+        {
+          splits->active_drag = ACTIVE_UNDECIDED;
+          splits->active_xpos = bevent->x;
+          splits->active_drag_btn = 1;
+          splits->threshold_value = 0.0;
+          splits->active_split = selsplitp;
+        }
+      }
+
+      if (bevent->button == 2)	/* middle click? */
+	{
+	  if (!SPLIT_IS_SELECTED (selsplit))
+	    {
+	      selsplit->flags |= SPLIT_SELECTED;
+	      swamigui_splits_update_item_sel (selsplit);
+	      updatesel = TRUE;
+	    }
+
+	  splits->anchor = index;
+
+          if (updatesel) swamigui_splits_update_selection (splits);
+
+	  note = swamigui_piano_pos_to_note (splits->piano, bevent->x, 0.0,
+					     NULL, NULL);
+	  if (note == -1) return (FALSE);
+
+          // CTRL & SHIFT move both root note and ranges, CTRL moves ranges, move root notes otherwise
+          if ((bevent->state & (GDK_CONTROL_MASK | GDK_SHIFT_MASK))
+              == (GDK_CONTROL_MASK | GDK_SHIFT_MASK) && selsplit->rootnote && selsplit->span)
+            splits->active_drag = ACTIVE_MOVE_BOTH;
+          else if ((bevent->state & GDK_CONTROL_MASK) || !selsplit->rootnote)
+            splits->active_drag = ACTIVE_MOVE_RANGES;
+          else
+          {
+            gboolean selected = FALSE;
+
+            splits->active_drag = ACTIVE_MOVE_ROOTNOTES;
+
+            // Check for multiple selected items
+            for (p = splits->entry_list; p; p = g_list_next (p))
+            {
+              if (SPLIT_IS_SELECTED ((SwamiguiSplitsEntry *)(p->data)))
+              {
+                if (selected) break;
+                selected = TRUE;
+              }
+	    }
+
+            // Set relative note offset if multiple selected items, absolute offset otherwise
+            if (p) splits->move_note_ofs = note - selsplit->rootnote_val;
+            else splits->move_note_ofs = 0;
+          }
+
+	  splits->active_drag_btn = 2;
+	  splits->active_split = selsplitp;
+
+          if (splits->active_drag != ACTIVE_MOVE_ROOTNOTES)
+            splits->move_note_ofs = note - selsplit->range.low;
+
+	  /* update statusbar */
+	  swamigui_splits_update_status_bar (splits, selsplit->range.low,
+					     selsplit->range.high);
+	  return (FALSE);
 	}
 
       /* SHIFT key and an anchor? - select range */
@@ -634,51 +656,8 @@ swamigui_splits_cb_low_canvas_event (GnomeCanvasItem *item, GdkEvent *event,
 	  updatesel = TRUE;
 	  splits->anchor = index;
 	}
-      else			/* no CTRL or SHIFT, single select */
-	{
-	  if (!SPLIT_IS_SELECTED (selsplit))
-	    {
-	      selsplit->flags |= SPLIT_SELECTED;
-	      swamigui_splits_update_item_sel (selsplit);
-	      updatesel = TRUE;
-	    }
-
-	  splits->anchor = index;
-
-	  /* not yet decided if to edit handle */
-	  if (bevent->button == 1)
-	  {
-	    splits->active_drag = ACTIVE_UNDECIDED;
-	    splits->active_xpos = bevent->x;
-	    splits->active_drag_btn = 1;
-	    splits->threshold_value = 0.0;
-	    splits->active_split = selsplitp;
-	  }
-	}
 
       if (updatesel) swamigui_splits_update_selection (splits);
-
-      if (bevent->button == 2)	/* middle click? */
-	{
-	  note = swamigui_piano_pos_to_note (splits->piano, bevent->x, 0.0,
-					     NULL, NULL);
-	  if (note == -1) return (FALSE);
-
-	  splits->active_drag = ACTIVE_MOVE;
-	  splits->active_drag_btn = 2;
-	  splits->active_split = selsplitp;
-
-	  if (!(splits->move_flags & SWAMIGUI_SPLITS_MOVE_RANGES) || !selsplit->span)
-	    splits->move_note_ofs = note - selsplit->rootnote_val;
-	  else
-	    splits->move_note_ofs = note - selsplit->range.low;	/* note offset to low note range */
-
-	  /* update statusbar */
-	  swamigui_splits_update_status_bar (splits, selsplit->range.low,
-					     selsplit->range.high);
-	  return (FALSE);
-	}
-
       break;
     case GDK_BUTTON_RELEASE:
       if (splits->active_drag == ACTIVE_NONE) return (FALSE);
@@ -732,16 +711,8 @@ swamigui_splits_cb_low_canvas_event (GnomeCanvasItem *item, GdkEvent *event,
 					      NULL, NULL);
       if (note == -1) return (FALSE);
 
-      /* Handle root note move separately */
-      if (splits->active_drag == ACTIVE_ROOTNOTE)
-      {
-	swamigui_splits_update_status_bar (splits, note, -1);
-	swamigui_splits_entry_set_root_note_control (entry, note);
-	break;
-      }
-
       /* Handle move separately (could be multiple items) */
-      if (splits->active_drag == ACTIVE_MOVE)
+      if (splits->active_drag >= ACTIVE_MOVE_ROOTNOTES && splits->active_drag <= ACTIVE_MOVE_BOTH)
       {
 	note -= splits->move_note_ofs;
 
@@ -749,11 +720,11 @@ swamigui_splits_cb_low_canvas_event (GnomeCanvasItem *item, GdkEvent *event,
 	else if (note > 127) note = 127;
 
 	/* If drag has not changed the current note offset, short cut */
-	if (((splits->move_flags & SWAMIGUI_SPLITS_MOVE_RANGES) && 
-	     entry->range.low == note) || (entry->rootnote_val == note))
+	if ((splits->active_drag != ACTIVE_MOVE_ROOTNOTES && entry->range.low == note)
+            || (splits->active_drag == ACTIVE_MOVE_ROOTNOTES && entry->rootnote_val == note))
 	  break;
 
-	if (!(splits->move_flags & SWAMIGUI_SPLITS_MOVE_RANGES) || !entry->span)
+	if (splits->active_drag == ACTIVE_MOVE_ROOTNOTES)
 	  noteofs = note - entry->rootnote_val;
 	else
 	  noteofs = note - entry->range.low;	/* note offset to low note range */
@@ -764,13 +735,13 @@ swamigui_splits_cb_low_canvas_event (GnomeCanvasItem *item, GdkEvent *event,
 	  entry = (SwamiguiSplitsEntry *)(p->data);
 	  if (!SPLIT_IS_SELECTED (entry)) continue;
 
-	  if ((splits->move_flags & SWAMIGUI_SPLITS_MOVE_RANGES) && entry->span)
+	  if (splits->active_drag != ACTIVE_MOVE_ROOTNOTES && entry->span)
 	  {
 	    if ((int)(entry->range.low) + noteofs < 0) noteofs = -entry->range.low;
 	    if ((int)(entry->range.high) + noteofs > 127) noteofs = 127 - entry->range.high;
 	  }
 
-	  if (entry->rootnote && (splits->move_flags & SWAMIGUI_SPLITS_MOVE_PARAM1))
+	  if (splits->active_drag != ACTIVE_MOVE_RANGES && entry->rootnote)
 	  {
 	    if ((int)(entry->rootnote_val) + noteofs < 0) noteofs = -entry->rootnote_val;
 	    if ((int)(entry->rootnote_val) + noteofs > 127) noteofs = 127 - entry->rootnote_val;
@@ -785,7 +756,7 @@ swamigui_splits_cb_low_canvas_event (GnomeCanvasItem *item, GdkEvent *event,
 	  entry = (SwamiguiSplitsEntry *)(p->data);
 	  if (!SPLIT_IS_SELECTED (entry)) continue;
 
-	  if ((splits->move_flags & SWAMIGUI_SPLITS_MOVE_RANGES) && entry->span)
+	  if (splits->active_drag != ACTIVE_MOVE_ROOTNOTES && entry->span)
 	  {
 	    swamigui_splits_entry_set_span_control (entry, entry->range.low + noteofs,
 						    entry->range.high + noteofs);
@@ -793,7 +764,7 @@ swamigui_splits_cb_low_canvas_event (GnomeCanvasItem *item, GdkEvent *event,
 	    if (entry == splits->active_split->data)
 	      swamigui_splits_update_status_bar (splits, entry->range.low, entry->range.high);
 	  }
-	  if (entry->rootnote && (splits->move_flags & SWAMIGUI_SPLITS_MOVE_PARAM1))
+	  if (splits->active_drag != ACTIVE_MOVE_RANGES && entry->rootnote)
 	    swamigui_splits_entry_set_root_note_control (entry, entry->rootnote_val
 							 + noteofs);
 	}
