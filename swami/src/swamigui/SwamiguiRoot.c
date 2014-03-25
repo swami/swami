@@ -698,6 +698,7 @@ static void
 swamigui_root_finalize (GObject *object)
 {
   SwamiguiRoot *root = SWAMIGUI_ROOT (object);
+  GList *p;
 
   g_object_unref (root->patch_store);
   g_object_unref (root->config_store);
@@ -729,6 +730,10 @@ swamigui_root_finalize (GObject *object)
   g_free (root->piano_upper_keys);
 
   if (root->loaded_xml_config) ipatch_xml_destroy (root->loaded_xml_config);
+
+  // Free widgets in panel cache
+  for (p = root->panel_cache; p; p = g_list_delete_link (p, p))
+    g_object_unref (p->data);
 
   if (parent_class->finalize)
     parent_class->finalize (object);
@@ -1313,7 +1318,7 @@ swamigui_root_create_main_window (SwamiguiRoot *root)
   swami_control_connect (rootsel_ctrl, ctrl, SWAMI_CONTROL_CONN_BIDIR);
   g_object_unref (ctrl);	/* -- unref tree control */
 
-  root->panel_selector = swamigui_panel_selector_new ();
+  root->panel_selector = swamigui_panel_selector_new (root);
   gtk_widget_show (root->panel_selector);
   gtk_paned_pack2 (GTK_PANED (vpaned), root->panel_selector, FALSE, TRUE);
 

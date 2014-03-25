@@ -34,6 +34,8 @@
 typedef struct _SwamiguiPanelSelector SwamiguiPanelSelector;
 typedef struct _SwamiguiPanelSelectorClass SwamiguiPanelSelectorClass;
 
+#include "SwamiguiRoot.h"
+
 #define SWAMIGUI_TYPE_PANEL_SELECTOR   (swamigui_panel_selector_get_type ())
 #define SWAMIGUI_PANEL_SELECTOR(obj) \
   (G_TYPE_CHECK_INSTANCE_CAST ((obj), SWAMIGUI_TYPE_PANEL_SELECTOR, \
@@ -56,6 +58,8 @@ struct _SwamiguiPanelSelector
 
   /* Active panel for each page (SwamiguiPanelInfo *), list does not own allocation */
   GList *active_panels;
+
+  SwamiguiRoot *root;           /* Root object containing panel cache */
 };
 
 /* Panel selector object class */
@@ -68,7 +72,7 @@ GType *swamigui_get_panel_selector_types (void);
 void swamigui_register_panel_selector_type (GType panel_type, int order);
 
 GType swamigui_panel_selector_get_type (void);
-GtkWidget *swamigui_panel_selector_new (void);
+GtkWidget *swamigui_panel_selector_new (SwamiguiRoot *root);
 void swamigui_panel_selector_set_selection (SwamiguiPanelSelector *selector,
 					    IpatchList *items);
 IpatchList *swamigui_panel_selector_get_selection (SwamiguiPanelSelector *selector);

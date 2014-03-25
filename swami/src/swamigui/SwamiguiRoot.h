@@ -90,6 +90,7 @@ struct _SwamiguiRoot
   GType default_patch_type;	/* default patch type (for File->New) */
 
   GNode *loaded_xml_config;     /* Last loaded XML config (usually only on startup) or NULL */
+  GList *panel_cache;           /* Cache of SwamiguiPanel objects */
 };
 
 struct _SwamiguiRootClass

@@ -66,9 +66,6 @@ G_DEFINE_TYPE (SwamiguiPanelSelector, swamigui_panel_selector, GTK_TYPE_NOTEBOOK
 static GList *panel_list = NULL;	/* list of registered panels (PanelInfo *) */
 static guint panel_count = 0;		/* count of items in panel_list */
 
-/* Cached panel widgets (SwamiguiPanel *), used only in GUI context */
-static GList *panel_cache = NULL;
-
 #define swamigui_panel_selector_info_new()	g_slice_new (PanelInfo)
 
 
@@ -192,6 +189,9 @@ swamigui_panel_selector_finalize (GObject *object)
 {
   SwamiguiPanelSelector *selector = SWAMIGUI_PANEL_SELECTOR (object);
 
+  g_list_free (selector->active_panels);
+  selector->active_panels = NULL;
+
   /* set to NULL selection to remove and cache all panels, free active_panels list,
    * and free selection */
   swamigui_panel_selector_real_set_selection (selector, NULL);
@@ -251,9 +251,14 @@ swamigui_panel_selector_switch_page (GtkNotebook *notebook,
  * Returns: New panel selector widget.
  */
 GtkWidget *
-swamigui_panel_selector_new (void)
+swamigui_panel_selector_new (SwamiguiRoot *root)
 {
-  return ((GtkWidget *)g_object_new (SWAMIGUI_TYPE_PANEL_SELECTOR, NULL));
+  GtkWidget *widg;
+
+  widg = (GtkWidget *)g_object_new (SWAMIGUI_TYPE_PANEL_SELECTOR, NULL);
+  ((SwamiguiPanelSelector *)widg)->root = root;
+
+  return (widg);
 }
 
 /**
@@ -343,7 +348,10 @@ swamigui_panel_selector_real_set_selection (SwamiguiPanelSelector *selector,
       gtk_container_remove (GTK_CONTAINER (selector), GTK_WIDGET (panel));
 
       g_object_set (panel, "item-selection", NULL, NULL);
-      panel_cache = g_list_prepend (panel_cache, panel);
+
+      if (selector->root)
+        selector->root->panel_cache = g_list_prepend (selector->root->panel_cache, panel);
+      else g_object_unref (panel);
     }
   }
 
@@ -384,16 +392,19 @@ swamigui_panel_selector_insert_panel (SwamiguiPanelSelector *selector,
   GList *p;
 
   /* Check if there is already a panel of the requested type in the cache */
-  for (p = panel_cache; p; p = p->next)
+  if (selector->root)
   {
-    cachepanel = (GtkWidget *)(p->data);
-    cacheinfo = g_object_get_data (G_OBJECT (cachepanel), "_SwamiguiPanelInfo");
-
-    if (cacheinfo == info)
+    for (p = selector->root->panel_cache; p; p = p->next)
     {
-      panel = cachepanel;
-      panel_cache = g_list_delete_link (panel_cache, p);
-      break;
+      cachepanel = (GtkWidget *)(p->data);
+      cacheinfo = g_object_get_data (G_OBJECT (cachepanel), "_SwamiguiPanelInfo");
+
+      if (cacheinfo == info)
+      {
+        panel = cachepanel;
+        selector->root->panel_cache = g_list_delete_link (selector->root->panel_cache, p);
+        break;
+      }
     }
   }
 
