@@ -79,10 +79,10 @@ $ jhbuild build meta-gtk-osx-core
 
   <include href="/Users/gtkosx/Source/jhbuild/modulesets/gtk-osx.modules"/>
 
-  <tarball id="libfftw3" version="3.3.3" supports-non-srcdir-builds="no"
+  <tarball id="libfftw3" version="3.3.4" supports-non-srcdir-builds="no"
            autogenargs="--enable-shared --enable-float --enable-sse2">
-   <source href="http://www.fftw.org/fftw-3.3.3.tar.gz"
-    size="3920661" md5sum="0a05ca9c7b3bfddc8278e7c40791a1c2"/>
+   <source href="http://www.fftw.org/fftw-3.3.4.tar.gz"
+    size="3940427" md5sum="2edab8c06b24feeb3b82bbb3ebf3e7b3"/>
   </tarball>
 
   <tarball id="libsndfile" version="1.0.25" supports-non-srcdir-builds="no"

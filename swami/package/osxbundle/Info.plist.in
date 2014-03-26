@@ -6,8 +6,6 @@
     <string>English</string>
     <key>CFBundleExecutable</key>
     <string>swami</string>
-    <key>CFBundleGetInfoString</key>
-    <string>2.0.0</string>
     <key>CFBundleIconFile</key>
     <string>swami.icns</string>
     <key>CFBundleIdentifier</key>
@@ -19,13 +17,13 @@
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>2.0.0</string>
+    <string>@VERSION@</string>
     <key>CFBundleSignature</key>
     <string>????</string>
     <key>CFBundleVersion</key>
-    <string>2.0.0</string>
+    <string>@VERSION@</string>
     <key>NSHumanReadableCopyright</key>
-    <string>Copyright 1999-2012 Joshua "Element" Green et al., GNU General Public License.</string>
+    <string>Copyright 1999-2014 Joshua "Element" Green et al., GNU General Public License.</string>
     <key>LSMinimumSystemVersion</key>
     <string>10.6</string>
 </dict>
