@@ -1166,7 +1166,7 @@ swamigui_sample_editor_cb_sample_canvas_event (GnomeCanvas *canvas,
   case GDK_BUTTON_PRESS:
     btn_event = (GdkEventButton *)event;
 
-    if (btn_event->button == 2)		/* middle click moves marker ranges */
+    if (swamigui_root_is_middle_click (NULL, btn_event))        /* middle click moves marker ranges */
     {
       marker_info = pos_is_marker (editor, btn_event->x, btn_event->y,
 				   NULL, &onbox);

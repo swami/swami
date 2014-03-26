@@ -91,6 +91,8 @@ struct _SwamiguiRoot
 
   GNode *loaded_xml_config;     /* Last loaded XML config (usually only on startup) or NULL */
   GList *panel_cache;           /* Cache of SwamiguiPanel objects */
+  gboolean middle_emul_enable;  /* Middle mouse button emulation enable */
+  gboolean middle_emul_mod;     /* Middle mouse button emulation key modifier */
 };
 
 struct _SwamiguiRootClass
@@ -113,5 +115,7 @@ void swamigui_root_quit (SwamiguiRoot *root);
 SwamiguiRoot *swamigui_get_root (gpointer gobject);
 gboolean swamigui_root_save_prefs (SwamiguiRoot *root);
 gboolean swamigui_root_load_prefs (SwamiguiRoot *root);
+gboolean swamigui_root_is_middle_click (SwamiguiRoot *root, GdkEventButton *event);
 
 #endif
+

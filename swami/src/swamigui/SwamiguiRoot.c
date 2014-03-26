@@ -54,6 +54,8 @@ enum
   PROP_PIANO_LOWER_KEYS,
   PROP_PIANO_UPPER_KEYS,
   PROP_DEFAULT_PATCH_TYPE,
+  PROP_MIDDLE_EMUL_ENABLE,
+  PROP_MIDDLE_EMUL_MOD,
   PROP_TREE_STORE_LIST,
   PROP_SELECTION_ORIGIN,
   PROP_SELECTION,
@@ -386,6 +388,16 @@ swamigui_root_class_init (SwamiguiRootClass *klass)
 						       "Default patch type",
 						       IPATCH_TYPE_BASE,
 						       G_PARAM_READWRITE));
+  g_object_class_install_property (obj_class, PROP_MIDDLE_EMUL_ENABLE,
+			g_param_spec_boolean ("middle-emul-enable",
+					      _("Middle button emulation enable"),
+					      _("Enable middle mouse button emulation"),
+					      TRUE, G_PARAM_READWRITE));
+  g_object_class_install_property (obj_class, PROP_MIDDLE_EMUL_MOD,
+			g_param_spec_int ("middle-emul-mod",
+					  _("Middle button emulation modifier"),
+					  _("Middle mouse button emulation key modifier"),
+					  0, 4, 0, G_PARAM_READWRITE));
   g_object_class_install_property (obj_class, PROP_TREE_STORE_LIST,
 		g_param_spec_object ("tree-store-list", "Tree store list",
 				     "List of tree stores",
@@ -463,6 +475,12 @@ swamigui_root_set_property (GObject *object, guint property_id,
       break;
     case PROP_DEFAULT_PATCH_TYPE:
       root->default_patch_type = g_value_get_gtype (value);
+      break;
+    case PROP_MIDDLE_EMUL_ENABLE:
+      root->middle_emul_enable = g_value_get_boolean (value);
+      break;
+    case PROP_MIDDLE_EMUL_MOD:
+      root->middle_emul_mod = g_value_get_int (value);
       break;
     case PROP_TREE_STORE_LIST:
       if (root->tree_stores) g_object_unref (root->tree_stores);
@@ -547,6 +565,12 @@ swamigui_root_get_property (GObject *object, guint property_id,
     case PROP_DEFAULT_PATCH_TYPE:
       g_value_set_gtype (value, root->default_patch_type);
       break;
+    case PROP_MIDDLE_EMUL_ENABLE:
+      g_value_set_boolean (value, root->middle_emul_enable);
+      break;
+    case PROP_MIDDLE_EMUL_MOD:
+      g_value_set_int (value, root->middle_emul_mod);
+      break;
     case PROP_TREE_STORE_LIST:
       g_value_set_object (value, root->tree_stores);
       break;
@@ -609,6 +633,8 @@ swamigui_root_init (SwamiguiRoot *root)
     = swamigui_root_parse_piano_keys (SWAMIGUI_ROOT_DEFAULT_LOWER_KEYS);
   root->piano_upper_keys
     = swamigui_root_parse_piano_keys (SWAMIGUI_ROOT_DEFAULT_UPPER_KEYS);
+
+  root->middle_emul_enable = TRUE;
 
   swami_object_set (G_OBJECT (root),
 		    "name", "Swami",
@@ -1768,3 +1794,28 @@ osx_accel_map_foreach_lcb(gpointer data, const gchar *accel_path,
   } 
 }
 #endif
+
+/**
+ * swamigui_root_is_middle_click:
+ * @root: Root object or NULL to use global root object
+ * @event: Button event
+ *
+ * Check if a button event is a middle click, taking into account middle button emulation settings.
+ */
+gboolean
+swamigui_root_is_middle_click (SwamiguiRoot *root, GdkEventButton *event)
+{
+  g_return_val_if_fail (!root || SWAMIGUI_IS_ROOT (root), FALSE);
+  g_return_val_if_fail (event != NULL, FALSE);
+
+  if (event->type == GDK_BUTTON_PRESS && event->button == 2)
+    return (TRUE);
+
+  if (!root) root = swamigui_root;
+  if (!root) return (FALSE);
+
+  // Middle button emulation enabled, left mouse button click and modifier held?
+  return (event->type == GDK_BUTTON_PRESS && event->button == 1
+          && root->middle_emul_enable && (event->state & (GDK_MOD1_MASK << root->middle_emul_mod)));
+}
+

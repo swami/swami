@@ -520,7 +520,7 @@ swamigui_splits_cb_low_canvas_event (GnomeCanvasItem *item, GdkEvent *event,
 
       /* deselect all spans if CTRL and SHIFT not pressed and Left click or Middle on unselected item */
       if (!(bevent->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK))
-	  && !(bevent->button == 2 && SPLIT_IS_SELECTED (selsplit)))
+	  && !(swamigui_root_is_middle_click (NULL, bevent) && SPLIT_IS_SELECTED (selsplit)))
 	{
 	  for (p = splits->entry_list; p; p = g_list_next (p))
 	    {
@@ -557,7 +557,7 @@ swamigui_splits_cb_low_canvas_event (GnomeCanvasItem *item, GdkEvent *event,
         }
       }
 
-      if (bevent->button == 2)	/* middle click? */
+      if (swamigui_root_is_middle_click (NULL, bevent)) /* middle click? */
 	{
 	  if (!SPLIT_IS_SELECTED (selsplit))
 	    {
@@ -601,7 +601,7 @@ swamigui_splits_cb_low_canvas_event (GnomeCanvasItem *item, GdkEvent *event,
             else splits->move_note_ofs = 0;
           }
 
-	  splits->active_drag_btn = 2;
+	  splits->active_drag_btn = bevent->button;
 	  splits->active_split = selsplitp;
 
           if (splits->active_drag != ACTIVE_MOVE_ROOTNOTES)
