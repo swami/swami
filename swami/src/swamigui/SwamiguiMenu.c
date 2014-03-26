@@ -460,7 +460,18 @@ static void
 swamigui_menu_cb_load_files (GtkWidget *mitem, gpointer data)
 {
   SwamiguiRoot *root = swamigui_get_root (data);
-  if (root) swamigui_load_files (root);
+  IpatchList *selection;
+
+  if (root)
+  {
+    g_object_get (root, "selection", &selection, NULL);         // ++ ref
+
+    if (selection->items && !selection->items->next)
+      swamigui_load_files (G_OBJECT (selection->items->data), FALSE);
+    else swamigui_load_files (G_OBJECT (root), FALSE);
+
+    g_object_unref (selection);         // -- unref
+  }
 }
 
 /* main menu callback to save files */

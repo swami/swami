@@ -30,14 +30,13 @@
 #include "SwamiguiRoot.h"
 #include "SwamiguiTree.h"
 
-void swamigui_load_files (SwamiguiRoot *root);
+void swamigui_load_files (GObject *parent_hint, gboolean load_samples);
 void swamigui_save_files (IpatchList *item_list, gboolean saveas);
 void swamigui_close_files (IpatchList *item_list);
 void swamigui_delete_items (IpatchList *item_list);
 void swamigui_wtbl_load_patch (IpatchItem *item);
 void swamigui_new_item (IpatchItem *parent_hint, GType type);
 void swamigui_goto_link_item (IpatchItem *item, SwamiguiTree *tree);
-void swamigui_load_samples (IpatchItem *parent_hint);
 void swamigui_export_samples (IpatchList *samples);
 void swamigui_copy_items (IpatchList *items);
 void swamigui_paste_items (IpatchItem *dstitem, GList *items);

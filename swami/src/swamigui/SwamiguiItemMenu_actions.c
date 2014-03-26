@@ -405,7 +405,7 @@ item_cb_load_samples (IpatchList *selection, gpointer data)
 {
   if (!selection->items || selection->items->next) return;
 
-  swamigui_load_samples (IPATCH_ITEM (selection->items->data));
+  swamigui_load_files (G_OBJECT (selection->items->data), TRUE);
 }
 
 static void

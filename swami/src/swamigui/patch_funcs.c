@@ -51,9 +51,9 @@ enum
 
 static void swamigui_cb_load_files_response (GtkWidget *dialog, gint response,
 					     gpointer user_data);
-static void swamigui_cb_load_samples_response (GtkWidget *dialog,
-					       gint response,
-					      gpointer user_data);
+static gboolean swamigui_load_sample_helper (const char *fname, IpatchItem *parent_hint,
+                                             IpatchPaste *paste, IpatchList *biglist,
+                                             gboolean *paste_possible);
 static void swamigui_cb_export_samples_response (GtkWidget *dialog,
 						 gint response,
 						 gpointer user_data);
@@ -71,40 +71,69 @@ static IpatchList *item_clipboard = NULL;
 
 /**
  * swamigui_load_files:
- * @root: GUI root object
+ * @parent_hint: Parent of new samples, a child thereof or SwamiRoot object
+ * @load_samples: TRUE to load audio files only, FALSE for patch and audio files
  *
  * Open files routine. Displays a file selection dialog to open patch
- * files with.
+ * and sample files with.
  */
 void
-swamigui_load_files (SwamiguiRoot *root)
+swamigui_load_files (GObject *parent_hint, gboolean load_samples)
 {
   GtkWidget *dialog;
+  GtkWindow *main_window;
+  char *path;
 
-  dialog = gtk_file_chooser_dialog_new (_("Load files"), NULL,
+  /* ++ ref main window */
+  g_object_get (swamigui_root, "main-window", &main_window, NULL);
+
+  dialog = gtk_file_chooser_dialog_new (_("Load files"), main_window,
 					GTK_FILE_CHOOSER_ACTION_OPEN,
-					GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+					GTK_STOCK_CLOSE, GTK_RESPONSE_CANCEL,
 					GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
 					GTK_STOCK_ADD, GTK_RESPONSE_APPLY,
 					NULL);
+
+  g_object_unref (main_window);	  /* -- unref main window */
+
   /* enable multiple selection mode */
   gtk_file_chooser_set_select_multiple (GTK_FILE_CHOOSER (dialog), TRUE);
 
   /* set default response */
   gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
 
-  /* if load path isn't set, use default patch path from swami.cfg,
-     duplicate it of course :) */
-  if (!path_patch_load)
-    g_object_get (root, "patch-path", &path_patch_load, NULL);
+  g_object_set_data (G_OBJECT (dialog), "_load_samples", GUINT_TO_POINTER (load_samples));
 
-  if (path_patch_load && strlen (path_patch_load))
-    gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog),
-					 path_patch_load);
+  // Is file path set? If not use default from preferences
+  if (load_samples)
+  {
+    if (!path_sample_load)
+    {
+      SwamiRoot *root = swami_get_root (G_OBJECT (parent_hint));
+      g_object_get (G_OBJECT (root), "sample-path", &path_sample_load, NULL);   // ++ alloc sample path
+    }
+
+    path = path_sample_load;
+  }
+  else
+  {
+    if (!path_patch_load)
+    {
+      SwamiRoot *root = swami_get_root (G_OBJECT (parent_hint));
+      g_object_get (root, "patch-path", &path_patch_load, NULL);        // ++ alloc patch path
+    }
+
+    path = path_patch_load;
+  }
+
+  if (path && strlen (path))
+    gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), path);
+
+  if (parent_hint) g_object_ref (parent_hint); /* ++ ref for dialog */
 
   g_signal_connect (G_OBJECT (dialog), "response",
 		    G_CALLBACK (swamigui_cb_load_files_response),
-		    root);
+		    parent_hint);
 
   gtk_widget_show (dialog);
 }
@@ -114,19 +143,30 @@ static void
 swamigui_cb_load_files_response (GtkWidget *dialog, gint response,
 				 gpointer user_data)
 {
-  SwamiRoot *root = SWAMI_ROOT (user_data);
+  GObject *parent_hint = G_OBJECT (user_data);
+  SwamiRoot *root = swami_get_root (G_OBJECT (parent_hint));
   GSList *file_names, *p;
-  gboolean loaded = FALSE;
+  gboolean patch_loaded = FALSE, samples_loaded = FALSE;
   char *fname;
   GError *err = NULL;
   GtkRecentManager *manager;
   char *file_uri;
+  GType type;
+  gboolean load_samples, paste_possible;
+  IpatchPaste *paste;
+  IpatchList *biglist;
 
   if (response == GTK_RESPONSE_CANCEL || response == GTK_RESPONSE_DELETE_EVENT)
-    {
-      if (response == GTK_RESPONSE_CANCEL) gtk_widget_destroy (dialog);
-      return;
-    }
+  {
+    if (parent_hint) g_object_unref (parent_hint);
+    if (response == GTK_RESPONSE_CANCEL) gtk_widget_destroy (dialog);
+    return;
+  }
+
+  load_samples = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT (dialog), "_load_samples"));
+
+  paste = ipatch_paste_new ();	/* ++ ref paste object */
+  biglist = ipatch_list_new ();	/* ++ ref list */
 
   /* "Add" or "OK" button clicked */
 
@@ -134,44 +174,168 @@ swamigui_cb_load_files_response (GtkWidget *dialog, gint response,
 
   /* loop over file names */
   for (p = file_names; p; p = g_slist_next (p))
+  {
+    fname = (char *)(p->data);
+
+    // Identify file type
+    type = ipatch_file_identify_name (fname, &err);
+
+    if (type == G_TYPE_NONE)
     {
-      fname = (char *)(p->data);
-
-      if (swami_root_patch_load (root, fname, NULL, &err))
-	{
-	  if ((file_uri = g_filename_to_uri (fname, NULL, NULL)))
-	    {
-	      manager = gtk_recent_manager_get_default ();
-	      if (!gtk_recent_manager_add_item (manager, file_uri))
-		g_warning ("Error while adding file name to recent manager.");
-
-	      g_free (file_uri);
-	    }
-
-	  loaded = TRUE;	/* only set patch path on successful load */
-	}
-      else	/* error occurred - log it */
-	{
-	  g_critical (_("Failed to load file '%s': %s"), fname,
-		      ipatch_gerror_message (err));
-	  g_clear_error (&err);
-	}
+      g_critical (_("Failed to identify file '%s': %s"), fname,
+                  ipatch_gerror_message (err));
+      g_clear_error (&err);
+      continue;
     }
 
-  if (loaded)
+    if (!load_samples && ipatch_find_converter (type, IPATCH_TYPE_BASE) != 0)
     {
-      g_free (path_patch_load);	/* free old load path */
+      patch_loaded = TRUE;      // Set patch path regardless if successful
 
-      path_patch_load		/* !! takes over allocation */
-	= gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog));
+      if (!swami_root_patch_load (root, fname, NULL, &err))
+      { /* error occurred - log it */
+        g_critical (_("Failed to load file '%s': %s"), fname, ipatch_gerror_message (err));
+        g_clear_error (&err);
+        continue;
+      }
+
+      if ((file_uri = g_filename_to_uri (fname, NULL, NULL)))   // ++ alloc
+      {
+        manager = gtk_recent_manager_get_default ();
+
+        if (!gtk_recent_manager_add_item (manager, file_uri))
+          g_warning ("Error while adding file name to recent manager.");
+
+        g_free (file_uri);      // -- free
+      }
     }
+    else if (g_type_is_a (type, IPATCH_TYPE_SND_FILE))
+    {
+      paste_possible = FALSE;
+
+      if (!IPATCH_IS_ITEM (parent_hint)
+          || !swamigui_load_sample_helper (fname, IPATCH_ITEM (parent_hint),
+                                           paste, biglist, &paste_possible))
+      {
+        if (!paste_possible && !samples_loaded)
+        {
+          GtkWidget *msg = gtk_message_dialog_new (GTK_WINDOW (SWAMIGUI_ROOT (root)->main_window),
+                                                   GTK_DIALOG_DESTROY_WITH_PARENT,
+                                                   GTK_MESSAGE_ERROR,
+                                                   GTK_BUTTONS_CLOSE,
+                                                   _("Please select location in tree view to load samples into."));
+          gtk_dialog_run (GTK_DIALOG (msg));
+          gtk_widget_destroy (msg);
+        }
+      }
+
+      samples_loaded = TRUE;       // Set sample path regardless if successful
+    }
+    else
+    {
+      if (load_samples)
+        g_critical (_("File '%s' is not a supported sample file"), fname);
+      else g_critical (_("File '%s' is not a supported file type"), fname);
+    }
+  }
+
+  if (samples_loaded)
+  { /* finish the paste operation */
+    if (ipatch_paste_finish (paste, &err))
+    { /* select all samples which were added */
+      biglist->items = g_list_reverse (biglist->items);	/* put in right order */
+      g_object_set (swamigui_root, "selection", biglist, NULL);
+    }
+    else
+    {
+      g_critical (_("Failed to finish load of samples (paste operation): %s"),
+                  ipatch_gerror_message (err));
+      g_clear_error (&err);
+    }
+
+    /* !! free old load path and take over allocation of new path */
+    g_free (path_sample_load);
+    path_sample_load = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog));
+  }
+
+  g_object_unref (biglist);	/* -- unref list */
+  g_object_unref (paste);	/* -- unref paste object */
+
+  if (patch_loaded)
+  { /* !! free old load path and take over allocation of new path */
+    g_free (path_patch_load);
+    path_patch_load = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog));
+  }
 
   /* free the file name list and strings */
-  for (p = file_names; p; p = g_slist_delete_link (p, p)) g_free (p->data);
+  for (p = file_names; p; p = g_slist_delete_link (p, p))
+    g_free (p->data);
 
   /* destroy dialog if "OK" button was clicked */
   if (response == GTK_RESPONSE_ACCEPT)
+  {
+    if (parent_hint) g_object_unref (parent_hint);
     gtk_widget_destroy (dialog);
+  }
+}
+
+static gboolean
+swamigui_load_sample_helper (const char *fname, IpatchItem *parent_hint,
+                             IpatchPaste *paste, IpatchList *biglist, gboolean *paste_possible)
+{
+  IpatchFile *file;
+  IpatchList *list;
+  GList *lp;
+  GError *err = NULL;
+
+  *paste_possible = TRUE;
+
+  file = ipatch_file_identify_new (fname, &err);        // ++ ref file
+
+  if (!file)
+  {
+    g_critical (_("Failed to identify and open file '%s': %s"), fname,
+                ipatch_gerror_message (err));
+    g_clear_error (&err);
+    return (FALSE);
+  }
+
+  /* determine if IpatchSampleFile can be pasted to destination.. */
+  if (!ipatch_is_paste_possible (IPATCH_ITEM (parent_hint),
+                                 IPATCH_ITEM (file)))
+  {
+    g_object_unref (file);      // -- unref file
+    *paste_possible = FALSE;
+    return (FALSE);
+  }
+
+  /* paste sample file to destination */
+  if (!ipatch_paste_objects (paste, IPATCH_ITEM (parent_hint),
+                             IPATCH_ITEM (file), &err))
+  { /* object paste failed */
+    g_critical (_("Failed to load object of type '%s' to '%s': %s"),
+                g_type_name (IPATCH_TYPE_SND_FILE),
+                g_type_name (G_OBJECT_TYPE (parent_hint)),
+                ipatch_gerror_message (err));
+    g_clear_error (&err);
+    g_object_unref (file);      // -- unref file
+    return (FALSE);
+  }
+
+  g_object_unref (file);        // -- unref file
+
+  list = ipatch_paste_get_add_list (paste);     /* ++ ref added object list */
+
+  if (list)
+  { /* biglist takes over items of list */
+    for (lp = list->items; lp; lp = g_list_delete_link (lp, lp))
+      biglist->items = g_list_prepend (biglist->items, lp->data);
+
+    list->items = NULL;
+    g_object_unref (list);	/* -- unref list */
+  }
+
+  return (TRUE);
 }
 
 /**
@@ -470,181 +634,6 @@ swamigui_goto_link_item (IpatchItem *item, SwamiguiTree *tree)
       swamigui_tree_spotlight_item (tree, link);
       g_object_unref (link);	/* -- unref from g_object_get */
     }
-}
-
-/**
- * swamigui_load_samples:
- * @parent_hint: Parent of new sample or a child thereof.
- *
- * Load sample user interface
- */
-void
-swamigui_load_samples (IpatchItem *parent_hint)
-{
-  GtkWidget *dialog;
-  GtkWindow *main_window;
-
-  /* ++ ref main window */
-  g_object_get (swamigui_root, "main-window", &main_window, NULL);
-
-  dialog = gtk_file_chooser_dialog_new (_("Load samples"), main_window,
-					GTK_FILE_CHOOSER_ACTION_OPEN,
-					GTK_STOCK_CLOSE, GTK_RESPONSE_CANCEL,
-					GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
-					GTK_STOCK_ADD, GTK_RESPONSE_APPLY,
-					NULL);
-  g_object_unref (main_window);	  /* -- unref main window */
-
-  /* enable multiple selection mode */
-  gtk_file_chooser_set_select_multiple (GTK_FILE_CHOOSER (dialog), TRUE);
-
-  /* set default response */
-  gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
-
-  /* if sample load path isn't set, use default from config */
-  if (!path_sample_load)
-    {
-      SwamiRoot *root = swami_get_root (G_OBJECT (parent_hint));
-      g_object_get (G_OBJECT (root), "sample-path", &path_sample_load, NULL);
-    }
-
-  if (path_sample_load && strlen (path_sample_load))
-    gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog),
-					 path_sample_load);
-
-  if (parent_hint) g_object_ref (parent_hint); /* ++ ref for dialog */
-
-  g_signal_connect (G_OBJECT (dialog), "response",
-		    G_CALLBACK (swamigui_cb_load_samples_response),
-		    parent_hint);
-
-  gtk_widget_show (dialog);
-}
-
-/* routine that loads the samples from a file selection dialog */
-static void
-swamigui_cb_load_samples_response (GtkWidget *dialog, gint response,
-				   gpointer user_data)
-{
-  IpatchItem *parent_hint = (IpatchItem *)user_data;
-  GSList *file_names, *p;
-  GList *lp;
-  IpatchPaste *paste;
-  IpatchFileHandle *fhandle;
-  IpatchList *biglist, *list;
-  char *fname;
-  gboolean loaded = FALSE;
-  GError *err = NULL;
-
-  if (response == GTK_RESPONSE_CANCEL || response == GTK_RESPONSE_DELETE_EVENT)
-  {
-    if (parent_hint) g_object_unref (parent_hint);
-    if (response == GTK_RESPONSE_CANCEL) gtk_widget_destroy (dialog);
-    return;
-  }
-
-  paste = ipatch_paste_new ();	/* ++ ref paste object */
-  biglist = ipatch_list_new ();	/* ++ ref list */
-
-  /* "Add" or "OK" button clicked */
-
-  file_names = gtk_file_chooser_get_filenames (GTK_FILE_CHOOSER (dialog));
-
-  /* loop over file names */
-  for (p = file_names; p; p = g_slist_next (p))
-  {
-    fname = (char *)(p->data);
-
-    /* ++ alloc new file handle */
-    if (!(fhandle = ipatch_file_identify_open (fname, &err)))
-    {
-      g_critical (_("Failed to identify file '%s': %s"), fname,
-		  ipatch_gerror_message (err));
-      g_clear_error (&err);
-      continue;
-    }
-
-    if (!IPATCH_IS_SND_FILE (fhandle->file))
-    {
-      g_critical (_("File '%s' is not a supported sample type"), fname);
-      ipatch_file_close (fhandle);      /* -- close file handle */
-      continue;
-    }
-
-    /* determine if IpatchSampleFile can be pasted to destination.. */
-    if (!ipatch_is_paste_possible (IPATCH_ITEM (parent_hint),
-				   IPATCH_ITEM (fhandle->file)))
-    {
-      g_critical (_("Not possible to load object of type '%s' to '%s'"),
-		  g_type_name (IPATCH_TYPE_SND_FILE),
-		  g_type_name (G_OBJECT_TYPE (parent_hint)));
-      ipatch_file_close (fhandle);      /* -- close file handle */
-      continue;
-    }
-
-    /* paste sample file to destination */
-    if (!ipatch_paste_objects (paste, IPATCH_ITEM (parent_hint),
-			       IPATCH_ITEM (fhandle->file), &err))
-    {	/* object paste failed */
-      g_critical (_("Failed to load object of type '%s' to '%s': %s"),
-		  g_type_name (IPATCH_TYPE_SND_FILE),
-		  g_type_name (G_OBJECT_TYPE (parent_hint)),
-		  ipatch_gerror_message (err));
-      g_clear_error (&err);
-      ipatch_file_close (fhandle);      /* -- close file handle */
-      continue;
-    }
-
-    ipatch_file_close (fhandle);      /* -- close file handle */
-
-    list = ipatch_paste_get_add_list (paste);	/* ++ ref added object list */
-    if (list)
-    {	/* biglist takes over items of list */
-      for (lp = list->items; lp; lp = g_list_delete_link (lp, lp))
-	biglist->items = g_list_prepend (biglist->items, lp->data);
-
-      list->items = NULL;
-      g_object_unref (list);	/* -- unref list */
-    }
-
-    loaded = TRUE;		/* only set sample path on successful load */
-  }
-
-  /* finish the paste operation */
-  if (ipatch_paste_finish (paste, &err))
-  {
-    /* select all samples which were added */
-    biglist->items = g_list_reverse (biglist->items);	/* put in right order */
-    g_object_set (swamigui_root, "selection", biglist, NULL);
-    g_object_unref (biglist);	/* -- unref list */
-  }
-  else
-  {
-    g_critical (_("Failed to finish load of samples (paste operation): %s"),
-		ipatch_gerror_message (err));
-    g_clear_error (&err);
-  }
-
-  g_object_unref (paste);	/* -- unref paste object */
-
-  if (loaded)
-  {
-    g_free (path_sample_load); /* free old load path */
-
-    path_sample_load		/* !! takes over allocation */
-      = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog));
-  }
-
-  /* free the file name list and strings */
-  for (p = file_names; p; p = g_slist_delete_link (p, p))
-    g_free (p->data);
-
-  /* destroy dialog if "OK" button was clicked */
-  if (response == GTK_RESPONSE_ACCEPT)
-  {
-    if (parent_hint) g_object_unref (parent_hint);
-    gtk_widget_destroy (dialog);
-  }
 }
 
 /**
