@@ -1314,6 +1314,35 @@ ipatch_file_identify (IpatchFile *file, GError **err)
 }
 
 /**
+ * ipatch_file_identify_name:
+ * @filename: Name of file to identify type of
+ * @err: Location to store error information
+ *
+ * Like ipatch_file_identify() but uses a file name for convenience.
+ *
+ * Returns: The first #IpatchFile derived type that had an "identify" method
+ * which returned %TRUE, or 0 if unknown file type or error, in which
+ * case error information will be stored in @err provided its not %NULL.
+ *
+ * Since: 1.1.0
+ */
+GType
+ipatch_file_identify_name (const char *filename, GError **err)
+{
+  IpatchFile *file;
+  GType type;
+
+  g_return_val_if_fail (filename != NULL, 0);
+
+  file = ipatch_file_new ();            // ++ ref file
+  ipatch_file_set_name (file, filename);
+  type = ipatch_file_identify (file, err);
+  g_object_unref (file);                // -- unref file
+
+  return (type);
+}
+
+/**
  * ipatch_file_identify_by_ext:
  * @file: File object to identify type of
  *
@@ -1449,7 +1478,7 @@ sort_type_by_identify_order (gconstpointer a, gconstpointer b)
  * Returns: The new opened handle of the identified type or %NULL if unable to
  *   identify.  Caller should free the handle with ipatch_file_close() when done
  *   using it, at which point the parent #IpatchFile will be destroyed if no other
- *   reference is held (by calling ipatch_file_handle_get_file() for example).
+ *   reference is held.
  */
 IpatchFileHandle *
 ipatch_file_identify_open (const char *file_name, GError **err)
@@ -1473,6 +1502,36 @@ ipatch_file_identify_open (const char *file_name, GError **err)
   g_object_unref (file);        /* -- unref file (handle holds a ref) */
 
   return (handle);      /* !! caller takes over handle */
+}
+
+/**
+ * ipatch_file_identify_new:
+ * @file_name: File name to identify and create file object for
+ * @err: Location to store error of type GIOChannelError
+ *
+ * A convenience function which calls ipatch_file_identify() to determine the
+ * file type of @file_name. If the type is identified a new file object, of the
+ * identified type, is created and returned.
+ *
+ * Returns: The new file of the identified type or %NULL if unable to
+ *   identify. Caller owns a reference and should remove it when done using it.
+ *
+ * Since: 1.1.0
+ */
+IpatchFile *
+ipatch_file_identify_new (const char *file_name, GError **err)
+{
+  IpatchFileHandle *handle;
+  IpatchFile *file;
+
+  handle = ipatch_file_identify_open (file_name, err);
+  if (!handle) return (NULL);
+
+  file = handle->file;
+  g_object_ref (file);          // ++ ref for caller
+  ipatch_file_close (handle);
+
+  return (file);                // !! caller takes over reference
 }
 
 /**

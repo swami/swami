@@ -204,8 +204,10 @@ GIOStatus ipatch_file_seek_eof (IpatchFileHandle *handle, int offset,
                                 GSeekType type, GError **err);
 int ipatch_file_get_size (IpatchFile *file, GError **err);
 GType ipatch_file_identify (IpatchFile *file, GError **err);
+GType ipatch_file_identify_name (const char *filename, GError **err);
 GType ipatch_file_identify_by_ext (IpatchFile *file);
 IpatchFileHandle *ipatch_file_identify_open (const char *file_name, GError **err);
+IpatchFile *ipatch_file_identify_new (const char *file_name, GError **err);
 
 void ipatch_file_set_little_endian (IpatchFile *file);
 void ipatch_file_set_big_endian (IpatchFile *file);
