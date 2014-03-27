@@ -47,6 +47,7 @@ static void browse_file_chooser_response (GtkDialog *dialog, int response,
 					  gpointer user_data);
 static void save_toggled (GtkCellRendererToggle *cell, char *path_str,
 			  gpointer data);
+static void save_column_clicked (GtkTreeViewColumn *column, gpointer data);
 static void path_edited (GtkCellRendererText *cell, const char *path_string,
 			 const char *new_text, gpointer data);
 static gboolean
@@ -131,6 +132,8 @@ swamigui_multi_save_init (SwamiguiMultiSave *multi)
   column = gtk_tree_view_column_new_with_attributes (_("Save"), renderer,
 						     "active", SAVE_COLUMN,
 						     NULL);
+  gtk_tree_view_column_set_clickable (GTK_TREE_VIEW_COLUMN (column), TRUE);
+  g_signal_connect (column, "clicked", G_CALLBACK (save_column_clicked), multi);
   gtk_tree_view_append_column (GTK_TREE_VIEW (multi->treeview), column);
   gtk_tooltips_set_tip (tooltips, GTK_TREE_VIEW_COLUMN (column)->button,
 			_("Select which files to save."), NULL);
@@ -282,6 +285,43 @@ save_toggled (GtkCellRendererToggle *cell, char *path_str, gpointer data)
   gtk_list_store_set (GTK_LIST_STORE (model), &iter, SAVE_COLUMN, save, -1);
 
   gtk_tree_path_free (path);	/* -- free path */
+}
+
+// Callback when "save" column button gets clicked (toggle all save checkboxes)
+static void
+save_column_clicked (GtkTreeViewColumn *column, gpointer data)
+{
+  GtkTreeView *treeview = GTK_TREE_VIEW (gtk_tree_view_column_get_tree_view (column));
+  GtkTreeModel *model = gtk_tree_view_get_model (treeview);
+  gboolean all_checked = TRUE;
+  GtkTreeIter iter;
+  gboolean save;
+
+  if (!gtk_tree_model_get_iter_first (model, &iter))
+    return;
+
+  do
+  {
+    gtk_tree_model_get (model, &iter,
+                        SAVE_COLUMN, &save,
+                        -1);
+    if (!save)
+    {
+      all_checked = FALSE;
+      break;
+    }
+  }
+  while (gtk_tree_model_iter_next (model, &iter));
+
+  gtk_tree_model_get_iter_first (model, &iter);
+
+  do
+  {
+    gtk_list_store_set (GTK_LIST_STORE (model), &iter,
+                        SAVE_COLUMN, !all_checked,
+                        -1);
+  }
+  while (gtk_tree_model_iter_next (model, &iter));
 }
 
 static void
