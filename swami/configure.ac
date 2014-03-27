@@ -243,7 +243,8 @@ AC_OUTPUT([
 	src/python/Makefile
 	po/Makefile.in
 	package/Makefile
-	package/osxbundle/Makefile])
+	package/osxbundle/Makefile
+	package/osxbundle/Info.plist])
 
 
 _SUMMARY_ENABLED=
