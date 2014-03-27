@@ -244,7 +244,7 @@ browse_file_chooser_response (GtkDialog *dialog, int response,
   GtkTreeIter iter;
   char *fname;
 
-  if (response == GTK_RESPONSE_CANCEL || response == GTK_RESPONSE_NONE)
+  if (response != GTK_RESPONSE_ACCEPT)
   {
     gtk_object_destroy (GTK_OBJECT (dialog));
     return;
@@ -396,7 +396,7 @@ multi_save_response (GtkDialog *dialog, int response, gpointer user_data)
   int result;
   gboolean close_ok;
 
-  if (response == GTK_RESPONSE_CANCEL || response == GTK_RESPONSE_NONE)
+  if (response != GTK_RESPONSE_ACCEPT)
   {
     gtk_object_destroy (GTK_OBJECT (dialog));
     return;
@@ -432,8 +432,7 @@ multi_save_response (GtkDialog *dialog, int response, gpointer user_data)
 	g_clear_error (&err);
 
 	result = gtk_dialog_run (GTK_DIALOG (msgdialog));
-	if (result != GTK_RESPONSE_NONE)
-	  gtk_widget_destroy (msgdialog);
+        gtk_widget_destroy (msgdialog);
 
 	if (result == GTK_RESPONSE_CANCEL)
 	{
@@ -457,8 +456,7 @@ multi_save_response (GtkDialog *dialog, int response, gpointer user_data)
 	g_clear_error (&err);
 
 	result = gtk_dialog_run (GTK_DIALOG (msgdialog));
-	if (result != GTK_RESPONSE_NONE)
-	  gtk_widget_destroy (msgdialog);
+        gtk_widget_destroy (msgdialog);
 
 	if (result == GTK_RESPONSE_CANCEL)
 	{
