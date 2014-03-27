@@ -49,6 +49,10 @@ static void save_toggled (GtkCellRendererToggle *cell, char *path_str,
 			  gpointer data);
 static void path_edited (GtkCellRendererText *cell, const char *path_string,
 			 const char *new_text, gpointer data);
+static gboolean
+swamigui_multi_save_treeview_query_tooltip (GtkWidget *widget,
+                                            gint x, gint y, gboolean keyboard_mode,
+                                            GtkTooltip *tooltip, gpointer user_data);
 static void multi_save_response (GtkDialog *dialog, int response,
 				 gpointer user_data);
 
@@ -77,7 +81,7 @@ swamigui_multi_save_init (SwamiguiMultiSave *multi)
   /* tool tips for dialog widgets */
   tooltips = gtk_tooltips_new ();
 
-  gtk_window_set_default_size (GTK_WINDOW (multi), 400, 300);
+  gtk_window_set_default_size (GTK_WINDOW (multi), 600, 300);
 
   hbox = gtk_hbox_new (FALSE, 8);
   gtk_box_pack_start (GTK_BOX (GTK_DIALOG (multi)->vbox), hbox, FALSE, FALSE, 8);
@@ -117,6 +121,9 @@ swamigui_multi_save_init (SwamiguiMultiSave *multi)
 				     IPATCH_TYPE_ITEM);
   /* tree view */
   multi->treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (multi->store));
+  gtk_widget_set_has_tooltip (multi->treeview, TRUE);
+  g_signal_connect (multi->treeview, "query-tooltip",
+                    G_CALLBACK (swamigui_multi_save_treeview_query_tooltip), multi);
   gtk_container_add (GTK_CONTAINER (multi->scroll_win), multi->treeview);
 
   renderer = gtk_cell_renderer_toggle_new ();
@@ -137,17 +144,33 @@ swamigui_multi_save_init (SwamiguiMultiSave *multi)
 			_("File changed since last save?"), NULL);
 
   renderer = gtk_cell_renderer_text_new ();
+  g_object_set (renderer,
+                "ellipsize", PANGO_ELLIPSIZE_END,
+                "ellipsize-set", TRUE,
+                NULL);
   column = gtk_tree_view_column_new_with_attributes ("Title", renderer,
 						     "text", TITLE_COLUMN,
 						     NULL);
+  g_object_set (column,
+                "resizable", TRUE,
+                "expand", TRUE,
+                NULL);
   gtk_tree_view_append_column (GTK_TREE_VIEW (multi->treeview), column);
 
   renderer = gtk_cell_renderer_text_new ();
-  g_object_set (renderer, "editable", TRUE, NULL);
+  g_object_set (renderer,
+                "editable", TRUE,
+                "ellipsize", PANGO_ELLIPSIZE_START,
+                "ellipsize-set", TRUE,
+                NULL);
   g_signal_connect (renderer, "edited", G_CALLBACK (path_edited), multi->store);
   column = gtk_tree_view_column_new_with_attributes ("Path", renderer,
 						     "text", PATH_COLUMN,
 						     NULL);
+  g_object_set (column,
+                "resizable", TRUE,
+                "expand", TRUE,
+                NULL);
   gtk_tree_view_append_column (GTK_TREE_VIEW (multi->treeview), column);
 
   gtk_widget_show_all (frame);
@@ -273,6 +296,49 @@ path_edited (GtkCellRendererText *cell, const char *path_string,
   gtk_tree_model_get_iter (model, &iter, path);
   gtk_list_store_set (GTK_LIST_STORE (model), &iter, PATH_COLUMN, new_text, -1);
   gtk_tree_path_free (path);
+}
+
+// Signal handler for query-tooltip on tree view
+static gboolean
+swamigui_multi_save_treeview_query_tooltip (GtkWidget *widget,
+                                            gint x, gint y, gboolean keyboard_mode,
+                                            GtkTooltip *tooltip, gpointer user_data)
+{
+  GtkTreeViewColumn *column;
+  GtkTreeModel *model;
+  GtkTreePath *path;
+  GtkTreeIter iter;
+  GList *list;
+  int colindex;
+  char *s;
+
+  if (!gtk_tree_view_get_tooltip_context (GTK_TREE_VIEW (widget), &x, &y,
+                                          keyboard_mode, &model, &path, &iter))
+    return (FALSE);
+
+  if (!gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (widget), x, y, NULL, &column, NULL, NULL))
+    return (FALSE);
+
+  list = gtk_tree_view_get_columns (GTK_TREE_VIEW (widget));    // ++ alloc list
+  colindex = g_list_index (list, column);
+  g_list_free (list);                                           // -- free list
+
+  if (colindex == 2)
+    gtk_tree_model_get (model, &iter,
+                        TITLE_COLUMN, &s,       // ++ alloc
+                        -1);
+  else if (colindex == 3)
+    gtk_tree_model_get (model, &iter,
+                        PATH_COLUMN, &s,        // ++ alloc
+                        -1);
+  else return (FALSE);
+
+  gtk_tooltip_set_text (tooltip, s);
+  g_free (s);           // -- free
+
+  gtk_tree_view_set_tooltip_cell (GTK_TREE_VIEW (widget), tooltip, path, column, NULL);
+
+  return (TRUE);
 }
 
 /* called when dialog response received (button clicked by user) */
