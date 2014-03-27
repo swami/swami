@@ -938,10 +938,8 @@ swamigui_root_quit (SwamiguiRoot *root)
 				  GTK_MESSAGE_QUESTION,
 				  GTK_BUTTONS_NONE, "%s", s);
   gtk_dialog_add_buttons (GTK_DIALOG (popup),
-			  GTK_STOCK_CANCEL,
-			  GTK_RESPONSE_CANCEL,
-			  GTK_STOCK_QUIT,
-			  GTK_RESPONSE_OK,
+			  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+			  GTK_STOCK_QUIT, GTK_RESPONSE_OK,
 			  NULL);
   g_signal_connect (popup, "response",
 		    G_CALLBACK (swamigui_cb_quit_response), root);

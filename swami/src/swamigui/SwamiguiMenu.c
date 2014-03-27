@@ -307,8 +307,8 @@ swamigui_menu_recent_chooser_item_activated (GtkRecentChooser *chooser,
 					fname, ipatch_gerror_message (err));
     g_clear_error (&err);
 
-    if (gtk_dialog_run (GTK_DIALOG (msgdialog)) != GTK_RESPONSE_NONE)
-      gtk_widget_destroy (msgdialog);
+    gtk_dialog_run (GTK_DIALOG (msgdialog));
+    gtk_widget_destroy (msgdialog);
   }
 
   g_free (fname);

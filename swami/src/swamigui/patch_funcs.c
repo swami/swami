@@ -156,10 +156,10 @@ swamigui_cb_load_files_response (GtkWidget *dialog, gint response,
   IpatchPaste *paste;
   IpatchList *biglist;
 
-  if (response == GTK_RESPONSE_CANCEL || response == GTK_RESPONSE_DELETE_EVENT)
+  if (response != GTK_RESPONSE_ACCEPT && response != GTK_RESPONSE_APPLY)
   {
     if (parent_hint) g_object_unref (parent_hint);
-    if (response == GTK_RESPONSE_CANCEL) gtk_widget_destroy (dialog);
+    gtk_widget_destroy (dialog);
     return;
   }
 
@@ -804,9 +804,9 @@ swamigui_cb_export_samples_response (GtkWidget *dialog, gint response,
   int format_value = IPATCH_SND_FILE_DEFAULT_FORMAT;
   GList *p;
 
-  if (response == GTK_RESPONSE_CANCEL || response == GTK_RESPONSE_DELETE_EVENT)
+  if (response != GTK_RESPONSE_ACCEPT)
     {
-      if (response == GTK_RESPONSE_CANCEL) gtk_widget_destroy (dialog);
+      gtk_widget_destroy (dialog);
       return;
     }
 
