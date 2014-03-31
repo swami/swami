@@ -600,6 +600,8 @@ ipatch_base_close (IpatchBase *base, GError **err)
 
   g_object_get (base, "file", &file, NULL);     // ++ ref file (if any)
 
+  ipatch_item_remove (IPATCH_ITEM (base));
+
   if (file && !ipatch_migrate_file_sample_data (file, NULL, NULL, 0, err))
   {
     g_object_unref (file);                      // -- unref file
@@ -607,7 +609,6 @@ ipatch_base_close (IpatchBase *base, GError **err)
   }
 
   g_object_unref (file);                        // -- unref file
-  ipatch_item_remove (IPATCH_ITEM (base));
 
   return (TRUE);
 }
