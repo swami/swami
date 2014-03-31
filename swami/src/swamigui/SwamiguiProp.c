@@ -368,6 +368,8 @@ swamigui_prop_real_set_selection (SwamiguiProp *prop, IpatchList *selection)
     if (!widg) selection = NULL;
   }
 
+  if (prop->selection) g_object_unref (prop->selection);        // -- unref old selection
+
   prop->selection = selection;
   if (prop->selection) g_object_ref (prop->selection); /* ++ reference selection */
 
