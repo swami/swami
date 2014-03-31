@@ -58,6 +58,7 @@ static void swamigui_item_menu_get_property (GObject *obj, guint property_id,
 
 static void swamigui_item_menu_init (SwamiguiItemMenu *menu);
 static void swamigui_item_menu_finalize (GObject *object);
+static void swamigui_item_menu_cb_deactivate (SwamiguiItemMenu *menu, gpointer user_data);
 static ActionBag *lookup_item_action_bag (const char *action_id);
 static void container_foreach_remove (GtkWidget *widg, gpointer data);
 static void make_action_list_GHFunc (gpointer key, gpointer value,
@@ -216,6 +217,9 @@ static void
 swamigui_item_menu_init (SwamiguiItemMenu *menu)
 {
   gtk_menu_set_accel_group (GTK_MENU (menu), swamigui_item_menu_accel_group);
+
+  g_signal_connect (menu, "deactivate", G_CALLBACK (swamigui_item_menu_cb_deactivate), NULL);
+  g_object_ref_sink (menu);     // HACK: This is used as a popup menu which gets destroyed in deactivate signal handler
 }
 
 static void
@@ -235,12 +239,19 @@ swamigui_item_menu_finalize (GObject *object)
     parent_class->finalize (object);
 }
 
+// HACK: Popup menus appear to leak with gtk_menu_popup, so we destroy it here
+static void
+swamigui_item_menu_cb_deactivate (SwamiguiItemMenu *menu, gpointer user_data)
+{
+  g_object_unref (menu);
+}
+
 /**
  * swamigui_item_menu_new:
  *
- * Create a new Swami tree store.
+ * Create a new Swami item menu.
  *
- * Returns: New Swami tree store object with a ref count of 1.
+ * Returns: New Swami item menu object with a ref count of 1.
  */
 SwamiguiItemMenu *
 swamigui_item_menu_new (void)
