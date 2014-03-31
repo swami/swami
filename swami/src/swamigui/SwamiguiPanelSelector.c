@@ -190,11 +190,8 @@ swamigui_panel_selector_finalize (GObject *object)
   SwamiguiPanelSelector *selector = SWAMIGUI_PANEL_SELECTOR (object);
 
   g_list_free (selector->active_panels);
-  selector->active_panels = NULL;
 
-  /* set to NULL selection to remove and cache all panels, free active_panels list,
-   * and free selection */
-  swamigui_panel_selector_real_set_selection (selector, NULL);
+  if (selector->selection) g_object_unref (selector->selection);
 
   if (G_OBJECT_CLASS (swamigui_panel_selector_parent_class)->finalize)
     G_OBJECT_CLASS (swamigui_panel_selector_parent_class)->finalize (object);
