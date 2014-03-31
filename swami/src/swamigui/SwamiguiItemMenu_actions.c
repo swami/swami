@@ -198,8 +198,15 @@ item_action_goto_link_handler (SwamiguiItemMenu *menu, const char *action_id)
   if (!list || !list->items || list->items->next) return;
 
   /* only makes sense to goto link if a tree is the origin of selection */
-  origin = swami_object_get_origin (G_OBJECT (list));
-  if (!origin || !SWAMIGUI_IS_TREE (origin)) return;
+  origin = swami_object_get_origin (G_OBJECT (list));   // ++ ref origin object
+
+  if (!origin || !SWAMIGUI_IS_TREE (origin))
+  {
+    if (origin) g_object_unref (origin);                // -- unref origin object
+    return;
+  }
+
+  g_object_unref (origin);                              // -- unref origin object
 
   item = (GObject *)(list->items->data);
 
@@ -360,9 +367,13 @@ item_cb_find_item (IpatchList *selection, gpointer data)
 {
   GObject *origin;
 
-  /* ++ ref origin object */
-  origin = swami_object_get_origin (G_OBJECT (selection));
-  if (!origin || !SWAMIGUI_IS_TREE (origin)) return;
+  origin = swami_object_get_origin (G_OBJECT (selection));      // ++ ref origin object
+
+  if (!origin || !SWAMIGUI_IS_TREE (origin))
+  {
+    if (origin) g_object_unref (origin);                        // -- unref origin object
+    return;
+  }
 
   swamigui_tree_search_set_visible (SWAMIGUI_TREE (origin), TRUE);
 
@@ -374,9 +385,13 @@ item_cb_find_next_item (IpatchList *selection, gpointer data)
 {
   GObject *origin;
 
-  /* ++ ref origin object */
-  origin = swami_object_get_origin (G_OBJECT (selection));
-  if (!origin || !SWAMIGUI_IS_TREE (origin)) return;
+  origin = swami_object_get_origin (G_OBJECT (selection));      // ++ ref origin object
+
+  if (!origin || !SWAMIGUI_IS_TREE (origin))
+  {
+    if (origin) g_object_unref (origin);                        // -- unref origin object
+    return;
+  }
 
   swamigui_tree_search_next (SWAMIGUI_TREE (origin));
 
@@ -390,9 +405,13 @@ item_cb_goto_link_item (IpatchList *selection, gpointer data)
 
   if (!selection->items || selection->items->next) return;
 
-  /* ++ ref origin object */
-  origin = swami_object_get_origin (G_OBJECT (selection));
-  if (!origin || !SWAMIGUI_IS_TREE (origin)) return;
+  origin = swami_object_get_origin (G_OBJECT (selection));      // ++ ref origin object
+
+  if (!origin || !SWAMIGUI_IS_TREE (origin))
+  {
+    if (origin) g_object_unref (origin);                        // -- unref origin object
+    return;
+  }
 
   swamigui_goto_link_item (IPATCH_ITEM (selection->items->data),
 			   SWAMIGUI_TREE (origin));
