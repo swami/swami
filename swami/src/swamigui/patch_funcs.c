@@ -353,6 +353,7 @@ swamigui_close_files (IpatchList *item_list)
   IpatchItem *item;
   gboolean patch_found = FALSE;
   gboolean changed;
+  GError *err = NULL;
 
   /* see if there are any patch items to close and if they have been changed */
   ipatch_list_init_iter (item_list, &iter);
@@ -373,11 +374,21 @@ swamigui_close_files (IpatchList *item_list)
   /* if no items changed, then go ahead and close files */
   if (!item)
     {
+      char *filename;
+
       item = ipatch_item_first (&iter);	/* re-use the same iterator */
       while (item)
 	{
 	  if (IPATCH_IS_BASE (item)) /* removing, closes patch */
-	    ipatch_item_remove (IPATCH_ITEM (item));
+          {
+	    if (!ipatch_base_close (IPATCH_BASE (item), &err))
+            {
+              g_object_get (item, "file-name", &filename, NULL);        // ++ alloc file name
+              g_warning (_("Failed to close '%s': %s"), filename, ipatch_gerror_message (err));
+              g_free (filename);        // -- free file name
+              g_clear_error (&err);
+            }
+          }
 
 	  item = ipatch_item_next (&iter);
 	}
