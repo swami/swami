@@ -30,6 +30,7 @@
 #include "SwamiguiControlAdj.h"
 #include "SwamiguiSpinScale.h"
 #include "SwamiguiNoteSelector.h"
+#include "SwamiguiComboEntry.h"
 #include "i18n.h"
 
 
@@ -163,7 +164,7 @@ _swamigui_control_widgets_init (void)
   swamigui_control_register (GTK_TYPE_ENTRY, G_TYPE_STRING,
 			     entry_control_handler,
 			     SWAMIGUI_CONTROL_RANK_HIGH);
-  swamigui_control_register (GTK_TYPE_COMBO_BOX_ENTRY, G_TYPE_STRING,
+  swamigui_control_register (SWAMIGUI_TYPE_COMBO_ENTRY, G_TYPE_STRING,
 			     combo_box_entry_control_handler,
 			     SWAMIGUI_CONTROL_RANK_LOW);
   swamigui_control_register (GTK_TYPE_TEXT_VIEW, G_TYPE_STRING,

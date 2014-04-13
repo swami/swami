@@ -57,8 +57,8 @@ struct _SwamiRoot
   char *patch_path;		/* default path to patch files */
   char *sample_path;		/* default path to sample files */
   char *sample_format;		/* default sample format string */
-  int swap_max_waste;		/* maximum sample swap waste in MB */
   int sample_max_size; /* max sample size in MB (until big samples handled) */
+  int swap_ram_size;            /* maximum size of RAM swap in MB */
 };
 
 struct _SwamiRootClass

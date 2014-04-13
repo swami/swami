@@ -25,6 +25,7 @@
 #include "SwamiguiControl.h"
 #include "SwamiguiRoot.h"
 #include "util.h"
+#include "icons.h"
 #include "i18n.h"
 
 /* columns for preference sections list store */
@@ -65,6 +66,7 @@ static void swamigui_pref_cb_close_clicked (GtkWidget *button, gpointer user_dat
 static void swamigui_pref_section_list_change (GtkTreeSelection *selection,
 					       gpointer user_data);
 static GtkWidget *general_prefs_handler (void);
+static GtkWidget *audio_samples_prefs_handler (void);
 static GtkWidget *keyboard_prefs_handler (void);
 static void keybindings_update (GtkWidget *prefwidg, gboolean lower);
 static void keybindings_set_bind_mode (GtkWidget *prefwidg, BindMode mode);
@@ -154,6 +156,8 @@ swamigui_pref_class_init (SwamiguiPrefClass *klass)
   /* Add built in preference sections */
   swamigui_register_pref_handler (_("General"), GTK_STOCK_PREFERENCES, 10,
 				  general_prefs_handler);
+  swamigui_register_pref_handler (_("Audio Samples"), SWAMIGUI_STOCK_SAMPLE_VIEWER, 15,
+				  audio_samples_prefs_handler);
   /* FIXME - Install a custom keyboard icon */
   swamigui_register_pref_handler (_("Keyboard Map"), GTK_STOCK_SELECT_FONT, 20,
 				  keyboard_prefs_handler);
@@ -285,6 +289,19 @@ general_prefs_handler (void)
   GtkWidget *widg;
 
   widg = swamigui_util_glade_create ("GeneralPrefs");
+  swamigui_control_glade_prop_connect (widg, G_OBJECT (swamigui_root));
+  gtk_widget_show (widg);
+
+  return (widg);
+}
+
+/* Audio Samples preferences widget handler */
+static GtkWidget *
+audio_samples_prefs_handler (void)
+{
+  GtkWidget *widg;
+
+  widg = swamigui_util_glade_create ("SamplePrefs");
   swamigui_control_glade_prop_connect (widg, G_OBJECT (swamigui_root));
   gtk_widget_show (widg);
 

@@ -286,6 +286,7 @@ swamigui_load_sample_helper (const char *fname, IpatchItem *parent_hint,
   IpatchFile *file;
   IpatchList *list;
   GList *lp;
+  int size, max_size;
   GError *err = NULL;
 
   *paste_possible = TRUE;
@@ -298,6 +299,24 @@ swamigui_load_sample_helper (const char *fname, IpatchItem *parent_hint,
                 ipatch_gerror_message (err));
     g_clear_error (&err);
     return (FALSE);
+  }
+
+  g_object_get (swami_root, "sample-max-size", &max_size, NULL);
+
+  if (max_size != 0)    // 0 means unlimited import size
+  {
+    size = ipatch_file_get_size (file, &err);
+
+    if (size == -1)
+    {
+      g_warning (_("Failed to get sample file '%s' size: %s"), fname, ipatch_gerror_message (err));
+      g_clear_error (&err);
+    }
+    else if (size > max_size * 1024 * 1024)
+    {
+      g_critical (_("Sample file '%s' of %d bytes exceeds max sample setting of %dMB"), fname, size, max_size);
+      return (FALSE);
+    }
   }
 
   /* determine if IpatchSampleFile can be pasted to destination.. */

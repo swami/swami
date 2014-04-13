@@ -38,6 +38,7 @@ set ( libswamigui_public_HEADERS
     SwamiguiBar.h
     SwamiguiBarPtr.h
     SwamiguiCanvasMod.h
+    SwamiguiComboEntry.h
     SwamiguiControl.h
     SwamiguiControlAdj.h
     SwamiguiControlMidiKey.h
@@ -81,6 +82,7 @@ set ( libswamigui_SOURCES
     SwamiguiBar.c
     SwamiguiBarPtr.c
     SwamiguiCanvasMod.c
+    SwamiguiComboEntry.c
     SwamiguiControl.c
     SwamiguiControl_widgets.c
     SwamiguiControlAdj.c
@@ -284,5 +286,6 @@ install ( TARGETS swami libswamigui
 )
 
 install ( FILES
-          swami-2.glade
+          swami-2.ui
           DESTINATION ${UIXML_DIR} )
+

@@ -33,13 +33,14 @@
 #include "SwamiObject.h"
 #include "i18n.h"
 
-/* Maximum swap file waste in megabytes (not yet used) */
-#define DEFAULT_SWAP_MAX_WASTE	64
+#define DEFAULT_SWAP_MAX_WASTE	64      // Maximum swap file waste in megabytes
+#define DEFAULT_SWAP_RAM_SIZE   32      // Size of RAM sample swap in megabytes
 
 /* Maximum sample size to import in megabytes
  * (To prevent "O crap, I didn't mean to load that one!") */
 #define DEFAULT_SAMPLE_MAX_SIZE	32
 
+#define SWAP_MAX_WASTE_INTERVAL 10      // Swap max waste check interval in seconds
 
 /* Swami root object properties */
 enum
@@ -50,6 +51,7 @@ enum
   PROP_SAMPLE_PATH,
   PROP_SAMPLE_FORMAT,
   PROP_SWAP_MAX_WASTE,
+  PROP_SWAP_RAM_SIZE,
   PROP_SAMPLE_MAX_SIZE,
   PROP_PATCH_ROOT
 };
@@ -64,6 +66,7 @@ enum
 
 /* --- private function prototypes --- */
 
+static gboolean swami_root_swap_waste_check (gpointer user_data);
 static void swami_root_set_property (GObject *object, guint property_id,
 				     const GValue *value, GParamSpec *pspec);
 static void swami_root_get_property (GObject *object, guint property_id,
@@ -74,6 +77,8 @@ guint root_signals[LAST_SIGNAL] = { 0 };
 
 
 G_DEFINE_TYPE (SwamiRoot, swami_root, SWAMI_TYPE_LOCK);
+
+static int swami_root_max_waste = DEFAULT_SWAP_MAX_WASTE;
 
 
 static void
@@ -124,16 +129,41 @@ swami_root_class_init (SwamiRootClass *klass)
 		g_param_spec_int ("swap-max-waste",
 				  N_("Swap max waste"),
 				  N_("Max waste of sample swap in megabytes"),
-				  1, G_MAXINT, DEFAULT_SWAP_MAX_WASTE, G_PARAM_READWRITE));
+				  0, G_MAXINT, DEFAULT_SWAP_MAX_WASTE, G_PARAM_READWRITE));
+  g_object_class_install_property (obj_class, PROP_SWAP_RAM_SIZE,
+		g_param_spec_int ("swap-ram-size",
+				  N_("Swap RAM size"),
+				  N_("Size of RAM sample swap in megabytes"),
+				  0, G_MAXINT, DEFAULT_SWAP_RAM_SIZE, G_PARAM_READWRITE));
   g_object_class_install_property (obj_class, PROP_SAMPLE_MAX_SIZE,
 		g_param_spec_int ("sample-max-size",
 				  N_("Sample max size"),
 				  N_("Max sample size in megabytes"),
-				  1, G_MAXINT, DEFAULT_SAMPLE_MAX_SIZE, G_PARAM_READWRITE));
+				  0, G_MAXINT, DEFAULT_SAMPLE_MAX_SIZE, G_PARAM_READWRITE));
   g_object_class_install_property (obj_class, PROP_PATCH_ROOT,
 		g_param_spec_object ("patch-root", N_("Patch root"),
 				     N_("Root container of instrument patch tree"),
 				     SWAMI_TYPE_CONTAINER, G_PARAM_READABLE | IPATCH_PARAM_NO_SAVE));
+
+  g_timeout_add_seconds (SWAP_MAX_WASTE_INTERVAL, swami_root_swap_waste_check, NULL);
+}
+
+/* Periodically check if max swap waste has been exceeded and compact swap if it has */
+static gboolean
+swami_root_swap_waste_check (gpointer user_data)
+{
+  GError *err = NULL;
+
+  if (ipatch_sample_store_get_swap_unused_size () > swami_root_max_waste)
+  {
+    if (!ipatch_sample_store_compact_swap (&err))
+    {
+      g_warning (_("Error compacting swap file: %s"), ipatch_gerror_message (err));
+      g_clear_error (&err);
+    }
+  }
+
+  return (TRUE);
 }
 
 static void
@@ -161,7 +191,11 @@ swami_root_set_property (GObject *object, guint property_id,
       root->sample_format = g_value_dup_string (value);
       break;
     case PROP_SWAP_MAX_WASTE:
-      root->swap_max_waste = g_value_get_int (value);
+      swami_root_max_waste = g_value_get_int (value);
+      break;
+    case PROP_SWAP_RAM_SIZE:
+      root->swap_ram_size = g_value_get_int (value);
+      ipatch_sample_store_set_swap_max_memory (root->swap_ram_size);
       break;
     case PROP_SAMPLE_MAX_SIZE:
       root->sample_max_size = g_value_get_int (value);
@@ -193,7 +227,10 @@ swami_root_get_property (GObject *object, guint property_id,
       g_value_set_string (value, root->sample_format);
       break;
     case PROP_SWAP_MAX_WASTE:
-      g_value_set_int (value, root->swap_max_waste);
+      g_value_set_int (value, swami_root_max_waste);
+      break;
+    case PROP_SWAP_RAM_SIZE:
+      g_value_set_int (value, root->swap_ram_size);
       break;
     case PROP_SAMPLE_MAX_SIZE:
       g_value_set_int (value, root->sample_max_size);
@@ -210,7 +247,7 @@ swami_root_get_property (GObject *object, guint property_id,
 static void
 swami_root_init (SwamiRoot *root)
 {
-  root->swap_max_waste = DEFAULT_SWAP_MAX_WASTE;
+  root->swap_ram_size = DEFAULT_SWAP_RAM_SIZE;
   root->sample_max_size = DEFAULT_SAMPLE_MAX_SIZE;
   root->patch_root = swami_container_new ();
   root->patch_root->root = root;
@@ -221,6 +258,8 @@ swami_root_init (SwamiRoot *root)
 			 IPATCH_ITEM_HOOKS_ACTIVE);
   root->proptree = swami_prop_tree_new (); /* ++ ref property tree */
   swami_prop_tree_set_root (root->proptree, G_OBJECT (root));
+
+  ipatch_sample_store_set_swap_max_memory (root->swap_ram_size);
 }
 
 static void
