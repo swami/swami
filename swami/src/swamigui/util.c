@@ -32,6 +32,7 @@
 #include <libinstpatch/libinstpatch.h>
 
 #include "util.h"
+#include "SwamiguiRoot.h"
 #include "i18n.h"
 
 #ifdef __APPLE__
@@ -179,6 +180,8 @@ swamigui_util_register_unique_dialog (GtkWidget *dialog, gchar *strkey,
       gtk_widget_activate (widg);
       return (FALSE);
     }
+
+  gtk_window_set_transient_for (GTK_WINDOW (dialog), GTK_WINDOW (swamigui_root->main_window));
 
   udkey.dialog = dialog;
   udkey.strkey = strkey;
