@@ -78,7 +78,7 @@ guint root_signals[LAST_SIGNAL] = { 0 };
 
 G_DEFINE_TYPE (SwamiRoot, swami_root, SWAMI_TYPE_LOCK);
 
-static int swami_root_max_waste = DEFAULT_SWAP_MAX_WASTE;
+static int swami_root_swap_max_waste = DEFAULT_SWAP_MAX_WASTE;
 
 
 static void
@@ -154,7 +154,7 @@ swami_root_swap_waste_check (gpointer user_data)
 {
   GError *err = NULL;
 
-  if (ipatch_sample_store_get_swap_unused_size () > swami_root_max_waste)
+  if (ipatch_sample_store_get_swap_unused_size () > swami_root_swap_max_waste * 1024 * 1024)
   {
     if (!ipatch_sample_store_compact_swap (&err))
     {
@@ -191,11 +191,11 @@ swami_root_set_property (GObject *object, guint property_id,
       root->sample_format = g_value_dup_string (value);
       break;
     case PROP_SWAP_MAX_WASTE:
-      swami_root_max_waste = g_value_get_int (value);
+      swami_root_swap_max_waste = g_value_get_int (value);
       break;
     case PROP_SWAP_RAM_SIZE:
       root->swap_ram_size = g_value_get_int (value);
-      ipatch_sample_store_set_swap_max_memory (root->swap_ram_size);
+      ipatch_sample_store_set_swap_max_memory (root->swap_ram_size * 1024 * 1024);
       break;
     case PROP_SAMPLE_MAX_SIZE:
       root->sample_max_size = g_value_get_int (value);
@@ -227,7 +227,7 @@ swami_root_get_property (GObject *object, guint property_id,
       g_value_set_string (value, root->sample_format);
       break;
     case PROP_SWAP_MAX_WASTE:
-      g_value_set_int (value, swami_root_max_waste);
+      g_value_set_int (value, swami_root_swap_max_waste);
       break;
     case PROP_SWAP_RAM_SIZE:
       g_value_set_int (value, root->swap_ram_size);
@@ -259,7 +259,7 @@ swami_root_init (SwamiRoot *root)
   root->proptree = swami_prop_tree_new (); /* ++ ref property tree */
   swami_prop_tree_set_root (root->proptree, G_OBJECT (root));
 
-  ipatch_sample_store_set_swap_max_memory (root->swap_ram_size);
+  ipatch_sample_store_set_swap_max_memory (root->swap_ram_size * 1024 * 1024);
 }
 
 static void
