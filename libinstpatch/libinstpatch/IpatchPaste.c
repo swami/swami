@@ -1191,8 +1191,8 @@ ipatch_paste_default_exec_func (IpatchPaste *paste, IpatchItem *dest,
   g_return_val_if_fail (IPATCH_IS_ITEM (dest), FALSE);
   g_return_val_if_fail (!err || !*err, FALSE);
 
-  src_base = ipatch_item_get_base (src);
-  dest_base = ipatch_item_get_base (dest);
+  src_base = ipatch_item_get_base (src);        // ++ ref
+  dest_base = ipatch_item_get_base (dest);      // ++ ref
   src_type = G_OBJECT_TYPE (src);
 
   /* destination is a container? */
@@ -1214,7 +1214,7 @@ ipatch_paste_default_exec_func (IpatchPaste *paste, IpatchItem *dest,
 	  else	/* deep duplicate the object and add to the paste instance */
 	    ipatch_paste_object_add_duplicate_deep (paste, src,
 						    IPATCH_CONTAINER (dest));
-	  return (TRUE);
+	  goto ret_ok;
 	}
 
       /* src is a link type of any of container's children types? */
@@ -1246,7 +1246,7 @@ ipatch_paste_default_exec_func (IpatchPaste *paste, IpatchItem *dest,
     
 	  g_object_unref (newchild);	/* -- unref creator's ref */
     
-	  return (TRUE);	/* paste was handled */
+	  goto ret_ok;	/* paste was handled */
 	}    
     }
   else if (IPATCH_IS_VIRTUAL_CONTAINER (dest))	/* dest is a virtual container? */
@@ -1273,7 +1273,7 @@ ipatch_paste_default_exec_func (IpatchPaste *paste, IpatchItem *dest,
 
 	  if (conform_func) conform_func (G_OBJECT (dup));
 
-	  return (TRUE);	/* paste was handled */
+	  goto ret_ok;	/* paste was handled */
 	}
 
       /* can it be pasted into the child type recursively? */
@@ -1288,7 +1288,7 @@ ipatch_paste_default_exec_func (IpatchPaste *paste, IpatchItem *dest,
 	if (!ipatch_simple_paste(newchild, src, err))
 	{
 	  g_object_unref (newchild);	/* -- unref creator's ref */
-	  return (FALSE);	/* paste not handled */
+	  goto ret_err;	/* paste not handled */
 	}
 
 	/* Inherit title of the new item from the pasted one */
@@ -1302,7 +1302,7 @@ ipatch_paste_default_exec_func (IpatchPaste *paste, IpatchItem *dest,
 	ipatch_paste_object_add (paste, IPATCH_ITEM (newchild),
 				 IPATCH_CONTAINER (dest_base), NULL);
 	g_object_unref (newchild);	/* -- unref creator's ref */
-	return (TRUE);	/* paste was handled */
+	goto ret_ok;	/* paste was handled */
       }
       g_object_unref (newchild);	/* -- unref creator's ref */
     }
@@ -1324,7 +1324,7 @@ ipatch_paste_default_exec_func (IpatchPaste *paste, IpatchItem *dest,
       /* add the link operation */
       ipatch_paste_object_link (paste, dest, link);
 
-      return (TRUE);	/* we done */
+      goto ret_ok;	/* we done */
     }
 
 
@@ -1349,8 +1349,12 @@ ipatch_paste_default_exec_func (IpatchPaste *paste, IpatchItem *dest,
 	}
 
       if (matchinfo)	/* found a converter match? */
-        return (ipatch_paste_object_add_convert (paste, matchinfo->conv_type, src,
-						 IPATCH_CONTAINER (dest), NULL, err));
+      {
+        if (ipatch_paste_object_add_convert (paste, matchinfo->conv_type, src,
+                                             IPATCH_CONTAINER (dest), NULL, err))
+          goto ret_ok;
+        else goto ret_err;
+      }
 
       /* can src be converted to a container's child link type? */
       for (ptype = child_types; *ptype; ptype++)
@@ -1373,7 +1377,7 @@ ipatch_paste_default_exec_func (IpatchPaste *paste, IpatchItem *dest,
 	  if (!ipatch_paste_object_add_convert (paste, matchinfo->conv_type,
 				                src, IPATCH_CONTAINER (dest_base),
                                                 &list, err))    /* ++ ref list */
-            return (FALSE);
+            goto ret_err;
 
 	  newchild = g_object_new (*ptype, NULL);  /* ++ ref new child object */
 	  if (!newchild)
@@ -1394,7 +1398,7 @@ ipatch_paste_default_exec_func (IpatchPaste *paste, IpatchItem *dest,
 	  g_object_unref (newchild);	/* -- unref creator's ref */
           g_object_unref (list);    /* -- unref list */
 
-	  return (TRUE);	/* paste was handled */
+	  goto ret_ok;	/* paste was handled */
 	}    
     }
   else if (IPATCH_IS_VIRTUAL_CONTAINER (dest))	/* dest is a virtual container? */
@@ -1414,13 +1418,13 @@ ipatch_paste_default_exec_func (IpatchPaste *paste, IpatchItem *dest,
       if (!ipatch_paste_object_add_convert (paste, convinfo->conv_type, src,
 				            IPATCH_CONTAINER (dest_base),
                                             &list, err))     /* ++ ref list */
-        return (FALSE);
+        goto ret_err;
 
       if (conform_func) conform_func (G_OBJECT (list->items->data));
 
       g_object_unref (list);          /* -- unref list */
 
-      return (TRUE);	/* paste was handled */
+      goto ret_ok;	/* paste was handled */
     }
   else	/* dest is not a container - can convert src to link type of dest? */
     {
@@ -1437,19 +1441,30 @@ ipatch_paste_default_exec_func (IpatchPaste *paste, IpatchItem *dest,
       if (!ipatch_paste_object_add_convert (paste, convinfo->conv_type,
                                             src, IPATCH_CONTAINER (dest_base),
                                             &list, err))      /* ++ ref list */
-        return (FALSE);
+        goto ret_err;
 
       /* add the link operation */
       ipatch_paste_object_link (paste, dest, IPATCH_ITEM (list->items->data));
 
       g_object_unref (list);          /* -- unref list */
 
-      return (TRUE);	/* we done */
+      goto ret_ok;	/* we done */
     }
 
  not_handled:
   g_set_error (err, IPATCH_ERROR, IPATCH_ERROR_UNHANDLED_CONVERSION,
 	       _("Unhandled paste operation type '%s' => '%s'"),
 	       G_OBJECT_TYPE_NAME (src), G_OBJECT_TYPE_NAME (dest));
+  // Fall through
+
+ ret_err:
+  if (src_base) g_object_unref (src_base);      // -- unref
+  if (dest_base) g_object_unref (dest_base);    // -- unref
   return (FALSE);
+
+ ret_ok:
+  if (src_base) g_object_unref (src_base);      // -- unref
+  if (dest_base) g_object_unref (dest_base);    // -- unref
+  return (TRUE);
 }
+
