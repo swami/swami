@@ -85,13 +85,13 @@ struct _IpatchSampleStoreSwapClass
   (IPATCH_SAMPLE_STORE_UNUSED_FLAG_SHIFT + 1)
 
 GType ipatch_sample_store_swap_get_type (void);
-void ipatch_sample_store_set_swap_file_name (const char *filename);
-char *ipatch_sample_store_get_swap_file_name (void);
+void ipatch_set_sample_store_swap_file_name (const char *filename);
+char *ipatch_get_sample_store_swap_file_name (void);
 IpatchSample *ipatch_sample_store_swap_new (void);
-int ipatch_sample_store_get_swap_unused_size (void);
-void ipatch_sample_store_set_swap_max_memory (int size);
-int ipatch_sample_store_get_swap_max_memory (void);
-gboolean ipatch_sample_store_compact_swap (GError **err);
+int ipatch_get_sample_store_swap_unused_size (void);
+void ipatch_set_sample_store_swap_max_memory (int size);
+int ipatch_get_sample_store_swap_max_memory (void);
+gboolean ipatch_compact_sample_store_swap (GError **err);
 
 #endif
 

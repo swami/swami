@@ -450,14 +450,16 @@ ipatch_sample_store_swap_finalize (GObject *gobject)
 }
 
 /**
- * ipatch_sample_store_set_swap_file_name:
+ * ipatch_set_sample_store_swap_file_name:
  * @filename: File name to use for sample swap disk file
  *
  * Set name of sample swap storage file on disk.  Can only be assigned prior to
  * any #IpatchSampleStoreSwap objects being created, after which it has no effect.
+ *
+ * Since: 1.1.0
  */
 void
-ipatch_sample_store_set_swap_file_name (const char *filename)
+ipatch_set_sample_store_swap_file_name (const char *filename)
 {
   g_return_if_fail (filename != NULL);
   g_return_if_fail (swap_file_name == NULL);
@@ -466,14 +468,16 @@ ipatch_sample_store_set_swap_file_name (const char *filename)
 }
 
 /**
- * ipatch_sample_store_get_swap_file_name:
+ * ipatch_get_sample_store_swap_file_name:
  *
  * Get name of sample swap storage file on disk.
  *
  * Returns: Newly allocated sample store swap file name or %NULL
+ *
+ * Since: 1.1.0
  */
 char *
-ipatch_sample_store_get_swap_file_name (void)
+ipatch_get_sample_store_swap_file_name (void)
 {
   return (g_strdup (swap_file_name));   // !! allocate for caller
 }
@@ -492,41 +496,47 @@ ipatch_sample_store_swap_new (void)
 }
 
 /**
- * ipatch_sample_store_get_swap_unused_size:
+ * ipatch_get_sample_store_swap_unused_size:
  *
  * Get amount of unused space in the swap file.
  *
  * Returns: Amount of unused data in bytes
+ *
+ * Since: 1.1.0
  */
 int
-ipatch_sample_store_get_swap_unused_size (void)
+ipatch_get_sample_store_swap_unused_size (void)
 {
   return (g_atomic_int_get (&swap_unused_size));
 }
 
 /**
- * ipatch_sample_store_set_swap_max_memory:
+ * ipatch_set_sample_store_swap_max_memory:
  * @size: Maximum amount of RAM to use for swap sample stores (-1 for unlimited)
  *
  * Set maximum RAM memory size to use for samples in swap.  Using RAM increases
  * performance, at the expense of memory use.  Once max RAM usage is exceeded
  * samples will be allocated in sample swap file on disk.
+ *
+ * Since: 1.1.0
  */
 void
-ipatch_sample_store_set_swap_max_memory (int size)
+ipatch_set_sample_store_swap_max_memory (int size)
 {
   g_atomic_int_set (&swap_ram_max, size);
 }
 
 /**
- * ipatch_sample_store_get_swap_max_memory:
+ * ipatch_get_sample_store_swap_max_memory:
  *
  * Get maximum RAM memory size to use for samples in swap.
  *
  * Returns: Max sample store swap RAM memory size.
+ *
+ * Since: 1.1.0
  */
 int
-ipatch_sample_store_get_swap_max_memory (void)
+ipatch_get_sample_store_swap_max_memory (void)
 {
   return (g_atomic_int_get (&swap_ram_max));
 }
@@ -537,7 +547,7 @@ ipatch_sample_store_get_swap_max_memory (void)
  *
  * Compact the sample store swap file by re-writing it to a new file
  * and creating new sample stores to replace the old ones.  This should be
- * done when the unused size (ipatch_sample_store_swap_get_unused_size())
+ * done when the unused size (ipatch_get_sample_store_swap_unused_size())
  * exceeds a certain amount.  This occurs when sample stores in the swap file
  * are no longer used, leaving gaps of unused data.  If there is no unused data
  * then nothing is done.
@@ -545,9 +555,11 @@ ipatch_sample_store_get_swap_max_memory (void)
  * which may cause simultaneous sample operations on swap samples to be delayed.
  *
  * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set)
+ *
+ * Since: 1.1.0
  */
 gboolean
-ipatch_sample_store_compact_swap (GError **err)
+ipatch_compact_sample_store_swap (GError **err)
 {
   IpatchSampleStoreSwap *store;
   guint8 *buf;
@@ -563,7 +575,7 @@ ipatch_sample_store_compact_swap (GError **err)
   g_return_val_if_fail (!err || !*err, FALSE);
 
   // No unused data? - Return success
-  if (ipatch_sample_store_get_swap_unused_size () == 0)
+  if (ipatch_get_sample_store_swap_unused_size () == 0)
     return (TRUE);
 
   // Create new swap file to copy existing disk samples to

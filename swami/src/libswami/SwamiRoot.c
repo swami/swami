@@ -154,9 +154,9 @@ swami_root_swap_waste_check (gpointer user_data)
 {
   GError *err = NULL;
 
-  if (ipatch_sample_store_get_swap_unused_size () > swami_root_swap_max_waste * 1024 * 1024)
+  if (ipatch_get_sample_store_swap_unused_size () > swami_root_swap_max_waste * 1024 * 1024)
   {
-    if (!ipatch_sample_store_compact_swap (&err))
+    if (!ipatch_compact_sample_store_swap (&err))
     {
       g_warning (_("Error compacting swap file: %s"), ipatch_gerror_message (err));
       g_clear_error (&err);
@@ -195,7 +195,7 @@ swami_root_set_property (GObject *object, guint property_id,
       break;
     case PROP_SWAP_RAM_SIZE:
       root->swap_ram_size = g_value_get_int (value);
-      ipatch_sample_store_set_swap_max_memory (root->swap_ram_size * 1024 * 1024);
+      ipatch_set_sample_store_swap_max_memory (root->swap_ram_size * 1024 * 1024);
       break;
     case PROP_SAMPLE_MAX_SIZE:
       root->sample_max_size = g_value_get_int (value);
@@ -259,7 +259,7 @@ swami_root_init (SwamiRoot *root)
   root->proptree = swami_prop_tree_new (); /* ++ ref property tree */
   swami_prop_tree_set_root (root->proptree, G_OBJECT (root));
 
-  ipatch_sample_store_set_swap_max_memory (root->swap_ram_size * 1024 * 1024);
+  ipatch_set_sample_store_swap_max_memory (root->swap_ram_size * 1024 * 1024);
 }
 
 static void
