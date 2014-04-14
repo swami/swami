@@ -129,6 +129,15 @@ ipatch_file_handle_free (IpatchFileHandle *handle)
   g_slice_free (IpatchFileHandle, handle);
 }
 
+/**
+ * ipatch_file_handle_get_type:
+ *
+ * Get boxed type for #IpatchFileHandle
+ *
+ * Returns: Boxed type for file handle.
+ *
+ * Since: 1.1.0
+ */
 GType
 ipatch_file_handle_get_type (void)
 {
@@ -264,6 +273,8 @@ ipatch_file_new (void)
  * Lookup existing file object from file pool by file name or create a new one if not open.
  *
  * Returns: File object with the assigned @file_name and an added reference which the caller owns
+ *
+ * Since: 1.1.0
  */
 IpatchFile *
 ipatch_file_pool_new (const char *file_name, gboolean *created)
@@ -347,6 +358,8 @@ ipatch_file_pool_new (const char *file_name, gboolean *created)
  *
  * Returns: Matching file object with a reference that the caller owns
  *   or %NULL if not found
+ *
+ * Since: 1.1.0
  */
 IpatchFile *
 ipatch_file_pool_lookup (const char *file_name)
@@ -380,6 +393,8 @@ ipatch_file_pool_lookup (const char *file_name)
  * the reference, although the registration will be removed regardless at some
  * point if @object gets destroyed and ipatch_file_get_refs() or
  * ipatch_file_get_refs_by_type() is called.
+ *
+ * Since: 1.1.0
  */
 void
 ipatch_file_ref_from_object (IpatchFile *file, GObject *object)
@@ -407,6 +422,8 @@ ipatch_file_ref_from_object (IpatchFile *file, GObject *object)
  * Remove a reference previously registered with ipatch_file_ref_from_object().
  * This will get done eventually if @object gets destroyed and ipatch_file_get_refs()
  * or ipatch_file_get_refs_by_type() is called, however.
+ *
+ * Since: 1.1.0
  */
 void
 ipatch_file_unref_from_object (IpatchFile *file, GObject *object)
@@ -430,6 +447,8 @@ ipatch_file_unref_from_object (IpatchFile *file, GObject *object)
  * referenced with ipatch_file_ref_from_object().
  *
  * Returns: %TRUE if @object references @file, %FALSE otherwise
+ *
+ * Since: 1.1.0
  */
 gboolean
 ipatch_file_test_ref_object (IpatchFile *file, GObject *object)
@@ -456,6 +475,8 @@ ipatch_file_test_ref_object (IpatchFile *file, GObject *object)
  *
  * Returns: New object list which caller owns a reference to,
  *   unreference when finished using it.
+ *
+ * Since: 1.1.0
  */
 IpatchList *
 ipatch_file_get_refs (IpatchFile *file)
@@ -474,6 +495,8 @@ ipatch_file_get_refs (IpatchFile *file)
  *
  * Returns: New object list which caller owns a reference to,
  *   unreference when finished using it.
+ *
+ * Since: 1.1.0
  */
 IpatchList *
 ipatch_file_get_refs_by_type (IpatchFile *file, GType type)
@@ -583,6 +606,8 @@ ipatch_file_get_name (IpatchFile *file)
  * any file object.
  *
  * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set)
+ *
+ * Since: 1.1.0
  */
 gboolean
 ipatch_file_rename (IpatchFile *file, const char *new_name, GError **err)
@@ -662,6 +687,8 @@ error:
  * The file object will remain alive, but the underlying file will be unlinked.
  *
  * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set)
+ *
+ * Since: 1.1.0
  */
 gboolean
 ipatch_file_unlink (IpatchFile *file, GError **err)
@@ -717,6 +744,8 @@ error:
  * loss of @oldfile data.
  *
  * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set)
+ *
+ * Since: 1.1.0
  */
 gboolean
 ipatch_file_replace (IpatchFile *newfile, IpatchFile *oldfile, GError **err)

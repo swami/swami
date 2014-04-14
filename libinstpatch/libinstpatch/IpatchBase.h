@@ -94,6 +94,8 @@ struct _IpatchBaseClass
 /**
  * IpatchBaseSaveFlags:
  * @IPATCH_BASE_SAVE_A_COPY: Save a copy of the file, but don't assign new file to it.
+ *
+ * Since: 1.1.0
  */
 typedef enum
 {

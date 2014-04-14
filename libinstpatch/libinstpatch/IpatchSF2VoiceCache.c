@@ -214,6 +214,8 @@ ipatch_sf2_voice_cache_set_default_mods (IpatchSF2VoiceCache *cache,
  *
  * Set the override modulator list for the voice cache.  Modulator list is used
  * directly and the allocation of the list is taken over by the voice cache.
+ *
+ * Since: 1.1.0
  */
 void
 ipatch_sf2_voice_cache_set_override_mods (IpatchSF2VoiceCache *cache,

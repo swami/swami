@@ -422,6 +422,8 @@ remove_created_stores (gpointer data, gpointer user_data)
  * #IPATCH_BASE_SAVE_A_COPY flag is passed in @flags.
  *
  * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set)
+ *
+ * Since: 1.1.0
  */
 gboolean
 ipatch_base_save (IpatchBase *base, const char *filename, int flags, GError **err)
@@ -589,6 +591,8 @@ error:
  * Close a base instrument object (using ipatch_item_remove()), migrating sample data as needed.
  *
  * Returns: TRUE on success, FALSE otherwise (in which case @err may be set)
+ *
+ * Since: 1.1.0
  */
 gboolean
 ipatch_base_close (IpatchBase *base, GError **err)

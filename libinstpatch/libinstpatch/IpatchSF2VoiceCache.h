@@ -97,8 +97,8 @@ struct _IpatchSF2VoiceCache
   GDestroyNotify user_data_destroy; /* Optional callback to destroy user_data */
   GDestroyNotify voice_user_data_destroy; /* Optional callback to destroy user_data in each voice */
 
-  /* Added with version 1.2.0 */
-  GSList *override_mods;        /* override modulators (added with libInstPatch version 1.2.0) */
+  /* Added with version 1.1.0 */
+  GSList *override_mods;        /* override modulators (added with libInstPatch version 1.1.0) */
 };
 
 struct _IpatchSF2VoiceCacheClass

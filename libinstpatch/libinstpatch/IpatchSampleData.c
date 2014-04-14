@@ -95,6 +95,8 @@ G_DEFINE_TYPE_WITH_CODE (IpatchSampleData, ipatch_sample_data, IPATCH_TYPE_ITEM,
  * Returns: New object list populated with all #IpatchSampleData objects
  * with a reference count of 1 which the caller owns, removing the reference
  * will free the list.
+ *
+ * Since: 1.1.0
  */
 IpatchList *
 ipatch_get_sample_data_list (void)
@@ -170,6 +172,8 @@ remove_stores (gpointer key, gpointer value, gpointer user_data)
  * being re-added.
  *
  * Returns: %TRUE on succcess, %FALSE otherwise (in which case @err may be set)
+ *
+ * Since: 1.1.0
  */
 gboolean
 ipatch_migrate_file_sample_data (IpatchFile *oldfile, IpatchFile *newfile, const char *filename,

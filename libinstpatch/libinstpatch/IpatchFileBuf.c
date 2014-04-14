@@ -404,7 +404,7 @@ ipatch_file_buf_read (IpatchFileHandle *handle, gpointer buf, guint size)
  * @size: Amount of data to copy in bytes
  *
  * Write data to a file handle's buffer and advance the buffer's current
- * position. Buffer is expanded if necessary.
+ * position. Buffer is expanded if necessary (since version 1.1.0).
  * Data will not actually be written to file till ipatch_file_buf_commit() is
  * called.
  */
@@ -457,6 +457,8 @@ ipatch_file_buf_memset (IpatchFileHandle *handle, char c, guint size)
  * as necessary discarding any content over the new size. The current position
  * is updated to point to the end of the buffer if it would point outside the
  * new size of the buffer after truncating it.
+ *
+ * Since: 1.1.0
  */
 void
 ipatch_file_buf_set_size (IpatchFileHandle *handle, guint size)

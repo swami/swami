@@ -81,6 +81,8 @@ struct _IpatchSampleDataClass
  * @IPATCH_SAMPLE_DATA_MIGRATE_LEAVE_IN_SWAP: Leave native samples in #IpatchSampleData objects in swap, even if present in
  *   newfile, default is to migrate samples out of swap in preference for newfile.
  * @IPATCH_SAMPLE_DATA_MIGRATE_REPLACE: Replace oldfile with newfile (has no effect if newfile is %NULL)
+ *
+ * Since: 1.1.0
  */
 typedef enum
 {

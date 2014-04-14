@@ -314,6 +314,8 @@ ipatch_sf2_writer_save (IpatchSF2Writer *writer, GError **err)
  * This function can be called multiple times, additional calls will return the same list.
  *
  * Returns: List of sample stores which the caller owns a reference to or %NULL
+ *
+ * Since: 1.1.0
  */
 IpatchList *
 ipatch_sf2_writer_create_stores (IpatchSF2Writer *writer)

@@ -184,6 +184,8 @@ ipatch_util_file_size (const char *fname, GError **err)
  *
  * Returns: Newly allocated filename, converted to an absolute filename (if necessary)
  *   or NULL if @filename was NULL
+ *
+ * Since: 1.1.0
  */
 char *
 ipatch_util_abs_filename (const char *filename)
@@ -208,6 +210,8 @@ ipatch_util_abs_filename (const char *filename)
  *
  * A GDestroyNotify function for freeing a slice allocated
  * GWeakRef.
+ *
+ * Since: 1.1.0
  */
 void
 ipatch_util_weakref_destroy (gpointer value)
