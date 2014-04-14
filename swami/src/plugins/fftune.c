@@ -268,7 +268,7 @@ fftune_spectra_finalize (GObject *object)
 {
   FFTuneSpectra *spectra = FFTUNE_SPECTRA (object);
 
-  if (spectra->spectrum) fftw_free (spectra->spectrum);
+  if (spectra->spectrum) fftwf_free (spectra->spectrum);
   if (spectra->sample) g_object_unref (spectra->sample);
   if (spectra->tunevals) 
     g_free (spectra->tunevals);
