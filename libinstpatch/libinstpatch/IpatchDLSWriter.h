@@ -32,6 +32,7 @@
 #include <libinstpatch/IpatchDLSFile.h>
 #include <libinstpatch/IpatchRiff.h>
 #include <libinstpatch/IpatchDLS2.h>
+#include <libinstpatch/IpatchList.h>
 
 typedef struct _IpatchDLSWriter IpatchDLSWriter; /* private structure */
 typedef struct _IpatchDLSWriterClass IpatchDLSWriterClass;
@@ -54,11 +55,13 @@ struct _IpatchDLSWriter
   IpatchRiff parent_instance;   /* derived from IpatchRiff */
   IpatchDLS2 *orig_dls;		/* original DLS object */
   IpatchDLS2 *dls;		/* duplicated DLS object to save */
-  gboolean is_gig;	/* set to TRUE if saving a GigaSampler file */
-  GHashTable *sample_hash; /* IpatchDLS2Sample -> sample_array index + 1 */
-  guint32 *sample_ofstbl;      /* sample index -> file offset table */
+  gboolean is_gig;	        /* set to TRUE if saving a GigaSampler file */
+  GHashTable *sample_hash;      /* IpatchDLS2Sample -> sample_array index + 1 */
+  guint32 *sample_ofstbl;       /* sample index -> file offset table */
+  guint32 *sample_postbl;       /* sample index -> sample file position */
   guint sample_count;		/* count of samples */
-  guint32 ptbl_pos;  /* pool table position in file - for later fixup */
+  guint32 ptbl_pos;             /* pool table position in file - for later fixup */
+  IpatchList *store_list;       /* list of stores, only set if ipatch_dls_writer_create_stores() was called */
 };
 
 /* DLS writer class */
@@ -72,5 +75,6 @@ IpatchDLSWriter *ipatch_dls_writer_new (IpatchFileHandle *handle, IpatchDLS2 *dl
 void ipatch_dls_writer_set_patch (IpatchDLSWriter *writer, IpatchDLS2 *dls);
 void ipatch_dls_writer_set_file_handle (IpatchDLSWriter *writer, IpatchFileHandle *handle);
 gboolean ipatch_dls_writer_save (IpatchDLSWriter *writer, GError **err);
+IpatchList *ipatch_dls_writer_create_stores (IpatchDLSWriter *writer);
 
 #endif

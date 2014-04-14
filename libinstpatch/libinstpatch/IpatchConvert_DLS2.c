@@ -35,7 +35,19 @@
 #include "IpatchBase.h"
 #include "IpatchFile.h"
 #include "IpatchSndFile.h"
+#include "IpatchDLSWriter.h"
 #include "i18n.h"
+
+enum
+{
+  PROP_0,
+  PROP_DLS2_TO_FILE_CREATE_STORES
+};
+
+static void _dls2_to_file_get_property (GObject *object, guint property_id,
+                                        GValue *value, GParamSpec *pspec);
+static void _dls2_to_file_set_property (GObject *object, guint property_id,
+                                        const GValue *value, GParamSpec *pspec);
 
 /* init routine for DLS conversion types */
 void
@@ -63,6 +75,8 @@ _dls2_to_file_convert (IpatchConverter *converter, GError **err)
   IpatchFile *file;
   IpatchFileHandle *handle;
   IpatchDLSWriter *writer;
+  gboolean create_stores;
+  IpatchList *stores;
   int retval;
 
   dls = IPATCH_DLS2 (IPATCH_CONVERTER_INPUT (converter));
@@ -73,6 +87,20 @@ _dls2_to_file_convert (IpatchConverter *converter, GError **err)
 
   writer = ipatch_dls_writer_new (handle, dls); /* ++ ref new writer */
   retval = ipatch_dls_writer_save (writer, err);
+
+  g_object_get (converter, "create-stores", &create_stores, NULL);
+
+  if (retval && create_stores)
+  {
+    stores = ipatch_dls_writer_create_stores (writer);         // ++ reference sample stores
+
+    if (stores)
+    {
+      ipatch_converter_add_output (converter, G_OBJECT (stores));
+      g_object_unref (stores);                                  // -- unref sample stores
+    }
+  }
+
   g_object_unref (writer);	/* -- unref writer */
 
   return (retval);
@@ -183,7 +211,58 @@ _file_to_dls2_sample_convert (IpatchConverter *converter, GError **err)
   return (TRUE);
 }
 
-CONVERTER_CLASS_INIT (dls2_to_file);
+/* DLS2 -> File class is handled manually to install properties */
+static void
+_dls2_to_file_class_init (IpatchConverterClass *klass)
+{
+  GObjectClass *obj_class = G_OBJECT_CLASS (klass);
+
+  obj_class->get_property = _dls2_to_file_get_property;
+  obj_class->set_property = _dls2_to_file_set_property;
+
+  klass->verify = NULL;
+  klass->notes = NULL;
+  klass->convert = _dls2_to_file_convert;
+
+  g_object_class_install_property (obj_class, PROP_DLS2_TO_FILE_CREATE_STORES,
+                    g_param_spec_boolean ("create-stores", "Create stores", "Create sample stores",
+                                          FALSE, G_PARAM_READWRITE));
+}
+
+static void
+_dls2_to_file_get_property (GObject *object, guint property_id,
+                            GValue *value, GParamSpec *pspec)
+{
+  IpatchConverterDLS2ToFile *converter = (IpatchConverterDLS2ToFile *)object;
+
+  switch (property_id)
+  {
+    case PROP_DLS2_TO_FILE_CREATE_STORES:
+      g_value_set_boolean (value, converter->create_stores);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
+  }
+}
+
+static void
+_dls2_to_file_set_property (GObject *object, guint property_id,
+                            const GValue *value, GParamSpec *pspec)
+{
+  IpatchConverterDLS2ToFile *converter = (IpatchConverterDLS2ToFile *)object;
+
+  switch (property_id)
+  {
+    case PROP_DLS2_TO_FILE_CREATE_STORES:
+      converter->create_stores = g_value_get_boolean (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
+  }
+}
+
 CONVERTER_CLASS_INIT (file_to_dls2);
 CONVERTER_CLASS_INIT(file_to_dls2_sample);
 

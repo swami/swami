@@ -61,7 +61,7 @@ struct _IpatchSF2Writer
   gboolean migrate_samples; /* set to TRUE to migrate samples to new file */
   GHashTable *inst_hash;	/* instrument => index hash */
   GHashTable *sample_hash;	/* sample => SampleHashValue hash */
-  IpatchList *store_list;       /* list of stores, only set if ipatch_sf2_writer_get_stores() was called */
+  IpatchList *store_list;       /* list of stores, only set if ipatch_sf2_writer_create_stores() was called */
 };
 
 /* SF2 writer class */

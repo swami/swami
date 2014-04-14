@@ -117,26 +117,12 @@ ipatch_dls_writer_finalize (GObject *object)
 {
   IpatchDLSWriter *writer = IPATCH_DLS_WRITER (object);
 
-  if (writer->orig_dls)
-    {
-      g_object_unref (writer->orig_dls);
-      writer->orig_dls = NULL;
-    }
-
-  if (writer->dls)
-    {
-      g_object_unref (writer->dls);
-      writer->dls = NULL;
-    }
-
+  if (writer->orig_dls) g_object_unref (writer->orig_dls);
+  if (writer->dls) g_object_unref (writer->dls);
   g_hash_table_destroy (writer->sample_hash);
-  writer->sample_hash = NULL;
-
-  if (writer->sample_ofstbl)
-    {
-      g_free (writer->sample_ofstbl);
-      writer->sample_ofstbl = NULL;
-    }
+  if (writer->sample_ofstbl) g_free (writer->sample_ofstbl);
+  if (writer->sample_postbl) g_free (writer->sample_postbl);
+  if (writer->store_list) g_object_unref (writer->store_list);
 
   if (G_OBJECT_CLASS (ipatch_dls_writer_parent_class)->finalize)
     G_OBJECT_CLASS (ipatch_dls_writer_parent_class)->finalize (object);
@@ -244,9 +230,6 @@ ipatch_dls_writer_save (IpatchDLSWriter *writer, GError **err)
   if (!ipatch_riff_close_chunk (riff, -1, err)) goto err;
   /* </DLS > */
 
-  g_object_unref (writer->dls);
-  writer->dls = NULL;
-
   return (TRUE);
 
  err:
@@ -255,6 +238,77 @@ ipatch_dls_writer_save (IpatchDLSWriter *writer, GError **err)
   writer->dls = NULL;
 
   return (FALSE);
+}
+
+/**
+ * ipatch_dls_writer_create_stores:
+ * @writer: SoundFont writer object
+ *
+ * Create sample stores and add them to applicable #IpatchSampleData objects and return object list.
+ * This function can be called multiple times, additional calls will return the same list.
+ *
+ * Returns: List of sample stores which the caller owns a reference to or %NULL
+ *
+ * Since: 1.1.0
+ */
+IpatchList *
+ipatch_dls_writer_create_stores (IpatchDLSWriter *writer)
+{
+  guint sample_index;
+  IpatchSample *newstore;
+  IpatchFile *save_file;
+  IpatchDLS2Sample *sample;
+  IpatchIter iter;
+  IpatchList *list;
+  int rate, format;
+  guint size, pos;
+
+  g_return_val_if_fail (writer->dls != NULL, NULL);
+
+  // Return existing store list (if this function has been called before)
+  if (writer->store_list)
+    return (g_object_ref (writer->store_list));         // ++ ref for caller
+
+  save_file = IPATCH_RIFF (writer)->handle->file;
+
+  list = ipatch_list_new ();            // ++ ref list
+
+  ipatch_container_init_iter (IPATCH_CONTAINER (writer->dls), &iter,
+			      IPATCH_TYPE_DLS2_SAMPLE);
+
+  /* traverse samples */
+  for (sample = ipatch_dls2_sample_first (&iter); sample;
+       sample = ipatch_dls2_sample_next (&iter))
+  {
+    sample_index = GPOINTER_TO_UINT (g_hash_table_lookup (writer->sample_hash, sample));
+
+    /* Hash_value should never be NULL, but.. */
+    if (!sample_index) continue;
+
+    pos = writer->sample_postbl[sample_index - 1];      // sample index is +1 to catch NULL
+
+    g_object_get (sample,
+                  "sample-format", &format,
+                  "sample-size", &size,
+                  "sample-rate", &rate,
+                  NULL);
+
+    newstore = ipatch_sample_store_file_new (save_file, pos);
+
+    g_object_set (newstore,
+                  "sample-format", format,
+                  "sample-size", size,
+                  "sample-rate", rate,
+                  NULL);
+
+    ipatch_sample_data_add (sample->sample_data, (IpatchSampleStore *)newstore);
+
+    list->items = g_list_prepend (list->items, newstore);       // !! list takes over reference
+  }
+
+  writer->store_list = g_object_ref (list);     // ++ ref for writer object
+
+  return (list);        // !! caller takes over reference
 }
 
 static gboolean
@@ -320,8 +374,9 @@ ipatch_dls_write_level_0 (IpatchDLSWriter *writer, GError **err)
     }
   writer->sample_count = index - 1; /* count of samples */
 
-  /* allocate sample offset table */
+  /* allocate sample offset and sample data position tables */
   writer->sample_ofstbl = g_malloc0 (writer->sample_count * 4);
+  writer->sample_postbl = g_malloc0 (writer->sample_count * 4);
 
   /* write instrument list */
   if (!ipatch_riff_write_list_chunk (riff, IPATCH_DLS_FOURCC_LINS, err))
@@ -1146,6 +1201,9 @@ dls_write_wave_pool (IpatchDLSWriter *writer, GError **err)
       /* <DATA> - Sample data */
       if (!ipatch_riff_write_sub_chunk (riff, IPATCH_DLS_FOURCC_DATA, err))
 	goto err;
+
+      /* store position to sample data for possible ipatch_dls_writer_create_stores() call */
+      writer->sample_postbl[index] = ipatch_file_get_position (riff->handle);
 
       samsize = ipatch_sample_get_size (IPATCH_SAMPLE (sample->sample_data), NULL);
 
