@@ -617,3 +617,66 @@ ipatch_base_close (IpatchBase *base, GError **err)
   return (TRUE);
 }
 
+/**
+ * ipatch_close_base_list:
+ * @list: List of base objects to close (non base objects are skipped)
+ * @err: Location to store error info or %NULL
+ *
+ * Close a list of base instrument objects (using ipatch_item_remove()),
+ * migrating sample data as needed.  Using this function instead of ipatch_base_close()
+ * can save on unnecessary sample data migrations, if multiple base objects reference
+ * the same sample data.
+ *
+ * Returns: TRUE on success, FALSE otherwise (in which case @err may be set)
+ *
+ * Since: 1.1.0
+ */
+gboolean
+ipatch_close_base_list (IpatchList *list, GError **err)
+{
+  GList *p, *file_list = NULL;
+  IpatchFile *file;
+  gboolean retval = TRUE;
+  GError *local_err = NULL;
+  char *filename;
+
+  g_return_val_if_fail (IPATCH_IS_LIST (list), FALSE);
+  g_return_val_if_fail (!err || !*err, FALSE);
+
+  for (p = list->items; p; p = p->next)
+  {
+    if (!IPATCH_IS_BASE (p->data)) continue;            // Just skip if its not a base object
+
+    g_object_get (p->data, "file", &file, NULL);        // ++ ref file (if any)
+    ipatch_item_remove (IPATCH_ITEM (p->data));
+
+    if (file) file_list = g_list_prepend (file_list, file);
+  }
+
+  file_list = g_list_reverse (file_list);               // Reverse list to migrate samples in same order
+
+  for (p = file_list; p; p = g_list_delete_link (p, p))
+  {
+    file = p->data;
+
+    if (!ipatch_migrate_file_sample_data (file, NULL, NULL, 0, &local_err))
+    {
+      if (!retval || !err)
+      { // Log additional errors
+        g_object_get (file, "file-name", &filename, NULL);      // ++ alloc filename
+        g_critical (_("Error migrating samples from closed file '%s': %s"), filename,
+                    ipatch_gerror_message (local_err));
+        g_free (filename);                                      // -- free filename
+        g_clear_error (&local_err);
+      }
+      else g_propagate_error (err, local_err);          // Propagate first error
+
+      retval = FALSE;
+    }
+
+    g_object_unref (file);                              // -- unref file
+  }
+
+  return (retval);
+}
+

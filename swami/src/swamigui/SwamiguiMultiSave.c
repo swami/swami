@@ -399,6 +399,7 @@ multi_save_response (GtkDialog *dialog, int response, gpointer user_data)
   GError *err = NULL;
   int result;
   gboolean close_ok;
+  IpatchList *close_list;
 
   if (response != GTK_RESPONSE_ACCEPT)
   {
@@ -412,6 +413,8 @@ multi_save_response (GtkDialog *dialog, int response, gpointer user_data)
     gtk_object_destroy (GTK_OBJECT (dialog));
     return;
   }
+
+  close_list = ipatch_list_new ();              // ++ ref new list
 
   do
   {
@@ -442,6 +445,7 @@ multi_save_response (GtkDialog *dialog, int response, gpointer user_data)
 	{
 	  g_free (path);                /* -- free path */
 	  g_object_unref (item);        /* -- unref item */
+          g_object_unref (close_list);  // -- unref close list
 	  return;
 	}
       }
@@ -450,31 +454,33 @@ multi_save_response (GtkDialog *dialog, int response, gpointer user_data)
     /* Close if in close mode */
     if (close_ok && (multi->flags & SWAMIGUI_MULTI_SAVE_CLOSE_MODE))
     {
-      if (!ipatch_base_close (IPATCH_BASE (item), &err))
-      {
-	msgdialog = gtk_message_dialog_new (GTK_WINDOW (dialog), 0,
-					    GTK_MESSAGE_ERROR,
-					    GTK_BUTTONS_OK_CANCEL,
-					    _("Error closing '%s': %s"),
-					    path, ipatch_gerror_message (err));
-	g_clear_error (&err);
-
-	result = gtk_dialog_run (GTK_DIALOG (msgdialog));
-        gtk_widget_destroy (msgdialog);
-
-	if (result == GTK_RESPONSE_CANCEL)
-	{
-	  g_free (path);                /* -- free path */
-	  g_object_unref (item);        /* -- unref item */
-	  return;
-	}
-      }
+      g_object_ref (item);              // ++ ref object for list
+      close_list->items = g_list_prepend (close_list->items, item);
     }
 
     g_free (path);              /* -- free path */
     g_object_unref (item);      /* -- unref item */
   }
   while (gtk_tree_model_iter_next (model, &iter));
+
+  if (close_list->items)
+  {
+    close_list->items = g_list_reverse (close_list->items);
+
+    if (!ipatch_close_base_list (close_list, &err))
+    {
+      msgdialog = gtk_message_dialog_new (GTK_WINDOW (dialog), 0,
+                                          GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
+                                          _("Error closing files: %s"),
+                                          ipatch_gerror_message (err));
+      g_clear_error (&err);
+
+      gtk_dialog_run (GTK_DIALOG (msgdialog));
+      gtk_widget_destroy (msgdialog);
+    }
+  }
+
+  g_object_unref (close_list);          // -- unref close list
 
   gtk_object_destroy (GTK_OBJECT (dialog));
 }

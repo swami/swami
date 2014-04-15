@@ -117,6 +117,7 @@ IpatchItem *ipatch_base_find_item_by_midi_locale (IpatchBase *base, int bank,
 
 gboolean ipatch_base_save (IpatchBase *base, const char *filename, int flags, GError **err);
 gboolean ipatch_base_close (IpatchBase *base, GError **err);
+gboolean ipatch_close_base_list (IpatchList *list, GError **err);
 
 #endif
 

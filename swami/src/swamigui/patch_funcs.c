@@ -392,28 +392,15 @@ swamigui_close_files (IpatchList *item_list)
 
   /* if no items changed, then go ahead and close files */
   if (!item)
+  {
+    if (!ipatch_close_base_list (item_list, &err))
     {
-      char *filename;
-
-      item = ipatch_item_first (&iter);	/* re-use the same iterator */
-      while (item)
-	{
-	  if (IPATCH_IS_BASE (item)) /* removing, closes patch */
-          {
-	    if (!ipatch_base_close (IPATCH_BASE (item), &err))
-            {
-              g_object_get (item, "file-name", &filename, NULL);        // ++ alloc file name
-              g_warning (_("Failed to close '%s': %s"), filename, ipatch_gerror_message (err));
-              g_free (filename);        // -- free file name
-              g_clear_error (&err);
-            }
-          }
-
-	  item = ipatch_item_next (&iter);
-	}
-
-      return;
+      g_warning (_("Failed to close file(s): %s"), ipatch_gerror_message (err));
+      g_clear_error (&err);
     }
+
+    return;
+  }
 
   /* item(s) have been changed, pop user interactive dialog */
   dialog = swamigui_multi_save_new (_("Close files"),
