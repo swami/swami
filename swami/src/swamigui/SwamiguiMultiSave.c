@@ -116,7 +116,7 @@ swamigui_multi_save_init (SwamiguiMultiSave *multi)
   gtk_widget_show (multi->scroll_win);
   gtk_container_add (GTK_CONTAINER (frame), multi->scroll_win);
 
-  /* list store */
+  /* ++ ref list store */
   multi->store = gtk_list_store_new (N_COLUMNS, G_TYPE_BOOLEAN, G_TYPE_STRING,
 				     G_TYPE_STRING, G_TYPE_STRING,
 				     IPATCH_TYPE_ITEM);
@@ -191,6 +191,10 @@ swamigui_multi_save_init (SwamiguiMultiSave *multi)
 static void
 swamigui_multi_save_finalize (GObject *object)
 {
+  SwamiguiMultiSave *multi = SWAMIGUI_MULTI_SAVE (object);
+
+  g_object_unref (multi->store);        // -- unref list store
+
   if (G_OBJECT_CLASS (swamigui_multi_save_parent_class)->finalize)
     G_OBJECT_CLASS (swamigui_multi_save_parent_class)->finalize (object);
 }
