@@ -380,39 +380,40 @@ swamigui_panel_sf2_gen_real_set_selection (SwamiguiPanelSF2Gen *genpanel,
 	  widgctrl = swamigui_control_lookup (G_OBJECT (genwidgets->button));
 	  swami_control_disconnect_all (widgctrl);
 
-	  propctrl = swami_get_control_prop (item, geniface->setspecs[genid]);
+	  propctrl = swami_get_control_prop (item, geniface->setspecs[genid]);  // ++ ref
 	  swami_control_connect (propctrl, widgctrl, SWAMI_CONTROL_CONN_BIDIR
 				 | SWAMI_CONTROL_CONN_INIT);
+          g_object_unref (propctrl);    // -- unref
 
 	  widgctrl = swamigui_control_lookup (G_OBJECT (genwidgets->spinscale));
 	  swami_control_disconnect_all (widgctrl);
 
-	  swami_control_connect_item_prop (widgctrl, item, geniface->specs[genid]);
+	  propctrl = swami_get_control_prop (item, geniface->specs[genid]);  // ++ ref
+          swami_control_connect_transform (propctrl, widgctrl, SWAMI_CONTROL_CONN_BIDIR_SPEC_INIT,
+				           NULL, NULL, NULL, NULL, NULL, NULL);
+          g_object_unref (propctrl);    // -- unref
+
+          ipatch_param_get (geniface->specs[genid], "unit-type", &unit, NULL);
+
+	  unitinfo = ipatch_unit_lookup (unit);
+
+          if (unitinfo)
+            unituser = ipatch_unit_class_lookup_map (IPATCH_UNIT_CLASS_USER, unitinfo->id);
+          else unituser = NULL;
+
+          swamigui_spin_scale_set_transform (SWAMIGUI_SPIN_SCALE (genwidgets->spinscale),
+                                             unituser ? unit : IPATCH_UNIT_TYPE_NONE,
+                                             unituser ? unituser->id : IPATCH_UNIT_TYPE_NONE);
 
 	  gtk_widget_set_sensitive (genwidgets->button, TRUE);
 	  gtk_widget_set_sensitive (genwidgets->spinscale, TRUE);
 
-          unit = ipatch_sf2_gen_info[genid].unit;
 
-          /* ABS time and ABS pitch use OFS time and OFS pitch units in preset zones */
-          if (seltype == IPATCH_SF2_GEN_PROPS_PRESET)
+          if (unitinfo)
           {
-            if (unit == IPATCH_UNIT_TYPE_SF2_ABS_PITCH)
-              unit = IPATCH_UNIT_TYPE_SF2_OFS_PITCH;
-            else if (unit == IPATCH_UNIT_TYPE_SF2_ABS_TIME)
-              unit = IPATCH_UNIT_TYPE_SF2_OFS_TIME;
+            labeltext = unituser ? unituser->label : unitinfo->label;
+            gtk_label_set_text (GTK_LABEL (genwidgets->unitlabel), labeltext);
           }
-
-	  unitinfo = ipatch_unit_lookup (unit);
-
-	  if (unitinfo)
-	    {
-	      unituser = ipatch_unit_class_lookup_map (IPATCH_UNIT_CLASS_USER,
-						       unitinfo->id);
-	      labeltext = unituser ? unituser->label : unitinfo->label;
-
-	      gtk_label_set_text (GTK_LABEL (genwidgets->unitlabel), labeltext);
-            }
 
           ctrlndx++;
           genwidgets++;
