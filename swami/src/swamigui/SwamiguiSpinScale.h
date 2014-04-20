@@ -23,6 +23,8 @@
 #define __SWAMIGUI_SPIN_SCALE_H__
 
 #include <gtk/gtk.h>
+#include <libswami/SwamiParam.h>
+#include <libinstpatch/IpatchUnit.h>
 
 typedef struct _SwamiguiSpinScale SwamiguiSpinScale;
 typedef struct _SwamiguiSpinScaleClass SwamiguiSpinScaleClass;
@@ -45,6 +47,9 @@ struct _SwamiguiSpinScale
   GtkWidget *spinbtn;		/* spin button widget */
   GtkWidget *hscale;		/* horizontal scale widget */
   gboolean scale_first;		/* indicates order of widgets */
+  guint16 adj_units;            // Adjustment units (#IpatchUnitType)
+  guint16 disp_units;           // Spin button display units (#IpatchUnitType)
+  gboolean ignore_input;        // Hack to stop output/input signal loop
 };
 
 /* Swami SpinScale widget class */
@@ -57,4 +62,7 @@ GType swamigui_spin_scale_get_type (void);
 GtkWidget *swamigui_spin_scale_new (void);
 void swamigui_spin_scale_set_order (SwamiguiSpinScale *spin_scale,
 				    gboolean scale_first);
+void swamigui_spin_scale_set_transform (SwamiguiSpinScale *spin_scale,
+                                        guint16 adj_units, guint16 disp_units);
 #endif
+

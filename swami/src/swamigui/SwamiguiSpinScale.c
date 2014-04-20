@@ -23,6 +23,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <gtk/gtk.h>
 
 #include "SwamiguiSpinScale.h"
@@ -47,6 +48,8 @@ static void swamigui_spin_scale_set_property (GObject *object, guint property_id
 static void swamigui_spin_scale_get_property (GObject *object, guint property_id,
 					      GValue *value, GParamSpec *pspec);
 static void swamigui_spin_scale_init (SwamiguiSpinScale *spin_scale);
+static gboolean swamigui_spin_scale_cb_output (GtkSpinButton *spin_button, gpointer user_data);
+static gint swamigui_spin_scale_cb_input (GtkSpinButton *spinbutton, gdouble *newval, gpointer user_data);
 static gboolean swamigui_spin_scale_real_set_order (SwamiguiSpinScale *spin_scale,
 						    gboolean scale_first);
 
@@ -155,10 +158,84 @@ swamigui_spin_scale_init (SwamiguiSpinScale *spin_scale)
   gtk_widget_show (spin_scale->spinbtn);
   gtk_box_pack_start (GTK_BOX (spin_scale), spin_scale->spinbtn, FALSE, FALSE, 0);
 
+  g_signal_connect (spin_scale->spinbtn, "output", G_CALLBACK (swamigui_spin_scale_cb_output), spin_scale);
+  g_signal_connect (spin_scale->spinbtn, "input", G_CALLBACK (swamigui_spin_scale_cb_input), spin_scale);
+
   spin_scale->hscale = gtk_hscale_new (adj);
   gtk_scale_set_draw_value (GTK_SCALE (spin_scale->hscale), FALSE);
   gtk_widget_show (spin_scale->hscale);
   gtk_box_pack_start (GTK_BOX (spin_scale), spin_scale->hscale, TRUE, TRUE, 0);
+}
+
+/* Callback for spin button output update (transform value if transform function set) */
+static gboolean
+swamigui_spin_scale_cb_output (GtkSpinButton *spin_button, gpointer user_data)
+{
+  SwamiguiSpinScale *spin_scale = SWAMIGUI_SPIN_SCALE (user_data);
+  GValue adjval = { 0 }, dispval = { 0 };
+  GtkAdjustment *adj;
+  gchar *text;
+  int digits;
+
+  if (spin_scale->adj_units == IPATCH_UNIT_TYPE_NONE)
+    return (FALSE);
+
+  adj = gtk_spin_button_get_adjustment (spin_button);
+
+  g_value_init (&adjval, G_TYPE_DOUBLE);
+  g_value_set_double (&adjval, gtk_adjustment_get_value (adj));
+  g_value_init (&dispval, G_TYPE_DOUBLE);
+
+  ipatch_unit_convert (spin_scale->adj_units, spin_scale->disp_units, &adjval, &dispval);
+
+  digits = gtk_spin_button_get_digits (spin_button);
+
+  text = g_strdup_printf ("%.*f", digits, g_value_get_double (&dispval));       // ++ alloc
+  spin_scale->ignore_input = TRUE;
+  gtk_entry_set_text (GTK_ENTRY (spin_button), text);
+  spin_scale->ignore_input = FALSE;
+  g_free (text);                                                                // -- free
+
+  // Probably not needed - but just for good measure
+  g_value_unset (&adjval);
+  g_value_unset (&dispval);
+
+  return (TRUE);
+}
+
+/* Callback for spin button input */
+static gint
+swamigui_spin_scale_cb_input (GtkSpinButton *spinbutton, gdouble *newval, gpointer user_data)
+{
+  SwamiguiSpinScale *spin_scale = SWAMIGUI_SPIN_SCALE (user_data);
+  GValue dispval = { 0 }, adjval = { 0 };
+  GtkAdjustment *adj;
+  const char *text;
+
+  adj = gtk_spin_button_get_adjustment (spinbutton);
+  *newval = adj->value;
+
+  if (spin_scale->ignore_input)
+    return (FALSE);
+
+  text = gtk_entry_get_text (GTK_ENTRY (spinbutton));
+
+  if (!text)
+    return (FALSE);
+
+  g_value_init (&dispval, G_TYPE_DOUBLE);
+  g_value_set_double (&dispval, atof (text));
+  g_value_init (&adjval, G_TYPE_DOUBLE);
+
+  ipatch_unit_convert (spin_scale->disp_units, spin_scale->adj_units, &dispval, &adjval);
+
+  *newval = g_value_get_double (&adjval);
+
+  // Probably not needed - but just for good measure
+  g_value_unset (&dispval);
+  g_value_unset (&adjval);
+
+  return (TRUE);
 }
 
 /**
@@ -205,3 +282,28 @@ swamigui_spin_scale_real_set_order (SwamiguiSpinScale *spin_scale,
 
   return (TRUE);
 }
+
+/**
+ * swamigui_spin_scale_set_transform:
+ * @spin_scale: Spin scale widget
+ * @adj_units: (type IpatchUnitType): Adjustment control units
+ * @disp_units: (type IpatchUnitType): Spin button display units
+ *
+ * Since: 2.1.0
+ */
+void
+swamigui_spin_scale_set_transform (SwamiguiSpinScale *spin_scale,
+                                   guint16 adj_units, guint16 disp_units)
+{
+  IpatchUnitInfo *unitinfo;
+
+  g_return_if_fail (SWAMIGUI_IS_SPIN_SCALE (spin_scale));
+
+  spin_scale->adj_units = adj_units;
+  spin_scale->disp_units = disp_units;
+
+  unitinfo = ipatch_unit_lookup (disp_units);
+
+  gtk_spin_button_set_digits (GTK_SPIN_BUTTON (spin_scale->spinbtn), unitinfo ? unitinfo->digits : 0);
+}
+
