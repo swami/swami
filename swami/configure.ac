@@ -157,8 +157,8 @@ PKG_CHECK_MODULES(PYGTK, pygtk-2.0, PYGTK_SUPPORT=1, PYGTK_SUPPORT=0)
 AC_SUBST(PYGTK_CFLAGS)
 AC_SUBST(PYGTK_LIBS)
 
-AC_ARG_ENABLE(python, AS_HELP_STRING([--disable-python], [disable python binding]),
-  enable_python=$enableval, enable_python="yes")
+AC_ARG_ENABLE(python, AS_HELP_STRING([--enable-python], [enable python binding]),
+  enable_python=$enableval, enable_python="no")
 
 if test "x${enable_python}" = "xyes" -a "$PYGTK_SUPPORT" = "1" ; then
   AC_DEFINE(PYTHON_SUPPORT, 1, [Define to build Python binding])
@@ -256,7 +256,7 @@ FEATURE_SUMMARY([  Mac integration - Mac OS X integration for Gtk+],
 FEATURE_SUMMARY([  FluidSynth - Soft synth wavetable plugin],
   ["${FLUIDSYNTH_SUPPORT}" = "1"])
 
-FEATURE_SUMMARY([  FFTW support - Auto sample tuning plugin (not available yet)],
+FEATURE_SUMMARY([  FFTW support - Auto sample tuning plugin],
   ["${FFTW_SUPPORT}" = "1"])
 
 FEATURE_SUMMARY([  Python support], ["${enable_python}" = "yes"])
