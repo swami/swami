@@ -52,7 +52,7 @@ export DEVELOPER_DIR PATH
 EOF
 $ . $HOME/.profile
 
-- Customise .jhbuild-custom for example:
+- Customise .jhbuildrc-custom for example:
 
 setup_sdk("10.6", sdk_version="10.6", architectures=["i386"])
 moduleset=os.environ['HOME'] + '/custom.modules'

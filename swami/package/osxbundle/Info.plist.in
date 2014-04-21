@@ -23,7 +23,7 @@
     <key>CFBundleVersion</key>
     <string>@VERSION@</string>
     <key>NSHumanReadableCopyright</key>
-    <string>Copyright 1999-2014 Joshua "Element" Green et al., GNU General Public License.</string>
+    <string>Copyright 1999-2014 Element Green et al., GNU General Public License.</string>
     <key>LSMinimumSystemVersion</key>
     <string>10.6</string>
 </dict>
