@@ -39,6 +39,7 @@ libswamigui_public_h_sources = \
 	SwamiguiBar.h \
 	SwamiguiBarPtr.h \
 	SwamiguiCanvasMod.h \
+	SwamiguiComboEntry.h \
 	SwamiguiControl.h \
 	SwamiguiControlAdj.h \
 	SwamiguiControlMidiKey.h \
@@ -85,6 +86,7 @@ libswamigui_sources = \
 	SwamiguiBar.c \
 	SwamiguiBarPtr.c \
 	SwamiguiCanvasMod.c \
+	SwamiguiComboEntry.c \
 	SwamiguiControl.c \
 	SwamiguiControl_widgets.c \
 	SwamiguiControlAdj.c \
