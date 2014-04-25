@@ -632,7 +632,7 @@ ipatch_file_rename (IpatchFile *file, const char *new_name, GError **err)
 
 #ifdef G_OS_WIN32
   if (g_file_test (new_name, G_FILE_TEST_EXISTS))
-    g_unlink (filename);                // Just blindly unlink the file
+    g_unlink (new_name);                // Just blindly unlink the file
 #endif
 
   dup_newname = g_strdup (new_name);    // ++ allocate for use by file object
