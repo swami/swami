@@ -24,7 +24,8 @@
 
 #include <glib-object.h>
 
-#ifndef GWeakRef
+// Enable GWeakRef emulation if glib version less than 2.32
+#ifndef GLIB_VERSION_2_32
 
 #define IPATCH_COMPAT_GWEAKREF  1
 
