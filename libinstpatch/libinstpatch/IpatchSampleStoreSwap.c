@@ -205,12 +205,12 @@ ipatch_sample_store_swap_sample_iface_open (IpatchSampleHandle *handle,
   // Has sample been allocated?
   if (!(flags & SAMPLE_ALLOCATED))
   {
-    new_ram_used = g_atomic_int_add (&swap_ram_used, sample_size);
+    new_ram_used = g_atomic_int_exchange_and_add (&swap_ram_used, sample_size);
 
     // Check if allocating sample in RAM would exceed max allowed
     if (new_ram_used > g_atomic_int_get (&swap_ram_max))
     { // RAM swap is maxed out - correct swap_ram_used
-      new_ram_used = g_atomic_int_add (&swap_ram_used, -sample_size);
+      new_ram_used = g_atomic_int_exchange_and_add (&swap_ram_used, -sample_size);
 
       if (swap_fd == -1)   /* Swap file not yet created? */
         ipatch_sample_store_swap_open_file ();

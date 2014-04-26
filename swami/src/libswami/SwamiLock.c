@@ -49,7 +49,7 @@ swami_lock_class_init (SwamiLockClass *klass)
 static void
 swami_lock_init (SwamiLock *lock)
 {
-  g_rec_mutex_init (&lock->mutex);
+  g_static_rec_mutex_init (&lock->mutex);
 }
 
 static void
@@ -57,7 +57,7 @@ swami_lock_finalize (GObject *object)
 {
   SwamiLock *lock = SWAMI_LOCK (object);
 
-  g_rec_mutex_clear (&lock->mutex);
+  g_static_rec_mutex_free (&lock->mutex);
 
   if (G_OBJECT_CLASS (swami_lock_parent_class)->finalize)
     G_OBJECT_CLASS (swami_lock_parent_class)->finalize (object);

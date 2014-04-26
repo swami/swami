@@ -151,7 +151,7 @@ gboolean swamigui_disable_plugins = FALSE;
 static GObjectClass *parent_class = NULL;
 
 /* used to determine if current thread is the GUI thread */
-static GPrivate is_gui_thread;
+static GStaticPrivate is_gui_thread = G_STATIC_PRIVATE_INIT;
 
 
 /**
@@ -169,6 +169,9 @@ swamigui_init (int *argc, char **argv[])
 
   if (initialized) return;
   initialized = TRUE;
+
+  /* initialize glib thread support (if it hasn't been already!) */
+  if (!g_thread_supported ()) g_thread_init (NULL);
 
   gtk_set_locale ();
   gtk_init_check (argc, argv);	/* initialize GTK */
@@ -656,7 +659,7 @@ swamigui_root_init (SwamiguiRoot *root)
   root->ctrl_queue = swami_control_queue_new (); /* ++ ref control queue */
 
   /* setup the GUI queue test function and is_gui_thread private */
-  g_private_set (&is_gui_thread, GUINT_TO_POINTER (TRUE));
+  g_static_private_set (&is_gui_thread, GUINT_TO_POINTER (TRUE), NULL);
   swami_control_queue_set_test_func (root->ctrl_queue,
 				     swamigui_queue_test_func);
 
@@ -770,7 +773,7 @@ static gboolean
 swamigui_queue_test_func (SwamiControlQueue *queue, SwamiControl *control,
 			  SwamiControlEvent *event)
 { /* are we in the GUI thread? */
-  gboolean bval = GPOINTER_TO_UINT (g_private_get (&is_gui_thread));
+  gboolean bval = GPOINTER_TO_UINT (g_static_private_get (&is_gui_thread));
   return (!bval);	/* FALSE sends event immediately, TRUE queues */
 }
 

@@ -41,7 +41,7 @@ typedef struct _SwamiLockClass SwamiLockClass;
 struct _SwamiLock
 {
   GObject parent_instance;
-  GRecMutex mutex;
+  GStaticRecMutex mutex;
 };
 
 struct _SwamiLockClass
@@ -52,9 +52,9 @@ struct _SwamiLockClass
 /* Multi-thread locking macros. For now there is no distinction between
    write and read locking since GStaticRWLock is not recursive. */
 #define SWAMI_LOCK_WRITE(lock)	\
-    g_rec_mutex_lock (&((SwamiLock *)(lock))->mutex)
+    g_static_rec_mutex_lock (&((SwamiLock *)(lock))->mutex)
 #define SWAMI_UNLOCK_WRITE(lock) \
-    g_rec_mutex_unlock (&((SwamiLock *)(lock))->mutex)
+    g_static_rec_mutex_unlock (&((SwamiLock *)(lock))->mutex)
 #define SWAMI_LOCK_READ(lock)	SWAMI_LOCK_WRITE(lock)
 #define SWAMI_UNLOCK_READ(lock)	SWAMI_UNLOCK_WRITE(lock)
 

@@ -71,7 +71,7 @@ static IpatchItem *paste_copy_link_func_deep (IpatchItem *item,
 					      IpatchItem *link,
 					      gpointer user_data);
 
-static GRecMutex paste_handlers_m;
+static GStaticRecMutex paste_handlers_m = G_STATIC_REC_MUTEX_INIT;
 static GSList *paste_handlers = NULL;	/* list of PasteHandler structs */
 
 static gpointer parent_class = NULL;
@@ -104,10 +104,10 @@ ipatch_register_paste_handler (IpatchPasteTestFunc test_func,
   handler->exec_func = exec_func;
   handler->flags = flags;
 
-  g_rec_mutex_lock (&paste_handlers_m);
+  g_static_rec_mutex_lock (&paste_handlers_m);
   paste_handlers = g_slist_insert_sorted (paste_handlers, handler,
 					  handler_priority_GCompareFunc);
-  g_rec_mutex_unlock (&paste_handlers_m);
+  g_static_rec_mutex_unlock (&paste_handlers_m);
 }
 
 static gint
@@ -179,7 +179,7 @@ ipatch_is_paste_possible (IpatchItem *dest, IpatchItem *src)
   g_return_val_if_fail (IPATCH_IS_ITEM (dest), FALSE);
   g_return_val_if_fail (IPATCH_IS_ITEM (src), FALSE);
 
-  g_rec_mutex_lock (&paste_handlers_m);
+  g_static_rec_mutex_lock (&paste_handlers_m);
 
   for (p = paste_handlers; p; p = p->next)
     {
@@ -187,7 +187,7 @@ ipatch_is_paste_possible (IpatchItem *dest, IpatchItem *src)
       if (handler->test_func (dest, src)) break;
     }
 
-  g_rec_mutex_unlock (&paste_handlers_m);
+  g_static_rec_mutex_unlock (&paste_handlers_m);
 
   return (p != NULL);
 }
@@ -302,7 +302,7 @@ ipatch_paste_objects (IpatchPaste *paste, IpatchItem *dest, IpatchItem *src,
   g_return_val_if_fail (IPATCH_IS_ITEM (src), FALSE);
   g_return_val_if_fail (!err || !*err, FALSE);
 
-  g_rec_mutex_lock (&paste_handlers_m);
+  g_static_rec_mutex_lock (&paste_handlers_m);
 
   for (p = paste_handlers; p; p = p->next)
     {
@@ -310,7 +310,7 @@ ipatch_paste_objects (IpatchPaste *paste, IpatchItem *dest, IpatchItem *src,
       if (handler->test_func (dest, src)) break;
     }
 
-  g_rec_mutex_unlock (&paste_handlers_m);
+  g_static_rec_mutex_unlock (&paste_handlers_m);
 
   if (!p)
     {
