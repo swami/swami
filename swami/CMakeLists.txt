@@ -135,8 +135,8 @@ find_package ( PkgConfig REQUIRED )
 # Mandatory library libinstpatch
 pkg_check_modules ( LIBINSTPATCH REQUIRED libinstpatch-1.0>=1.1 )
 
-# Mandatory libraries: GTK+, librsvg and libgnomecanvas
-pkg_check_modules ( GUI REQUIRED gtk+-2.0>=2.12 librsvg-2.0>=2.8 libgnomecanvas-2.0>=2.0 )
+# Mandatory libraries: GTK+ and libgnomecanvas
+pkg_check_modules ( GUI REQUIRED gtk+-2.0>=2.12 libgnomecanvas-2.0>=2.0 )
 
 # Mandatory libraries: gobject, glib, gmodule and gthread
 pkg_check_modules ( GOBJECT REQUIRED gobject-2.0>=2.12 glib-2.0>=2.12 gmodule-2.0>=2.12 gthread-2.0>=2.12 )

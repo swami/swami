@@ -18,16 +18,15 @@
  * 02111-1307, USA or point your web browser to http://www.gnu.org.
  */
 #include <gtk/gtk.h>
-#include <librsvg/rsvg.h>
 #include <math.h>
 #include "config.h"
 
 #include "SwamiguiKnob.h"
 #include "util.h"
 
-/* SVG image dimensions */
-#define KNOB_WIDTH	48
-#define KNOB_HEIGHT	48
+/* PNG image dimensions */
+#define KNOB_WIDTH	40
+#define KNOB_HEIGHT	40
 
 #define KNOB_SIZE_REQ	40	/* Default knob request size (width and height) */
 
@@ -52,7 +51,7 @@ static gboolean swamigui_knob_motion_notify_event (GtkWidget *widget,
 static void swamigui_knob_adj_value_changed (GtkAdjustment *adj,
 					     gpointer user_data);
 
-RsvgHandle *knob_svg_data = NULL;
+GdkPixbuf *knob_pixbuf = NULL;
 
 
 static void
@@ -69,7 +68,7 @@ swamigui_knob_class_init (SwamiguiKnobClass *class)
 static void
 swamigui_knob_init (SwamiguiKnob *knob)
 {
-  if (!knob_svg_data)
+  if (!knob_pixbuf)
   {
     GError *err = NULL;
     gchar *resdir, *filename;
@@ -77,11 +76,12 @@ swamigui_knob_init (SwamiguiKnob *knob)
     /* ++ alloc resdir */
     resdir = swamigui_util_get_resource_path (SWAMIGUI_RESOURCE_PATH_IMAGES);
     /* ++ alloc filename */
-    filename = g_build_filename (resdir, "knob.svg", NULL);
+    filename = g_build_filename (resdir, "knob.png", NULL);
     g_free (resdir); /* -- free resdir */
-    knob_svg_data = rsvg_handle_new_from_file (filename, &err);
 
-    if (!knob_svg_data)
+    knob_pixbuf = gdk_pixbuf_new_from_file (filename, &err);
+
+    if (!knob_pixbuf)
     {
       g_critical ("Failed to open SVG knob file '%s': %s",
 		  filename, err ? err->message : "No error details");
@@ -135,7 +135,8 @@ swamigui_knob_expose (GtkWidget *widget, GdkEventExpose *event)
     cairo_scale (cr, cache_width / (double)KNOB_WIDTH,
 	         cache_height / (double)KNOB_HEIGHT);
 
-    rsvg_handle_render_cairo (knob_svg_data, cr);
+    gdk_cairo_set_source_pixbuf (cr, knob_pixbuf, 0.0, 0.0);
+    cairo_paint (cr);
     cairo_destroy (cr);
   }
 
