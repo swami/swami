@@ -555,12 +555,12 @@ void
 swamigui_control_glade_prop_connect (GtkWidget *widget, GObject *obj)
 {
   GtkWidget *widg;
-  GParamSpec *pspec;
+  GParamSpec *pspec = NULL;
   const char *name;
   char *propname;
   SwamiControl *propctrl, *widgctrl;
   GObjectClass *objclass = NULL;
-  gboolean viewonly;
+  gboolean viewonly = FALSE;
   GSList *list = NULL, *p;
 
   g_return_if_fail (GTK_IS_WIDGET (widget));

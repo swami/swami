@@ -951,7 +951,7 @@ swamigui_sample_editor_update_canvas_size (SwamiguiSampleEditor *editor,
   TrackInfo *track_info;
   GnomeCanvasItem *item;
   int width, height, sample_height, count, y, y2, i;
-  double zoom, fullzoom;
+  double zoom, fullzoom = 0.0;
   GList *p;
 
   width = GTK_WIDGET (canvas)->allocation.width;

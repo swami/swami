@@ -609,7 +609,7 @@ file_chooser_control_handler (GObject *widget, GType value_type,
 static void
 file_chooser_control_get_func (SwamiControl *control, GValue *value)
 {
-  GtkFileChooser *chooser;
+  GtkFileChooser *chooser = NULL;
   gpointer data;
 
   SWAMI_LOCK_READ (control);
