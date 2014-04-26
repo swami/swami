@@ -1283,6 +1283,9 @@ ipatch_paste_default_exec_func (IpatchPaste *paste, IpatchItem *dest,
 	g_warning ("Failed to create child of type %s", g_type_name (type));
 	goto not_handled;
       }
+
+      if (conform_func) conform_func (G_OBJECT (newchild));
+
       if (ipatch_is_paste_possible(newchild, src))
       {
 	if (!ipatch_simple_paste(newchild, src, err))
