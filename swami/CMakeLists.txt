@@ -141,6 +141,9 @@ pkg_check_modules ( GUI REQUIRED gtk+-2.0>=2.12 libgnomecanvas-2.0>=2.0 )
 # Mandatory libraries: gobject, glib, gmodule and gthread
 pkg_check_modules ( GOBJECT REQUIRED gobject-2.0>=2.12 glib-2.0>=2.12 gmodule-2.0>=2.12 gthread-2.0>=2.12 )
 
+# Disable deprecation warnings for now (fixed in master)
+add_definitions ( -DGLIB_DISABLE_DEPRECATION_WARNINGS )
+
 # Needed on OS X
 if (APPLE)
   find_library ( COREFOUNDATION NAMES CoreFoundation )
