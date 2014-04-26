@@ -34,6 +34,7 @@
 #include <glib-object.h>
 #include <libinstpatch/IpatchItem.h>
 #include <libinstpatch/IpatchSampleData.h>
+#include <libinstpatch/compat.h>
 
 /* forward type declarations */
 

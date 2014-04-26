@@ -117,6 +117,7 @@ set ( libinstpatch_public_HEADERS
     IpatchVirtualContainer_types.h
     IpatchXml.h
     IpatchXmlObject.h
+    compat.h
     misc.h
     sample.h
     util.h
@@ -217,6 +218,7 @@ set ( libinstpatch_SOURCES
     IpatchVirtualContainer_types.c
     IpatchXml.c
     IpatchXmlObject.c
+    compat.c
     i18n.h
     ipatch_priv.h
     md5.c

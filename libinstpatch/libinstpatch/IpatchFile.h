@@ -30,6 +30,7 @@
 
 #include <glib.h>
 #include <glib-object.h>
+#include <libinstpatch/compat.h>
 
 /* forward type declarations */
 

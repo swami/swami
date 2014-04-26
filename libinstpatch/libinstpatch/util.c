@@ -23,6 +23,7 @@
 #include <errno.h>
 #include "util.h"
 #include "misc.h"
+#include "compat.h"
 #include "i18n.h"
 
 /* Convenience boolean GValue constants */

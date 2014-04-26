@@ -119,6 +119,7 @@ ipatch_public_h_sources = \
 	IpatchVirtualContainer_types.h \
 	IpatchXml.h \
 	IpatchXmlObject.h \
+	compat.h \
 	misc.h \
 	sample.h \
 	util.h \
@@ -219,6 +220,7 @@ ipatch_sources = \
 	IpatchVirtualContainer_types.c \
 	IpatchXml.c \
 	IpatchXmlObject.c \
+	compat.c \
 	i18n.h \
 	ipatch_priv.h \
 	md5.c \
