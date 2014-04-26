@@ -22,7 +22,7 @@ images_DATA = \
 	convex_pos_uni.png \
 	global_zone.png \
 	inst.png \
-	knob.svg \
+	knob.png \
 	linear_neg_bi.png \
 	linear_neg_uni.png \
 	linear_pos_bi.png \
