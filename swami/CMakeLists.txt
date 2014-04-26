@@ -192,6 +192,11 @@ if ( UNIX )
     install ( FILES swami.svg DESTINATION ${DATA_INSTALL_DIR}/icons/hicolor/scalable/apps )
 endif ( UNIX )
 
+# Extra targets for Windows
+if ( WIN32 )
+    install ( FILES swami.ico DESTINATION ${BIN_INSTALL_DIR} )
+endif ( WIN32 )
+
 message( "\n**************************************************************\n" )
 
 if ( FLUIDSYNTH_SUPPORT )
