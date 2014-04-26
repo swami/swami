@@ -5,6 +5,15 @@ include_directories (
     ${CMAKE_CURRENT_BINARY_DIR}
     ${GOBJECT_INCLUDEDIR}
     ${GOBJECT_INCLUDE_DIRS}
+    ${SNDFILE_INCLUDEDIR}
+    ${SNDFILE_INCLUDE_DIRS}
+)
+
+link_directories (
+    ${GOBJECT_LIBDIR}
+    ${GOBJECT_LIBRARY_DIRS}
+    ${SNDFILE_LIBDIR}
+    ${SNDFILE_LIBRARY_DIRS}
 )
 
 add_executable ( riff_dump riff_dump.c )
