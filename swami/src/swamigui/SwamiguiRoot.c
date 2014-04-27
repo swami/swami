@@ -1760,7 +1760,9 @@ category_changed_cb (GtkComboBox *combo, gpointer user_data)
   ret = gtk_combo_box_get_active_iter (combo, &iter);
   g_return_if_fail (ret == TRUE);
   path = gtk_tree_model_get_path (model, &iter); /* ++ ref path */
-  pinds = gtk_tree_path_get_indices_with_depth (path, &d);
+  pinds = gtk_tree_path_get_indices (path);
+  d = gtk_tree_path_get_depth (path);
+
   for (new_cat = 0, i = 0; catmap && i < d; i++)
   {
     new_cat <<= 8;
