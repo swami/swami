@@ -26,6 +26,7 @@
 #include <glib-object.h>
 #include "IpatchSampleStoreSwap.h"
 #include "ipatch_priv.h"
+#include "compat.h"
 #include "i18n.h"
 #include "config.h"
 

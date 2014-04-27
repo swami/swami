@@ -67,3 +67,18 @@ g_weak_ref_set (GWeakRef *weak_ref, gpointer object)
 
 #endif
 
+
+#ifdef IPATCH_COMPAT_SLIST_FREE_FULL
+
+void
+g_slist_free_full (GSList *list, GDestroyNotify free_func)
+{
+  GSList *p;
+
+  for (p = list; p; p = g_slist_delete_link (p, p))
+    if (free_func)
+      free_func (p->data);
+}
+
+#endif
+

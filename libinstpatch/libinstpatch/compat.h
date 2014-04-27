@@ -41,5 +41,14 @@ void g_weak_ref_set (GWeakRef *weak_ref, gpointer object);
 
 #endif
 
+// Enable g_slist_free_full emulation if glib version less than 2.28
+#ifndef GLIB_VERSION_2_28
+
+#define IPATCH_COMPAT_SLIST_FREE_FULL   1
+
+void g_slist_free_full (GSList *list, GDestroyNotify free_func);
+
+#endif
+
 #endif
 
