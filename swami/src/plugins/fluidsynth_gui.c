@@ -118,7 +118,7 @@ fluid_synth_pref_handler (void)
 				    "text", 0,
 				    NULL);
 
-    g_object_get (swamigui_root->wavetbl, "audio-driver-options", &options, NULL);	/* ++ alloc */
+    g_object_get (swamigui_root->wavetbl, "audio.driver-options", &options, NULL);	/* ++ alloc */
 
     for (optionp = options; *optionp; optionp++)
       gtk_combo_box_append_text (GTK_COMBO_BOX (widg), *optionp);
@@ -146,7 +146,7 @@ fluid_synth_pref_handler (void)
 				    "text", 0,
 				    NULL);
 
-    g_object_get (swamigui_root->wavetbl, "midi-driver-options", &options, NULL);	/* ++ alloc */
+    g_object_get (swamigui_root->wavetbl, "midi.driver-options", &options, NULL);	/* ++ alloc */
 
     for (optionp = options; *optionp; optionp++)
       gtk_combo_box_append_text (GTK_COMBO_BOX (widg), *optionp);
