@@ -79,8 +79,12 @@ link_directories ( ${GOBJECT_LIBDIR} ${GOBJECT_LIBRARY_DIRS}
 
 add_library ( fftune MODULE fftune.c )
 
+if (UNIX)
+    set(MATH_LIB m)
+endif (UNIX)
+
 target_link_libraries ( fftune libswami ${GOBJECT_LIBRARIES}
-    ${LIBINSTPATCH_LIBRARIES} ${FFTW_LIBRARIES}
+    ${LIBINSTPATCH_LIBRARIES} ${FFTW_LIBRARIES} ${MATH_LIB}
 )
 
 link_directories ( ${GUI_LIBDIR} ${GUI_LIBRARY_DIRS} ${LIBINSTPATCH_LIBDIR}

@@ -147,12 +147,17 @@ add_library ( libswamigui
     ${libswamigui_SOURCES}
 )
 
+if (UNIX)
+    set(MATH_LIB m)
+endif (UNIX)
+
 target_link_libraries ( libswamigui
     libswami
     ${GUI_LIBRARIES}
     ${LIBGLADE_LIBRARIES}
     ${LIBINSTPATCH_LIBRARIES}
     ${COREFOUNDATION}
+    ${MATH_LIB}
 )
 
 install ( FILES
