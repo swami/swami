@@ -364,7 +364,7 @@ create_patch_type_menu (SwamiguiMenu *guimenu)
   GtkWidget *item;
   GtkWidget *icon;
   GType *types, *ptype;
-  char *name, *blurb;
+  char *name;
   char *free_icon = NULL, *icon_name;
   guint n_types;
   gint category;
@@ -375,35 +375,36 @@ create_patch_type_menu (SwamiguiMenu *guimenu)
   qsort (types, n_types, sizeof (GType), sort_by_type_name);
 
   for (ptype = types; *ptype; ptype++)
+  {
+    ipatch_type_get (*ptype,
+                     "name", &name,
+                     "icon", &free_icon,
+                     "category", &category,
+		     NULL);
+    if (!name)
     {
-      ipatch_type_get (*ptype,
-		       "name", &name,
-		       "blurb", &blurb,
-		       NULL);
-      if (name)
-	{
-	  item = gtk_image_menu_item_new_with_label (name);
-
-	  /* get icon stock name */
-	  ipatch_type_get (*ptype, "icon", &free_icon,
-				  "category", &category,
-				  NULL);
-	  if (!free_icon) icon_name = swamigui_icon_get_category_icon (category);
-	  else icon_name = free_icon;
-
-	  icon = gtk_image_new_from_stock (icon_name, GTK_ICON_SIZE_MENU);
-	  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), icon);
-	  if (free_icon) g_free (free_icon);
-
-	  g_object_set_data (G_OBJECT (item), "patch-type",
-			     GSIZE_TO_POINTER (*ptype));
-	  gtk_widget_show_all (item);
-
-	  gtk_container_add (GTK_CONTAINER (menu), item);
-	  g_signal_connect (item, "activate",
-			    G_CALLBACK (swamigui_menu_cb_new_patch), guimenu);
-	}
+      g_free (free_icon);
+      continue;
     }
+
+    item = gtk_image_menu_item_new_with_label (name);
+    g_free (name);
+
+    if (!free_icon) icon_name = swamigui_icon_get_category_icon (category);
+    else icon_name = free_icon;
+
+    icon = gtk_image_new_from_stock (icon_name, GTK_ICON_SIZE_MENU);
+    gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), icon);
+
+    g_free (free_icon);
+
+    g_object_set_data (G_OBJECT (item), "patch-type", GSIZE_TO_POINTER (*ptype));
+    gtk_widget_show_all (item);
+
+    gtk_container_add (GTK_CONTAINER (menu), item);
+    g_signal_connect (item, "activate",
+                      G_CALLBACK (swamigui_menu_cb_new_patch), guimenu);
+  }
 
   g_free (types);
 
