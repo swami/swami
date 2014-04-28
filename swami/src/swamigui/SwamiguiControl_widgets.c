@@ -31,6 +31,7 @@
 #include "SwamiguiSpinScale.h"
 #include "SwamiguiNoteSelector.h"
 #include "SwamiguiComboEntry.h"
+#include "icons.h"
 #include "i18n.h"
 
 
@@ -1183,35 +1184,56 @@ combo_box_gtype_control_handler (GObject *widget, GType value_type, GParamSpec *
   GtkTreeIter iter;
   GType basetype;
   GType *types;
-  char *s;
+  char *name, *free_icon, *icon_name;
+  gint category;
   int i;
 
   g_return_val_if_fail (G_PARAM_SPEC_TYPE (pspec) == G_TYPE_PARAM_GTYPE, NULL);
 
-  store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_GTYPE);
+  store = gtk_list_store_new (3, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_GTYPE);
   gtk_combo_box_set_model (GTK_COMBO_BOX (widget), GTK_TREE_MODEL (store));
 
-  renderer = gtk_cell_renderer_text_new ();
-  gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (widget), renderer, TRUE);
+  renderer = gtk_cell_renderer_pixbuf_new ();
+  g_object_set (renderer, "xalign", 0.0, NULL);
+  gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (widget), renderer, FALSE);
   gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (widget), renderer,
-				  "text", 0, NULL);
+				  "stock-id", 0, NULL);
+
+  renderer = gtk_cell_renderer_text_new ();
+  g_object_set (renderer, "xalign", 0.0, NULL);
+  gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (widget), renderer, FALSE);
+  gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (widget), renderer,
+				  "text", 1, NULL);
 
   basetype = ((GParamSpecGType *)pspec)->is_a_type;
 
   /* ++ alloc list of child types of base GType of parameter spec */
   types = swami_util_get_child_types (basetype, NULL);
 
-  /* add types to combo box */
+  /* add type info to combo box */
   for (i = 0; types[i]; i++)
   {
     gtk_list_store_append (store, &iter);
 
-    s = g_strdup (g_type_name (types[i]));		/* ++ alloc string */
+    ipatch_type_get (types[i],
+                     "name", &name,             // ++ alloc
+                     "icon", &free_icon,        // ++ alloc
+                     "category", &category,
+		     NULL);
+
+    if (!name) name = g_strdup (g_type_name (types[i]));        /* ++ alloc string */
+
+    if (!free_icon) icon_name = swamigui_icon_get_category_icon (category);
+    else icon_name = free_icon;
+
     gtk_list_store_set (store, &iter,
-			0, s,
-			1, types[i],
+			0, icon_name,
+			1, name,
+			2, types[i],
 			-1);
-    g_free (s);						/* -- free string */
+
+    g_free (name);              // Free name
+    g_free (free_icon);         // Free the stock icon name (if any)
   }
 
   g_free (types);					/* -- free type array */
@@ -1266,7 +1288,7 @@ combo_box_gtype_control_get_func (SwamiControl *control, GValue *value)
   {
     if (gtk_combo_box_get_active_iter (combo, &iter))
     { /* get the GType value stored for the active item */
-      gtk_tree_model_get (gtk_combo_box_get_model (combo), &iter, 1, &type, -1);
+      gtk_tree_model_get (gtk_combo_box_get_model (combo), &iter, 2, &type, -1);
       g_value_set_gtype (value, type);
     }
 
@@ -1305,7 +1327,7 @@ combo_box_gtype_control_set_func (SwamiControl *control, SwamiControlEvent *even
     /* look for matching combo box item by GType */
     do
     {
-      gtk_tree_model_get (model, &iter, 1, &type, -1);
+      gtk_tree_model_get (model, &iter, 2, &type, -1);
 
       if (valtype == type)
       {
@@ -1340,7 +1362,7 @@ combo_box_gtype_control_changed (GtkComboBox *combo, gpointer user_data)
   if (!gtk_combo_box_get_active_iter (combo, &iter)) return;
 
   /* get GType of active combo box item */
-  gtk_tree_model_get (model, &iter, 1, &type, -1);
+  gtk_tree_model_get (model, &iter, 2, &type, -1);
 
   /* transmit the combo box change */
   g_value_init (&value, G_TYPE_GTYPE);
