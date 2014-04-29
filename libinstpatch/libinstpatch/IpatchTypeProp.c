@@ -134,6 +134,11 @@ _ipatch_type_prop_init (void)
     (g_param_spec_enum ("splits-type", "Splits type",
 			"Splits type", IPATCH_TYPE_SPLITS_TYPE,
 			IPATCH_SPLITS_NONE, G_PARAM_READWRITE));
+
+  /* mime type for IpatchFile derived types */
+  ipatch_type_install_property
+    (g_param_spec_string ("mime-type", "Mime type", "Mime type",
+			  NULL, G_PARAM_READWRITE));
 }
 
 /* hash function for GType property value hash */

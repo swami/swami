@@ -103,6 +103,7 @@ typedef enum
 } IpatchBaseSaveFlags;
 
 GType ipatch_base_get_type (void);
+char *ipatch_base_type_get_mime_type (GType base_type);
 void ipatch_base_set_file (IpatchBase *base, IpatchFile *file);
 IpatchFile *ipatch_base_get_file (IpatchBase *base);
 void ipatch_base_set_file_name (IpatchBase *base, const char *file_name);

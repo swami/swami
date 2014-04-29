@@ -28,6 +28,7 @@
 #include "IpatchBase.h"
 #include "IpatchConverter.h"
 #include "IpatchParamProp.h"
+#include "IpatchTypeProp.h"
 #include "util.h"
 #include "ipatch_priv.h"
 
@@ -58,6 +59,30 @@ static GParamSpec *file_name_pspec;
 
 G_DEFINE_ABSTRACT_TYPE (IpatchBase, ipatch_base, IPATCH_TYPE_CONTAINER);
 
+
+/**
+ * ipatch_base_type_get_mime_type:
+ * @base_type: #IpatchBase derived type to get mime type of
+ *
+ * Get the mime type of the file type associated with the given base patch file type.
+ *
+ * Returns: Mime type or NULL if none assigned for this base type. Free the string when
+ *   finished with it.
+ *
+ * Since: 1.1.0
+ */
+char *
+ipatch_base_type_get_mime_type (GType base_type)
+{
+  IpatchConverterInfo *info;
+  char *mime_type;
+
+  info = ipatch_lookup_converter_info (0, base_type, IPATCH_TYPE_FILE);
+  if (!info) return (NULL);
+  ipatch_type_get (info->dest_type, "mime-type", &mime_type, NULL);
+
+  return (mime_type);
+}
 
 static void
 ipatch_base_class_init (IpatchBaseClass *klass)

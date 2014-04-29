@@ -358,6 +358,16 @@ ipatch_init (void)
 		   "splits-type", IPATCH_SPLITS_NORMAL, NULL);
   ipatch_type_set (IPATCH_TYPE_VBANK_INST,
 		   "splits-type", IPATCH_SPLITS_NORMAL, NULL);
+
+  /* set "mime-type" properties */
+  ipatch_type_set (IPATCH_TYPE_SF2_FILE,
+                   "mime-type", "audio/x-soundfont", NULL);
+  ipatch_type_set (IPATCH_TYPE_DLS_FILE,
+                   "mime-type", "audio/dls", NULL);
+  ipatch_type_set (IPATCH_TYPE_GIG_FILE,
+                   "mime-type", "audio/x-gigasampler", NULL);
+  ipatch_type_set (IPATCH_TYPE_SLI_FILE,
+                   "mime-type", "audio/x-spectralis", NULL);
 }
 
 static gboolean
