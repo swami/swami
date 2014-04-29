@@ -103,6 +103,9 @@ struct _SwamiguiRootClass
   void (*quit)(SwamiguiRoot *root);
 };
 
+// Name of instrument files group for GtkRecentManager items
+#define SWAMIGUI_ROOT_INSTRUMENT_FILES_GROUP  "Instrument Files"
+
 /* global instances of SwamiguiRoot */
 extern SwamiguiRoot *swamigui_root;
 extern SwamiRoot *swami_root;	/* just for convenience */

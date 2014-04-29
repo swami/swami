@@ -37,7 +37,9 @@
 
 static void swamigui_menu_class_init (SwamiguiMenuClass *klass);
 static void swamigui_menu_init (SwamiguiMenu *menubar);
-
+static gboolean
+swamigui_menu_recent_filter_custom_func (const GtkRecentFilterInfo *filter_info,
+                                         gpointer user_data);
 static void
 swamigui_menu_recent_chooser_item_activated (GtkRecentChooser *chooser,
 					     gpointer user_data);
@@ -262,9 +264,10 @@ swamigui_menu_init (SwamiguiMenu *guimenu)
   /* set the limit to unlimited (FIXME - issues?) */
   gtk_recent_chooser_set_limit (GTK_RECENT_CHOOSER (recent_menu), -1);
 
-  /* filter recent items to only include those stored by Swami */
+  /* filter recent items to only include those stored by Swami and in the instrument files group */
   filter = gtk_recent_filter_new ();
-  gtk_recent_filter_add_application (filter, "swami");
+  gtk_recent_filter_add_custom (filter, GTK_RECENT_FILTER_APPLICATION | GTK_RECENT_FILTER_GROUP,
+                                swamigui_menu_recent_filter_custom_func, NULL, NULL);
   gtk_recent_chooser_set_filter (GTK_RECENT_CHOOSER (recent_menu), filter);
 
   /* Set the sort type to most recent first */
@@ -276,6 +279,33 @@ swamigui_menu_init (SwamiguiMenu *guimenu)
 
   g_signal_connect (recent_menu, "item-activated",
 		    G_CALLBACK (swamigui_menu_recent_chooser_item_activated), NULL);
+}
+
+/* Custom filter function to match application name and instrument files group (exclude samples, etc) */
+static gboolean
+swamigui_menu_recent_filter_custom_func (const GtkRecentFilterInfo *filter_info,
+                                         gpointer user_data)
+{
+  const char **sp;
+  const char *app_name;
+
+  if (!filter_info->applications || !filter_info->groups)
+    return (FALSE);
+
+  app_name = g_get_application_name ();
+
+  for (sp = filter_info->applications; *sp; sp++)
+    if (strcmp (*sp, app_name) == 0)
+      break;
+
+  if (!*sp)
+    return (FALSE);
+
+  for (sp = filter_info->groups; *sp; sp++)
+    if (strcmp (*sp, SWAMIGUI_ROOT_INSTRUMENT_FILES_GROUP) == 0)
+      break;
+
+  return (*sp != NULL);
 }
 
 /* callback for when the user selects a recent file in the recent files menu */

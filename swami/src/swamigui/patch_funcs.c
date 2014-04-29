@@ -155,6 +155,9 @@ swamigui_cb_load_files_response (GtkWidget *dialog, gint response,
   gboolean load_samples, paste_possible;
   IpatchPaste *paste;
   IpatchList *biglist;
+  GtkRecentData recent_data;
+  char *groups[2] = { SWAMIGUI_ROOT_INSTRUMENT_FILES_GROUP, NULL };
+  IpatchItem *patch;
 
   if (response != GTK_RESPONSE_ACCEPT && response != GTK_RESPONSE_APPLY)
   {
@@ -192,7 +195,7 @@ swamigui_cb_load_files_response (GtkWidget *dialog, gint response,
     {
       patch_loaded = TRUE;      // Set patch path regardless if successful
 
-      if (!swami_root_patch_load (root, fname, NULL, &err))
+      if (!swami_root_patch_load (root, fname, &patch, &err))   // ++ ref patch object
       { /* error occurred - log it */
         g_critical (_("Failed to load file '%s': %s"), fname, ipatch_gerror_message (err));
         g_clear_error (&err);
@@ -203,11 +206,29 @@ swamigui_cb_load_files_response (GtkWidget *dialog, gint response,
       {
         manager = gtk_recent_manager_get_default ();
 
-        if (!gtk_recent_manager_add_item (manager, file_uri))
+        recent_data.display_name = NULL;
+        recent_data.description = NULL;
+
+        // ++ alloc mime type
+        recent_data.mime_type = ipatch_base_type_get_mime_type (G_OBJECT_TYPE (patch));
+        if (!recent_data.mime_type) recent_data.mime_type = g_strdup ("application/octet-stream");
+
+        recent_data.app_name = g_strdup (g_get_application_name ());            // ++ alloc
+        recent_data.app_exec = g_strjoin (" ", g_get_prgname (), "%f", NULL);   // ++ alloc
+        recent_data.groups = groups;
+        recent_data.is_private = FALSE;
+
+        // Add full info to set group of instrument files, to filter out sample files from the recent menu, etc.
+        if (!gtk_recent_manager_add_full (manager, file_uri, &recent_data))
           g_warning ("Error while adding file name to recent manager.");
 
-        g_free (file_uri);      // -- free
+        g_free (recent_data.mime_type); // -- free mime type
+        g_free (recent_data.app_name);  // -- free application name
+        g_free (recent_data.app_exec);  // -- free app exec command
+        g_free (file_uri);              // -- free file uri
       }
+
+      g_object_unref (patch);           // -- free
     }
     else if (g_type_is_a (type, IPATCH_TYPE_SND_FILE))
     {
