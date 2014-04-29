@@ -39,6 +39,7 @@ AC_CONFIG_MACRO_DIR(m4)
 AC_CANONICAL_SYSTEM
 
 AM_INIT_AUTOMAKE(libinstpatch, $IPATCH_VERSION)
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 AC_CONFIG_HEADERS(config.h)
 
 IPATCH_VERSION="\"$VERSION\""
@@ -50,7 +51,7 @@ AC_DEBUGGING
 AC_PROG_CC
 
 # Set this after AC_PROG_CC so that we inherit the defaults from it
-CFLAGS="$CFLAGS -Wall"
+CFLAGS="$CFLAGS -Wall -DGLIB_DISABLE_DEPRECATION_WARNINGS"
 
 # International language support
 AM_GNU_GETTEXT([external])

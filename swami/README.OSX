@@ -128,7 +128,6 @@ $ jhbuild build libfftw3
 $ jhbuild build fluidsynth
 $ jhbuild build libgnomecanvas
 $ jhbuild build libxml2
-$ jhbuild build librsvg
 
 3. Now we could teach jhbuild to also build libinstpatch and swami like above if
    we built a release from tarballs but I simply built these by hand instead:
