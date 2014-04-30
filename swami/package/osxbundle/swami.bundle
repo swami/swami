@@ -86,10 +86,6 @@
   </binary>
 
   <binary>
-    ${prefix}/lib/gdk-pixbuf-2.0/${pkg:${gtk}:gtk_binary_version}/loaders/libpixbufloader-svg.so
-  </binary>
-
-  <binary>
     ${prefix}/lib/pango/${pkg:pango:pango_module_version}/modules/pango-basic-coretext.so
   </binary>
 
