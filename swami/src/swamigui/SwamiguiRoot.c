@@ -137,6 +137,8 @@ static void
 osx_accel_map_foreach_lcb(gpointer data, const gchar *accel_path,
                           guint accel_key, GdkModifierType accel_mods,
                           gboolean changed);
+static gboolean swamigui_root_cb_should_quit (GtkosxApplication *theApp,
+					      gpointer data);
 #endif
 
 static guint uiroot_signals[LAST_SIGNAL] = { 0 };
@@ -1257,6 +1259,12 @@ swamigui_root_create_main_window (SwamiguiRoot *root)
 
   g_signal_connect (root->main_window, "delete_event",
 		    G_CALLBACK (swamigui_root_cb_main_window_delete), root);
+#ifdef MAC_INTEGRATION
+  GtkosxApplication *theApp = g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
+
+  g_signal_connect (theApp, "NSApplicationBlockTermination",
+		    G_CALLBACK (swamigui_root_cb_should_quit), root);
+#endif
 
   /* add the item menu keyboard accelerators */
   gtk_window_add_accel_group (GTK_WINDOW (root->main_window),
@@ -1279,7 +1287,6 @@ swamigui_root_create_main_window (SwamiguiRoot *root)
   gtk_widget_show (widg);
   gtk_box_pack_start (GTK_BOX (tempbox), widg, FALSE, FALSE, 0);
 #else /* menu is handled a bit differently on OS X */
-  GtkosxApplication *theApp = g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
   GtkUIManager *mgr = (SWAMIGUI_MENU (widg))->ui;
   GtkWidget *mitem;
 
@@ -1795,6 +1802,16 @@ osx_accel_map_foreach_lcb(gpointer data, const gchar *accel_path,
 
     gtk_accel_map_change_entry(accel_path, accel_key, accel_mods, FALSE);
   } 
+}
+
+/* Callback called for NSApplicationShouldTerminate notification
+ * we return TRUE to veto the termination here because the user can
+ * cancel the quit dialog */
+static gboolean swamigui_root_cb_should_quit (GtkosxApplication *theApp,
+					      gpointer data)
+{
+  swamigui_root_quit (SWAMIGUI_ROOT (data));
+  return TRUE;
 }
 #endif
 
