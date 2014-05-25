@@ -17,6 +17,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchConvert_Gig
+ * @short_description: GigaSampler conversion handlers
+ * @see_also: #IpatchConverter
+ * @stability: Stable
+ *
+ * Conversion handlers for GigaSampler objects.
+ */
 #include <stdio.h>
 #include <glib.h>
 #include <glib-object.h>

@@ -19,13 +19,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchSLI
- * @short_description: Spectralis instrument file object
- * @see_also: 
- *
- * Object type for Spectralis format instruments.
- */
 #ifndef __IPATCH_SLI_H__
 #define __IPATCH_SLI_H__
 

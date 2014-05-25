@@ -17,6 +17,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchSF2VoiceCache
+ * @short_description: SoundFont voice cache object
+ * @see_also: 
+ * @stability: Stable
+ *
+ * This is used for pre-processing instruments into arrays of SoundFont
+ * compatible voices which can then be accessed very quickly without
+ * multi-thread locking or other issues (during synthesis for example).
+ */
 #include <stdarg.h>
 #include <glib.h>
 #include <glib-object.h>

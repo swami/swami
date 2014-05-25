@@ -17,12 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: util
- * @short_description: Utility functions
- * @see_also: 
- * @stability: Stable
- */
 #ifndef __IPATCH_UTIL_H__
 #define __IPATCH_UTIL_H__
 

@@ -17,6 +17,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchSampleStoreRom
+ * @short_description: Sample storage object for audio in ROM of a sound card
+ * @see_also: 
+ * @stability: Stable
+ */
 #include <glib.h>
 #include <glib-object.h>
 #include "IpatchSampleStoreRom.h"

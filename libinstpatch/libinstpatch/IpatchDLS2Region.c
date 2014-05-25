@@ -17,6 +17,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchDLS2Region
+ * @short_description: DLS region object
+ * @see_also: #IpatchDLSInst
+ * @stability: Stable
+ *
+ * DLS regions are child items of #IpatchDLSInst objects and define how an
+ * individual audio sample is synthesized in an instrument.
+ */
 #include <stdarg.h>
 #include <glib.h>
 #include <glib-object.h>

@@ -17,14 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchConvert_SF2
- * @short_description: SoundFont conversion handlers
- * @see_also: #IpatchConverter
- * @stability: Stable
- *
- * Conversion handlers for SoundFont objects.
- */
 #ifndef __IPATCH_CONVERT_SF2_H__
 #define __IPATCH_CONVERT_SF2_H__
 

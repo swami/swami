@@ -17,16 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchVirtualContainer
- * @short_description: Virtual container object
- * @see_also: 
- * @stability: Stable
- *
- * Virtual containers are used in user interfaces to group items in
- * containers that aren't actually present in the hierarchy, such as
- * "Instruments", "Melodic Presets", "Percussion Presets" in SF2 files.
- */
 #ifndef __IPATCH_VIRTUAL_CONTAINER_H__
 #define __IPATCH_VIRTUAL_CONTAINER_H__
 

@@ -17,16 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchTypeProp
- * @short_description: GObject style properties for GTypes
- * @see_also: 
- * @stability: Stable
- *
- * Provides a registry system for adding GObject style properties to GTypes.
- * This is used to describe certain properties of different objects, such as
- * "category".
- */
 #ifndef __IPATCH_TYPE_PROP_H__
 #define __IPATCH_TYPE_PROP_H__
 

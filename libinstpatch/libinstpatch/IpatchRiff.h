@@ -17,14 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchRiff
- * @short_description: RIFF file parser/composer object
- * @see_also: 
- * @stability: Stable
- *
- * A RIFF file parser/composer.  Used for DLS, SoundFont and GigaSampler files.
- */
 #ifndef __IPATCH_RIFF_H__
 #define __IPATCH_RIFF_H__
 

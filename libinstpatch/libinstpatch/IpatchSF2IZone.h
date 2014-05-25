@@ -17,15 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchSF2IZone
- * @short_description: SoundFont instrument zone object
- * @see_also: #IpatchSF2Inst, #IpatchSF2Sample
- * @stability: Stable
- *
- * Instrument zones are children to #IpatchSF2Inst objects and define how
- * their referenced #IpatchSF2Sample is synthesized.
- */
 #ifndef __IPATCH_SF2_IZONE_H__
 #define __IPATCH_SF2_IZONE_H__
 

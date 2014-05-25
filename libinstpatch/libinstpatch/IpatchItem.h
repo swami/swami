@@ -17,15 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchItem
- * @short_description: Abstract base item object
- * @see_also: 
- * @stability: Stable
- *
- * The abstract base item type from which all instrument objects are derived
- * and many other object types as well.
- */
 #ifndef __IPATCH_ITEM_H__
 #define __IPATCH_ITEM_H__
 

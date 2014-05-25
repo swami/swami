@@ -25,12 +25,6 @@
  * Josh Green: made some changes to integrate with libInstPatch.
  * Still in the public domain.
  */
-/**
- * SECTION: md5
- * @short_description: MD5 hashing functions
- * @see_also:
- * @stability: Stable
- */
 #ifndef __IPATCH__MD5_H__
 #define __IPATCH__MD5_H__
 

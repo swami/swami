@@ -17,6 +17,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchList
+ * @short_description: An object containing a list of object pointers
+ * @see_also: 
+ * @stability: Stable
+ *
+ * An object which defines a list of object pointers.  A #GObject reference
+ * is held to all objects until the #IpatchList itself is released.
+ */
 #include <glib.h>
 #include <glib-object.h>
 #include "IpatchList.h"

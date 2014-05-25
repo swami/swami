@@ -17,6 +17,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: util
+ * @short_description: Utility functions
+ * @see_also: 
+ * @stability: Stable
+ */
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <glib-object.h>

@@ -17,15 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchDLS2Conn
- * @short_description: DLS version 2 connection structures and functions
- * @see_also: 
- * @stability: Stable
- *
- * Defines structures and functions used for DLS version 2 instrument
- * parameters (called connections in DLS terminology).
- */
 #ifndef __IPATCH_DLS2_CONN_H__
 #define __IPATCH_DLS2_CONN_H__
 

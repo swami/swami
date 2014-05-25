@@ -17,6 +17,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchGigInst
+ * @short_description: GigaSampler instrument object
+ * @see_also: 
+ * @stability: Stable
+ *
+ * GigaSampler instrument objects are the toplevel instrument objects in a
+ * GigaSampler file.
+ */
 #include <stdarg.h>
 #include <string.h>
 #include <glib.h>

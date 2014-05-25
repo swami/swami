@@ -17,6 +17,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchUnit_SF2
+ * @short_description: Unit types and conversions for SoundFont
+ * @see_also: 
+ * @stability: Stable
+ */
 #include <stdio.h>
 #include <math.h>
 #include <glib.h>

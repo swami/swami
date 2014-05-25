@@ -17,6 +17,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchSampleStoreFile
+ * @short_description: Sample store object type for audio in files on disk
+ * @see_also: 
+ * @stability: Stable
+ */
 #include <glib.h>
 #include <glib-object.h>
 #include <errno.h>

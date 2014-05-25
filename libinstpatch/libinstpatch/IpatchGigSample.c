@@ -17,6 +17,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchGigSample
+ * @short_description: GigaSampler sample object
+ * @see_also: #IpatchGig
+ * @stability: Stable
+ *
+ * Object defining a GigaSampler sample object.  Child of #IpatchGig objects
+ * and referenced by #IpatchGigSubRegion objects.
+ */
 #include <stdarg.h>
 #include <glib.h>
 #include <glib-object.h>

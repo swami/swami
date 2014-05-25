@@ -19,6 +19,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchSLIReader
+ * @short_description: Spectralis file reader
+ * @see_also: 
+ *
+ * Reads a Spectralis SLI or SLC file and loads it into a object tree
+ * (#IpatchSLI).
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

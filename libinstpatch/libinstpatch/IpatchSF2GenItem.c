@@ -17,6 +17,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchSF2GenItem
+ * @short_description: SoundFont generator item interface
+ * @see_also: #IpatchSF2Preset, #IpatchSF2Inst, #IpatchSF2PZone, #IpatchSF2IZone
+ * @stability: Stable
+ *
+ * Provides an interface for items which have SoundFont generator properties.
+ * SoundFont generators are synthesis parameters used by #IpatchSF2Preset,
+ * #IpatchSF2Inst, #IpatchSF2PZone and #IpatchSF2IZone objects.
+ */
 #include <stdio.h>
 #include <stdarg.h>
 #include <math.h>		/* for conversion functions */

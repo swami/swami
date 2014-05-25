@@ -17,14 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchUnit_generic
- * @short_description: Generic unit types and conversions
- * @see_also: 
- * @stability: Stable
- *
- * 
- */
 #ifndef __IPATCH_UNIT_GENERIC_H__
 #define __IPATCH_UNIT_GENERIC_H__
 

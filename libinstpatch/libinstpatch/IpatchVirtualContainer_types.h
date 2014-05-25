@@ -17,12 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchVirtualContainer_types
- * @short_description: Built in virtual container types
- * @see_also: 
- * @stability: Stable
- */
 #ifndef __IPATCH_VIRTUAL_CONTAINER_TYPES_H__
 #define __IPATCH_VIRTUAL_CONTAINER_TYPES_H__
 

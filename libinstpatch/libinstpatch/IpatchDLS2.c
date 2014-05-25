@@ -17,6 +17,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchDLS2
+ * @short_description: DLS version 2 instrument file object
+ * @see_also: 
+ * @stability: Stable
+ *
+ * Object type for DLS version 2 format instruments.
+ */
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>

@@ -17,6 +17,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchSF2PZone
+ * @short_description: SoundFont preset zone object
+ * @see_also: #IpatchSF2Preset, #IpatchSF2Inst
+ * @stability: Stable
+ *
+ * Preset zones are children to #IpatchSF2Preset objects and define how
+ * offset generators (effect parameters) for their referenced #IpatchSF2Inst.
+ */
 #include <stdarg.h>
 #include <string.h>
 #include <glib.h>

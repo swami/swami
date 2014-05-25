@@ -17,6 +17,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchSF2Reader
+ * @short_description: SoundFont file reader
+ * @see_also: 
+ * @stability: Stable
+ *
+ * Reads a SoundFont file and loads it into a object tree (#IpatchSF2).
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

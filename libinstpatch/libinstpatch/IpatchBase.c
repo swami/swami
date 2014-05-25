@@ -16,7 +16,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
+ */
+/**
+ * SECTION: IpatchBase
+ * @short_description: Base instrument file object type
+ * @see_also: 
+ * @stability: Stable
  *
+ * Defines an abstract object type which is used as the basis of instrument
+ * files, such as #IpatchSF2, #IpatchDLS, etc.
  */
 #include <stdio.h>
 #include <string.h>

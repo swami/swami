@@ -17,15 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchDLS2Info
- * @short_description: DLS version 2 info functions and structure
- * @see_also: 
- * @stability: Stable
- *
- * Structure and functions used for storing DLS informational properties at
- * many levels of the format.
- */
 #ifndef __IPATCH_DLS2_INFO_H__
 #define __IPATCH_DLS2_INFO_H__
 

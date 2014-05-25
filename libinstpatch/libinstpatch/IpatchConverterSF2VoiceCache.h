@@ -17,16 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchConverterSF2VoiceCache
- * @short_description: Base object type used for #IpatchSF2Voice cache converters
- * @see_also: 
- * @stability: Stable
- *
- * Defines a base type which other #IpatchSF2Voice converter types are derived
- * from.  Defines some properties like "solo-item" for solo-ing a sub
- * component of an instrument.
- */
 #ifndef __IPATCH_CONVERTER_SF2_VOICE_CACHE_H__
 #define __IPATCH_CONVERTER_SF2_VOICE_CACHE_H__
 

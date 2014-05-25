@@ -17,12 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchSF2VoiceCache_Gig
- * @short_description: Voice cache converters for GigaSampler object types
- * @see_also: #IpatchSF2VoiceCache
- * @stability: Stable
- */
 #ifndef __IPATCH_SF2_VOICE_CACHE_GIG_H__
 #define __IPATCH_SF2_VOICE_CACHE_GIG_H__
 

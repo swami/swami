@@ -17,7 +17,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchUnit
+ * @short_description: Unit conversion system
+ * @see_also: 
+ * @stability: Stable
+ *
+ * System for registering unit types and conversion functions.
+ */
 #include <stdio.h>
+#include <string.h>
 #include <glib.h>
 #include <glib-object.h>
 #include "IpatchUnit.h"

@@ -16,17 +16,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
- *
- */
-/**
- * SECTION: IpatchXmlObject
- * @short_description: GObject related XML tree functions
- * @see_also: IpatchXml
- * @stability: Stable
- *
- * Functions for saving/loading GObject, GValue and GObject properties
- * to/from XML trees.  Includes a system for registering custom encoding and
- * decoding handlers for objects, properties and value types.
  */
 #ifndef __IPATCH_XML_OBJECT_H__
 #define __IPATCH_XML_OBJECT_H__

@@ -17,6 +17,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchVirtualContainer
+ * @short_description: Virtual container object
+ * @see_also: 
+ * @stability: Stable
+ *
+ * Virtual containers are used in user interfaces to group items in
+ * containers that aren't actually present in the hierarchy, such as
+ * "Instruments", "Melodic Presets", "Percussion Presets" in SF2 files.
+ */
 #include <stdio.h>
 #include <glib.h>
 #include <glib-object.h>

@@ -18,15 +18,6 @@
  * 02110-1301, USA or on the web at http://www.gnu.org.
  *
  */
-/**
- * SECTION: IpatchBase
- * @short_description: Base instrument file object type
- * @see_also: 
- * @stability: Stable
- *
- * Defines an abstract object type which is used as the basis of instrument
- * files, such as #IpatchSF2, #IpatchDLS, etc.
- */
 #ifndef __IPATCH_BASE_H__
 #define __IPATCH_BASE_H__
 

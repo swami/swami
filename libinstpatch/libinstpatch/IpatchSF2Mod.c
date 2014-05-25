@@ -17,6 +17,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchSF2Mod
+ * @short_description: SoundFont modulators
+ * @see_also: 
+ * @stability: Stable
+ *
+ * SoundFont modulators are used to define real time MIDI effect controls.
+ */
 #include <glib.h>
 #include <glib-object.h>
 #include "IpatchSF2Mod.h"

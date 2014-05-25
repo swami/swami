@@ -17,6 +17,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchSF2Zone
+ * @short_description: Abstract base class for SoundFont zones
+ * @see_also: 
+ * @stability: Stable
+ *
+ * Zones are children of #IpatchSF2Preset and #IpatchSF2Inst and define
+ * synthesis parameters and a linked item (#IpatchSF2Inst in the case of
+ * #IpatchSF2PZone and #IpatchSF2Sample in the case of #IpatchSF2IZone).
+ */
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>

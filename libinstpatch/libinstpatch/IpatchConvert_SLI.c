@@ -19,6 +19,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchConvert_SLI
+ * @short_description: Spectralis conversion handlers
+ * @see_also: #IpatchConverter
+ *
+ * Conversion handlers for Spectralis objects.
+ */
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>

@@ -17,16 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchVBankInst
- * @short_description: VBank instrument item
- * @see_also: #IpatchVBank
- * @stability: Stable
- *
- * VBank instruments are children of #IpatchVBank objects and define individual
- * instruments mapped to MIDI bank/program numbers and which reference items
- * in other instrument files.
- */
 #ifndef __IPATCH_VBANK_INST_H__
 #define __IPATCH_VBANK_INST_H__
 

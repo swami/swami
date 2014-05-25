@@ -17,6 +17,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchSF2File
+ * @short_description: SoundFont file object
+ * @see_also: 
+ * @stability: Stable
+ *
+ * A #IpatchFile object type specifically for SoundFont files.
+ */
 #include <string.h>
 #include <glib.h>
 #include <glib-object.h>

@@ -17,6 +17,17 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchSampleData
+ * @short_description: Sample data proxy object.
+ * @see_also: #IpatchSampleStore
+ * @stability: Stable
+ *
+ * An object which acts as a proxy for sample data and one or more cached
+ * versions of the same audio but potentially differing in sample format
+ * and/or storage media.  #IpatchSampleStore is used instead of the
+ * #IpatchSample interface, for increased performance.
+ */
 #include <stdarg.h>
 #include <string.h>
 #include <glib.h>

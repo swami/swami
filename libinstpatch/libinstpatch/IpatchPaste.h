@@ -17,15 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchPaste
- * @short_description: Object paste instance
- * @see_also: 
- * @stability: Stable
- *
- * This object provides a system and instance for doing cut/paste operations
- * on instrument items.
- */
 #ifndef __IPATCH_PASTE_H__
 #define __IPATCH_PASTE_H__
 

@@ -17,6 +17,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: sample
+ * @short_description: Audio sample format conversion functions and defines.
+ * @see_also: 
+ * @stability: Stable
+ *
+ * This module provides functions for converting audio formats as well as a system
+ * for defining audio formats with a single integer composed of multiple fields
+ * for sample width, channel count, sign and endian byte order.
+ */
 #include <glib.h>
 #include <glib-object.h>
 #include "sample.h"

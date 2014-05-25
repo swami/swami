@@ -17,6 +17,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchSF2Writer
+ * @short_description: SoundFont writer object
+ * @see_also: 
+ * @stability: Stable
+ *
+ * Object for writing a tree of SoundFont objects (#IpatchSF2) to a SoundFont
+ * file.
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -17,6 +17,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchConvert_DLS2
+ * @short_description: DLS conversion types
+ * @see_also: #IpatchConverter
+ * @stability: Stable
+ *
+ * DLS object converter types.
+ */
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>

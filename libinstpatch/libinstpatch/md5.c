@@ -25,7 +25,12 @@
  * Josh Green: made some changes to integrate with libInstPatch.
  * Still in the public domain.
  */
-
+/**
+ * SECTION: md5
+ * @short_description: MD5 hashing functions
+ * @see_also:
+ * @stability: Stable
+ */
 #include <stdlib.h>		/* for malloc() */
 #include <string.h>		/* for memcpy() */
 #include <glib.h>

@@ -17,6 +17,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchConverter
+ * @short_description: Base class for object conversion handlers
+ * @see_also: 
+ * @stability: Stable
+ *
+ * A base abstract type for object conversion handlers.
+ */
 #include <stdio.h>
 #include <glib.h>
 #include <glib-object.h>

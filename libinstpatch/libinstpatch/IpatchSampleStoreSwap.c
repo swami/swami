@@ -17,6 +17,31 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchSampleStoreSwap
+ * @short_description: Sample storage object for audio in memory or temporary
+ *   swap file
+ * @see_also: 
+ * @stability: Stable
+ *
+ * Swap sample stores are used for data which does not have a safe external
+ * source, for example if a sample was originally loaded from an external
+ * audio file or an instrument file that was closed.
+ *
+ * Swap sample stores are stored in RAM up to the total size set by
+ * ipatch_sample_store_swap_set_max_memory().  Additional sample stores
+ * are written to the swap file, whose file name is set by
+ * ipatch_sample_store_set_file_name() with a fallback to a temporary file
+ * name if not set.
+ *
+ * Currently there is a global lock on read or write accesses of sample stores
+ * in the swap file.  This is contrary to most other sample store types.
+ *
+ * When a sample store in the swap file is no longer used, it is added to a
+ * recover list, which new sample stores may utilize.  This cuts down on unused
+ * space in the swap file (ipatch_sample_store_swap_get_unused_size()), which
+ * can be compacted with ipatch_sample_store_swap_compact().
+ */
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>

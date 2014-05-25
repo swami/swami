@@ -17,16 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchGigSubRegion
- * @short_description: GigaSampler sub region object
- * @see_also: #IpatchGigRegion
- * @stability: Stable
- *
- * Defines a GigaSampler sub region object which are children of
- * #IpatchGigRegion objects and define how a referenced #IpatchGigSample
- * is synthesized in a #IpatchGigInst.
- */
 #ifndef __IPATCH_GIG_SUB_REGION_H__
 #define __IPATCH_GIG_SUB_REGION_H__
 

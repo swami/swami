@@ -17,15 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchSampleStoreCache
- * @short_description: Sample store object for cached samples in RAM
- * @see_also: #IpatchSampleData
- * @stability: Stable
- *
- * This sample store type is tightly integrated with #IpatchSampleData to provide
- * managed cached samples in RAM.
- */
 #ifndef __IPATCH_SAMPLE_STORE_CACHE_H__
 #define __IPATCH_SAMPLE_STORE_CACHE_H__
 

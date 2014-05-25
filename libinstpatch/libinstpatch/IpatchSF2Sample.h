@@ -17,15 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchSF2Sample
- * @short_description: SoundFont audio sample
- * @see_also: #IpatchSF2, #IpatchSF2IZone
- * @stability: Stable
- *
- * SoundFont samples are children of #IpatchSF2 objects and are referenced
- * by #IpatchSF2IZone objects.  They define the audio which is synthesized.
- */
 #ifndef __IPATCH_SF2_SAMPLE_H__
 #define __IPATCH_SF2_SAMPLE_H__
 

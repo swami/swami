@@ -17,6 +17,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchFile
+ * @short_description: File abstraction object
+ * @see_also: 
+ * @stability: Stable
+ *
+ * Provides an abstraction of file data sources and file type identification.
+ */
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>

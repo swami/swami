@@ -17,14 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchSndFile
- * @short_description: libsndfile file object
- * @see_also: 
- * @stability: Stable
- *
- * Object type for libsndfile audio file identification.
- */
 #ifndef __IPATCH_SND_FILE_H__
 #define __IPATCH_SND_FILE_H__
 

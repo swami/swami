@@ -17,14 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchSample
- * @short_description: Sample audio interface
- * @see_also: 
- * @stability: Stable
- *
- * This interface provides a basic API for accessing audio of sample objects.
- */
 #ifndef __IPATCH_SAMPLE_H__
 #define __IPATCH_SAMPLE_H__
 

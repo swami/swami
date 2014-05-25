@@ -17,15 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchDLSFile
- * @short_description: DLS file object and functions
- * @see_also: 
- * @stability: Stable
- *
- * Object type for DLS files and other constants and functions dealing with
- * them.
- */
 #ifndef __IPATCH_DLS_FILE_H__
 #define __IPATCH_DLS_FILE_H__
 

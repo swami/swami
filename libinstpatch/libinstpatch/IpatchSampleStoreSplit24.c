@@ -17,6 +17,17 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchSampleStoreSplit24
+ * @short_description: Sample storage object for 24 bit audio in 16 and 8 bit segments
+ * @see_also: 
+ * @stability: Stable
+ *
+ * SoundFont 2.04 adds support for 24 bit audio.  This is done in a semi
+ * backwards compatible fashion where the most significant 16 bits is stored
+ * separately from the remaining 8 bit segments.  This storage object handles
+ * this transparently.
+ */
 #include <errno.h>
 #include <glib.h>
 #include <glib-object.h>

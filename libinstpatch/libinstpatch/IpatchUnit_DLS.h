@@ -17,12 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchUnit_DLS
- * @short_description: Unit types and conversions for DLS
- * @see_also: 
- * @stability: Stable
- */
 #ifndef __IPATCH_UNIT_DLS_H__
 #define __IPATCH_UNIT_DLS_H__
 

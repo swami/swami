@@ -19,14 +19,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchSLISample
- * @short_description: Spectralis audio sample
- * @see_also: #IpatchSLI, #IpatchSLIZone
- *
- * Spectralis samples are children of #IpatchSLI objects and are referenced
- * by #IpatchSLIZone objects.  They define the audio which is synthesized.
- */
 #ifndef __IPATCH_SLI_SAMPLE_H__
 #define __IPATCH_SLI_SAMPLE_H__
 

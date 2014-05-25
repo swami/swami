@@ -19,6 +19,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchSLIInst
+ * @short_description: Spectralis instrument object
+ * @see_also: #IpatchSLI, #IpatchSLIZone
+ *
+ * Spectralis instruments are children of #IpatchSLI objects and are referenced
+ * by #IpatchSLIZone objects.
+ */
 #include <stdarg.h>
 #include <string.h>
 #include <glib.h>

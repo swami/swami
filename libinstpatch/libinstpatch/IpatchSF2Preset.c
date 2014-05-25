@@ -17,6 +17,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchSF2Preset
+ * @short_description: SoundFont preset object
+ * @see_also: #IpatchSF2
+ * @stability: Stable
+ *
+ * SoundFont presets are children of #IpatchSF2 objects and define individual
+ * instruments mapped to MIDI bank/program numbers.
+ */
 #include <stdarg.h>
 #include <string.h>
 #include <glib.h>

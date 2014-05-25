@@ -17,17 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchVBankRegion
- * @short_description: Virtual bank instrument region
- * @see_also: #IpatchVBankInst, #IpatchVBank
- * @stability: Stable
- *
- * Virtual bank regions are children to #IpatchVBankInst objects and reference
- * synthesizable #IpatchItem objects from other files.  This object forms the
- * bases for constructing new instruments from one or more items in other
- * instrument bank files.
- */
 #ifndef __IPATCH_VBANK_REGION_H__
 #define __IPATCH_VBANK_REGION_H__
 

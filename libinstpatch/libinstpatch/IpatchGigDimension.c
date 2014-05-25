@@ -17,6 +17,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchGigDimension
+ * @short_description: GigaSampler dimension object
+ * @see_also: #IpatchGigInst
+ * @stability: Stable
+ *
+ * Defines a GigaSampler dimension object which are the children of
+ * #IpatchGigInst objects.
+ */
 #include <glib.h>
 #include <glib-object.h>
 #include "IpatchGigDimension.h"

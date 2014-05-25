@@ -17,13 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchSampleStoreSndFile
- * @short_description: Sample store object type which uses libsndfile to access
- *   audio in sound files
- * @see_also: 
- * @stability: Stable
- */
 #ifndef __IPATCH_SAMPLE_STORE_SND_FILE_H__
 #define __IPATCH_SAMPLE_STORE_SND_FILE_H__
 

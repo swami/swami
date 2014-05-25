@@ -17,6 +17,17 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchSampleList
+ * @short_description: Sample list data types and functions
+ * @see_also: 
+ * @stability: Stable
+ *
+ * Sample lists define audio data from concatenated segments of other
+ * audio sources.  The lists are always mono (a single channel can be
+ * selected from multi-channel sources).  Multi-channel audio can be
+ * created from combining multiple sample lists of the same length.
+ */
 #include "IpatchSampleList.h"
 #include "ipatch_priv.h"
 

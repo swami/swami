@@ -17,6 +17,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: misc
+ * @short_description: Miscellaneous stuff
+ * @see_also: 
+ * @stability: Stable
+ */
 #if defined(HAVE_CONFIG_H)
 #include "config.h"
 #endif

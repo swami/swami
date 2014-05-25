@@ -17,6 +17,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchRange
+ * @short_description: A boxed type which defines a number range
+ * @see_also: 
+ * @stability: Stable
+ *
+ * Boxed type used for #GValue and #GParamSpec properties.  Consists of a low
+ * and a high integer value defining a range.
+ */
 #include "config.h"
 
 #include <stdio.h>

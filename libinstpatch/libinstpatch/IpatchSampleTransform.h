@@ -17,16 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchSampleTransform
- * @short_description: Audio format conversion instance
- * @see_also: 
- * @stability: Stable
- *
- * A structure for converting between audio formats (for example the bit width
- * or number of channels).  This structure is initialized with the source and
- * destination audio formats, multi-channel mapping and conversion buffers.
- */
 #ifndef __IPATCH_SAMPLE_TRANSFORM_H__
 #define __IPATCH_SAMPLE_TRANSFORM_H__
 

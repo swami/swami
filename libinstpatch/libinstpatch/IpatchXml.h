@@ -16,17 +16,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
- *
- */
-/**
- * SECTION: IpatchXml
- * @short_description: XML tree functions
- * @see_also: IpatchXmlObject
- * @stability: Stable
- *
- * Functions for manipulating XML node trees and saving/loading to/from
- * XML content in strings or files.  XML node trees use the glib GNode N-ary
- * tree data type for added flexibility.
  */
 #ifndef __IPATCH_XML_H__
 #define __IPATCH_XML_H__

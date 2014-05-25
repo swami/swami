@@ -17,19 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchParamProp
- * @short_description: GParamSpec extended properties
- * @see_also: 
- * @stability: Stable
- *
- * Extensions to standard GParamSpec include flags (for
- * compact single bit data extensions) and GValue based extensions.
- * An example of usage is the IPATCH_PARAM_UNIQUE flag which indicates
- * a parameter that should be unique amongst sibling items and the
- * "string-max-length" integer GValue which specifies a max
- * length of a GParamSpecString parameter.
- */
 #ifndef __IPATCH_PARAM_PROP_H__
 #define __IPATCH_PARAM_PROP_H__
 

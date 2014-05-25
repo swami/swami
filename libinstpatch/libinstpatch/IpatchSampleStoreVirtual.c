@@ -17,6 +17,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchSampleStoreVirtual
+ * @short_description: Virtual sample storage object
+ * @see_also: #IpatchSampleList
+ * @stability: Stable
+ *
+ * A sample store that does in place sample conversions of other samples
+ * using sample lists (#IpatchSampleList).
+ */
 #include <glib.h>
 #include <glib-object.h>
 #include "IpatchSampleStoreVirtual.h"

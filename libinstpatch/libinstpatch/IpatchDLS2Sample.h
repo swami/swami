@@ -17,15 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchDLS2Sample
- * @short_description: DLS audio sample object
- * @see_also: #IpatchDLS, #IpatchDLSRegion
- * @stability: Stable
- *
- * Object which defines a DLS audio sample.  These objects are contained in
- * #IpatchDLS objects and linked (referenced) from #IpatchDLSRegion objects.
- */
 #ifndef __IPATCH_DLS2_SAMPLE_H__
 #define __IPATCH_DLS2_SAMPLE_H__
 

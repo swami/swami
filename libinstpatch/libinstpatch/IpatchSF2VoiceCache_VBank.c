@@ -17,6 +17,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchSF2VoiceCache_VBank
+ * @short_description: Voice cache converters for VBank types
+ * @see_also: 
+ * @stability: Stable
+ */
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>

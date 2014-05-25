@@ -19,6 +19,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchSLIWriter
+ * @short_description: Spectralis SLI/SLC instrument file writer
+ * @see_also: #IpatchSLI
+ *
+ * Writes an SLI instrument object tree (#IpatchSLI) to an SLI or SLC file.
+ */
 #include <glib.h>
 #include <stdlib.h>
 #include <string.h>

@@ -17,6 +17,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchIter
+ * @short_description: Iterator instance
+ * @see_also: 
+ * @stability: Stable
+ *
+ * A boxed type (structure) used for abstracting manipulation of object lists.
+ */
 #include <glib.h>
 #include "IpatchIter.h"
 

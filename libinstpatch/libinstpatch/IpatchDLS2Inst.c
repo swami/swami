@@ -17,6 +17,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchDLS2Inst
+ * @short_description: DLS instrument object
+ * @see_also: 
+ * @stability: Stable
+ *
+ * Defines a DLS instrument object.  DLS instruments are the toplevel objects
+ * in the DLS instrument file tree hierarchy.
+ */
 #include <stdarg.h>
 #include <glib.h>
 #include <glib-object.h>

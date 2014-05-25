@@ -17,17 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchSampleStore
- * @short_description: Abstract sample storage object
- * @see_also: 
- * @stability: Stable
- *
- * Sample stores provide for various storage methods for audio data.
- * Examples include: #IpatchSampleStoreFile for audio data stored in files
- * on disk, #IpatchSampleStoreRAM for audio in RAM, #IpatchSampleStoreROM for
- * samples in ROM of a sound card, etc.
- */
 #ifndef __IPATCH_SAMPLE_STORE_H__
 #define __IPATCH_SAMPLE_STORE_H__
 

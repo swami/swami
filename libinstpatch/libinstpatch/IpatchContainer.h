@@ -17,16 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchContainer
- * @short_description: Abstract object type used for items containing other
- *   child items.
- * @see_also: 
- * @stability: Stable
- *
- * Objects which are derived from this abstract type can contain other items,
- * thus forming a tree of items in an instrument file for example.
- */
 #ifndef __IPATCH_CONTAINER_H__
 #define __IPATCH_CONTAINER_H__
 

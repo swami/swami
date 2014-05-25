@@ -17,14 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchUnit
- * @short_description: Unit conversion system
- * @see_also: 
- * @stability: Stable
- *
- * System for registering unit types and conversion functions.
- */
 #ifndef __IPATCH_UNIT_H__
 #define __IPATCH_UNIT_H__
 

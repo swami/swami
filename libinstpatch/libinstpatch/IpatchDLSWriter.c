@@ -17,6 +17,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchDLSWriter
+ * @short_description: DLS instrument file writer
+ * @see_also: #IpatchDLS
+ * @stability: Stable
+ *
+ * Writes a DLS instrument object tree (#IpatchDLS) to a DLS file.
+ */
 #include <glib.h>
 #include <string.h>
 

@@ -17,6 +17,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchSF2Inst
+ * @short_description: SoundFont instrument object
+ * @see_also: #IpatchSF2, #IpatchSF2PZone
+ * @stability: Stable
+ *
+ * SoundFont instruments are children of #IpatchSF2 objects and are referenced
+ * by #IpatchSF2PZone objects.
+ */
 #include <stdarg.h>
 #include <string.h>
 #include <glib.h>

@@ -17,6 +17,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchVBank
+ * @short_description: Virtual bank object
+ * @see_also:
+ * @stability: Stable
+ *
+ * Virtual banks provide the capability of creating new instrument MIDI
+ * maps from components from other files of possibly different types.
+ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

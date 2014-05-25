@@ -17,14 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchConverter
- * @short_description: Base class for object conversion handlers
- * @see_also: 
- * @stability: Stable
- *
- * A base abstract type for object conversion handlers.
- */
 #ifndef __IPATCH_CONVERTER_H__
 #define __IPATCH_CONVERTER_H__
 

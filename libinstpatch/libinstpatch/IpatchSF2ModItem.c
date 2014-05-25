@@ -17,6 +17,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchSF2ModItem
+ * @short_description: SoundFont modulator item interface
+ * @see_also: 
+ * @stability: Stable
+ *
+ * An interface type which is used by #IpatchSF2Preset, #IpatchSF2Inst,
+ * #IpatchSF2PZone and #IpatchSF2IZone objects to add modulator realtime effect
+ * functionality.
+ */
 #include <glib.h>
 #include <glib-object.h>
 #include "IpatchSF2ModItem.h"

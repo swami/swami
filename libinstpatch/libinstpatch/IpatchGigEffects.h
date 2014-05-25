@@ -17,14 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchGigEffects
- * @short_description: GigaSampler instrument parameters and effects
- * @see_also: 
- * @stability: Stable
- *
- * Functions and types for GigaSampler instrument parameters and effects.
- */
 #ifndef __IPATCH_GIG_EFFECTS_H__
 #define __IPATCH_GIG_EFFECTS_H__
 

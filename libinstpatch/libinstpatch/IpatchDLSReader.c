@@ -17,6 +17,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchDLSReader
+ * @short_description: DLS version 2 file reader
+ * @see_also: #IpatchDLS
+ * @stability: Stable
+ *
+ * Parses a DLS file into an object tree (#IpatchDLS).
+ */
 #include <glib.h>
 #include <string.h>
 

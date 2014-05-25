@@ -17,14 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchGigFile
- * @short_description: GigaSampler file object
- * @see_also: 
- * @stability: Stable
- *
- * File type for GigaSampler files.
- */
 #ifndef __IPATCH_GIG_FILE_H__
 #define __IPATCH_GIG_FILE_H__
 

@@ -17,8 +17,19 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
+/**
+ * SECTION: IpatchSampleTransform
+ * @short_description: Audio format conversion instance
+ * @see_also: 
+ * @stability: Stable
+ *
+ * A structure for converting between audio formats (for example the bit width
+ * or number of channels).  This structure is initialized with the source and
+ * destination audio formats, multi-channel mapping and conversion buffers.
+ */
 #include <string.h>
 #include <glib.h>
+#include <glib-object.h>
 #include "IpatchSampleTransform.h"
 #include "sample.h"
 #include "ipatch_priv.h"

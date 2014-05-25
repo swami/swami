@@ -17,12 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA or on the web at http://www.gnu.org.
  */
-/**
- * SECTION: IpatchSampleStoreRam
- * @short_description: Sample store object for audio data in RAM
- * @see_also: 
- * @stability: Stable
- */
 #ifndef __IPATCH_SAMPLE_STORE_RAM_H__
 #define __IPATCH_SAMPLE_STORE_RAM_H__
 
