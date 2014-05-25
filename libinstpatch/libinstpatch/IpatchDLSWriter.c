@@ -198,7 +198,7 @@ ipatch_dls_writer_set_file_handle (IpatchDLSWriter *writer, IpatchFileHandle *ha
 /**
  * ipatch_dls_writer_save:
  * @writer: DLS writer object
- * @err: Location to store error info or %NULL
+ * @err: (allow-none): Location to store error info or %NULL
  *
  * Write a DLS or GigaSampler object to a file.
  *
@@ -255,7 +255,7 @@ ipatch_dls_writer_save (IpatchDLSWriter *writer, GError **err)
  * Create sample stores and add them to applicable #IpatchSampleData objects and return object list.
  * This function can be called multiple times, additional calls will return the same list.
  *
- * Returns: List of sample stores which the caller owns a reference to or %NULL
+ * Returns: (transfer full): List of sample stores which the caller owns a reference to or %NULL
  *
  * Since: 1.1.0
  */

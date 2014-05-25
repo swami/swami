@@ -56,6 +56,12 @@ struct _IpatchListClass
 GType ipatch_list_get_type (void);
 IpatchList *ipatch_list_new (void);
 IpatchList *ipatch_list_duplicate (IpatchList *list);
+GList *ipatch_list_get_items (IpatchList *list);
+void ipatch_list_set_items (IpatchList *list, GList *items);
+void ipatch_list_append (IpatchList *list, GObject *object);
+void ipatch_list_prepend (IpatchList *list, GObject *object);
+void ipatch_list_insert (IpatchList *list, GObject *object, int pos);
+gboolean ipatch_list_remove (IpatchList *list, GObject *object);
 void ipatch_list_init_iter (IpatchList *list, IpatchIter *iter);
 
 #endif

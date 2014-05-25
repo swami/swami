@@ -178,7 +178,7 @@ ipatch_sample_store_init (IpatchSampleStore *store)
 }
 
 /**
- * ipatch_sample_store_first:
+ * ipatch_sample_store_first: (skip)
  * @iter: Patch item iterator containing #IpatchSampleStore items
  *
  * Gets the first item in a sample store iterator. A convenience wrapper for
@@ -198,7 +198,7 @@ ipatch_sample_store_first (IpatchIter *iter)
 }
 
 /**
- * ipatch_sample_store_next:
+ * ipatch_sample_store_next: (skip)
  * @iter: Patch item iterator containing #IpatchSampleStore items
  *
  * Gets the next item in a sample store iterator. A convenience wrapper for

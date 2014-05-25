@@ -207,14 +207,15 @@ ipatch_sample_store_ram_sample_iface_write (IpatchSampleHandle *handle,
 
 /**
  * ipatch_sample_store_ram_new:
- * @location: Location of existing sample data or %NULL if the sample buffer
+ * @location: (allow-none): Location of existing sample data or %NULL if the sample buffer
  *   should be allocated (in which case the sample must be written to first).
  * @free_data: %TRUE if sample data at @location should be freed when object
  *   is destroyed
  *
  * Creates a new RAM sample store.
  *
- * Returns: New RAM sample store, cast as a #IpatchSample for convenience.
+ * Returns: (type IpatchSampleStoreRam): New RAM sample store,
+ *   cast as a #IpatchSample for convenience.
  */
 IpatchSample *
 ipatch_sample_store_ram_new (gpointer location, gboolean free_data)
@@ -233,7 +234,7 @@ ipatch_sample_store_ram_new (gpointer location, gboolean free_data)
  * the first call, subsequent calls return the same sample object. Therefore it
  * should not be modified.
  *
- * Returns: The blank sample object. Remember to unref it when not
+ * Returns: (transfer full): The blank sample object. Remember to unref it when not
  * using it anymore with g_object_unref().
  */
 IpatchSample *

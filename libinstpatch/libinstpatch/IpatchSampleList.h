@@ -28,8 +28,9 @@ typedef struct _IpatchSampleListItem IpatchSampleListItem;
 
 #include <libinstpatch/IpatchSample.h>
 
-/* Boxed type for sample list */
+/* Boxed type for sample list and list item */
 #define IPATCH_TYPE_SAMPLE_LIST   (ipatch_sample_list_get_type ())
+#define IPATCH_TYPE_SAMPLE_LIST_ITEM   (ipatch_sample_list_item_get_type ())
 
 /**
  * IpatchSampleList:
@@ -59,6 +60,7 @@ struct _IpatchSampleListItem
 
 
 GType ipatch_sample_list_get_type (void);
+GType ipatch_sample_list_item_get_type (void);
 IpatchSampleList *ipatch_sample_list_new (void);
 void ipatch_sample_list_free (IpatchSampleList *list);
 IpatchSampleList *ipatch_sample_list_duplicate (IpatchSampleList *list);
@@ -80,5 +82,7 @@ void ipatch_sample_list_insert (IpatchSampleList *list, guint pos,
 			        guint size, guint channel);
 void ipatch_sample_list_cut (IpatchSampleList *list, guint pos, guint size);
 gboolean ipatch_sample_list_render (IpatchSampleList *list, gpointer buf,
-                                    guint pos, guint size, int format, GError **err);
+                                    guint pos, guint frames, int format, GError **err);
+gpointer ipatch_sample_list_render_alloc (IpatchSampleList *list, guint pos, guint size,
+                                          int format, GError **err);
 #endif

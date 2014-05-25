@@ -40,6 +40,7 @@ typedef struct
 {
   IpatchItemPropCallback callback; /* callback function */
   IpatchItemPropDisconnect disconnect; /* called when callback is disconnected */
+  GDestroyNotify notify_func;   /* Either notify_func or disconnect will be set, but not both */
   gpointer user_data;		/* user data to pass to function */
   guint handler_id;		/* unique handler ID */
 } PropCallback;
@@ -47,6 +48,12 @@ typedef struct
 static void prop_match_key_free (gpointer data);
 static guint prop_callback_hash_func (gconstpointer key);
 static gboolean prop_callback_equal_func (gconstpointer a, gconstpointer b);
+static guint
+ipatch_item_prop_real_connect (IpatchItem *item, GParamSpec *pspec,
+                               IpatchItemPropCallback callback,
+                               IpatchItemPropDisconnect disconnect,
+                               GDestroyNotify notify_func,
+                               gpointer user_data);
 static void
 ipatch_item_prop_real_disconnect (guint handler_id, IpatchItem *item,
 				  GParamSpec *pspec,
@@ -109,7 +116,7 @@ prop_callback_equal_func (gconstpointer a, gconstpointer b)
  * @item: Item whose property changed
  * @pspec: Parameter specification for @item of parameter that changed
  * @new_value: The new value that was assigned
- * @old_value: Old value that property had (can be %NULL for read only props)
+ * @old_value: (allow-none): Old value that property had (can be %NULL for read only props)
  *
  * Usually only used by #IpatchItem object implementations, rather
  * than explicitly called by the user.  It should be called AFTER item
@@ -246,8 +253,8 @@ ipatch_item_prop_notify (IpatchItem *item, GParamSpec *pspec,
  * @item: Item whose property changed
  * @prop_name: Name of property that changed
  * @new_value: The new value that was assigned
- * @old_value: Old value that property had (can be %NULL for read only
- *   properties)
+ * @old_value: (allow-none): Old value that property had (can be %NULL
+ *   for read only properties)
  *
  * Usually only used by #IpatchItem object implementations, rather
  * than explicitly called by the user. Like ipatch_item_prop_notify()
@@ -280,13 +287,13 @@ ipatch_item_prop_notify_by_name (IpatchItem *item, const char *prop_name,
 }
 
 /**
- * ipatch_item_prop_connect:
- * @item: IpatchItem to match (or %NULL for wildcard)
- * @pspec: Property parameter specification to match (or %NULL for wildcard)
- * @callback: Callback function
- * @disconnect: Callback disconnect function (called when the callback is
- *   disconnected) can be NULL.
- * @user_data: User defined data to pass to @callback and @disconnect function.
+ * ipatch_item_prop_connect: (skip)
+ * @item: (allow-none): IpatchItem to match (or %NULL for wildcard)
+ * @pspec: (allow-none): Property parameter specification to match (or %NULL for wildcard)
+ * @callback: (scope notified): Callback function
+ * @disconnect: (allow-none) (closure user_data): Callback disconnect function
+ *   (called when the callback is disconnected) can be %NULL.
+ * @user_data: (allow-none): User defined data to pass to @callback and @disconnect function.
  *
  * Connect a callback for a specific #IpatchItem and property. If a property
  * change occurs for the given @item and @pspec then the callback is
@@ -302,6 +309,45 @@ ipatch_item_prop_connect (IpatchItem *item, GParamSpec *pspec,
 			  IpatchItemPropCallback callback,
 			  IpatchItemPropDisconnect disconnect,
 			  gpointer user_data)
+{
+  return (ipatch_item_prop_real_connect (item, pspec, callback, disconnect, NULL, user_data));
+}
+
+/**
+ * ipatch_item_prop_connect_notify: (rename-to ipatch_item_prop_connect)
+ * @item: (allow-none): IpatchItem to match (or %NULL for wildcard)
+ * @pspec: (allow-none): Property parameter specification to match (or %NULL for wildcard)
+ * @callback: (scope notified): Callback function
+ * @notify_func: (scope async) (closure user_data) (allow-none): Callback destroy notify
+ *   (called when the callback is disconnected) can be %NULL.
+ * @user_data: (allow-none): User defined data to pass to @callback and @disconnect function.
+ *
+ * Connect a callback for a specific #IpatchItem and property. If a property
+ * change occurs for the given @item and @pspec then the callback is
+ * invoked.  The parameters @item and/or @pspec may be %NULL for wild card
+ * matching (if both are %NULL then callback will be called for all #IpatchItem
+ * property changes).
+ *
+ * Returns: Unique handler ID which can be used to remove the handler or 0 on
+ *   error (only when function params are incorrect).
+ *
+ * Since: 1.1.0
+ */
+guint
+ipatch_item_prop_connect_notify (IpatchItem *item, GParamSpec *pspec,
+                                 IpatchItemPropCallback callback,
+                                 GDestroyNotify notify_func,
+                                 gpointer user_data)
+{
+  return (ipatch_item_prop_real_connect (item, pspec, callback, NULL, notify_func, user_data));
+}
+
+static guint
+ipatch_item_prop_real_connect (IpatchItem *item, GParamSpec *pspec,
+                               IpatchItemPropCallback callback,
+                               IpatchItemPropDisconnect disconnect,
+                               GDestroyNotify notify_func,
+                               gpointer user_data)
 {
   PropMatchKey *cbkey = NULL;
   PropCallback *cb;
@@ -322,6 +368,7 @@ ipatch_item_prop_connect (IpatchItem *item, GParamSpec *pspec,
   cb = g_slice_new (PropCallback);
   cb->callback = callback;
   cb->disconnect = disconnect;
+  cb->notify_func = notify_func;
   cb->user_data = user_data;
 
   G_LOCK (prop_callbacks);
@@ -347,15 +394,15 @@ ipatch_item_prop_connect (IpatchItem *item, GParamSpec *pspec,
 }
 
 /**
- * ipatch_item_prop_connect_by_name:
- * @item: IpatchItem to match (or %NULL for wildcard)
+ * ipatch_item_prop_connect_by_name: (skip)
+ * @item: (allow-none): IpatchItem to match (or %NULL for wildcard)
  * @prop_name: Name of property of @item to match
  * @callback: Callback function
- * @disconnect: Callback disconnect function (called when the callback is
+ * @disconnect: (allow-none): Callback disconnect function (called when the callback is
  *   disconnect) can be NULL.
- * @user_data: User defined data to pass to @callback and @disconnect function.
+ * @user_data: (closure): User defined data to pass to @callback and @disconnect function.
  * 
- * Like ipatch_item_prop_add_callback() but takes the name of a property\
+ * Like ipatch_item_prop_add_callback() but takes the name of a property
  * instead of the parameter spec, for added convenience.
  *
  * Returns: Unique handler ID which can be used to remove the handler or 0 on
@@ -375,7 +422,41 @@ ipatch_item_prop_connect_by_name (IpatchItem *item, const char *prop_name,
   pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (item), prop_name);
   g_return_val_if_fail (pspec != NULL, 0);
 
-  return (ipatch_item_prop_connect (item, pspec, callback, disconnect, user_data));
+  return (ipatch_item_prop_real_connect (item, pspec, callback, disconnect, NULL, user_data));
+}
+
+/**
+ * ipatch_item_prop_connect_by_name_notify: (rename-to ipatch_item_prop_connect_by_name)
+ * @item: (allow-none): IpatchItem to match (or %NULL for wildcard)
+ * @prop_name: Name of property of @item to match
+ * @callback: Callback function
+ * @notify_func: (scope async) (closure user_data) (allow-none): Callback destroy notify
+ *   (called when the callback is disconnected) can be %NULL.
+ * @user_data: (allow-none): User defined data to pass to @callback and @disconnect function.
+ * 
+ * Like ipatch_item_prop_add_callback() but takes the name of a property
+ * instead of the parameter spec, for added convenience.
+ *
+ * Returns: Unique handler ID which can be used to remove the handler or 0 on
+ *   error (only when function params are incorrect).
+ *
+ * Since: 1.1.0
+ */
+guint
+ipatch_item_prop_connect_by_name_notify (IpatchItem *item, const char *prop_name,
+                                         IpatchItemPropCallback callback,
+                                         GDestroyNotify notify_func,
+                                         gpointer user_data)
+{
+  GParamSpec *pspec;
+
+  g_return_val_if_fail (IPATCH_IS_ITEM (item), 0);
+  g_return_val_if_fail (prop_name != NULL, 0);
+
+  pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (item), prop_name);
+  g_return_val_if_fail (pspec != NULL, 0);
+
+  return (ipatch_item_prop_real_connect (item, pspec, callback, NULL, notify_func, user_data));
 }
 
 /* a bag used in next 2 removal functions */
@@ -403,11 +484,11 @@ ipatch_item_prop_disconnect (guint handler_id)
 }
 
 /**
- * ipatch_item_prop_disconnect_matched:
- * @item: #IpatchItem of handler to match (does not need to be valid)
- * @pspec: GParamSpec of handler to match (does not need to be valid)
+ * ipatch_item_prop_disconnect_matched: (skip)
+ * @item: (allow-none): #IpatchItem of handler to match (does not need to be valid)
+ * @pspec: (allow-none): GParamSpec of handler to match (does not need to be valid)
  * @callback: Callback function to match
- * @user_data: User data to match
+ * @user_data: (allow-none): User data to match
  * 
  * Disconnects first #IpatchItem property change callback matching all the
  * function parameters.
@@ -424,11 +505,11 @@ ipatch_item_prop_disconnect_matched (IpatchItem *item, GParamSpec *pspec,
 }
 
 /**
- * ipatch_item_prop_disconnect_by_name:
+ * ipatch_item_prop_disconnect_by_name: (skip)
  * @item: #IpatchItem of handler to match (NOTE: Must be a valid object!)
  * @prop_name: Name of property of @item to match
- * @callback: Callback function to match
- * @user_data: User data to match
+ * @callback: (allow-none): Callback function to match
+ * @user_data: (allow-none): User data to match
  *
  * Like ipatch_item_prop_disconnect_matched() but takes a name of the
  * property to match instead of a parameter spec, for added convenience.
@@ -507,6 +588,7 @@ ipatch_item_prop_real_disconnect (guint handler_id, IpatchItem *item,
 	    {
 	      bag.found = TRUE;
 	      bag.cb.disconnect = cb->disconnect;
+              bag.cb.notify_func = cb->notify_func;
 	      bag.cb.user_data = cb->user_data;
 	      g_slice_free (PropCallback, cb);
 
@@ -527,9 +609,11 @@ ipatch_item_prop_real_disconnect (guint handler_id, IpatchItem *item,
 		       item, pspec, callback, user_data);
     }
 
-  /* see if callback found and it had a disconnect func */
+  /* see if callback found and it had a disconnect func or notify_func */
   if (bag.cb.disconnect)
     bag.cb.disconnect (bag.key.item, bag.key.pspec, bag.cb.user_data);
+  else if (bag.cb.notify_func)
+    bag.cb.notify_func (bag.cb.user_data);
 }
 
 /* finds a handler by ID or item/property/callback/user_data and removes it */
@@ -556,6 +640,7 @@ prop_callback_hash_GHRFunc (gpointer key, gpointer value, gpointer user_data)
 	  /* return callback's item, pspec, disconnect func and user_data */
 	  bag->found = TRUE;
 	  bag->cb.disconnect = cb->disconnect;
+          bag->cb.notify_func = cb->notify_func;
 	  bag->cb.user_data = cb->user_data;
 	  bag->key.item = propkey->item;
 	  bag->key.pspec = propkey->pspec;

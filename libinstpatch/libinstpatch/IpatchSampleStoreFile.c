@@ -259,7 +259,8 @@ ipatch_sample_store_file_sample_iface_write (IpatchSampleHandle *handle,
  *
  * Creates a new file sample store.
  *
- * Returns: New file sample store, cast as a #IpatchSample for convenience.
+ * Returns: (type IpatchSampleStoreFile): New file sample store, cast
+ *   as a #IpatchSample for convenience.
  */
 IpatchSample *
 ipatch_sample_store_file_new (IpatchFile *file, guint location)

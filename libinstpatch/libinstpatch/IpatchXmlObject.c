@@ -49,6 +49,8 @@ typedef struct
 {
   IpatchXmlEncodeFunc encode_func;
   IpatchXmlDecodeFunc decode_func;
+  GDestroyNotify notify_func;
+  gpointer user_data;
 } HandlerHashValue;
 
 
@@ -100,7 +102,7 @@ xml_handlers_value_destroy_func (gpointer data)
 }
 
 /**
- * ipatch_xml_register_handler:
+ * ipatch_xml_register_handler: (skip)
  * @type: GType to register handler functions for (GObject type if an object or
  *   object property handler, GValue type for value handlers).
  * @prop_name: GObject property name (or %NULL if not a GObject property handler)
@@ -114,6 +116,30 @@ void
 ipatch_xml_register_handler (GType type, const char *prop_name,
                              IpatchXmlEncodeFunc encode_func,
                              IpatchXmlDecodeFunc decode_func)
+{
+  ipatch_xml_register_handler_full (type, prop_name, encode_func, decode_func, NULL, NULL);
+}
+
+/**
+ * ipatch_xml_register_handler_full: (rename-to ipatch_xml_register_handler)
+ * @type: GType to register handler functions for (GObject type if an object or
+ *   object property handler, GValue type for value handlers).
+ * @prop_name: (allow-none): GObject property name (or %NULL if not a GObject property handler)
+ * @encode_func: (scope notified): Function to handle encoding (object/property/value -> XML)
+ * @decode_func: (scope notified): Function to handle decoding (XML -> object/property/value)
+ * @notify_func: (allow-none) (scope async) (closure user_data): Callback when handlers are removed.
+ * @user_data: (allow-none): Data passed to @notify_func
+ *
+ * Registers XML encoding/decoding handlers for a GObject type, GObject property or
+ * GValue type.
+ *
+ * Since: 1.1.0
+ */
+void
+ipatch_xml_register_handler_full (GType type, const char *prop_name,
+                                  IpatchXmlEncodeFunc encode_func,
+                                  IpatchXmlDecodeFunc decode_func,
+                                  GDestroyNotify notify_func, gpointer user_data)
 {
   HandlerHashKey *key;
   HandlerHashValue *val;
@@ -140,6 +166,8 @@ ipatch_xml_register_handler (GType type, const char *prop_name,
   val = g_slice_new (HandlerHashValue);
   val->encode_func = encode_func;
   val->decode_func = decode_func;
+  val->notify_func = notify_func;
+  val->user_data = user_data;
 
   G_LOCK (xml_handlers);
   g_hash_table_insert (xml_handlers, key, val);
@@ -147,11 +175,11 @@ ipatch_xml_register_handler (GType type, const char *prop_name,
 }
 
 /**
- * ipatch_xml_lookup_handler:
+ * ipatch_xml_lookup_handler: (skip)
  * @type: GObject or GValue type of handler to lookup
- * @pspec: GObject property spec (or %NULL if not a GObject property handler)
- * @encode_func: Location to store encoding function (or %NULL)
- * @decode_func: Location to store decoding function (or %NULL)
+ * @pspec: (allow-none): GObject property spec (or %NULL if not a GObject property handler)
+ * @encode_func: (out) (allow-none): Location to store encoding function (or %NULL to ignore)
+ * @decode_func: (out) (allow-none): Location to store decoding function (or %NULL to ignore)
  *
  * Looks up handlers for a given GObject type, GObject property or GValue
  * type previously registered with ipatch_xml_register_handler().
@@ -183,11 +211,11 @@ ipatch_xml_lookup_handler (GType type, GParamSpec *pspec,
 }
 
 /**
- * ipatch_xml_lookup_handler_by_prop_name:
+ * ipatch_xml_lookup_handler_by_prop_name: (skip)
  * @type: GObject or GValue type of handler to lookup
- * @prop_name: GObject property name (or %NULL if not a GObject property handler)
- * @encode_func: Location to store encoding function (or %NULL)
- * @decode_func: Location to store decoding function (or %NULL)
+ * @prop_name: (allow-none): GObject property name (or %NULL if not a GObject property handler)
+ * @encode_func: (out) (allow-none): Location to store encoding function (or %NULL to ignore)
+ * @decode_func: (out) (allow-none): Location to store decoding function (or %NULL to ignore)
  *
  * Like ipatch_xml_lookup_handler() but takes a @prop_name string to indicate which
  * GObject property to lookup instead of a GParamSpec.
@@ -222,7 +250,7 @@ ipatch_xml_lookup_handler_by_prop_name (GType type, const char *prop_name,
  * @object: Object to encode to XML
  * @create_element: %TRUE to create a &lt;obj&gt; element, %FALSE to add object
  *   properties to current open element
- * @err: Location to store error info or %NULL to ignore
+ * @err: (allow-none): Location to store error info or %NULL to ignore
  *
  * Encodes an object to XML.
  *
@@ -265,7 +293,7 @@ ipatch_xml_encode_object (GNode *node, GObject *object,
  * @pspec: Parameter specification of property to encode
  * @create_element: %TRUE to create a &lt;prop name="PROPNAME"&gt; element, %FALSE to
  *   assign object property value to node
- * @err: Location to store error info or %NULL to ignore
+ * @err: (allow-none): Location to store error info or %NULL to ignore
  *
  * Encode an object property to an XML node.
  *
@@ -310,7 +338,7 @@ ipatch_xml_encode_property (GNode *node, GObject *object, GParamSpec *pspec,
  * @propname: Name of object property to encode
  * @create_element: %TRUE to create a &lt;prop name="PROPNAME"&gt; element, %FALSE to
  *   assign object property value to node
- * @err: Location to store error info or %NULL to ignore
+ * @err: (allow-none): Location to store error info or %NULL to ignore
  *
  * Encode an object property by name to an XML node.
  *
@@ -338,7 +366,7 @@ ipatch_xml_encode_property_by_name (GNode *node, GObject *object,
  * ipatch_xml_encode_value:
  * @node: XML node to encode to
  * @value: Value to encode
- * @err: Location to store error info or %NULL to ignore
+ * @err: (allow-none): Location to store error info or %NULL to ignore
  *
  * Encodes a GValue to an XML node text value.
  *
@@ -363,7 +391,7 @@ ipatch_xml_encode_value (GNode *node, GValue *value, GError **err)
  * ipatch_xml_decode_object:
  * @node: XML node to decode from
  * @object: Object to decode to from XML
- * @err: Location to store error info or %NULL to ignore
+ * @err: (allow-none): Location to store error info or %NULL to ignore
  *
  * Decodes XML to an object.  The default GObject decoder will only decode
  * those properties which don't have the #IPATCH_PARAM_NO_SAVE flag set.
@@ -399,7 +427,7 @@ ipatch_xml_decode_object (GNode *node, GObject *object, GError **err)
  * @node: XML node to decode from
  * @object: GObject to decode property of
  * @pspec: Parameter specification of property to decode
- * @err: Location to store error info or %NULL to ignore
+ * @err: (allow-none): Location to store error info or %NULL to ignore
  *
  * Decode an object property from an XML node value to an object.  Note that
  * the property is NOT checked for the #IPATCH_PARAM_NO_SAVE flag.
@@ -438,7 +466,7 @@ ipatch_xml_decode_property (GNode *node, GObject *object, GParamSpec *pspec,
  * @node: XML node to decode from
  * @object: GObject to decode property of
  * @propname: Name of object property to decode
- * @err: Location to store error info or %NULL to ignore
+ * @err: (allow-none): Location to store error info or %NULL to ignore
  *
  * Decode an object property from an XML node value to an object by property name.
  * Note that the property is NOT checked for the #IPATCH_PARAM_NO_SAVE flag.
@@ -466,7 +494,7 @@ ipatch_xml_decode_property_by_name (GNode *node, GObject *object,
  * ipatch_xml_decode_value:
  * @node: XML node to decode from
  * @value: Value to decode to
- * @err: Location to store error info or %NULL to ignore
+ * @err: (allow-none): Location to store error info or %NULL to ignore
  *
  * Decodes a GValue from an XML node text value.
  *
@@ -488,7 +516,7 @@ ipatch_xml_decode_value (GNode *node, GValue *value, GError **err)
 }
 
 /**
- * ipatch_xml_default_encode_object_func:
+ * ipatch_xml_default_encode_object_func: (type IpatchXmlEncodeFunc)
  * @node: XML node to encode XML to
  * @object: Object to encode
  * @pspec: Will be %NULL
@@ -533,7 +561,7 @@ ipatch_xml_default_encode_object_func (GNode *node, GObject *object,
 }
 
 /**
- * ipatch_xml_default_encode_property_func:
+ * ipatch_xml_default_encode_property_func: (type IpatchXmlEncodeFunc)
  * @node: XML node to encode XML to
  * @object: Object to encode
  * @pspec: Parameter spec of property to encode
@@ -554,7 +582,7 @@ ipatch_xml_default_encode_property_func (GNode *node, GObject *object,
 }
 
 /**
- * ipatch_xml_default_encode_value_func:
+ * ipatch_xml_default_encode_value_func: (type IpatchXmlEncodeFunc)
  * @node: XML node to encode XML to
  * @object: Will be %NULL
  * @pspec: Will be %NULL
@@ -651,7 +679,7 @@ ipatch_xml_default_encode_value_func (GNode *node, GObject *object,
 }
 
 /**
- * ipatch_xml_default_decode_object_func:
+ * ipatch_xml_default_decode_object_func: (type IpatchXmlDecodeFunc)
  * @node: XML node to decode XML from
  * @object: Object to decode to
  * @pspec: Will be %NULL
@@ -712,7 +740,7 @@ ipatch_xml_default_decode_object_func (GNode *node, GObject *object,
 }
 
 /**
- * ipatch_xml_default_decode_property_func:
+ * ipatch_xml_default_decode_property_func: (type IpatchXmlDecodeFunc)
  * @node: XML node to decode XML from
  * @object: Object whose property is being decoded
  * @pspec: Parameter spec of property to decode
@@ -733,7 +761,7 @@ ipatch_xml_default_decode_property_func (GNode *node, GObject *object,
 }
 
 /**
- * ipatch_xml_default_decode_value_func:
+ * ipatch_xml_default_decode_value_func: (type IpatchXmlDecodeFunc)
  * @node: XML node to decode XML from
  * @object: Will be %NULL
  * @pspec: Will be %NULL

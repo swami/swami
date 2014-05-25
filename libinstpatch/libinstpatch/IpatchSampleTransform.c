@@ -39,6 +39,19 @@ G_LOCK_DEFINE_STATIC (transform_pool);
 static GList *transform_pool = NULL;
 
 
+GType
+ipatch_sample_transform_get_type (void)
+{
+  static GType type = 0;
+
+  if (!type)
+    type = g_boxed_type_register_static ("IpatchSampleTransform",
+				(GBoxedCopyFunc)ipatch_sample_transform_duplicate,
+				(GBoxedFreeFunc)ipatch_sample_transform_free);
+
+  return (type);
+}
+
 /**
  * ipatch_sample_transform_new:
  * @src_format: Source sample format or 0 to set later
@@ -90,7 +103,36 @@ ipatch_sample_transform_free (IpatchSampleTransform *transform)
 }
 
 /**
- * ipatch_sample_transform_init:
+ * ipatch_sample_transform_duplicate:
+ * @transform: Transform structure
+ *
+ * Duplicate a sample transform.
+ *
+ * Returns: New duplicated sample transform structure.
+ *
+ * Since: 1.1.0
+ */
+IpatchSampleTransform *
+ipatch_sample_transform_duplicate (const IpatchSampleTransform *transform)
+{
+  IpatchSampleTransform *new;
+  guint32 channel_map = 0;
+  int i;
+
+  // Convert channel map byte array to guint32
+  for (i = 0; i < 8; i++)
+    channel_map |= (transform->channel_map[i] & 0x07) << (i * 3);
+
+  new = ipatch_sample_transform_new (transform->src_format, transform->dest_format,
+                                     channel_map);
+  if (transform->max_frames > 0)
+    ipatch_sample_transform_alloc (new, transform->max_frames);
+
+  return (new);
+}
+
+/**
+ * ipatch_sample_transform_init: (skip)
  * @transform: Sample transform to initialize
  *
  * Initialize a sample transform structure. Usually only used to initialize transform
@@ -111,7 +153,7 @@ ipatch_sample_transform_init (IpatchSampleTransform *transform)
 }
 
 /**
- * ipatch_sample_transform_pool_acquire:
+ * ipatch_sample_transform_pool_acquire: (skip)
  * @src_format: Source sample format
  * @dest_format: Destination sample format
  * @channel_map: Channel mapping (use #IPATCH_SAMPLE_UNITY_CHANNEL_MAP
@@ -155,7 +197,7 @@ ipatch_sample_transform_pool_acquire (int src_format, int dest_format,
 }
 
 /**
- * ipatch_sample_transform_pool_release:
+ * ipatch_sample_transform_pool_release: (skip)
  * @transform: Sample transform
  *
  * Release a sample transform object, returned by
@@ -335,7 +377,8 @@ ipatch_sample_transform_free_buffers (IpatchSampleTransform *transform)
 /**
  * ipatch_sample_transform_set_buffers_size:
  * @transform: Sample transform object
- * @buf: Buffer to assign for transforming sample formats
+ * @buf: (array length=size) (element-type guint8) (transfer none): Buffer to
+ *    assign for transforming sample formats
  * @size: Size of @buf in bytes
  * 
  * Assign transform buffers using a single buffer of a
@@ -376,10 +419,10 @@ ipatch_sample_transform_set_buffers_size (IpatchSampleTransform *transform,
 }
 
 /**
- * ipatch_sample_transform_get_buffers:
+ * ipatch_sample_transform_get_buffers: (skip)
  * @transform: Sample transform object
- * @buf1: Output - first buffer or %NULL to ignore
- * @buf2: Output - second buffer or %NULL to ignore
+ * @buf1: (out) (allow-none): First buffer or %NULL to ignore
+ * @buf2: (out) (allow-none): Second buffer or %NULL to ignore
  * 
  * Get the sample data buffers in a sample transform object.
  */
@@ -396,8 +439,8 @@ ipatch_sample_transform_get_buffers (IpatchSampleTransform *transform,
 /**
  * ipatch_sample_transform_get_frame_sizes:
  * @transform: Initialized transform object
- * @buf1_size: Out: Maximum frame size for buffer 1 or %NULL to ignore
- * @buf2_size: Out: Maximum frame size for buffer 2 or %NULL to ignore
+ * @buf1_size: (out) (allow-none): Maximum frame size for buffer 1 or %NULL to ignore
+ * @buf2_size: (out) (allow-none): Maximum frame size for buffer 2 or %NULL to ignore
  * 
  * Get max frame sizes for transform buffers. When transforming audio the
  * first buffer must be at least frames * buf1_size bytes in size and the
@@ -431,7 +474,7 @@ ipatch_sample_transform_get_max_frames (IpatchSampleTransform *transform)
 }
 
 /**
- * ipatch_sample_transform_convert:
+ * ipatch_sample_transform_convert: (skip)
  * @transform: An initialized sample transform object
  * @src: Audio source buffer (@frames X the source frame size in bytes), can
  *   be %NULL to use internal buffer (provided @frames is less than or equal to
@@ -447,7 +490,7 @@ ipatch_sample_transform_get_max_frames (IpatchSampleTransform *transform)
  * buffers and converts a max of 1 buffer at a time.  The sample formats
  * should already be assigned and internal buffers assigned or allocated.
  *
- * Returns: Pointer to converted data.  Will be @dest if it was not %NULL or
+ * Returns: (transfer none): Pointer to converted data.  Will be @dest if it was not %NULL or
  *   internal buffer containing the converted data otherwise.
  */
 gpointer
@@ -529,7 +572,56 @@ ipatch_sample_transform_convert (IpatchSampleTransform *transform,
 }
 
 /**
- * ipatch_sample_transform_convert_single:
+ * ipatch_sample_transform_convert_sizes: (rename-to ipatch_sample_transform_convert)
+ * @transform: An initialized sample transform object
+ * @src: (array length=src_size) (element-type guint8) (transfer none): Audio source buffer
+ * @src_size: Size of src buffer data to convert (in bytes, must be a multiple of the source format)
+ * @dest_size: (out): Location to store size of returned converted audio buffer
+ *
+ * Convert an arbitrary number of audio frames from user provided buffer.
+ * This is like ipatch_sample_transform_convert() but friendly to GObject
+ * introspection and the destination conversion buffer is allocated.  The sample formats
+ * should already be assigned and internal buffers assigned or allocated.
+ *
+ * Returns: (array length=dest_size) (element-type guint8) (transfer full): Newly allocated
+ *   converted audio data buffer.  Free with g_free() when done with it.
+ *
+ * Since: 1.1.0
+ */
+gpointer
+ipatch_sample_transform_convert_sizes (IpatchSampleTransform *transform,
+                                       gconstpointer src, guint src_size,
+                                       guint *dest_size)
+{
+  int src_frame_size, dest_frame_size, frames;
+  gpointer destbuf;
+
+  g_return_if_fail (transform != NULL);
+  g_return_if_fail (src_size > 0);
+
+  src_frame_size = ipatch_sample_format_size (transform->src_format);
+  g_return_if_fail (src_size % src_frame_size == 0);
+
+  dest_frame_size = ipatch_sample_format_size (transform->dest_format);
+  g_return_if_fail (dest_frame_size > 0);
+
+  frames = src_size / src_frame_size;
+
+  destbuf = g_malloc (dest_frame_size * frames);        // ++ alloc conversion buffer
+
+  if (dest_size) *dest_size = dest_frame_size * frames;
+
+  if (!ipatch_sample_transform_convert (transform, src, destbuf, frames))
+  {
+    g_free (destbuf);   // -- free buffer on error
+    return (NULL);
+  }
+
+  return (destbuf);     // !! caller takes over converted buffer
+}
+
+/**
+ * ipatch_sample_transform_convert_single: (skip)
  * @transform: An initialized sample transform object
  * @frames: Number of frames to convert (should be less than or equal to the
  *   maximum frames which can be converted at a time
@@ -540,7 +632,7 @@ ipatch_sample_transform_convert (IpatchSampleTransform *transform,
  * ipatch_sample_transform_convert() to convert from one buffer to another
  * regardless of the number of frames.
  * 
- * Returns: Pointer to converted audio data (buffer is internal to @transform
+ * Returns: (transfer none): Pointer to converted audio data (buffer is internal to @transform
  * object).
  */
 gpointer

@@ -134,6 +134,11 @@ typedef enum
 
 void ipatch_register_paste_handler (IpatchPasteTestFunc test_func,
 				    IpatchPasteExecFunc exec_func, int flags);
+int
+ipatch_register_paste_handler_full (IpatchPasteTestFunc test_func,
+			            IpatchPasteExecFunc exec_func,
+			            GDestroyNotify notify_func,
+                                    gpointer user_data, int flags);
 
 gboolean ipatch_is_paste_possible (IpatchItem *dest, IpatchItem *src);
 gboolean ipatch_simple_paste (IpatchItem *dest, IpatchItem *src, GError **err);

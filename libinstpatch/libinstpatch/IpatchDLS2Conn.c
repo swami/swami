@@ -188,7 +188,7 @@ ipatch_dls2_conn_list_unset (GSList **list, const IpatchDLS2Conn *conn)
  *
  * Duplicates a connection list (GSList and connection data).
  *
- * Returns: (element-type IpatchDLS2Conn): New duplicate connection list which
+ * Returns: (element-type IpatchDLS2Conn) (transfer full): New duplicate connection list which
  * should be freed with ipatch_dls2_conn_list_free() when finished with it.
  */
 GSList *
@@ -214,7 +214,7 @@ ipatch_dls2_conn_list_duplicate (const GSList *list)
  * Like ipatch_dls2_conn_list_duplicate() but optimized for speed, new list
  * is backwards from original.
  *
- * Returns: (element-type IpatchDLS2Conn): New duplicate connection list which
+ * Returns: (element-type IpatchDLS2Conn) (transfer full): New duplicate connection list which
  *   should be freed with ipatch_dls2_conn_list_free() when finished with it.
  */
 GSList *

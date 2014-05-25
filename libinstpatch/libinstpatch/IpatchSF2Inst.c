@@ -362,7 +362,7 @@ ipatch_sf2_inst_new (void)
 }
 
 /**
- * ipatch_sf2_inst_first:
+ * ipatch_sf2_inst_first: (skip)
  * @iter: Patch item iterator containing #IpatchSF2Inst items
  *
  * Gets the first item in an instrument iterator. A convenience wrapper for
@@ -382,7 +382,7 @@ ipatch_sf2_inst_first (IpatchIter *iter)
 }
 
 /**
- * ipatch_sf2_inst_next:
+ * ipatch_sf2_inst_next: (skip)
  * @iter: Patch item iterator containing #IpatchSF2Inst items
  *
  * Gets the next item in an instrument iterator. A convenience wrapper for

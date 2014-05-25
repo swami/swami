@@ -101,6 +101,8 @@ struct _IpatchConverter
   /* callbacks for object link interception */
   IpatchConverterLinkLookupFunc *link_lookup;
   IpatchConverterLinkNotifyFunc *link_notify;
+  GDestroyNotify notify_func;   // Callback for when the above callbacks are removed/replaced
+  gpointer user_data;           // User data passed to notify_func (not the other callbacks)
 
   float progress;		/* 0.0 - 1.0 progress property */
 
@@ -238,4 +240,9 @@ gboolean ipatch_converter_log_next (IpatchConverter *converter, gpointer *pos,
 void ipatch_converter_set_link_funcs (IpatchConverter *converter,
 				IpatchConverterLinkLookupFunc *link_lookup,
 				IpatchConverterLinkNotifyFunc *link_notify);
+void
+ipatch_converter_set_link_funcs_full (IpatchConverter *converter,
+                                      IpatchConverterLinkLookupFunc *link_lookup,
+                                      IpatchConverterLinkNotifyFunc *link_notify,
+                                      GDestroyNotify notify_func, gpointer user_data);
 #endif

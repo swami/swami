@@ -482,7 +482,7 @@ ipatch_sample_format_transform_verify (int src_format, int dest_format,
 }
 
 /**
- * ipatch_sample_get_transform_funcs:
+ * ipatch_sample_get_transform_funcs: (skip)
  * @src_format: Source audio format to convert from
  * @dest_format: Destination audio format to convert to
  * @channel_map: Channel mapping (use #IPATCH_SAMPLE_UNITY_CHANNEL_MAP
@@ -497,7 +497,7 @@ ipatch_sample_format_transform_verify (int src_format, int dest_format,
  * Get transform function array for converting from @src_format to
  * @dest_format.
  *
- * @func_count: Count of function pointers stored to @funcs.  Can be 0 if no
+ * Returns: Count of function pointers stored to @funcs.  Can be 0 if no
  *   transform is required.
  */
 guint

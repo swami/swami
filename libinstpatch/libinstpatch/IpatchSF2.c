@@ -684,7 +684,7 @@ ipatch_sf2_set_file (IpatchSF2 *sf, IpatchSF2File *file)
  * A convenience function as ipatch_base_get_file() does the same thing
  * (albeit without more specific type casting).
  *
- * Returns: The SoundFont file object or %NULL if @sf is not open. Remember
+ * Returns: (transfer full): The SoundFont file object or %NULL if @sf is not open. Remember
  * to unref the file object with <function>g_object_unref()</function> when
  * done with it.
  */
@@ -810,7 +810,7 @@ typedef struct
 } InfoArrayBag;
 
 /**
- * ipatch_sf2_get_info_array:
+ * ipatch_sf2_get_info_array: (skip)
  * @sf: SoundFont to get all info strings from
  *
  * Get all string info (not IPATCH_SF2_VERSION or IPATCH_SF2_ROM_VERSION)
@@ -883,7 +883,7 @@ ipatch_sf2_info_array_qsort (const void *a, const void *b)
 }
 
 /**
- * ipatch_sf2_free_info_array:
+ * ipatch_sf2_free_info_array: (skip)
  * @array: SoundFont info array
  *
  * Frees an info array returned by ipatch_sf2_get_info_array().
@@ -950,12 +950,12 @@ ipatch_sf2_get_info_max_size (IpatchSF2InfoType infotype)
 /**
  * ipatch_sf2_find_preset:
  * @sf: SoundFont to search in
- * @name: Name of preset to find or %NULL to match any name
+ * @name: (allow-none): Name of preset to find or %NULL to match any name
  * @bank: MIDI bank number of preset to search for or -1 to not search by
  *   MIDI bank:program numbers
  * @program: MIDI program number of preset to search for, only used
  *   if @bank is 0-128
- * @exclude: A preset to exclude from the search or %NULL
+ * @exclude: (allow-none): A preset to exclude from the search or %NULL
  *
  * Find a preset by name or bank:preset MIDI numbers. If preset @name
  * and @bank:@program are specified then match for either condition.
@@ -963,7 +963,7 @@ ipatch_sf2_get_info_max_size (IpatchSF2InfoType infotype)
  * is returned. The caller is responsible for removing the reference
  * with g_object_unref() when finished with it.
  *
- * Returns: The matching preset or %NULL if not found. Remember to unref
+ * Returns: (transfer full): The matching preset or %NULL if not found. Remember to unref
  * the item when finished with it.
  */
 IpatchSF2Preset *
@@ -1008,14 +1008,14 @@ ipatch_sf2_find_preset (IpatchSF2 *sf, const char *name, int bank,
  * ipatch_sf2_find_inst:
  * @sf: SoundFont to search in
  * @name: Name of Instrument to find
- * @exclude: An instrument to exclude from the search or %NULL
+ * @exclude: (allow-none): An instrument to exclude from the search or %NULL
  *
  * Find an instrument by @name in a SoundFont. If a matching instrument
  * is found, its reference count is incremented before it is returned.
  * The caller is responsible for removing the reference with g_object_unref()
  * when finished with it.
  *
- * Returns: The matching instrument or %NULL if not found. Remember to unref
+ * Returns: (transfer full): The matching instrument or %NULL if not found. Remember to unref
  * the item when finished with it.
  */
 IpatchSF2Inst *
@@ -1054,14 +1054,14 @@ ipatch_sf2_find_inst (IpatchSF2 *sf, const char *name,
  * ipatch_sf2_find_sample:
  * @sf: SoundFont to search in
  * @name: Name of sample to find
- * @exclude: A sample to exclude from the search or %NULL
+ * @exclude: (allow-none): A sample to exclude from the search or %NULL
  *
  * Find a sample by @name in a SoundFont. If a sample is found its
  * reference count is incremented before it is returned. The caller
  * is responsible for removing the reference with g_object_unref()
  * when finished with it.
  *
- * Returns: The matching sample or %NULL if not found. Remember to unref
+ * Returns: (transfer full): The matching sample or %NULL if not found. Remember to unref
  * the item when finished with it.
  */
 IpatchSF2Sample *
@@ -1103,7 +1103,7 @@ ipatch_sf2_find_sample (IpatchSF2 *sf, const char *name,
  *
  * Get list of zones referencing an IpatchSF2Inst or IpatchSF2Sample.
  *
- * Returns: New object list containing #IpatchSF2Zone objects that
+ * Returns: (transfer full): New object list containing #IpatchSF2Zone objects that
  *   refer to @item. The new list object has a reference count of 1
  *   which the caller owns, unreference to free the list.
  */
@@ -1163,8 +1163,8 @@ ipatch_sf2_get_zone_references (IpatchItem *item)
  * ipatch_sf2_make_unique_name:
  * @sfont: SoundFont item
  * @child_type: A child type of @sfont to search for a unique name in
- * @name: An initial name to use or NULL
- * @exclude: An item to exclude from search or NULL
+ * @name: (allow-none): An initial name to use or %NULL
+ * @exclude: (allow-none): An item to exclude from search or %NULL
  *
  * Generates a unique name for the given @child_type in @sfont. The @name
  * parameter is used as a base and is modified, by appending a number, to

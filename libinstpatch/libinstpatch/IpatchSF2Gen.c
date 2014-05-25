@@ -55,7 +55,11 @@ guint64 ipatch_sf2_gen_add_mask;
 /* array of property names by generator ID */
 static const char **gen_property_names = NULL; /* names [IPATCH_SF2_GEN_COUNT] */
 
-
+/**
+ * _ipatch_sf2_gen_init: (skip)
+ *
+ * Library internal init function for SoundFont generator subsystem.
+ */
 void
 _ipatch_sf2_gen_init (void)
 {
@@ -190,7 +194,7 @@ ipatch_sf2_gen_array_get_type (void)
  * Create a new generator array object. A convenience function really,
  * because one could just allocate an IpatchSF2GenArray structure instead.
  *
- * Returns: New generator
+ * Returns: New generator array
  */
 IpatchSF2GenArray *
 ipatch_sf2_gen_array_new (gboolean clear)
@@ -386,7 +390,7 @@ ipatch_sf2_gen_amount_to_value (guint genid, const IpatchSF2GenAmount *amt,
  * ipatch_sf2_gen_default_value:
  * @genid: Generator ID
  * @ispreset: TRUE for preset generators, FALSE for instrument
- * @out_amt: A pointer to store the default amount into
+ * @out_amt: (out): A pointer to store the default amount into
  *
  * Get default value for a generator ID for the specified (@ispreset) zone
  * type.
@@ -416,7 +420,7 @@ ipatch_sf2_gen_default_value (guint genid, gboolean ispreset,
 /**
  * ipatch_sf2_gen_offset:
  * @genid: ID of Generator to offset. Must be a valid preset generator.
- * @dst: Pointer to the initial amount to offset, result is stored back
+ * @dst: (inout): Pointer to the initial amount to offset, result is stored back
  *   into this parameter.
  * @ofs: Pointer to offset amount.
  *
@@ -461,7 +465,7 @@ ipatch_sf2_gen_offset (guint genid, IpatchSF2GenAmount *dst,
 /**
  * ipatch_sf2_gen_clamp:
  * @genid: Generator ID (#IpatchSF2GenType)
- * @sfval: Generator value to clamp (changed in place)
+ * @sfval: (inout): Generator value to clamp (changed in place)
  * @ispreset: TRUE if its a Preset generator, FALSE if Instrument
  *
  * Clamp a generators value to its valid range.
@@ -491,7 +495,7 @@ ipatch_sf2_gen_clamp (guint genid, int *sfval, gboolean ispreset)
 
 /**
  * ipatch_sf2_gen_range_intersect:
- * @dst: First generator amount range, result is also stored here
+ * @dst: (inout): First generator amount range, result is also stored here
  * @src: Second generator amount range
  *
  * Find intersection of two generator ranges (common shared range).

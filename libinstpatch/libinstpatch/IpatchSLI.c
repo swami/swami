@@ -338,7 +338,7 @@ ipatch_sli_set_file (IpatchSLI *sli, IpatchSLIFile *file)
  * A convenience function as ipatch_base_get_file() does the same thing
  * (albeit without more specific type casting).
  *
- * Returns: The SLI file object or %NULL if @sli is not open. Remember
+ * Returns: (transfer full): The SLI file object or %NULL if @sli is not open. Remember
  * to unref the file object with g_object_unref() when done with it.
  */
 IpatchSLIFile *
@@ -357,8 +357,8 @@ ipatch_sli_get_file (IpatchSLI *sli)
  * ipatch_sli_make_unique_name:
  * @sli: SLI object
  * @child_type: A child type of @sli to search for a unique name in
- * @name: An initial name to use or NULL
- * @exclude: An item to exclude from search or NULL
+ * @name: (allow-none): An initial name to use or %NULL
+ * @exclude: (allow-none): An item to exclude from search or %NULL
  *
  * Generates a unique name for the given @child_type in @sli. The @name
  * parameter is used as a base and is modified, by appending a number, to
@@ -434,14 +434,14 @@ ipatch_sli_make_unique_name (IpatchSLI *sli, GType child_type,
  * ipatch_sli_find_inst:
  * @sli: SLI to search in
  * @name: Name of Instrument to find
- * @exclude: An instrument to exclude from the search or %NULL
+ * @exclude: (allow-none): An instrument to exclude from the search or %NULL
  *
  * Find an instrument by @name in an SLI object. If a matching instrument
  * is found, its reference count is incremented before it is returned.
  * The caller is responsible for removing the reference with g_object_unref()
  * when finished with it.
  *
- * Returns: The matching instrument or %NULL if not found. Remember to unref
+ * Returns: (transfer full): The matching instrument or %NULL if not found. Remember to unref
  * the item when finished with it.
  */
 IpatchSLIInst *
@@ -480,14 +480,14 @@ ipatch_sli_find_inst (IpatchSLI *sli, const char *name,
  * ipatch_sli_find_sample:
  * @sli: SLI to search in
  * @name: Name of sample to find
- * @exclude: A sample to exclude from the search or %NULL
+ * @exclude: (allow-none): A sample to exclude from the search or %NULL
  *
  * Find a sample by @name in a SLI object. If a sample is found its
  * reference count is incremented before it is returned. The caller
  * is responsible for removing the reference with g_object_unref()
  * when finished with it.
  *
- * Returns: The matching sample or %NULL if not found. Remember to unref
+ * Returns: (transfer full): The matching sample or %NULL if not found. Remember to unref
  * the item when finished with it.
  */
 IpatchSLISample *
@@ -528,7 +528,7 @@ ipatch_sli_find_sample (IpatchSLI *sli, const char *name,
  *
  * Get list of zones referencing an IpatchSLISample.
  *
- * Returns: New item list containing #IpatchSLIZone objects
+ * Returns: (transfer full): New item list containing #IpatchSLIZone objects
  * that refer to @sample. The returned list has a reference count of 1 which
  * the caller owns, unreference to free the list.
  */

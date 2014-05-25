@@ -153,7 +153,7 @@ byteSwap (guint32 *buf, unsigned words)
 }
 
 /**
- * ipatch_md5_init:
+ * ipatch_md5_init: (skip)
  * @ctx: MD5 context
  *
  * Start MD5 accumulation.  Set bit count to 0 and buffer to mysterious
@@ -172,7 +172,7 @@ ipatch_md5_init (IpatchMD5 *ctx)
 }
 
 /*
- * ipatch_md5_update:
+ * ipatch_md5_update: (skip)
  * @ctx: MD5 context
  * @buf: Buffer of data
  * @len: Length of data in @buf
@@ -218,7 +218,7 @@ ipatch_md5_update (IpatchMD5 *ctx, guint8 const *buf, unsigned len)
 }
 
 /**
- * ipatch_md5_final:
+ * ipatch_md5_final: (skip)
  * @ctx: MD5 context
  * @digest: Buffer to store 16 byte MD5 digest into
  *

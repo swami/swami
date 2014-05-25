@@ -266,7 +266,7 @@ ipatch_sample_store_split24_sample_iface_read (IpatchSampleHandle *handle,
  * Creates a new split 24 bit sample store (lower byte of 24 bit
  * samples is stored in a separate block).  New SoundFont 2.04 uses this method.
  *
- * Returns: New split 24 sample store
+ * Returns: (type IpatchSampleStoreSplit24): New split 24 sample store
  */
 IpatchSample *
 ipatch_sample_store_split24_new (IpatchFile *file, guint loc_16bit,

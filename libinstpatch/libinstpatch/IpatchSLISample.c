@@ -433,7 +433,7 @@ ipatch_sli_sample_new (void)
 }
 
 /**
- * ipatch_sli_sample_first:
+ * ipatch_sli_sample_first: (skip)
  * @iter: Patch item iterator containing #IpatchSLISample items
  *
  * Gets the first item in a sample iterator. A convenience wrapper for
@@ -453,7 +453,7 @@ ipatch_sli_sample_first (IpatchIter *iter)
 }
 
 /**
- * ipatch_sli_sample_next:
+ * ipatch_sli_sample_next: (skip)
  * @iter: Patch item iterator containing #IpatchSLISample items
  *
  * Gets the next item in a sample iterator. A convenience wrapper for
@@ -475,7 +475,7 @@ ipatch_sli_sample_next (IpatchIter *iter)
 /**
  * ipatch_sli_sample_set_name:
  * @sample: Sample to set name of
- * @name: Value to set name to
+ * @name: (allow-none): Value to set name to
  *
  * Sets the name of a Spectralis sample.
  */
@@ -595,7 +595,7 @@ ipatch_sli_sample_real_set_data (IpatchSLISample *sample,
  * before returning and caller is responsible for unreferencing it with
  * g_object_unref() when finished with it.
  *
- * Returns: Sample data object of sample or %NULL if none. Remember to
+ * Returns: (transfer full): Sample data object of sample or %NULL if none. Remember to
  * unreference with g_object_unref() when finished with it.
  */
 IpatchSampleData *
@@ -614,7 +614,7 @@ ipatch_sli_sample_get_data (IpatchSLISample *sample)
 }
 
 /**
- * ipatch_sli_sample_peek_data:
+ * ipatch_sli_sample_peek_data: (skip)
  * @sample: Sample to get sample data from
  *
  * Get the #IpatchSampleData item of a sample. Like

@@ -318,7 +318,7 @@ ipatch_dls2_sample_new (void)
 }
 
 /**
- * ipatch_dls2_sample_first:
+ * ipatch_dls2_sample_first: (skip)
  * @iter: Patch item iterator containing #IpatchDLS2Sample items
  *
  * Gets the first item in a sample iterator. A convenience wrapper for
@@ -338,7 +338,7 @@ ipatch_dls2_sample_first (IpatchIter *iter)
 }
 
 /**
- * ipatch_dls2_sample_next:
+ * ipatch_dls2_sample_next: (skip)
  * @iter: Patch item iterator containing #IpatchDLS2Sample items
  *
  * Gets the next item in a sample iterator. A convenience wrapper for
@@ -397,7 +397,7 @@ ipatch_dls2_sample_real_set_data (IpatchDLS2Sample *sample,
  * before returning and caller is responsible for unreferencing it with
  * g_object_unref() when finished with it.
  *
- * Returns: Sample data object of sample or %NULL if none. Remember to
+ * Returns: (transfer full): Sample data object of sample or %NULL if none. Remember to
  * unreference with g_object_unref() when finished with it.
  */
 IpatchSampleData *
@@ -416,7 +416,7 @@ ipatch_dls2_sample_get_data (IpatchDLS2Sample *sample)
 }
 
 /**
- * ipatch_dls2_sample_peek_data:
+ * ipatch_dls2_sample_peek_data: (skip)
  * @sample: Sample to get sample data from
  *
  * Get the #IpatchSampleData item of a sample. Like
@@ -424,8 +424,8 @@ ipatch_dls2_sample_get_data (IpatchDLS2Sample *sample)
  * This function should only be used if a reference of the sample data object
  * is ensured or only the pointer value is of importance.
  *
- * Returns: Sample data object of sample or %NULL if none. Remember that a
- * reference is NOT added.
+ * Returns: (transfer none): Sample data object of sample or %NULL if none.
+ * Remember that a reference is NOT added.
  */
 IpatchSampleData *
 ipatch_dls2_sample_peek_data (IpatchDLS2Sample *sample)
@@ -471,12 +471,25 @@ ipatch_dls2_sample_set_blank (IpatchDLS2Sample *sample)
   g_object_unref (sampledata);
 }
 
+GType
+ipatch_dls2_sample_info_get_type (void)
+{
+  static GType type = 0;
+
+  if (!type)
+    type = g_boxed_type_register_static ("IpatchDLS2SampleInfo",
+				(GBoxedCopyFunc)ipatch_dls2_sample_info_duplicate,
+				(GBoxedFreeFunc)ipatch_dls2_sample_info_free);
+
+  return (type);
+}
+
 /**
  * ipatch_dls2_sample_info_new:
  *
  * Allocates a new sample info structure.
  *
- * Returns: New sample info structure, free it with
+ * Returns: (transfer full): New sample info structure, free it with
  * ipatch_dls2_sample_info_free() when finished.
  */
 IpatchDLS2SampleInfo *

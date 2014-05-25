@@ -41,6 +41,9 @@ static void ipatch_unit_cents_to_hertz_value (const GValue *src_val,
 static void ipatch_unit_hertz_to_cents_value (const GValue *src_val,
 					      GValue *dest_val);
 
+/**
+ * _ipatch_unit_generic_init: (skip)
+ */
 void
 _ipatch_unit_generic_init (void)
 {

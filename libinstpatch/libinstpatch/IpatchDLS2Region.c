@@ -581,7 +581,7 @@ ipatch_dls2_region_new (void)
 }
 
 /**
- * ipatch_dls2_region_first:
+ * ipatch_dls2_region_first: (skip)
  * @iter: Patch item iterator containing #IpatchDLS2Region items
  *
  * Gets the first item in a region iterator. A convenience
@@ -601,7 +601,7 @@ ipatch_dls2_region_first (IpatchIter *iter)
 }
 
 /**
- * ipatch_dls2_region_next:
+ * ipatch_dls2_region_next: (skip)
  * @iter: Patch item iterator containing #IpatchDLS2Region items
  *
  * Gets the next item in a region iterator. A convenience wrapper
@@ -651,7 +651,7 @@ ipatch_dls2_region_get_info (IpatchDLS2Region *region, guint32 fourcc)
  * ipatch_dls2_region_set_info:
  * @region: DLS region to set info of
  * @fourcc: FOURCC integer ID of INFO to set
- * @val: Value to set info to or %NULL to unset (clear) info.
+ * @val: (allow-none): Value to set info to or %NULL to unset (clear) info.
  *
  * Sets an INFO value in a DLS region object.
  * Emits changed signal.
@@ -783,7 +783,7 @@ ipatch_dls2_region_get_sample_info (IpatchDLS2Region *region,
  * reference count is incremented and the caller is responsible for
  * unrefing it with g_object_unref().
  *
- * Returns: Region's referenced sample or %NULL if not set yet. Remember to
+ * Returns: (transfer full): Region's referenced sample or %NULL if not set yet. Remember to
  * unreference the item with g_object_unref() when done with it.
  */
 IpatchDLS2Sample *
@@ -802,7 +802,7 @@ ipatch_dls2_region_get_sample (IpatchDLS2Region *region)
 }
 
 /**
- * ipatch_dls2_region_peek_sample:
+ * ipatch_dls2_region_peek_sample: (skip)
  * @region: Region to get referenced sample from
  *
  * Like ipatch_dls2_region_get_sample() but does not add a reference to
@@ -810,8 +810,8 @@ ipatch_dls2_region_get_sample (IpatchDLS2Region *region)
  * of the returned item is ensured or only the pointer value is of
  * interest.
  *
- * Returns: Region's referenced sample or %NULL if not set yet. Remember that
- * the item has NOT been referenced.
+ * Returns: (transfer none): Region's referenced sample or %NULL if not set yet.
+ * Remember that the item has NOT been referenced.
  */
 IpatchDLS2Sample *
 ipatch_dls2_region_peek_sample (IpatchDLS2Region *region)
@@ -935,6 +935,7 @@ ipatch_dls2_region_set_param (IpatchDLS2Region *region,
 }
 
 /**
+ * ipatch_dls2_region_set_param_array:
  * @region: Region to set parameter of
  * @array: Array of parameter values to copy to region
  *
@@ -961,7 +962,7 @@ ipatch_dls2_region_set_param_array (IpatchDLS2Region *region,
  * ipatch_dls2_conn_list_free() (free_conns set to %TRUE) when finished
  * with it.
  *
- * Returns: (element-type IpatchDLS2Conn): New list of connections
+ * Returns: (element-type IpatchDLS2Conn) (transfer full): New list of connections
  *   (#IpatchDLS2Conn) in @region or %NULL if no connections. Remember to free
  *   it when finished.
  */

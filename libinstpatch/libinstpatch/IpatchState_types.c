@@ -87,7 +87,11 @@ GObjectClass *item_remove_parent_class = NULL;
 GObjectClass *item_change_parent_class = NULL;
 
 
-/* function to initialize types */
+/**
+ * _ipatch_state_types_init: (skip)
+ *
+ * Function to initialize types
+ */
 void
 _ipatch_state_types_init (void)
 {

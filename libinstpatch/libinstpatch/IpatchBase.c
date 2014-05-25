@@ -74,8 +74,8 @@ G_DEFINE_ABSTRACT_TYPE (IpatchBase, ipatch_base, IPATCH_TYPE_CONTAINER);
  *
  * Get the mime type of the file type associated with the given base patch file type.
  *
- * Returns: Mime type or NULL if none assigned for this base type. Free the string when
- *   finished with it.
+ * Returns: Mime type or NULL if none assigned for this base type.
+ *   Free the string when finished with it.
  *
  * Since: 1.1.0
  */
@@ -278,8 +278,8 @@ ipatch_base_real_set_file (IpatchBase *base, IpatchFile *file)
  * reference to the returned file object and it should be unrefed when
  * done with it.
  *
- * Returns: File object or %NULL if not set. Remember to unref it when done
- *   with it.
+ * Returns: (transfer full): File object or %NULL if not set.
+ *   Remember to unref it when done with it.
  */
 IpatchFile *
 ipatch_base_get_file (IpatchBase *base)
@@ -366,9 +366,9 @@ ipatch_base_get_file_name (IpatchBase *base)
 /**
  * ipatch_base_find_unused_midi_locale:
  * @base: Patch base object
- * @bank: MIDI bank number (input and output parameter)
- * @program: MIDI program number (input and output parameter)
- * @exclude: Child of @base with MIDI locale to exclude or %NULL
+ * @bank: (inout): MIDI bank number
+ * @program: (inout): MIDI program number
+ * @exclude: (allow-none): Child of @base with MIDI locale to exclude or %NULL
  * @percussion: Set to %TRUE to find a free percussion MIDI locale
  *
  * Finds an unused MIDI locale (bank:program number pair) in a patch
@@ -413,7 +413,7 @@ ipatch_base_find_unused_midi_locale (IpatchBase *base, int *bank,
  * Find a child object in a base patch object which matches the given MIDI
  * locale (@bank and @program numbers).
  *
- * Returns: The item or %NULL if not found.  The caller owns a reference to the
+ * Returns: (transfer full): The item or %NULL if not found.  The caller owns a reference to the
  *   returned object, and is responsible for unref'ing when finished.
  */
 IpatchItem *
@@ -444,9 +444,9 @@ remove_created_stores (gpointer data, gpointer user_data)
 /**
  * ipatch_base_save:
  * @base: Base item to save
- * @filename: New file name to save to or %NULL to use current one
+ * @filename: (allow-none): New file name to save to or %NULL to use current one
  * @flags: (type IpatchBaseSaveFlags): Save flags
- * @err: Location to store error info or %NULL
+ * @err: (allow-none): Location to store error info or %NULL
  *
  * Save a patch item to a file.  This function handles saving over an existing
  * file and migrates sample stores as needed.  It is an error to try to save
@@ -619,7 +619,7 @@ error:
 /**
  * ipatch_base_close:
  * @base: Base item to close
- * @err: Location to store error info or %NULL
+ * @err: (allow-none): Location to store error info or %NULL
  *
  * Close a base instrument object (using ipatch_item_remove()), migrating sample data as needed.
  *
@@ -653,7 +653,7 @@ ipatch_base_close (IpatchBase *base, GError **err)
 /**
  * ipatch_close_base_list:
  * @list: List of base objects to close (non base objects are skipped)
- * @err: Location to store error info or %NULL
+ * @err: (allow-none): Location to store error info or %NULL
  *
  * Close a list of base instrument objects (using ipatch_item_remove()),
  * migrating sample data as needed.  Using this function instead of ipatch_base_close()

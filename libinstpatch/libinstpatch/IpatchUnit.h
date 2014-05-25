@@ -108,8 +108,10 @@ typedef enum
 } IpatchUnitClassType;
 
 
+GType ipatch_unit_info_get_type (void);
 IpatchUnitInfo *ipatch_unit_info_new (void);
 void ipatch_unit_info_free (IpatchUnitInfo *info);
+IpatchUnitInfo *ipatch_unit_info_duplicate (const IpatchUnitInfo *info);
 guint16 ipatch_unit_register (const IpatchUnitInfo *info);
 IpatchUnitInfo *ipatch_unit_lookup (guint16 id);
 IpatchUnitInfo *ipatch_unit_lookup_by_name (const char *name);
@@ -119,6 +121,9 @@ IpatchUnitInfo *ipatch_unit_class_lookup_map (guint16 class_type,
 					      guint16 src_units);
 void ipatch_unit_conversion_register (guint16 src_units, guint16 dest_units,
 				      IpatchValueTransform func);
+void ipatch_unit_conversion_register_full (guint16 src_units, guint16 dest_units,
+                                           IpatchValueTransform func,
+                                           GDestroyNotify notify_func, gpointer user_data);
 IpatchValueTransform ipatch_unit_conversion_lookup (guint16 src_units,
 						    guint16 dest_units,
 						    gboolean *set);

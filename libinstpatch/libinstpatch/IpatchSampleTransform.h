@@ -60,9 +60,11 @@ struct _IpatchSampleTransform
   IpatchSampleTransformFunc funcs[IPATCH_SAMPLE_MAX_TRANSFORM_FUNCS];
 };
 
+GType ipatch_sample_transform_get_type (void);
 IpatchSampleTransform *ipatch_sample_transform_new
   (int src_format, int dest_format, guint32 channel_map);
 void ipatch_sample_transform_free (IpatchSampleTransform *transform);
+IpatchSampleTransform *ipatch_sample_transform_duplicate (const IpatchSampleTransform *transform);
 void ipatch_sample_transform_init (IpatchSampleTransform *transform);
 IpatchSampleTransform *ipatch_sample_transform_pool_acquire
   (int src_format, int dest_format, guint32 channel_map);
@@ -86,6 +88,9 @@ guint ipatch_sample_transform_get_max_frames (IpatchSampleTransform *transform);
 gpointer ipatch_sample_transform_convert (IpatchSampleTransform *transform,
 					  gconstpointer src, gpointer dest,
 					  guint frames);
+gpointer ipatch_sample_transform_convert_sizes (IpatchSampleTransform *transform,
+                                                gconstpointer src, guint src_size,
+                                                guint *dest_size);
 gpointer ipatch_sample_transform_convert_single (IpatchSampleTransform *transform,
 						 guint frames);
 #endif

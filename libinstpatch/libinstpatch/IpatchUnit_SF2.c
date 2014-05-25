@@ -76,6 +76,9 @@ ipatch_unit_percent_to_tenth_percent_value (const GValue *src_val,
 					    GValue *dest_val);
 
 
+/**
+ * _ipatch_unit_sf2_init: (skip)
+ */
 void
 _ipatch_unit_sf2_init (void)
 {

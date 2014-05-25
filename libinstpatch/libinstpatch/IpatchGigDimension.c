@@ -227,7 +227,7 @@ ipatch_gig_dimension_new (void)
 }
 
 /**
- * ipatch_gig_dimension_first:
+ * ipatch_gig_dimension_first: (skip)
  * @iter: Patch item iterator containing #IpatchGigDimension items
  *
  * Gets the first item in a dimension iterator. A convenience
@@ -247,7 +247,7 @@ ipatch_gig_dimension_first (IpatchIter *iter)
 }
 
 /**
- * ipatch_gig_dimension_next:
+ * ipatch_gig_dimension_next: (skip)
  * @iter: Patch item iterator containing #IpatchGigDimension items
  *
  * Gets the next item in a dimension iterator. A convenience wrapper

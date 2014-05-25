@@ -103,7 +103,7 @@ G_DEFINE_TYPE_WITH_CODE (IpatchSampleData, ipatch_sample_data, IPATCH_TYPE_ITEM,
  * Creates an object list copy of the master sample data list (all
  * existing sample data objects).
  *
- * Returns: New object list populated with all #IpatchSampleData objects
+ * Returns: (transfer full): New object list populated with all #IpatchSampleData objects
  * with a reference count of 1 which the caller owns, removing the reference
  * will free the list.
  *
@@ -150,7 +150,7 @@ remove_stores (gpointer key, gpointer value, gpointer user_data)
  * @filename: (allow-none): File name used for replace if @oldfile is %NULL and
  *   #IPATCH_SAMPLE_DATA_MIGRATE_REPLACE is set in @flags
  * @flags: (type IpatchSampleDataMigrateFlags): Flag options for migration
- * @err: Location to store error info or %NULL to ignore
+ * @err: (allow-none): Location to store error info or %NULL to ignore
  *
  * Used for migrating sample data when saving, deleting, replacing or closing instrument files.
  *
@@ -726,7 +726,7 @@ ipatch_sample_data_replace_native_sample (IpatchSampleData *sampledata,
  * Get an object list of samples in a sample data object.  The first sample is
  * the native sample.
  *
- * Returns: Newly created list of #IpatchSampleStore objects with a refcount of
+ * Returns: (transfer full): Newly created list of #IpatchSampleStore objects with a refcount of
  *   1 which the caller owns.
  */
 IpatchList *
@@ -783,7 +783,7 @@ ipatch_sample_data_get_size (IpatchSampleData *sampledata)
  *
  * Get the native sample of a sample data object.
  *
- * Returns: Native sample, or %NULL if no native sample in the sample data object,
+ * Returns: (transfer full): Native sample, or %NULL if no native sample in the sample data object,
  *   caller owns a reference.
  */
 IpatchSampleStore *
@@ -832,14 +832,14 @@ ipatch_sample_data_get_native_format (IpatchSampleData *sampledata)
 /**
  * ipatch_sample_data_open_native_sample:
  * @sampledata: Sample data
- * @handle: Caller supplied structure to initialize
+ * @handle: (out): Caller supplied structure to initialize
  * @mode: Access mode to sample, 'r' for reading and 'w' for writing
  * @format: Sample format to convert to/from (0 for no conversion or to assign
  *   a transform object with ipatch_sample_handle_set_transform()).
  * @channel_map: Channel mapping if @format is set (set to 0 otherwise), use
  *   #IPATCH_SAMPLE_UNITY_CHANNEL_MAP for 1 to 1 channel mapping
  *   (see ipatch_sample_get_transform_funcs() for details).
- * @err: Location to store error information
+ * @err: (allow-none): Location to store error information
  *
  * A convenience function to open a handle to a @sampledata object's native sample.
  * See ipatch_sample_handle_open() for more details.  This is identical to calling
@@ -871,7 +871,7 @@ ipatch_sample_data_open_native_sample (IpatchSampleData *sampledata,
  * @channel_map: Channel mapping to use for new cached sample when converting
  *   from native format, use #IPATCH_SAMPLE_UNITY_CHANNEL_MAP for 1 to 1 channel
  *   mapping (see ipatch_sample_get_transform_funcs() for details).
- * @err: Location to store error information
+ * @err: (allow-none): Location to store error information
  *
  * Get a cached version, in RAM, of a sample.  If an existing cached sample
  * already exists with the given format and channel map, it is used.  Otherwise
@@ -880,7 +880,7 @@ ipatch_sample_data_open_native_sample (IpatchSampleData *sampledata,
  * created by another thread, this function will block until it is created and
  * return it.
  *
- * Returns: Cached sample with the given @format for which the caller owns a
+ * Returns: (transfer full): Cached sample with the given @format for which the caller owns a
  *   reference or %NULL if @sampledata contains no samples or a sample
  *   conversion error occurred (I/O error for example).
  */
@@ -1051,7 +1051,7 @@ caching_err:    /* If caching operation fails, make sure we remove CachingInfo f
  * Like ipatch_sample_data_get_cache_sample() but does not create a new cache
  * sample if it doesn't exist.
  *
- * Returns: Cached sample store with the given @format and @channel_map for
+ * Returns: (transfer full): Cached sample store with the given @format and @channel_map for
  *   which the caller owns a reference or %NULL if @sampledata does not contain
  *   a matching cached sample.
  */
@@ -1102,7 +1102,7 @@ ipatch_sample_data_lookup_cache_sample (IpatchSampleData *sampledata, int format
  * @sampledata: Sample data object
  * @handle: Caller supplied sample handle to initialize
  * @format: Sample format
- * @err: Location to store error information
+ * @err: (allow-none): Location to store error information
  *
  * Like ipatch_sample_data_get_cache_sample() but opens the resulting cached
  * sample as a convenience.
@@ -1266,7 +1266,7 @@ sample_cache_clean_sort (gconstpointer a, gconstpointer b)
  * reference count has been incremented and should be removed by the
  * caller with g_object_unref() when finished with it.
  *
- * Returns: The blank sample data object. Remember to unref it when not
+ * Returns: (transfer full): The blank sample data object. Remember to unref it when not
  * using it anymore with g_object_unref().
  */
 IpatchSampleData *
@@ -1288,7 +1288,11 @@ ipatch_sample_data_get_blank (void)
   return (blank_sampledata);
 }
 
-/* Function used by IpatchSampleStoreCache.c */
+/**
+ * _ipatch_sample_data_cache_add_unused_size: (skip)
+ *
+ * Function used by IpatchSampleStoreCache.c
+ */
 void
 _ipatch_sample_data_cache_add_unused_size (int size)
 {
@@ -1299,7 +1303,7 @@ _ipatch_sample_data_cache_add_unused_size (int size)
 
 #ifdef IPATCH_DEBUG
 /**
- * ipatch_sample_data_dump:
+ * ipatch_sample_data_dump: (skip)
  *
  * Dump sample data information to stdout for debugging purposes.
  */

@@ -115,7 +115,7 @@ ipatch_sample_interface_init (IpatchSampleIface *sample_iface)
 }
 
 /**
- * ipatch_sample_get_loop_types:
+ * ipatch_sample_get_loop_types: (skip)
  * @sample: Object with #IpatchSample interface
  *
  * Get an array of supported loop type enums for a sample object.
@@ -135,7 +135,7 @@ ipatch_sample_get_loop_types (IpatchSample *sample)
 }
 
 /**
- * ipatch_sample_type_get_loop_types:
+ * ipatch_sample_type_get_loop_types: (skip)
  * @type: A GType that has a #IpatchItem interface
  *
  * Like ipatch_sample_get_loop_types() but retrieves the supported loop types
@@ -156,6 +156,68 @@ ipatch_sample_type_get_loop_types (GType type)
   obj_class = g_type_class_ref (type);
   iface = g_type_interface_peek (obj_class, IPATCH_TYPE_SAMPLE);
   g_type_class_unref (obj_class);
+
+  return (iface->loop_types);
+}
+
+/**
+ * ipatch_sample_get_loop_types_len: (rename-to ipatch_sample_get_loop_types)
+ * @sample: Object with #IpatchSample interface
+ * @len: (out) (allow-none): Location to store number of indeces in returned array
+ *   (not including -1 terminator), can be %NULL to ignore
+ *
+ * Get an array of supported loop type enums for a sample object.
+ *
+ * Returns: (array length=len): -1 terminated array of #IpatchSampleLoopType values.
+ *   If no loop types are supported, then %NULL is returned.  Array is internal and should
+ *   not be modified or freed.
+ *
+ * Since: 1.1.0
+ */
+int *
+ipatch_sample_get_loop_types_len (IpatchSample *sample, int *len)
+{
+  GType type;
+
+  g_return_val_if_fail (IPATCH_IS_SAMPLE (sample), NULL);
+
+  type = G_OBJECT_TYPE (sample);
+  return (ipatch_sample_type_get_loop_types_len (type, len));
+}
+
+/**
+ * ipatch_sample_type_get_loop_types_len:
+ * @type: A GType that has a #IpatchItem interface
+ * @len: (out) (allow-none): Location to store number of indeces in returned array
+ *   (not including -1 terminator), can be %NULL to ignore
+ *
+ * Like ipatch_sample_get_loop_types_len() but retrieves the supported loop types
+ * from an object type rather than an instance of an object.
+ *
+ * Returns: (array length=len): -1 terminated array of #IpatchSampleLoopType values.
+ *   If no loop types are supported, then %NULL is returned.  Array is internal and should
+ *   not be modified or freed.
+ *
+ * Since: 1.1.0
+ */
+int *
+ipatch_sample_type_get_loop_types_len (GType type, int *len)
+{
+  GObjectClass *obj_class;
+  IpatchSampleIface *iface;
+  int *tp;
+
+  g_return_val_if_fail (g_type_is_a (type, IPATCH_TYPE_SAMPLE), NULL);
+
+  obj_class = g_type_class_ref (type);
+  iface = g_type_interface_peek (obj_class, IPATCH_TYPE_SAMPLE);
+  g_type_class_unref (obj_class);
+
+  if (!iface->loop_types)
+    return (NULL);
+
+  if (len)
+    for (*len = 0, tp = iface->loop_types; *tp != -1; *len = *len + 1);
 
   return (iface->loop_types);
 }
@@ -212,8 +274,8 @@ ipatch_sample_set_size (IpatchSample *sample, guint size)
 /**
  * ipatch_sample_get_size:
  * @sample: Sample to get size of
- * @bytes: Location to store sample size in bytes (size * frame size) or NULL
- *   to ignore
+ * @bytes: (out) (allow-none): Location to store sample size in
+ *   bytes (size * frame size) or %NULL to ignore
  *
  * Get the size of a sample.  Same as getting a sample's "sample-size"
  * property.
@@ -257,7 +319,7 @@ ipatch_sample_get_frame_size (IpatchSample *sample)
  * Get sample data object from a sample.  Not every sample object supports this
  * property, in which case %NULL is returned.
  *
- * Returns: Sample data object of the sample or %NULL if not set or unsupported
+ * Returns: (transfer full): Sample data object of the sample or %NULL if not set or unsupported
  *   by this sample type.  Caller owns a reference to the returned object.
  */
 IpatchSampleData *
@@ -297,14 +359,14 @@ ipatch_sample_set_sample_data (IpatchSample *sample, IpatchSampleData *sampledat
 }
 
 /**
- * ipatch_sample_read:
+ * ipatch_sample_read: (skip)
  * @sample: Sample to read from
  * @offset: Offset in frames to read from
  * @frames: Number of frames to read
  * @buf: Buffer to store sample data in (should be at least @frames *
  *   sizeof (frame), the frame size can be had from
  *   ipatch_sample_get_frame_size()).
- * @err: Location to store error info or %NULL
+ * @err: (allow-none): Location to store error info or %NULL
  *
  * Read sample data from a sample.  This is a convenience function which
  * opens/reads/closes a #IpatchSampleHandle and is therefore not as efficient
@@ -334,14 +396,54 @@ ipatch_sample_read (IpatchSample *sample, guint offset, guint frames,
 }
 
 /**
- * ipatch_sample_write:
+ * ipatch_sample_read_size: (rename-to ipatch_sample_read)
+ * @sample: Sample to read from
+ * @offset: Offset in frames to read from
+ * @size: Size of data to read in bytes
+ * @err: (allow-none): Location to store error info or %NULL
+ *
+ * Read sample data from a sample. Like ipatch_sample_read() but
+ * is designed to be GObject introspection friendly and returned buffer is allocated.
+ *
+ * Returns: (array length=size) (element-type guint8) (transfer full): Newly
+ *   allocated buffer with read data, %NULL on error (in which case
+ *   @err may be set). Free the buffer with g_free() when finished with it.
+ *
+ * Since: 1.1.0
+ */
+gpointer
+ipatch_sample_read_size (IpatchSample *sample, guint offset, guint size, GError **err)
+{
+  int frame_size;
+  gpointer buf;
+
+  g_return_val_if_fail (IPATCH_IS_SAMPLE (sample), NULL);
+  g_return_val_if_fail (size > 0, NULL);
+
+  frame_size = ipatch_sample_get_frame_size (sample);
+  g_return_val_if_fail (frame_size > 0, NULL);
+  g_return_val_if_fail (size % frame_size == 0, NULL);
+
+  buf = g_malloc (size);        // ++ alloc buf
+
+  if (!ipatch_sample_read (sample, offset, size / frame_size, buf, err))
+  {
+    g_free (buf);               // -- free buf on error
+    return (NULL);
+  }
+
+  return (buf);         // !! caller takes over
+}
+
+/**
+ * ipatch_sample_write: (skip)
  * @sample: Sample to write to
  * @offset: Offset in frames to write to
  * @frames: Number of frames to write
  * @buf: Buffer of sample data to write (should be at least @frames *
  *   sizeof (frame), the frame size can be had from
  *   ipatch_sample_get_frame_size()).
- * @err: Location to store error info or %NULL
+ * @err: (allow-none): Location to store error info or %NULL
  *
  * Write sample data to a sample.  This is a convenience function which
  * opens/writes/closes a #IpatchSampleHandle and is therefore not as efficient
@@ -370,7 +472,39 @@ ipatch_sample_write (IpatchSample *sample, guint offset, guint frames,
 }
 
 /**
- * ipatch_sample_read_transform:
+ * ipatch_sample_write_size: (rename-to ipatch_sample_write)
+ * @sample: Sample to write to
+ * @offset: Offset in frames to write to
+ * @buf: (array length=size) (element-type guint8) (transfer none): Buffer of
+ *   sample data to write
+ * @size: Size of buffer (must be multiple of audio frame size)
+ * @err: (allow-none): Location to store error info or %NULL
+ *
+ * Write sample data to a sample.  Like ipatch_sample_write() but is designed
+ * to be GObject Inspection friendly.
+ *
+ * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set).
+ *
+ * Since: 1.1.0
+ */
+gboolean
+ipatch_sample_write_size (IpatchSample *sample, guint offset,
+                          gconstpointer buf, guint size, GError **err)
+{
+  int frame_size;
+
+  g_return_val_if_fail (IPATCH_IS_SAMPLE (sample), FALSE);
+  g_return_val_if_fail (size > 0, FALSE);
+
+  frame_size = ipatch_sample_get_frame_size (sample);
+  g_return_val_if_fail (frame_size > 0, FALSE);
+  g_return_val_if_fail (size % frame_size == 0, FALSE);
+
+  return (ipatch_sample_write (sample, offset, size / frame_size, buf, err));
+}
+
+/**
+ * ipatch_sample_read_transform: (skip)
  * @sample: Sample to read from
  * @offset: Offset in frames to read from
  * @frames: Number of frames to read
@@ -381,7 +515,7 @@ ipatch_sample_write (IpatchSample *sample, guint offset, guint frames,
  * @channel_map: Channel mapping if @format is set (set to 0 otherwise), use
  *   #IPATCH_SAMPLE_UNITY_CHANNEL_MAP for 1 to 1 channel mapping
  *   (see ipatch_sample_get_transform_funcs() for details).
- * @err: Location to store error info or %NULL
+ * @err: (allow-none): Location to store error info or %NULL
  *
  * Like ipatch_sample_read() but allows for sample transformation.
  *
@@ -409,7 +543,54 @@ ipatch_sample_read_transform (IpatchSample *sample, guint offset, guint frames,
 }
 
 /**
- * ipatch_sample_write_transform:
+ * ipatch_sample_read_transform_size: (rename-to ipatch_sample_read_transform)
+ * @sample: Sample to read from
+ * @offset: Offset in frames to read from
+ * @size: Size of sample data to read (in bytes) after conversion
+ * @format: Format to transform sample data to (if its the same as the native
+ *   format of @sample no transformation occurs)
+ * @channel_map: Channel mapping if @format is set (set to 0 otherwise), use
+ *   #IPATCH_SAMPLE_UNITY_CHANNEL_MAP for 1 to 1 channel mapping
+ *   (see ipatch_sample_get_transform_funcs() for details).
+ * @err: (allow-none): Location to store error info or %NULL
+ *
+ * Like ipatch_sample_read_transform() but is GObject Introspection friendly
+ * and audio buffer is allocated.
+ *
+ * Returns: (array length=size) (element-type guint8) (transfer full): Newly
+ *   allocated buffer containing sample data or %NULL on error (in which case
+ *   @err may be set).
+ *
+ * Since: 1.1.0
+ */
+gpointer
+ipatch_sample_read_transform_size (IpatchSample *sample, guint offset, guint size,
+                                   int format, guint32 channel_map, GError **err)
+{
+  int frame_size;
+  gpointer buf;
+
+  g_return_val_if_fail (IPATCH_IS_SAMPLE (sample), NULL);
+  g_return_val_if_fail (size > 0, NULL);
+
+  frame_size = ipatch_sample_format_size (format);
+  g_return_val_if_fail (frame_size > 0, NULL);
+  g_return_val_if_fail (size % frame_size == 0, NULL);
+
+  buf = g_malloc (size);        // ++ alloc buf
+
+  if (!ipatch_sample_read_transform (sample, offset, size / frame_size,
+                                     buf, format, channel_map, err))
+  {
+    g_free (buf);               // -- free buf on error
+    return (NULL);
+  }
+
+  return (buf);         // !! caller takes over
+}
+
+/**
+ * ipatch_sample_write_transform: (skip)
  * @sample: Sample to write to
  * @offset: Offset in frames to write to
  * @frames: Number of frames to write
@@ -420,7 +601,7 @@ ipatch_sample_read_transform (IpatchSample *sample, guint offset, guint frames,
  * @channel_map: Channel mapping if @format is set (set to 0 otherwise), use
  *   #IPATCH_SAMPLE_UNITY_CHANNEL_MAP for 1 to 1 channel mapping
  *   (see ipatch_sample_get_transform_funcs() for details).
- * @err: Location to store error info or %NULL
+ * @err: (allow-none): Location to store error info or %NULL
  *
  * Like ipatch_sample_write() but allows for sample transformation.
  *
@@ -447,12 +628,49 @@ ipatch_sample_write_transform (IpatchSample *sample, guint offset, guint frames,
 }
 
 /**
+ * ipatch_sample_write_transform_size: (rename-to ipatch_sample_write_transform)
+ * @sample: Sample to write to
+ * @offset: Offset in frames to write to
+ * @buf: Buffer of sample data to write
+ * @size: Size of data in @buf (must be a multiple of @format frame size)
+ * @format: Format to transform sample data from (if its the same as the native
+ *   format of @sample no transformation occurs)
+ * @channel_map: Channel mapping if @format is set (set to 0 otherwise), use
+ *   #IPATCH_SAMPLE_UNITY_CHANNEL_MAP for 1 to 1 channel mapping
+ *   (see ipatch_sample_get_transform_funcs() for details).
+ * @err: (allow-none): Location to store error info or %NULL
+ *
+ * Like ipatch_sample_write() but allows for sample transformation.
+ *
+ * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set).
+ *
+ * Since: 1.1.0
+ */
+gboolean
+ipatch_sample_write_transform_size (IpatchSample *sample, guint offset,
+                                    gconstpointer buf, guint size, int format,
+                                    guint32 channel_map, GError **err)
+{
+  int frame_size;
+
+  g_return_val_if_fail (IPATCH_IS_SAMPLE (sample), FALSE);
+  g_return_val_if_fail (size > 0, FALSE);
+
+  frame_size = ipatch_sample_format_size (format);
+  g_return_val_if_fail (frame_size != 0, FALSE);
+  g_return_val_if_fail (size % frame_size == 0, FALSE);
+
+  return (ipatch_sample_write_transform (sample, offset, size / frame_size,
+          buf, format, channel_map, err));
+}
+
+/**
  * ipatch_sample_copy:
  * @dest_sample: Destination sample to copy data to
  * @src_sample: Source sample to copy data from
  * @channel_map: Channel mapping, use #IPATCH_SAMPLE_UNITY_CHANNEL_MAP for 1 to 1
  *   channel mapping (see ipatch_sample_get_transform_funcs() for details).
- * @err: Location to store error information or %NULL
+ * @err: (allow-none): Location to store error information or %NULL
  *
  * Copy sample data from one sample to another.  The two samples may differ
  * in format, in which case the sample data will be converted.  The
@@ -536,14 +754,16 @@ err:
   return (retval);
 }
 
+/* FIXME-GIR: @sub_format is a dynamic GEnum or -1 */
+
 /**
  * ipatch_sample_save_to_file:
  * @sample: Sample to save to file
  * @filename: File name to save to
- * @file_format: A value from the dynamic GEnum "IpatchSndFileFormat".
+ * @file_format: (type IpatchSndFileFormat): A value from the dynamic GEnum "IpatchSndFileFormat".
  * @sub_format: A value from the dynamic GEnum "IpatchSndFileSubFormat" or -1
  *   to calculate optimal value based on the format of @sample.
- * @err: Location to store error info or %NULL to ignore
+ * @err: (allow-none): Location to store error info or %NULL to ignore
  *
  * Convenience function to save a sample to a file using libsndfile.
  *
@@ -618,14 +838,14 @@ ipatch_sample_save_to_file (IpatchSample *sample, const char *filename,
 /**
  * ipatch_sample_handle_open:
  * @sample: Sample to open a handle to
- * @handle: Caller supplied structure to initialize
+ * @handle: (out): Caller supplied structure to initialize
  * @mode: Access mode to sample, 'r' for reading and 'w' for writing
  * @format: Sample format to convert to/from (0 for no conversion or to assign
  *   a transform object with ipatch_sample_handle_set_transform()).
  * @channel_map: Channel mapping if @format is set (set to 0 otherwise), use
  *   #IPATCH_SAMPLE_UNITY_CHANNEL_MAP for 1 to 1 channel mapping
  *   (see ipatch_sample_get_transform_funcs() for details).
- * @err: Location to store error information
+ * @err: (allow-none): Location to store error information
  *
  * Open a handle to a sample for reading or writing sample data.  Can optionally
  * provide data conversion if @format is set.  If it is desirable to have more
@@ -752,7 +972,7 @@ ipatch_sample_handle_close (IpatchSampleHandle *handle)
  * implicitly supplied to ipatch_sample_handle_open().  Transform should not be
  * modified unless it was assigned via ipatch_sample_handle_set_transform().
  *
- * Returns: Sample transform or %NULL if none.
+ * Returns: (transfer none): Sample transform or %NULL if none.
  */
 IpatchSampleTransform *
 ipatch_sample_handle_get_transform (IpatchSampleHandle *handle)
@@ -766,7 +986,7 @@ ipatch_sample_handle_get_transform (IpatchSampleHandle *handle)
 /**
  * ipatch_sample_handle_set_transform:
  * @handle: Sample handle to set transform of
- * @transform: Transform to assign, source format must match that of
+ * @transform: (allow-none): Transform to assign, source format must match that of
  *   the handle's sample (read mode) or destination format must match (write mode),
  *   can be %NULL to de-activate sample transformation for @handle.
  *
@@ -854,7 +1074,7 @@ ipatch_sample_handle_get_max_frames (IpatchSampleHandle *handle)
 }
 
 /**
- * ipatch_sample_handle_read:
+ * ipatch_sample_handle_read: (skip)
  * @handle: Sample handle
  * @offset: Offset in frames to read from
  * @frames: Number of frames to read
@@ -864,7 +1084,7 @@ ipatch_sample_handle_get_max_frames (IpatchSampleHandle *handle)
  *   audio data with not more than the maximum frames that can be transformed
  *   at a time, in which case the internal transform buffer pointer will be
  *   returned.
- * @err: Location to store error info or %NULL
+ * @err: (allow-none): Location to store error info or %NULL
  * 
  * Read sample data from a sample handle.  If the number of
  * frames read is within the sample transform buffer size and @buf is %NULL
@@ -951,7 +1171,48 @@ ipatch_sample_handle_read (IpatchSampleHandle *handle, guint offset,
 }
 
 /**
- * ipatch_sample_handle_write:
+ * ipatch_sample_handle_read_size: (rename-to ipatch_sample_handle_read)
+ * @handle: Sample handle
+ * @offset: Offset in frames to read from
+ * @size: Size of data to read (in bytes), must be a multiple of sample frame size
+ * @err: (allow-none): Location to store error info or %NULL
+ * 
+ * Read sample data from a sample handle.  Like ipatch_sample_handle_read() but
+ * is GObject Introspection friendly and allocates returned buffer.
+ *
+ * Returns: (array length=size) (element-type guint8) (transfer full): Newly allocated
+ *   sample data or %NULL on error (in which case @err may be set)
+ *
+ * Since: 1.1.0
+ */
+gpointer
+ipatch_sample_handle_read_size (IpatchSampleHandle *handle, guint offset,
+                                guint size, GError **err)
+{
+  gpointer buf;
+  int frame_size;
+
+  g_return_val_if_fail (handle != NULL, NULL);
+  g_return_val_if_fail (IPATCH_IS_SAMPLE (handle->sample), NULL);
+  g_return_val_if_fail (size > 0, NULL);
+
+  frame_size = ipatch_sample_handle_get_frame_size (handle);
+  g_return_val_if_fail (frame_size > 0, NULL);
+  g_return_val_if_fail (size % frame_size == 0, NULL);
+
+  buf = g_malloc (size);        // ++ alloc buf
+
+  if (!ipatch_sample_handle_read (handle, offset, size / frame_size, buf, err))
+  {
+    g_free (buf);               // -- free buf on error
+    return (NULL);
+  }
+
+  return (buf);         // !! caller takes over allocation
+}
+
+/**
+ * ipatch_sample_handle_write: (skip)
  * @handle: Sample handle
  * @offset: Offset in frames to write to
  * @frames: Number of frames to write
@@ -960,7 +1221,7 @@ ipatch_sample_handle_read (IpatchSampleHandle *handle, guint offset,
  *   ipatch_sample_handle_get_frame_size()).  Can be %NULL, in which case it is
  *   assumed that the sample data has been loaded into the first buffer of the
  *   handle's sample transform.
- * @err: Location to store error info or %NULL
+ * @err: (allow-none): Location to store error info or %NULL
  * 
  * Write sample data to a sample handle.
  * 
@@ -1043,10 +1304,42 @@ ipatch_sample_handle_write (IpatchSampleHandle *handle, guint offset, guint fram
 }
 
 /**
- * ipatch_sample_handle_cascade_open:
+ * ipatch_sample_handle_write_size: (rename-to ipatch_sample_handle_write)
+ * @handle: Sample handle
+ * @offset: Offset in frames to write to
+ * @buf: (array length=size) (element-type guint8) (transfer none): Buffer of
+ *   sample data to write
+ * @size: Size of @buf in bytes (must be a multiple of sample frame size)
+ * @err: (allow-none): Location to store error info or %NULL
+ * 
+ * Write sample data to a sample handle.  Like ipatch_sample_handle_write() but
+ * is GObject Introspection friendly.
+ * 
+ * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set).
+ *
+ * Since: 1.1.0
+ */
+gboolean
+ipatch_sample_handle_write_size (IpatchSampleHandle *handle, guint offset,
+                                 gconstpointer buf, guint size, GError **err)
+{
+  int frame_size;
+
+  g_return_val_if_fail (handle != NULL, FALSE);
+  g_return_val_if_fail (IPATCH_IS_SAMPLE (handle->sample), FALSE);
+
+  frame_size = ipatch_sample_handle_get_frame_size (handle);
+  g_return_val_if_fail (frame_size != 0, FALSE);
+  g_return_val_if_fail (size % frame_size == 0, FALSE);
+
+  return (ipatch_sample_handle_write (handle, offset, size / frame_size, buf, err));
+}
+
+/**
+ * ipatch_sample_handle_cascade_open: (skip)
  * @handle: Already open handle
  * @sample: The cascade sample containing the actual data
- * @err: Location to store error information
+ * @err: (allow-none): Location to store error information
  *
  * This can be called from #IpatchSampleIface.open methods
  * for objects which contain a pointer to an #IpatchSample that contains the
@@ -1079,7 +1372,7 @@ ipatch_sample_handle_cascade_open (IpatchSampleHandle *handle,
 }
 
 /**
- * ipatch_sample_install_property:
+ * ipatch_sample_install_property: (skip)
  * @oclass: Object class to install #IpatchSample property
  * @property_id: Property ID for set/get property class method
  * @property_name: #IpatchSample property name to install
@@ -1109,7 +1402,7 @@ ipatch_sample_install_property (GObjectClass *oclass, guint property_id,
 }
 
 /**
- * ipatch_sample_install_property_readonly:
+ * ipatch_sample_install_property_readonly: (skip)
  * @oclass: Object class to install #IpatchSample property
  * @property_id: Property ID for set/get property class method
  * @property_name: #IpatchSample property name to install
@@ -1134,7 +1427,7 @@ ipatch_sample_install_property_readonly (GObjectClass *oclass,
 }
 
 /**
- * ipatch_sample_new_property_param_spec:
+ * ipatch_sample_new_property_param_spec: (skip)
  * @property_name: Name of a #IpatchSample property
  * @flags: Flags to use for the new #GParamSpec
  * 

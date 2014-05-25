@@ -556,7 +556,7 @@ ipatch_sli_zone_new (void)
 }
 
 /**
- * ipatch_sli_zone_first:
+ * ipatch_sli_zone_first: (skip)
  * @iter: Patch item iterator containing #IpatchSLIZone items
  *
  * Gets the first item in a zone iterator. A convenience
@@ -576,7 +576,7 @@ ipatch_sli_zone_first (IpatchIter *iter)
 }
 
 /**
- * ipatch_sli_zone_next:
+ * ipatch_sli_zone_next: (skip)
  * @iter: Patch item iterator containing #IpatchSLIZone items
  *
  * Gets the next item in a zone iterator. A convenience wrapper
@@ -599,7 +599,7 @@ ipatch_sli_zone_next (IpatchIter *iter)
 /**
  * ipatch_sli_zone_set_sample:
  * @zone: Zone to set sample of
- * @item: Sample to set zone to
+ * @sample: Sample to set zone to
  *
  * Sets the referenced sample of a zone.
  */
@@ -659,7 +659,7 @@ ipatch_sli_zone_real_set_sample (IpatchSLIZone *zone, IpatchSLISample *sample,
  * is responsible for unrefing it with g_object_unref() when
  * done with it.
  *
- * Returns: Zone's referenced sample or %NULL if global zone. Remember to
+ * Returns: (transfer full): Zone's referenced sample or %NULL if global zone. Remember to
  * unreference the item with g_object_unref() when done with it.
  */
 IpatchSLISample *
@@ -678,7 +678,7 @@ ipatch_sli_zone_get_sample (IpatchSLIZone *zone)
 }
 
 /**
- * ipatch_sli_zone_peek_sample:
+ * ipatch_sli_zone_peek_sample: (skip)
  * @zone: Zone to get referenced item of
  *
  * Like ipatch_sli_zone_get_sample() but does not add a reference to

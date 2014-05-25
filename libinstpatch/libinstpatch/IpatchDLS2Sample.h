@@ -49,6 +49,8 @@ typedef struct _IpatchDLS2SampleInfo IpatchDLS2SampleInfo;
   (G_TYPE_INSTANCE_GET_CLASS ((obj), IPATCH_TYPE_DLS2_SAMPLE, \
   IpatchDLS2SampleClass))
 
+#define IPATCH_TYPE_DLS2_SAMPLE_INFO  (ipatch_dls2_sample_info_get_type ())
+
 /* SoundFont sample item */
 struct _IpatchDLS2Sample
 {
@@ -112,6 +114,7 @@ IpatchSampleData *ipatch_dls2_sample_get_data (IpatchDLS2Sample *sample);
 IpatchSampleData *ipatch_dls2_sample_peek_data (IpatchDLS2Sample *sample);
 void ipatch_dls2_sample_set_blank (IpatchDLS2Sample *sample);
 
+GType ipatch_dls2_sample_info_get_type (void);
 IpatchDLS2SampleInfo *ipatch_dls2_sample_info_new (void);
 void ipatch_dls2_sample_info_free (IpatchDLS2SampleInfo *sample_info);
 IpatchDLS2SampleInfo *ipatch_dls2_sample_info_duplicate

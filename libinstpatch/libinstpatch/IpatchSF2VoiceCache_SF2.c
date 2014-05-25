@@ -36,6 +36,9 @@
 #include "IpatchSF2Zone.h"
 #include "IpatchSF2GenItem.h"
 
+/**
+ * _ipatch_sf2_voice_cache_init_SF2: (skip)
+ */
 void
 _ipatch_sf2_voice_cache_init_SF2 (void)
 {

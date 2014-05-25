@@ -34,7 +34,7 @@
 /**
  * ipatch_gig_parse_effects:
  * @handle: File handle containing buffered 3ewa data
- * @effects: Pointer to a user supplied GigaSampler effects structure to fill
+ * @effects: (out): Pointer to a user supplied GigaSampler effects structure to fill
  *
  * Parse an 3ewa GigaSampler effects chunk into a structure.
  */

@@ -55,7 +55,11 @@ G_LOCK_DEFINE_STATIC (param_prop_hash);
 static GHashTable *param_prop_hash = NULL;
 
 
-/* initialize parameter/unit system */
+/**
+ * _ipatch_param_init: (skip)
+ *
+ * Initialize parameter/unit system
+ */
 void
 _ipatch_param_init (void)
 {
@@ -123,8 +127,8 @@ ipatch_param_install_property (GParamSpec *prop_spec)
  * 
  * Lookup a GParamSpec property by name.
  * 
- * Returns: The matching GParamSpec or %NULL if not found.  The GParamSpec is
- *   internal and should NOT be modified or freed.
+ * Returns: (transfer none): The matching GParamSpec or %NULL if not found.
+ *   The GParamSpec is internal and should NOT be modified or freed.
  */
 GParamSpec *
 ipatch_param_find_property (const char *name)
@@ -146,11 +150,12 @@ ipatch_param_find_property (const char *name)
 
 /**
  * ipatch_param_list_properties:
- * @n_properties: Output: Length of returned array
+ * @n_properties: (out): Length of returned array
  * 
  * Get a list of all registered GParamSpec properties.
  * 
- * Returns: An array of GParamSpecs which should be freed when finished.
+ * Returns: (array length=n_properties) (transfer container): An array of
+ *   GParamSpecs which should be freed when finished.
  */
 GParamSpec **
 ipatch_param_list_properties (guint *n_properties)
@@ -180,7 +185,7 @@ param_list_properties_GHFunc (gpointer key, gpointer value, gpointer user_data)
  * ipatch_param_set:
  * @spec: Parameter spec to set extended properties of
  * @first_property_name: Name of first property to set
- * @Varargs: Value of first property to set and optionally followed by more
+ * @...: Value of first property to set and optionally followed by more
  *   property name/value pairs, terminated with %NULL name.
  * 
  * Set extended parameter properties.  Parameter properties are used to
@@ -188,8 +193,8 @@ param_list_properties_GHFunc (gpointer key, gpointer value, gpointer user_data)
  * an extended property, which is used for #GParamSpecString parameters to
  * define the max allowed length.
  *
- * Returns: The @spec pointer for convenience, makes it easy to create/install
- *   a parameter spec and set its properties at the same time.
+ * Returns: (transfer none): The @spec pointer for convenience, makes it easy
+ *   to create/install a parameter spec and set its properties at the same time.
  */
 GParamSpec *
 ipatch_param_set (GParamSpec *spec, const char *first_property_name, ...)
@@ -345,7 +350,7 @@ param_value_destroy_notify (gpointer user_data)
  * ipatch_param_get:
  * @spec: Parameter spec to get extended properties from
  * @first_property_name: Name of first property to get
- * @Varargs: Pointer to store first property value and optionally followed
+ * @...: Pointer to store first property value and optionally followed
  *   by more property name/value pairs, terminated with %NULL name.
 *
  * Get extended parameter properties.  Parameter properties are used to
@@ -425,7 +430,7 @@ ipatch_param_get_valist (GParamSpec *spec, const char *first_property_name,
  * ipatch_param_get_property:
  * @spec: Parameter spec to get an extended property from
  * @property_name: Name of property to get
- * @value: An initialized value to store the property value in. The value's
+ * @value: (out): An initialized value to store the property value in. The value's
  *   type must be a type that the property can be transformed to.
  *
  * Get a single extended parameter property from a #GParamSpec.

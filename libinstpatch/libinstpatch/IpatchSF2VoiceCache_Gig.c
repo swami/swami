@@ -46,7 +46,9 @@
 gboolean _dls2_sample_to_sf2_voice_cache_convert (IpatchConverter *converter,
                                                   GError **err);
 
-
+/**
+ * _ipatch_sf2_voice_cache_init_gig: (skip)
+ */
 void
 _ipatch_sf2_voice_cache_init_gig (void)
 {

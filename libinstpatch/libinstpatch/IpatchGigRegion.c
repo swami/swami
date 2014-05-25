@@ -489,7 +489,7 @@ ipatch_gig_region_new (void)
 }
 
 /**
- * ipatch_gig_region_first:
+ * ipatch_gig_region_first: (skip)
  * @iter: Patch item iterator containing #IpatchGigRegion items
  *
  * Gets the first item in a region iterator. A convenience
@@ -509,7 +509,7 @@ ipatch_gig_region_first (IpatchIter *iter)
 }
 
 /**
- * ipatch_gig_region_next:
+ * ipatch_gig_region_next: (skip)
  * @iter: Patch item iterator containing #IpatchGigRegion items
  *
  * Gets the next item in a region iterator. A convenience wrapper

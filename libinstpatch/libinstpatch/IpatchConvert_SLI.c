@@ -62,7 +62,11 @@ static void _sli_to_file_get_property (GObject *object, guint property_id,
 static void _sli_to_file_set_property (GObject *object, guint property_id,
                                        const GValue *value, GParamSpec *pspec);
 
-/* init routine for SLI conversion types */
+/**
+ * _ipatch_convert_SLI_init: (skip)
+ *
+ * Init routine for SLI conversion types
+ */
 void
 _ipatch_convert_SLI_init (void)
 {

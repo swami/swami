@@ -87,7 +87,7 @@ ipatch_iter_get_type (void)
 }
 
 /**
- * ipatch_iter_alloc:
+ * ipatch_iter_alloc: (skip)
  *
  * Allocates an item iterator. This function is seldom used since
  * #IpatchIter structures are usually allocated on the stack.
@@ -104,7 +104,7 @@ ipatch_iter_alloc (void)
 }
 
 /**
- * ipatch_iter_free:
+ * ipatch_iter_free: (skip)
  * @iter: Item iterator
  *
  * Frees an item iterator that was allocated with ipatch_iter_alloc().
@@ -118,7 +118,7 @@ ipatch_iter_free (IpatchIter *iter)
 }
 
 /**
- * ipatch_iter_duplicate:
+ * ipatch_iter_duplicate: (skip)
  * @iter: Patch iterator to duplicate
  *
  * Duplicates a patch iterator. Seldom used since #IpatchIter

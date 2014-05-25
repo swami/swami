@@ -359,7 +359,7 @@ ipatch_dls2_inst_new (void)
 }
 
 /**
- * ipatch_dls2_inst_first:
+ * ipatch_dls2_inst_first: (skip)
  * @iter: Patch item iterator containing #IpatchDLS2Inst items
  *
  * Gets the first item in an instrument iterator. A convenience wrapper for
@@ -379,7 +379,7 @@ ipatch_dls2_inst_first (IpatchIter *iter)
 }
 
 /**
- * ipatch_dls2_inst_next:
+ * ipatch_dls2_inst_next: (skip)
  * @iter: Patch item iterator containing #IpatchDLS2Inst items
  *
  * Gets the next item in an instrument iterator. A convenience wrapper for
@@ -407,7 +407,7 @@ ipatch_dls2_inst_next (IpatchIter *iter)
  * representation of a 4 character RIFF chunk ID, see
  * #IpatchRiff).
  *
- * Returns: New allocated info string value or %NULL if no info with the
+ * Returns: (transfer full): New allocated info string value or %NULL if no info with the
  * given @fourcc ID. String should be freed when finished with it.
  */
 char *
@@ -428,7 +428,7 @@ ipatch_dls2_inst_get_info (IpatchDLS2Inst *inst, guint32 fourcc)
  * ipatch_dls2_inst_set_info:
  * @inst: DLS instrument to set info of
  * @fourcc: FOURCC integer ID of INFO to set
- * @val: Value to set info to or %NULL to unset (clear) info.
+ * @val: (allow-none): Value to set info to or %NULL to unset (clear) info.
  *
  * Sets an INFO value in a DLS instrument object.
  * Emits changed signal.
@@ -478,8 +478,8 @@ ipatch_dls2_inst_set_midi_locale (IpatchDLS2Inst *inst, int bank, int program)
 /**
  * ipatch_dls2_inst_get_midi_locale:
  * @inst: Instrument to get MIDI locale from
- * @bank: Location to store instrument's MIDI bank number or %NULL
- * @program: Location to store instrument's MIDI program number or %NULL
+ * @bank: (out) (allow-none): Location to store instrument's MIDI bank number or %NULL
+ * @program: (out) (allow-none): Location to store instrument's MIDI program number or %NULL
  *
  * Gets the MIDI locale of a DLS instrument (bank and program numbers).
  */
@@ -536,7 +536,7 @@ ipatch_dls2_inst_compare (const IpatchDLS2Inst *p1,
  * ipatch_dls2_conn_list_free() (free_conns set to %TRUE) when finished
  * with it.
  *
- * Returns: (element-type IpatchDLS2Conn): New list of connections
+ * Returns: (element-type IpatchDLS2Conn) (transfer full): New list of connections
  *   (#IpatchDLS2Conn) in @inst or %NULL if no connections. Remember to free it
  *   when finished.
  */

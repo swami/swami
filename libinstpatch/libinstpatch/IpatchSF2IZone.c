@@ -483,7 +483,7 @@ ipatch_sf2_izone_new (void)
 }
 
 /**
- * ipatch_sf2_izone_first:
+ * ipatch_sf2_izone_first: (skip)
  * @iter: Patch item iterator containing #IpatchSF2IZone items
  *
  * Gets the first item in an instrument zone iterator. A convenience
@@ -503,7 +503,7 @@ ipatch_sf2_izone_first (IpatchIter *iter)
 }
 
 /**
- * ipatch_sf2_izone_next:
+ * ipatch_sf2_izone_next: (skip)
  * @iter: Patch item iterator containing #IpatchSF2IZone items
  *
  * Gets the next item in an instrument zone iterator. A convenience wrapper
@@ -534,7 +534,7 @@ void
 ipatch_sf2_izone_set_sample (IpatchSF2IZone *izone, IpatchSF2Sample *sample)
 {
   g_return_if_fail (IPATCH_IS_SF2_IZONE (izone));
-  g_return_if_fail (!sample || IPATCH_IS_SF2_SAMPLE (sample));
+  g_return_if_fail (IPATCH_IS_SF2_SAMPLE (sample));
 
   ipatch_sf2_zone_set_link_item (IPATCH_SF2_ZONE (izone), IPATCH_ITEM (sample));
 }
@@ -547,7 +547,7 @@ ipatch_sf2_izone_set_sample (IpatchSF2IZone *izone, IpatchSF2Sample *sample)
  * The returned sample's reference count is incremented and the caller
  * is responsible for unrefing it with g_object_unref().
  *
- * Returns: Instrument zone's referenced sample or %NULL if global
+ * Returns: (transfer full): Instrument zone's referenced sample or %NULL if global
  * zone. Remember to unreference the sample with g_object_unref() when
  * done with it.
  */
@@ -570,7 +570,7 @@ ipatch_sf2_izone_get_sample (IpatchSF2IZone *izone)
  * has the same #IpatchSF2Inst parent and has its link-item set to the counter
  * part of @izone.
  *
- * Returns: Stereo linked instrument zone or %NULL if not stereo or it could not
+ * Returns: (transfer full): Stereo linked instrument zone or %NULL if not stereo or it could not
  *   be found in the same instrument.  Caller owns a reference to the returned
  *   object.
  */

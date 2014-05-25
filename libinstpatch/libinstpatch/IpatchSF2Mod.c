@@ -126,18 +126,18 @@ ipatch_sf2_mod_duplicate (const IpatchSF2Mod *mod)
 
 /**
  * ipatch_sf2_mod_list_duplicate:
- * @list: (element-type IpatchSF2Mod): Modulator list to duplicate
+ * @list: Modulator list to duplicate
  *
- * Duplicates a modulator list (GSList and modulator data).
+ * Duplicates a modulator list (list and modulator data).
  *
- * Returns: (element-type IpatchSF2Mod): New duplicate modulator list which
+ * Returns: (transfer full): New duplicate modulator list which
  *   should be freed with ipatch_sf2_mod_list_free() with @free_mods set to
  *   %TRUE when finished with it.
  */
-GSList *
-ipatch_sf2_mod_list_duplicate (const GSList *list)
+IpatchSF2ModList *
+ipatch_sf2_mod_list_duplicate (const IpatchSF2ModList *list)
 {
-  GSList *newlist = NULL;
+  IpatchSF2ModList *newlist = NULL;
 
   while (list)
     {
@@ -152,33 +152,33 @@ ipatch_sf2_mod_list_duplicate (const GSList *list)
 }
 
 /**
- * ipatch_sf2_mod_list_override:
- * @alist: (element-type IpatchSF2Mod): First modulator list
- * @blist: (element-type IpatchSF2Mod): Second modulator list
+ * ipatch_sf2_mod_list_override: (skip)
+ * @alist: First modulator list
+ * @blist: Second modulator list
  * @copy: If %TRUE then modulator data is duplicated
  *
  * Creates a new modulator list by combining @alist and @blist. Modulators
  * in @blist override identical modulators in @alist. If @copy is set then
- * the modulator data is also duplicated (a new GSList is created).
+ * the modulator data is also duplicated (a new IpatchSF2ModList is created).
  *
- * Returns: (element-type IpatchSF2Mod): New GSList of combined modulator lists.
+ * Returns: New IpatchSF2ModList of combined modulator lists.
  * Should be freed with ipatch_sf2_mod_list_free() with the free_mods parameter
  * set to the value of @copy.
  */
-GSList *
-ipatch_sf2_mod_list_override (const GSList *alist, const GSList *blist,
+IpatchSF2ModList *
+ipatch_sf2_mod_list_override (const IpatchSF2ModList *alist, const IpatchSF2ModList *blist,
 			      gboolean copy)
 {
-  GSList *newlist, *bcopy, *p;
+  IpatchSF2ModList *newlist, *bcopy, *p;
   IpatchSF2Mod *amod, *bmod;
 
   if (copy) newlist = ipatch_sf2_mod_list_duplicate (blist);
-  else newlist = g_slist_copy ((GSList *)blist);
+  else newlist = g_slist_copy ((IpatchSF2ModList *)blist);
 
   if (!newlist)			/* optimize for empty blist */
     {
       if (copy) return (ipatch_sf2_mod_list_duplicate (alist));
-      else return (g_slist_copy ((GSList *)alist));
+      else return (g_slist_copy ((IpatchSF2ModList *)alist));
     }
 
   bcopy = newlist;
@@ -204,9 +204,30 @@ ipatch_sf2_mod_list_override (const GSList *alist, const GSList *blist,
 }
 
 /**
+ * ipatch_sf2_mod_list_override_copy: (rename-to ipatch_sf2_mod_list_override)
+ * @alist: First modulator list
+ * @blist: Second modulator list
+ *
+ * Creates a new modulator list by combining @alist and @blist. Modulators
+ * in @blist override identical modulators in @alist. If @copy is set then
+ * the modulator data is also duplicated (a new IpatchSF2ModList is created).
+ *
+ * Returns: (transfer full): New IpatchSF2ModList of combined modulator lists.
+ * Should be freed with ipatch_sf2_mod_list_free() with the free_mods parameter
+ * set to %TRUE.
+ *
+ * Since: 1.1.0
+ */
+IpatchSF2ModList *
+ipatch_sf2_mod_list_override_copy (const IpatchSF2ModList *alist, const IpatchSF2ModList *blist)
+{
+  return (ipatch_sf2_mod_list_override (alist, blist, TRUE));
+}
+
+/**
  * ipatch_sf2_mod_list_offset:
- * @alist: (element-type IpatchSF2Mod): First modulator list
- * @blist: (element-type IpatchSF2Mod): Second modulator list
+ * @alist: First modulator list
+ * @blist: Second modulator list
  *
  * Creates a new modulator list by combining @list and @blist. Modulators
  * in @blist offset (amounts are added) identical modulators in @alist.
@@ -215,14 +236,14 @@ ipatch_sf2_mod_list_override (const GSList *alist, const GSList *blist,
  *
  * NOTE: Optimized for empty @blist.
  *
- * Returns: (element-type IpatchSF2Mod): New GSList of combined modulator lists.
+ * Returns: (transfer full): New IpatchSF2ModList of combined modulator lists.
  *   Should be freed with ipatch_sf2_mod_list_free() with @free_mods set to
  *   %TRUE when finished with it.
  */
-GSList *
-ipatch_sf2_mod_list_offset (const GSList *alist, const GSList *blist)
+IpatchSF2ModList *
+ipatch_sf2_mod_list_offset (const IpatchSF2ModList *alist, const IpatchSF2ModList *blist)
 {
-  GSList *newlist, *acopy, *p;
+  IpatchSF2ModList *newlist, *acopy, *p;
   IpatchSF2Mod *amod, *bmod;
   int add;
 
@@ -260,8 +281,8 @@ ipatch_sf2_mod_list_offset (const GSList *alist, const GSList *blist)
 }
 
 /**
- * ipatch_sf2_mod_list_free:
- * @list: (element-type IpatchSF2Mod): Modulator list to free
+ * ipatch_sf2_mod_list_free: (skip)
+ * @list: Modulator list to free
  * @free_mods: If %TRUE then the modulators themselves are freed, %FALSE
  *   makes this function act just like g_slist_free() (only the list is
  *   freed not the modulators).
@@ -269,9 +290,9 @@ ipatch_sf2_mod_list_offset (const GSList *alist, const GSList *blist)
  * Free a list of modulators
  */
 void
-ipatch_sf2_mod_list_free (GSList *list, gboolean free_mods)
+ipatch_sf2_mod_list_free (IpatchSF2ModList *list, gboolean free_mods)
 {
-  GSList *p;
+  IpatchSF2ModList *p;
 
   if (free_mods)
     {
@@ -287,20 +308,20 @@ ipatch_sf2_mod_list_free (GSList *list, gboolean free_mods)
 
 /**
  * ipatch_sf2_mod_list_boxed_free:
- * @list: (element-type IpatchSF2Mod): Modulator list to free
+ * @list: Modulator list to free
  *
  * Like ipatch_sf2_mod_list_free() but used for boxed type declaration and so
  * therefore frees all modulators in the list.
  */
 void
-ipatch_sf2_mod_list_boxed_free (GSList *list)
+ipatch_sf2_mod_list_boxed_free (IpatchSF2ModList *list)
 {
   ipatch_sf2_mod_list_free (list, TRUE);
 }
 
 /**
  * ipatch_sf2_mod_list_insert:
- * @mods: (element-type IpatchSF2Mod): Modulator list to insert into
+ * @mods: (transfer full): Modulator list to insert into
  * @modvals: Modulator values to insert (a new modulator is created and the values
  *   are copied to it)
  * @pos: Index position in zone's modulator list to insert
@@ -310,11 +331,10 @@ ipatch_sf2_mod_list_boxed_free (GSList *list)
  * duplicates! The modulator is not used directly, a new one is created and
  * the values in @mod are copied to it.
  *
- * Returns: (element-type IpatchSF2Mod) (transfer none): New start (root)
- *   of @mods list.
+ * Returns: (transfer full): New start (root) of @mods list.
  */
-GSList *
-ipatch_sf2_mod_list_insert (GSList *mods, const IpatchSF2Mod *modvals, int pos)
+IpatchSF2ModList *
+ipatch_sf2_mod_list_insert (IpatchSF2ModList *mods, const IpatchSF2Mod *modvals, int pos)
 {
   IpatchSF2Mod *newmod;
 
@@ -326,24 +346,23 @@ ipatch_sf2_mod_list_insert (GSList *mods, const IpatchSF2Mod *modvals, int pos)
 
 /**
  * ipatch_sf2_mod_list_remove:
- * @mods: (element-type IpatchSF2Mod): Modulator list to remove from
+ * @mods: (transfer full): Modulator list to remove from
  * @modvals: Values of modulator to remove
- * @changed: Pointer to store bool of whether the list was changed
+ * @changed: (out) (allow-none): Pointer to store bool of whether the list was changed
  *   (%NULL to ignore)
  *
  * Remove a modulator from a modulator list. The modulator values in @modvals
  * are used to search the modulator list. The first modulator
  * that matches all fields in @modvals is removed.
  *
- * Returns: (element-type IpatchSF2Mod) (transfer none): New start (root)
- *   of @mods list.
+ * Returns: (transfer full): New start (root) of @mods list.
  */
-GSList *
-ipatch_sf2_mod_list_remove (GSList *mods, const IpatchSF2Mod *modvals,
+IpatchSF2ModList *
+ipatch_sf2_mod_list_remove (IpatchSF2ModList *mods, const IpatchSF2Mod *modvals,
 			    gboolean *changed)
 {
   IpatchSF2Mod *mod;
-  GSList *p;
+  IpatchSF2ModList *p;
 
   if (changed) *changed = FALSE;
 
@@ -366,7 +385,7 @@ ipatch_sf2_mod_list_remove (GSList *mods, const IpatchSF2Mod *modvals,
 
 /**
  * ipatch_sf2_mod_list_change:
- * @mods: (element-type IpatchSF2Mod): Modulator list to change a modulator in
+ * @mods: Modulator list to change a modulator in
  * @oldvals: Current values of modulator to set
  * @newvals: New modulator values
  *
@@ -378,11 +397,11 @@ ipatch_sf2_mod_list_remove (GSList *mods, const IpatchSF2Mod *modvals,
  * Returns: %TRUE if changed, %FALSE otherwise (no match)
  */
 gboolean
-ipatch_sf2_mod_list_change (GSList *mods, const IpatchSF2Mod *oldvals,
+ipatch_sf2_mod_list_change (IpatchSF2ModList *mods, const IpatchSF2Mod *oldvals,
 			    const IpatchSF2Mod *newvals)
 {
   IpatchSF2Mod *mod;
-  GSList *p;
+  IpatchSF2ModList *p;
 
   g_return_val_if_fail (oldvals != NULL, FALSE);
   g_return_val_if_fail (newvals != NULL, FALSE);
@@ -406,14 +425,14 @@ ipatch_sf2_mod_list_change (GSList *mods, const IpatchSF2Mod *oldvals,
  *
  * Get the list of default instrument modulators.
  *
- * Returns: (element-type IpatchSF2Mod) (transfer none): The list of default
+ * Returns: (transfer none): The list of default
  *   modulators. The same modulator list is returned on subsequent calls and
  *   should not be modified or freed.
  */
-G_CONST_RETURN GSList *
+G_CONST_RETURN IpatchSF2ModList *
 ipatch_sf2_mod_list_get_default (void)
 {
-  static GSList *list = NULL;
+  static IpatchSF2ModList *list = NULL;
   int i;
 
   if (!list)

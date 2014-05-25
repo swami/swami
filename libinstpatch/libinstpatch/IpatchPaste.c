@@ -46,6 +46,9 @@ typedef struct
 {
   IpatchPasteTestFunc test_func;
   IpatchPasteExecFunc exec_func;
+  GDestroyNotify notify_func;
+  gpointer user_data;
+  int id;
   int flags;
 } PasteHandler;
 
@@ -82,16 +85,17 @@ static IpatchItem *paste_copy_link_func_deep (IpatchItem *item,
 
 static GStaticRecMutex paste_handlers_m = G_STATIC_REC_MUTEX_INIT;
 static GSList *paste_handlers = NULL;	/* list of PasteHandler structs */
+static int ipatch_paste_handler_id = 0;         // handler ID counter
 
 static gpointer parent_class = NULL;
 
 
 /**
- * ipatch_register_paste_handler:
+ * ipatch_register_paste_handler: (skip)
  * @test_func: Callback function to test if a paste operation is handled
  * @exec_func: Paste execution function
- * @flags: Currently just a value from #IpatchPastePriority or 0 for default
- *   priority.
+ * @flags: (type IpatchPastePriority): Currently just a value
+ *   from #IpatchPastePriority or 0 for default priority.
  *
  * Registers a handler function to paste objects for
  * which @test_func returns %TRUE.
@@ -101,22 +105,56 @@ ipatch_register_paste_handler (IpatchPasteTestFunc test_func,
 			       IpatchPasteExecFunc exec_func,
 			       int flags)
 {
+  ipatch_register_paste_handler_full (test_func, exec_func, NULL, NULL, flags);
+}
+
+/**
+ * ipatch_register_paste_handler_full: (rename-to ipatch_register_paste_handler)
+ * @test_func: (scope notified): Callback function to test if a paste operation is handled
+ * @exec_func: (scope notified): Paste execution function
+ * @notify_func: (allow-none) (scope async) (closure user_data): Called when paste
+ *   handler is unregistered
+ * @user_data: (allow-none): Data to pass to @notify_func or %NULL
+ * @flags: (type IpatchPastePriority): Currently just a value
+ *   from #IpatchPastePriority or 0 for default priority.
+ *
+ * Registers a handler function to paste objects for
+ * which @test_func returns %TRUE.  Like ipatch_register_paste_handler() but is friendly
+ * to GObject Introspection.
+ *
+ * Returns: Handler ID, which can be used to unregister it.
+ *
+ * Since: 1.1.0
+ */
+int
+ipatch_register_paste_handler_full (IpatchPasteTestFunc test_func,
+			            IpatchPasteExecFunc exec_func,
+			            GDestroyNotify notify_func,
+                                    gpointer user_data, int flags)
+{
   PasteHandler *handler;
+  int id;
 
   g_return_if_fail (test_func != NULL);
   g_return_if_fail (exec_func != NULL);
 
   if (flags == 0) flags = IPATCH_PASTE_PRIORITY_DEFAULT;
 
-  handler = g_new (PasteHandler, 1);
+  handler = g_slice_new (PasteHandler);         // ++ alloc handler structure
   handler->test_func = test_func;
   handler->exec_func = exec_func;
+  handler->notify_func = notify_func;
+  handler->user_data = user_data;
   handler->flags = flags;
 
   g_static_rec_mutex_lock (&paste_handlers_m);
+  id = ++ipatch_paste_handler_id;
+  handler->id = id;
   paste_handlers = g_slist_insert_sorted (paste_handlers, handler,
 					  handler_priority_GCompareFunc);
   g_static_rec_mutex_unlock (&paste_handlers_m);
+
+  return (id);
 }
 
 static gint
@@ -130,10 +168,50 @@ handler_priority_GCompareFunc (gconstpointer a, gconstpointer b)
 }
 
 /**
+ * ipatch_unregister_paste_handler:
+ * @id: ID of handler which was returned from ipatch_register_paste_handler_full().
+ *
+ * Unregister a paste handler.
+ *
+ * Returns: %TRUE if found and unregistered, %FALSE otherwise
+ *
+ * Since: 1.1.0
+ */
+gboolean
+ipatch_unregister_paste_handler (int id)
+{
+  PasteHandler *handler;
+  GDestroyNotify notify_func = NULL;
+  gpointer user_data;
+  GSList *p;
+
+  g_static_rec_mutex_lock (&paste_handlers_m);
+
+  for (p = paste_handlers; p; p = p->next)
+  {
+    handler = (PasteHandler *)(p->data);
+
+    if (handler->id == id)
+    {
+      paste_handlers = g_slist_delete_link (paste_handlers, p);
+      notify_func = handler->notify_func;
+      user_data = handler->user_data;
+      g_slice_free (PasteHandler, handler);     // -- free handler structure
+    }
+  }
+
+  g_static_rec_mutex_unlock (&paste_handlers_m);
+
+  if (notify_func) notify_func (user_data);
+
+  return (p != NULL);
+}
+
+/**
  * ipatch_simple_paste:
  * @dest: Destination item to paste to
  * @src: Source item
- * @err: Location to store error info or %NULL
+ * @err: (allow-none): Location to store error info or %NULL
  *
  * Simple paste of a single @src item to @dest item.  Any conflicts are
  * ignored which means that conflicts will remain and should be resolved.
@@ -289,7 +367,7 @@ ipatch_paste_new (void)
  * @paste: Paste object
  * @dest: Destination item of paste
  * @src: Source item of paste
- * @err: Location to store error info or %NULL
+ * @err: (allow-none): Location to store error info or %NULL
  *
  * Setup a paste operation.  Multiple item pastes can occur for the same
  * @paste instance.  Existing duplicated items are used if present (example:
@@ -357,7 +435,8 @@ typedef struct
 /**
  * ipatch_paste_resolve:
  * @paste: Paste object
- * @resolve_func: Resolve callback function which is invoked for each conflict.
+ * @resolve_func: (scope call) (closure user_data): Resolve callback function
+ *   which is invoked for each conflict.
  * @user_data: User defined data to pass to @resolve_func.
  *
  * This function is used to make choices as to how conflicts are resolved.
@@ -674,7 +753,7 @@ check_item_conflicts_GHFunc (gpointer key, gpointer value,
 /**
  * ipatch_paste_finish:
  * @paste: Paste object
- * @err: Location to store error info or %NULL
+ * @err: (allow-none): Location to store error info or %NULL
  *
  * Complete the paste operation(s) (add/link objects).  Conflicts are handled
  * for the choices made with ipatch_paste_resolve() (defaults to ignore which
@@ -724,7 +803,7 @@ ipatch_paste_finish (IpatchPaste *paste, GError **err)
  * which are not conflicting or a choice of #IPATCH_PASTE_CHOICE_IGNORE or
  * #IPATCH_PASTE_CHOICE_REPLACE was selected.
  *
- * Returns: List of objects being added with paste operation or %NULL if none.
+ * Returns: (transfer full): List of objects being added with paste operation or %NULL if none.
  *   Returned list has a refcount of 1 which the caller owns, unref when done.
  */
 IpatchList *
@@ -761,7 +840,7 @@ ipatch_paste_get_add_list (IpatchPaste *paste)
  * @paste: Paste object
  * @additem: New item to add.
  * @parent: Container to parent @additem to.
- * @orig: Original item associated with @additem (if duplicated for example).
+ * @orig: (allow-none): Original item associated with @additem (if duplicated for example).
  *   If supplied then an association between the @orig object and the @additem
  *   will be made, and any references to @orig of subsequent deep duplications
  *   will use the new @additem instead.
@@ -814,7 +893,7 @@ ipatch_paste_object_add (IpatchPaste *paste, IpatchItem *additem,
  * automatically forced to be unique and no association is added for @item to
  * the new duplicate.
  *
- * Returns: The new duplicate of @item (no reference added for caller).
+ * Returns: (transfer none): The new duplicate of @item (no reference added for caller).
  */
 IpatchItem *
 ipatch_paste_object_add_duplicate (IpatchPaste *paste, IpatchItem *item,
@@ -857,7 +936,7 @@ typedef struct
  * duplicated dependencies of @item.  Any existing matching duplicate items in
  * the @paste instance are used rather than duplicating them again.
  *
- * Returns: The new duplicate of @item (no reference added for caller).
+ * Returns: (transfer none): The new duplicate of @item (no reference added for caller).
  */
 IpatchItem *
 ipatch_paste_object_add_duplicate_deep (IpatchPaste *paste, IpatchItem *item,
@@ -939,9 +1018,9 @@ paste_copy_link_func_deep (IpatchItem *item, IpatchItem *link,
  * @conv_type: IpatchConverter derived type to use for conversion.
  * @item: Item to convert and add.
  * @parent: Container to parent converted item to.
- * @item_list: Location to store pointer to the list of added items or %NULL
+ * @item_list: (out) (allow-none): Location to store pointer to the list of added items or %NULL
  *   to ignore.  Caller owns a reference to the list.
- * @err: Location to store error info or %NULL to ignore.
+ * @err: (allow-none): Location to store error info or %NULL to ignore.
  *
  * Used by #IpatchPasteExecFunc handlers.  Converts @item using an
  * #IpatchConverter of type @conv_type and registers
@@ -1174,7 +1253,7 @@ ipatch_paste_default_test_func (IpatchItem *dest, IpatchItem *src)
  * @paste: Paste object
  * @src: Source object of paste
  * @dest: Destination object of paste
- * @err: Location to store error info or %NULL
+ * @err: (allow-none): Location to store error info or %NULL
  *
  * Default #IpatchPasteExecFunc.  Useful for alternative paste implementations
  * which would like to chain to the default function (to override only specific
