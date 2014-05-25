@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = m4 libinstpatch python utils examples po docs tests
+SUBDIRS = m4 libinstpatch utils examples po docs tests
 EXTRA_DIST = \
 	autogen.sh \
 	ABOUT-NLS \

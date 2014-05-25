@@ -136,40 +136,6 @@ PKG_CHECK_MODULES(SNDFILE, sndfile >= 1.0)
 AC_SUBST(SNDFILE_CFLAGS)
 AC_SUBST(SNDFILE_LIBS)
 
-# Try for pygobject first (removes gtk dependency)
-PKG_CHECK_MODULES(PYGTK, pygobject-2.0, PYGTK_SUPPORT=1, PYGTK_SUPPORT=0)
-
-# If no pygobject check for full pygtk
-if test ! "$PYGTK_SUPPORT" = "1" ; then
-  PKG_CHECK_MODULES(PYGTK, pygtk-2.0, PYGTK_SUPPORT=1, PYGTK_SUPPORT=0)
-  PYGTK_CODEGEN_DIR=`pkg-config pygtk-2.0 --variable=codegendir`
-else
-  PYGTK_CODEGEN_DIR=`pkg-config pygobject-2.0 --variable=codegendir`
-fi
-
-AC_SUBST(PYGTK_CFLAGS)
-AC_SUBST(PYGTK_LIBS)
-
-AC_ARG_ENABLE(python, AS_HELP_STRING([--enable-python], [enable python binding]),
-  enable_python=$enableval, enable_python="no")
-
-if test "x${enable_python}" = "xyes" -a "$PYGTK_SUPPORT" = "1" ; then
-  AC_DEFINE(PYTHON_SUPPORT, 1, [Define to build Python binding])
-
-  if test "x$PYGTK_CODEGEN_DIR" = "x" ; then
-      PYGTK_CODEGEN_DIR=/usr/share/pygtk/2.0/codegen
-  fi
-
-  AC_SUBST(PYGTK_CODEGEN_DIR)
-
-  # Check for python 2.2 (defines PYTHON_CFLAGS, PYTHON_LIBS, PYTHON_SITE_PKG, PYTHON_EXTRA_LIBS)
-  AC_PYTHON_DEVEL
-else
-  enable_python="no"
-fi
-
-AM_CONDITIONAL(PYTHON_SUPPORT, test "x$enable_python" = "xyes")
-
 
 # Check for gtk-doc.
 GTK_DOC_CHECK(1.9)
@@ -186,14 +152,11 @@ AC_OUTPUT([
 	libinstpatch-1.0.pc
 	m4/Makefile
 	po/Makefile.in
-	python/Makefile
 	tests/Makefile
 	utils/Makefile])
 
 _SUMMARY_ENABLED=
 _SUMMARY_DISABLED=
-
-FEATURE_SUMMARY([  Python support], ["x${enable_python}" = "xyes"])
 
 FEATURE_SUMMARY([  Generate gtk-doc API docs],
   ["x${enable_gtk_doc}" == "xyes"])
@@ -212,3 +175,4 @@ echo -e -n "$_SUMMARY_DISABLED"
 echo
 echo "**************************************************************"
 echo
+
