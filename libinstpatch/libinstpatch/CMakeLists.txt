@@ -32,7 +32,7 @@ include_directories (
 
 # ************ library ************
 
-set ( libinstpatch_public_HEADERS
+set ( instpatch_public_HEADERS
     IpatchBase.h
     IpatchContainer.h
     IpatchConverter.h
@@ -123,10 +123,9 @@ set ( libinstpatch_public_HEADERS
     misc.h
     sample.h
     util.h
-    ${CMAKE_CURRENT_BINARY_DIR}/version.h
 ) 
 
-set ( libinstpatch_SOURCES
+set ( instpatch_SOURCES
     IpatchBase.c
     IpatchContainer.c
     IpatchContainer_notify.c
@@ -222,7 +221,6 @@ set ( libinstpatch_SOURCES
     IpatchXmlObject.c
     compat.c
     i18n.h
-    ipatch_priv.h
     md5.c
     md5.h
     misc.c
@@ -242,20 +240,22 @@ link_directories (
 
 add_definitions ( -DLOCALEDIR="${DATA_INSTALL_DIR}/locale" )
 
-add_library ( libinstpatch-1.0
+add_library ( instpatch-1.0
     ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.c
     ${CMAKE_CURRENT_BINARY_DIR}/marshals.c
-    ${libinstpatch_SOURCES}
+    ${CMAKE_CURRENT_BINARY_DIR}/version.h
+    ${instpatch_SOURCES}
+    ipatch_priv.h
 )
 
-target_link_libraries ( libinstpatch-1.0
+target_link_libraries ( instpatch-1.0
     ${GOBJECT_LIBRARIES}
     ${SNDFILE_LIBRARIES}
     ${IPATCH_LIBS}
 )
 
 install ( FILES
-          ${libinstpatch_public_HEADERS}
+          ${instpatch_public_HEADERS}
           ${public_main_HEADER}
           ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.h
           DESTINATION include/libinstpatch-1.0/libinstpatch )
@@ -276,11 +276,11 @@ add_custom_command (
     --vhead \"\#define IPATCH_TYPE_@ENUMSHORT@ \(@enum_name@_get_type\(\)\)\\n\"
     --ftail \"G_END_DECLS\\n\\n\"
     --ftail \"\#endif /* __IPATCH_BUILTIN_ENUMS_H__ */\"
-    ${libinstpatch_public_HEADERS}
+    ${instpatch_public_HEADERS}
     | ${SED} 's/dl_s2/dls2/g\;s/DL_S2/DLS2/g'
     > ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.h
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  DEPENDS ${libinstpatch_public_HEADERS}
+  DEPENDS ${instpatch_public_HEADERS}
 )
 
 add_custom_command (
@@ -298,11 +298,11 @@ add_custom_command (
     --vtail \"  if \(G_UNLIKELY \(type == 0\)\)\\n\"
     --vtail \"    type = g_\@type\@_register_static \(\\"@EnumName@\\", _@enum_name@_values\)\;\\n\\n\"
     --vtail \"  return type\;\\n}\\n\\n\"
-    ${libinstpatch_public_HEADERS}
+    ${instpatch_public_HEADERS}
     | ${SED} 's/dl_s2/dls2/g\;s/DL_S2/DLS2/g'
     > ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.c
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  DEPENDS ${libinstpatch_public_HEADERS} ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.h
+  DEPENDS ${instpatch_public_HEADERS} ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.h
 )
 
 
@@ -329,10 +329,10 @@ add_custom_command (
 )
 
 if ( MACOSX_FRAMEWORK )
-     set_property ( SOURCE ${libinstpatch_public_HEADERS} 
+     set_property ( SOURCE ${instpatch_public_HEADERS} 
          PROPERTY MACOSX_PACKAGE_LOCATION Headers/libinstpatch
      )
-    set_target_properties ( libinstpatch-1.0
+    set_target_properties ( instpatch-1.0
       PROPERTIES
         OUTPUT_NAME "libinstpatch-1.0"
         FRAMEWORK TRUE
@@ -343,7 +343,7 @@ if ( MACOSX_FRAMEWORK )
         SOVERSION ${LIB_VERSION_CURRENT}
     )
 else ( MACOSX_FRAMEWORK )
-  set_target_properties ( libinstpatch-1.0
+  set_target_properties ( instpatch-1.0
     PROPERTIES
       PREFIX "lib"
       OUTPUT_NAME "instpatch-1.0"
@@ -353,15 +353,71 @@ else ( MACOSX_FRAMEWORK )
 endif ( MACOSX_FRAMEWORK )
 
 if ( IPATCH_CPPFLAGS )
-  set_target_properties ( libinstpatch-1.0
+  set_target_properties ( instpatch-1.0
     PROPERTIES COMPILE_FLAGS ${IPATCH_CPPFLAGS} )
 endif ( IPATCH_CPPFLAGS ) 
 
-install ( TARGETS libinstpatch-1.0
+install ( TARGETS instpatch-1.0
   RUNTIME DESTINATION ${BIN_INSTALL_DIR}
   LIBRARY DESTINATION ${LIBINSTPATCH_INSTALL_DIR}
   ARCHIVE DESTINATION ${LIBINSTPATCH_INSTALL_DIR}
   FRAMEWORK DESTINATION ${FRAMEWORK_INSTALL_DIR}
   BUNDLE DESTINATION ${BUNDLE_INSTALL_DIR}
 )
+
+macro(_list_prefix _outvar _listvar _prefix)
+  set(${_outvar})
+  foreach(_item IN LISTS ${_listvar})
+    list(APPEND ${_outvar} ${_prefix}${_item})
+  endforeach()
+endmacro(_list_prefix)
+
+# GObject Introspection
+if (HAVE_INTROSPECTION)
+
+  # libInstPatch has to be initialized, so we build an introspection program which does this
+  add_executable ( gir_prog gir_prog.c )
+
+  target_link_libraries ( gir_prog
+    instpatch-1.0
+    ${GOBJECT_LIBRARIES}
+    ${SNDFILE_LIBRARIES}
+    ${IPATCH_LIBS}
+    ${INTROSPECTION_LIBRARIES}
+  )
+
+  string (REPLACE ";" " " INTROSPECTION_CFLAGS_STR "${INTROSPECTION_CFLAGS}")
+  set_target_properties (gir_prog
+                         PROPERTIES COMPILE_FLAGS "${INTROSPECTION_CFLAGS_STR}")
+
+  include(GObjectIntrospectionMacros)
+  set(INTROSPECTION_GIRS)
+  set(INTROSPECTION_SCANNER_ARGS "--add-include-path=${CMAKE_CURRENT_SOURCE_DIR}")
+  set(INTROSPECTION_COMPILER_ARGS "--includedir=${CMAKE_CURRENT_SOURCE_DIR}")
+
+  set(introspection_files ${instpatch_SOURCES} ${instpatch_public_HEADERS})
+  set(Ipatch_1_1_gir instpatch-1.0)
+  set(Ipatch_1_1_gir_INCLUDES GObject-2.0)
+  set(Ipatch_1_1_gir_LIBS instpatch-1.0)
+  get_directory_property(_tmp_includes INCLUDE_DIRECTORIES)
+  _list_prefix(_includes _tmp_includes "-I")
+  set(Ipatch_1_1_gir_CFLAGS ${_includes})
+  set(Ipatch_1_1_gir_PROGRAM ${CMAKE_CURRENT_BINARY_DIR}/gir_prog)
+  _list_prefix(_abs_introspection_files introspection_files "${CMAKE_CURRENT_SOURCE_DIR}/")
+  list(APPEND _abs_introspection_files
+    ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.c
+    ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.h
+    ${CMAKE_CURRENT_BINARY_DIR}/version.h
+  )
+  set(Ipatch_1_1_gir_NAMESPACE Ipatch)
+  set(Ipatch_1_1_gir_VERSION 1.0)
+  set(Ipatch_1_1_gir_FILES ${_abs_introspection_files})
+  set(Ipatch_1_1_gir_SCANNERFLAGS --c-include ${public_main_HEADER})
+
+  list(APPEND INTROSPECTION_GIRS Ipatch-1.1.gir)
+
+  gir_add_introspections(INTROSPECTION_GIRS)
+
+  add_dependencies (gir-girs gir_prog)  # Add introspection program as a dependency of gir-girs
+endif (HAVE_INTROSPECTION)
 

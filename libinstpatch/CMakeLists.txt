@@ -50,7 +50,6 @@ set ( LIB_VERSION_INFO
 
 # Options disabled by default
 option ( enable-debug "enable debugging (default=no)" off )
-option ( BUILD_PYTHON_BINDING "Build Python binding" off )
 
 # Options enabled by default
 option ( BUILD_SHARED_LIBS "Build a shared object or DLL" on )
@@ -134,6 +133,10 @@ include ( UnsetPkgConfig )
 # Check for libsndfile
 pkg_check_modules ( SNDFILE REQUIRED sndfile>=1.0.0 )
 
+# Check for GObjectIntrospection binding
+include (FindGObjectIntrospection)
+set (HAVE_INTROSPECTION ${INTROSPECTION_FOUND})
+
 # General configuration file
 configure_file ( ${CMAKE_SOURCE_DIR}/config.h.cmake 
                  ${CMAKE_BINARY_DIR}/config.h )
@@ -175,15 +178,6 @@ endif ( UNIX )
 add_subdirectory ( libinstpatch )
 add_subdirectory ( utils )
 
-unset ( PYGOBJECT_FOUND )
-if (BUILD_PYTHON_BINDING)
-    pkg_check_modules ( PYGOBJECT pygobject-2.0 )
-
-    if ( PYGOBJECT_FOUND )
-        add_subdirectory ( python )
-    endif ( PYGOBJECT_FOUND )
-endif (BUILD_PYTHON_BINDING)
-
 # CPack support 
 set ( CPACK_PACKAGE_DESCRIPTION_SUMMARY "libInstPatch instrument editing library" )
 set ( CPACK_PACKAGE_VENDOR "swami.sourceforge.net" )
@@ -215,8 +209,8 @@ else ( ENABLE_DEBUG )
   message ( "Debug:                 no" )
 endif ( ENABLE_DEBUG )
 
-if (PYGOBJECT_FOUND)
-  message ( "Python binding:        yes" ) 
-else (PYGOBJECT_FOUND)
-  message ( "Python binding:        no" ) 
-endif(PYGOBJECT_FOUND)
+if (INTROSPECTION_FOUND)
+  message ( "GObjectIntrospection:  yes" ) 
+else (INTROSPECTION_FOUND)
+  message ( "GObjectIntrospection:  no" ) 
+endif(INTROSPECTION_FOUND)
