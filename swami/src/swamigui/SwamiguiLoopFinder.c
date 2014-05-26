@@ -2,7 +2,7 @@
  * SwamiguiLoopFinder.c - Sample loop finder widget
  *
  * Swami
- * Copyright (C) 1999-2010 Joshua "Element" Green <jgreen@users.sourceforge.net>
+ * Copyright (C) 1999-2014 Element Green <element@elementsofsound.org>
  *
  * Thanks to Luis Garrido for the loop finder algorithm code and his
  * interest in creating this feature for Swami.

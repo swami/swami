@@ -2,7 +2,7 @@
  * riff_dump.c - Command line utility to dump info about RIFF files
  *
  * riff_dump utility (licensed separately from libInstPatch)
- * Copyright (C) 1999-2010 Joshua "Element" Green <jgreen@users.sourceforge.net>
+ * Copyright (C) 1999-2014 Element Green <element@elementsofsound.org>
  *
  * Public Domain, use as you please.
  */
