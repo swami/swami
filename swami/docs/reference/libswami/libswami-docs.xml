@@ -8,9 +8,9 @@
   <bookinfo>
     <title>libswami Reference Manual</title>
     <releaseinfo>
-      For libswami 2.0.0.
+      For libswami 2.1.0.
       The latest version of this documentation can be found on-line at
-      <ulink role="online-location" url="http://swami.sourceforge.net/api/libswami/index.html">http://swami.sourceforge.net/api/libswami/</ulink>.
+      <ulink role="online-location" url="http://www.swamiproject.org/api/libswami/">http://www.swamiproject.org/api/libswami/</ulink>.
     </releaseinfo>
   </bookinfo>
 
