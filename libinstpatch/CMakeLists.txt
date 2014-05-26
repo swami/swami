@@ -53,6 +53,7 @@ option ( enable-debug "enable debugging (default=no)" off )
 
 # Options enabled by default
 option ( BUILD_SHARED_LIBS "Build a shared object or DLL" on )
+option ( INTROSPECTION_ENABLED "Create GObject Introspection typelib" on )
 
 # Initialize the library directory name suffix.
 if ( CMAKE_SIZEOF_VOID_P EQUAL 8 )
@@ -134,8 +135,9 @@ include ( UnsetPkgConfig )
 pkg_check_modules ( SNDFILE REQUIRED sndfile>=1.0.0 )
 
 # Check for GObjectIntrospection binding
-include (FindGObjectIntrospection)
-set (HAVE_INTROSPECTION ${INTROSPECTION_FOUND})
+if (INTROSPECTION_ENABLED)
+  include (FindGObjectIntrospection)
+endif ()
 
 # General configuration file
 configure_file ( ${CMAKE_SOURCE_DIR}/config.h.cmake 

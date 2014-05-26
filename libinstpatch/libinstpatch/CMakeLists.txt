@@ -373,7 +373,7 @@ macro(_list_prefix _outvar _listvar _prefix)
 endmacro(_list_prefix)
 
 # GObject Introspection
-if (HAVE_INTROSPECTION)
+if (INTROSPECTION_FOUND)
 
   # libInstPatch has to be initialized, so we build an introspection program which does this
   add_executable ( gir_prog gir_prog.c )
@@ -419,5 +419,5 @@ if (HAVE_INTROSPECTION)
   gir_add_introspections(INTROSPECTION_GIRS)
 
   add_dependencies (gir-girs gir_prog)  # Add introspection program as a dependency of gir-girs
-endif (HAVE_INTROSPECTION)
+endif (INTROSPECTION_FOUND)
 
