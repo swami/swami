@@ -1,8 +1,8 @@
 +-------------------------------------------------------+
 +	libInstPatch - README				+
-+	Copyright (C) 1999-2010 Josh Green		+
-+	Email: jgreen@users.sourceforge.net		+
-+	libInstPatch site: http://swami.sourceforge.net	+
++	Copyright (C) 1999-2014 Element Green		+
++	Email: element@elementsofsound.org		+
++	libInstPatch site: http://www.swamiproject.org	+
 +-------------------------------------------------------+
 
 
@@ -26,7 +26,7 @@ which can then be edited, converted, compressed and saved.
 More information can be found on the libInstPatch Wiki pages on
 the Project Swami website.
 
-http://swami.sourceforge.net
+http://www.swamiproject.org
 
 
 2. License
@@ -76,7 +76,6 @@ operating systems.  It has also been known to run on Windows systems.
 * Paste subsystem for easily performing copies of objects within and
   between different instrument files
 * Instrument item conversion sub system
-* Python binding (currently incomplete)
 * Incomplete support for DLS 1/2 and GigaSampler
 
 
