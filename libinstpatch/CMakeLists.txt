@@ -50,7 +50,7 @@ set ( LIB_VERSION_INFO
 
 # Options disabled by default
 option ( enable-debug "enable debugging (default=no)" off )
-option ( BUILD_PYTHON_BINDING "Build Python binding" off )
+option ( GTKDOC_ENABLED "Create Gtk-Doc API reference (default=no)" off )
 
 # Options enabled by default
 option ( BUILD_SHARED_LIBS "Build a shared object or DLL" on )
@@ -134,6 +134,11 @@ include ( UnsetPkgConfig )
 # Check for libsndfile
 pkg_check_modules ( SNDFILE REQUIRED sndfile>=1.0.0 )
 
+# Check for Gtk-Doc
+if (GTKDOC_ENABLED)
+  include (FindGtkDoc)
+endif ()
+
 # General configuration file
 configure_file ( ${CMAKE_SOURCE_DIR}/config.h.cmake 
                  ${CMAKE_BINARY_DIR}/config.h )
@@ -174,6 +179,7 @@ endif ( UNIX )
 # Process subdirectories 
 add_subdirectory ( libinstpatch )
 add_subdirectory ( utils )
+add_subdirectory ( docs )
 
 unset ( PYGOBJECT_FOUND )
 if (BUILD_PYTHON_BINDING)
@@ -215,8 +221,9 @@ else ( ENABLE_DEBUG )
   message ( "Debug:                 no" )
 endif ( ENABLE_DEBUG )
 
-if (PYGOBJECT_FOUND)
-  message ( "Python binding:        yes" ) 
-else (PYGOBJECT_FOUND)
-  message ( "Python binding:        no" ) 
-endif(PYGOBJECT_FOUND)
+if (GTKDOC_FOUND)
+  message ( "Gtk-Doc API reference: yes" ) 
+else (GTKDOC_FOUND)
+  message ( "Gtk-Doc API reference: no" ) 
+endif(GTKDOC_FOUND)
+

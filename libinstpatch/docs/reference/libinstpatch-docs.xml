@@ -8,7 +8,7 @@
   <bookinfo>
     <title>libinstpatch Reference Manual</title>
     <releaseinfo>
-      For libinstpatch 1.0.0.
+      For libinstpatch 1.1.0.
       The latest version of this documentation can be found on-line at
       <ulink role="online-location" url="http://swami.sourceforge.net/api/libinstpatch/index.html">http://swami.sourceforge.net/api/libinstpatch/</ulink>.
     </releaseinfo>
@@ -62,19 +62,6 @@
     <xi:include href="xml/IpatchSampleStoreVirtual.xml"/>
   </chapter>
   <chapter>
-    <title>DLS patches</title>
-    <xi:include href="xml/IpatchDLS2.xml"/>
-    <xi:include href="xml/IpatchDLSFile.xml"/>
-    <xi:include href="xml/IpatchDLS2Info.xml"/>
-    <xi:include href="xml/IpatchDLSReader.xml"/>
-    <xi:include href="xml/IpatchDLSWriter.xml"/>
-    <xi:include href="xml/IpatchDLS2Inst.xml"/>
-    <xi:include href="xml/IpatchDLS2Region.xml"/>
-    <xi:include href="xml/IpatchDLS2Conn.xml"/>
-    <xi:include href="xml/IpatchDLS2Sample.xml"/>
-    <xi:include href="xml/IpatchUnit_DLS.xml"/>
-  </chapter>
-  <chapter>
     <title>SoundFont patches</title>
     <xi:include href="xml/IpatchSF2.xml"/>
     <xi:include href="xml/IpatchSF2File.xml"/>
@@ -91,6 +78,29 @@
     <xi:include href="xml/IpatchSF2IZone.xml"/>
     <xi:include href="xml/IpatchSF2Sample.xml"/>
     <xi:include href="xml/IpatchUnit_SF2.xml"/>
+  </chapter>
+  <chapter>
+    <title>DLS patches</title>
+    <xi:include href="xml/IpatchDLS2.xml"/>
+    <xi:include href="xml/IpatchDLSFile.xml"/>
+    <xi:include href="xml/IpatchDLS2Info.xml"/>
+    <xi:include href="xml/IpatchDLSReader.xml"/>
+    <xi:include href="xml/IpatchDLSWriter.xml"/>
+    <xi:include href="xml/IpatchDLS2Inst.xml"/>
+    <xi:include href="xml/IpatchDLS2Region.xml"/>
+    <xi:include href="xml/IpatchDLS2Conn.xml"/>
+    <xi:include href="xml/IpatchDLS2Sample.xml"/>
+    <xi:include href="xml/IpatchUnit_DLS.xml"/>
+  </chapter>
+  <chapter>
+    <title>Spectralis SLI/SLC patches</title>
+    <xi:include href="xml/IpatchSLI.xml"/>
+    <xi:include href="xml/IpatchSLIFile.xml"/>
+    <xi:include href="xml/IpatchSLIInst.xml"/>
+    <xi:include href="xml/IpatchSLIZone.xml"/>
+    <xi:include href="xml/IpatchSLISample.xml"/>
+    <xi:include href="xml/IpatchSLIReader.xml"/>
+    <xi:include href="xml/IpatchSLIWriter.xml"/>
   </chapter>
   <chapter>
     <title>GigaSampler patches</title>

@@ -54,7 +54,12 @@ IGNORE_HFILES= \
   IpatchSF2VoiceCache_Gig.h \
   IpatchSF2VoiceCache_SF2.h \
   IpatchSF2VoiceCache_VBank.h \
+  IpatchState.h \
+  IpatchStateGroup.h \
+  IpatchStateItem.h \
+  IpatchState_types.h \
   builtin_enums.h \
+  compat.h \
   config.h \
   i18n.h \
   ipatch_priv.h \
