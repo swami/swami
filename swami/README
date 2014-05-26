@@ -1,8 +1,8 @@
 +-------------------------------------------------------+
 +	Swami - README					+
-+       Copyright (C) 1999-2010 Joshua "Element" Green	+
-+	Email: jgreen@users.sourceforge.net		+
-+	Swami homepage: http://swami.sourceforge.net	+
++       Copyright (C) 1999-2014 Element Green	        +
++	Email: element@elementsofsound.org		+
++	Swami homepage: http://www.swamiproject.org	+
 +-------------------------------------------------------+
 
 *******************************************************************
@@ -408,14 +408,14 @@ All other trademarks are property of their respective holders.
 
 18. Contact
 -------------------------------------
-Contact me (Joshua "Element" Green) particularly if you are interested in helping
+Contact me (Element Green) particularly if you are interested in helping
 develop Swami. Programming, web page design, and
 documentation are all things that are lacking, so if you have an
 interest, do contact me. Also contact me if you find any bugs, have
 trouble compiling on a platform you think should be supported, want to
 tell me how much you like Swami, or have suggestions or ideas.
 
-Email: jgreen@users.sourceforge.net
-Swami homepage: http://swami.sourceforge.net
+Email: element@elementsofsound.org
+Swami homepage: http://www.swamiproject.org
 
 =====================================
