@@ -50,6 +50,7 @@ set ( LIB_VERSION_INFO
 
 # Options disabled by default
 option ( enable-debug "enable debugging (default=no)" off )
+option ( GTKDOC_ENABLED "Create Gtk-Doc API reference (default=no)" off )
 
 # Options enabled by default
 option ( BUILD_SHARED_LIBS "Build a shared object or DLL" on )
@@ -139,6 +140,11 @@ if (INTROSPECTION_ENABLED)
   include (FindGObjectIntrospection)
 endif ()
 
+# Check for Gtk-Doc
+if (GTKDOC_ENABLED)
+  include (FindGtkDoc)
+endif ()
+
 # General configuration file
 configure_file ( ${CMAKE_SOURCE_DIR}/config.h.cmake 
                  ${CMAKE_BINARY_DIR}/config.h )
@@ -179,6 +185,7 @@ endif ( UNIX )
 # Process subdirectories 
 add_subdirectory ( libinstpatch )
 add_subdirectory ( utils )
+add_subdirectory ( docs )
 
 # CPack support 
 set ( CPACK_PACKAGE_DESCRIPTION_SUMMARY "libInstPatch instrument editing library" )
@@ -216,3 +223,10 @@ if (INTROSPECTION_FOUND)
 else (INTROSPECTION_FOUND)
   message ( "GObjectIntrospection:  no" ) 
 endif(INTROSPECTION_FOUND)
+
+if (GTKDOC_FOUND)
+  message ( "Gtk-Doc API reference: yes" ) 
+else (GTKDOC_FOUND)
+  message ( "Gtk-Doc API reference: no" ) 
+endif(GTKDOC_FOUND)
+
