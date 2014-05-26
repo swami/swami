@@ -1,5 +1,5 @@
 dnl --------------------------------------------------
-dnl configure.in for Swami
+dnl configure.ac for Swami
 dnl --------------------------------------------------
 
 AC_INIT(src/swamigui/main.c)
@@ -154,53 +154,6 @@ AC_SUBST(FFTW_CFLAGS)
 AC_SUBST(FFTW_LIBS)
 AM_CONDITIONAL(FFTW_SUPPORT, test "$FFTW_SUPPORT" = "1")
 
-PKG_CHECK_MODULES(PYGTK, pygtk-2.0, PYGTK_SUPPORT=1, PYGTK_SUPPORT=0)
-AC_SUBST(PYGTK_CFLAGS)
-AC_SUBST(PYGTK_LIBS)
-
-AC_ARG_ENABLE(python, AS_HELP_STRING([--enable-python], [enable python binding]),
-  enable_python=$enableval, enable_python="no")
-
-if test "x${enable_python}" = "xyes" -a "$PYGTK_SUPPORT" = "1" ; then
-  AC_DEFINE(PYTHON_SUPPORT, 1, [Define to build Python binding])
-
-  # Get the codegen directory
-  PYGTK_CODEGEN_DIR=`pkg-config pygtk-2.0 --variable=codegendir`
-
-  if test "x$PYGTK_CODEGEN_DIR" = "x" ; then
-      PYGTK_CODEGEN_DIR=/usr/share/pygtk/2.0/codegen
-  fi
-
-  AC_SUBST(PYGTK_CODEGEN_DIR)
-
-  dnl Check for python 2.2 (defines PYTHON_CFLAGS, PYTHON_LIBS, PYTHON_SITE_PKG, PYTHON_EXTRA_LIBS)
-  AC_PYTHON_DEVEL
-else
-  enable_python="no"
-fi
-
-AM_CONDITIONAL(PYTHON_SUPPORT, test "x$enable_python" = "xyes")
-
-
-dnl - Check for GtkSourceView
-PKG_CHECK_MODULES(GTK_SOURCE_VIEW, gtksourceview-1.0 >= 1.0,
-    GTK_SOURCE_VIEW_SUPPORT=1, GTK_SOURCE_VIEW_SUPPORT=0)
-AC_SUBST(GTK_SOURCE_VIEW_CFLAGS)
-AC_SUBST(GTK_SOURCE_VIEW_LIBS)
-
-AC_ARG_ENABLE(gtk-source-view, AS_HELP_STRING([--disable-gtk-source-view],
-                                              [disable GtkSourceView support]),
-  enable_gtk_source_view=$enableval, enable_gtk_source_view="yes")
-
-if test "${enable_gtk_source_view}" = "yes" \
- -a "$GTK_SOURCE_VIEW_SUPPORT" = "1" \
- -a "${enable_python}" = "yes" ; then
-  AC_DEFINE(GTK_SOURCE_VIEW_SUPPORT, 1,
-    [Define to enable GtkSourceView support])
-else
-  enable_gtk_source_view="no"
-fi
-
 
 dnl *** Plugin stuff ***
 
@@ -241,7 +194,6 @@ AC_OUTPUT([
 	src/swamigui/images/Makefile
 	src/swamigui/widgets/Makefile
 	src/plugins/Makefile
-	src/python/Makefile
 	po/Makefile.in
 	package/Makefile
 	package/osxbundle/Makefile
@@ -259,10 +211,6 @@ FEATURE_SUMMARY([  FluidSynth - Soft synth wavetable plugin],
 
 FEATURE_SUMMARY([  FFTW support - Auto sample tuning plugin],
   ["${FFTW_SUPPORT}" = "1"])
-
-FEATURE_SUMMARY([  Python support], ["${enable_python}" = "yes"])
-
-FEATURE_SUMMARY([  GtkSourceView support (extended Python script editing features)],["${enable_gtk_source_view}" = "yes"])
 
 FEATURE_SUMMARY([  Generate gtk-doc API docs],
   ["x${enable_gtk_doc}" == "xyes"])
