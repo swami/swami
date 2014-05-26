@@ -2,7 +2,7 @@
  * SwamiPlugin.h - Header file for Swami plugin system
  *
  * Swami
- * Copyright (C) 1999-2010 Joshua "Element" Green <jgreen@users.sourceforge.net>
+ * Copyright (C) 1999-2014 Element Green <element@elementsofsound.org>
  *
  * Inspired by gstplugin from GStreamer (although re-coded)
  *

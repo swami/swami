@@ -1,6 +1,6 @@
 /*
  * libInstPatch
- * Copyright (C) 1999-2010 Joshua "Element" Green <jgreen@users.sourceforge.net>
+ * Copyright (C) 1999-2014 Element Green <element@elementsofsound.org>
  *
  * This program is free software; you can redistribute it and/or
  * connify it under the terms of the GNU Conneral Public License

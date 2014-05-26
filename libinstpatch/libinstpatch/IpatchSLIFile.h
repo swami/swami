@@ -1,6 +1,6 @@
 /*
  * libInstPatch
- * Copyright (C) 1999-2010 Joshua "Element" Green <jgreen@users.sourceforge.net>
+ * Copyright (C) 1999-2014 Element Green <element@elementsofsound.org>
  *
  * Author of this file: (C) 2012 BALATON Zoltan <balaton@eik.bme.hu>
  *
