@@ -38,6 +38,7 @@ set ( LIB_VERSION_INFO
 # Options disabled by default
 option ( enable-debug "enable debugging (default=no)" off )
 option ( enable-source-build "enable source build - load resources from source dir (default=no)" off )
+option ( GTKDOC_ENABLED "Create Gtk-Doc API reference (default=no)" off )
 
 # Options enabled by default
 option ( BUILD_SHARED_LIBS "Build a shared object or DLL (default=yes)" on )
@@ -159,6 +160,10 @@ else ( enable-fftw )
   unset_pkg_config ( FFTW )
 endif ( enable-fftw )
 
+# Check for Gtk-Doc
+if (GTKDOC_ENABLED)
+  include (FindGtkDoc)
+endif ()
 
 # General configuration file
 configure_file ( ${CMAKE_SOURCE_DIR}/config.h.cmake 
@@ -167,6 +172,7 @@ add_definitions ( -DHAVE_CONFIG_H )
 
 # Process subdirectories
 add_subdirectory ( src )
+add_subdirectory ( docs )
 
 # Extra targets for Unix build environments
 if ( UNIX )
@@ -201,6 +207,12 @@ if ( FFTW_SUPPORT )
 else ( FFTW_SUPPORT )
   message ( "FFTW:                  no (there will be no FFTune plugin!)" )
 endif ( FFTW_SUPPORT )
+
+if (GTKDOC_FOUND)
+  message ( "Gtk-Doc API reference: yes" ) 
+else (GTKDOC_FOUND)
+  message ( "Gtk-Doc API reference: no" ) 
+endif(GTKDOC_FOUND)
 
 if ( DEBUG )
   message ( "Debug:                 yes" )
