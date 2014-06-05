@@ -523,6 +523,32 @@ ipatch_sample_store_swap_new (void)
 }
 
 /**
+ * ipatch_sample_store_swap_close:
+ *
+ * Close the swap sample store temporary file and delete it.  Should only be called prior to
+ * exiting application when no more sample store accesses will occur.
+ *
+ * Since: 1.1.0
+ */
+void
+ipatch_sample_store_swap_close (void)
+{
+  G_LOCK (swap);        // ++ lock swap
+
+  if (swap_fd != -1)
+  {
+    close (swap_fd);
+    swap_fd = -1;
+
+    // Just blindly delete the swap file
+    if (swap_file_name)
+      g_unlink (swap_file_name);
+  }
+
+  G_UNLOCK (swap);      // -- unlock swap
+}
+
+/**
  * ipatch_get_sample_store_swap_unused_size:
  *
  * Get amount of unused space in the swap file.

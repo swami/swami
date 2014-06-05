@@ -63,6 +63,7 @@ GType ipatch_sample_store_swap_get_type (void);
 void ipatch_set_sample_store_swap_file_name (const char *filename);
 char *ipatch_get_sample_store_swap_file_name (void);
 IpatchSample *ipatch_sample_store_swap_new (void);
+void ipatch_sample_store_swap_close (void);
 int ipatch_get_sample_store_swap_unused_size (void);
 void ipatch_set_sample_store_swap_max_memory (int size);
 int ipatch_get_sample_store_swap_max_memory (void);
