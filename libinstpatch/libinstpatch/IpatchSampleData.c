@@ -909,6 +909,7 @@ ipatch_sample_data_get_cache_sample (IpatchSampleData *sampledata, int format,
   guint32 maskval, src_channel_map;
   CachingInfo *cinfo;   /* Silence gcc (why?) */
   CachingInfo *new_cinfo = NULL;
+  int rate;
   int i;
 
   g_return_val_if_fail (IPATCH_IS_SAMPLE_DATA (sampledata), NULL);
@@ -918,7 +919,7 @@ ipatch_sample_data_get_cache_sample (IpatchSampleData *sampledata, int format,
   for (i = IPATCH_SAMPLE_FORMAT_GET_CHANNEL_COUNT (format), maskval = 0; i > 0; i--)
     maskval |= 0x7 << ((i - 1) * 3);
 
-  channel_map &= ~maskval;
+  channel_map &= maskval;
 
 try_again:
 
@@ -991,7 +992,12 @@ try_again:
 
   /* Cache the sample outside of lock */
 
-  size_bytes = ipatch_sample_store_get_size (store) * ipatch_sample_format_size (format);
+  g_object_get (store,
+                "sample-size", &size_bytes,
+                "sample-rate", &rate,
+                NULL);
+
+  size_bytes *= ipatch_sample_format_size (format);
 
   /* Add to sample_cache_total_size and sample_cache_unused_size too.  Do this
    * before ipatch_sample_copy_below() since it modifies sample_cache_unused_size */
@@ -1001,7 +1007,11 @@ try_again:
   G_UNLOCK (sample_cache_vars);
 
   c_sample = ipatch_sample_store_cache_new (NULL);      /* ++ ref new sample */
-  ipatch_sample_set_format (c_sample, format);
+
+  g_object_set (c_sample, "sample-format", format,
+                "sample-rate", rate,
+                NULL);
+
   ((IpatchSampleStoreCache *)c_sample)->channel_map = channel_map;
 
   if (!ipatch_sample_copy (c_sample, (IpatchSample *)store, channel_map, err))
