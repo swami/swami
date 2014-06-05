@@ -23,6 +23,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 
 #include <glib.h>
 #include <glib-object.h>
@@ -64,6 +65,7 @@ void
 swami_init (void)
 {
   static gboolean initialized = FALSE;
+  char *swap_dir, *swap_filename;
 
   if (initialized) return;
   initialized = TRUE;
@@ -116,6 +118,27 @@ swami_init (void)
   /* install periodic control event expiration process */
   g_timeout_add (SWAMI_CONTROL_EVENT_EXPIRE_INTERVAL,
 		 swami_control_event_expire_timeout, NULL);
+
+  /* Construct Swami directory name for swap file (uses XDG cache directory - seems the most appropriate) */
+  swap_dir = g_build_filename (g_get_user_cache_dir(), "swami", NULL);	/* ++ alloc */
+
+  if (!g_file_test (swap_dir, G_FILE_TEST_EXISTS))
+  {
+    if (g_mkdir_with_parents (swap_dir, 0700) == -1)
+    {
+      g_critical (_("Failed to create sample swap file directory '%s': %s"),
+                  swap_dir, g_strerror (errno));
+      g_free (swap_dir);	/* -- free */
+      return;
+    }
+  }
+
+  swap_filename = g_build_filename (swap_dir, "sample_swap.dat", NULL);	/* ++ alloc */
+  g_free (swap_dir);	/* -- free swap dir */
+
+  /* assign libInstPatch sample store swap file name (uses XDG cache directory) */
+  ipatch_set_sample_store_swap_file_name (swap_filename);
+  g_free (swap_filename);       // -- free swap file name
 }
 
 static gboolean
