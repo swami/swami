@@ -232,11 +232,12 @@ ipatch_sample_store_swap_sample_iface_open (IpatchSampleHandle *handle,
   if (!(flags & SAMPLE_ALLOCATED))
   {
     new_ram_used = g_atomic_int_exchange_and_add (&swap_ram_used, sample_size);
+    new_ram_used += sample_size;        // Value returned is the amount before the add
 
     // Check if allocating sample in RAM would exceed max allowed
     if (new_ram_used > g_atomic_int_get (&swap_ram_max))
     { // RAM swap is maxed out - correct swap_ram_used
-      new_ram_used = g_atomic_int_exchange_and_add (&swap_ram_used, -sample_size);
+      g_atomic_int_add (&swap_ram_used, -sample_size);
 
       if (swap_fd == -1)   /* Swap file not yet created? */
         ipatch_sample_store_swap_open_file ();
@@ -479,8 +480,8 @@ ipatch_sample_store_swap_finalize (GObject *gobject)
  * ipatch_set_sample_store_swap_file_name:
  * @filename: File name to use for sample swap disk file
  *
- * Set name of sample swap storage file on disk.  Can only be assigned prior to
- * any #IpatchSampleStoreSwap objects being created, after which it has no effect.
+ * Set name of sample swap storage file on disk.  Can only be assigned once and
+ * should be done prior to any #IpatchSampleStoreSwap objects being created.
  *
  * Since: 1.1.0
  */
