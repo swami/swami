@@ -61,6 +61,7 @@ ipatch_code_error (GError **err, const char *format, ...)
 extern char *ipatch_application_name;
 
 void ipatch_init (void);
+void ipatch_close (void);
 void ipatch_set_application_name (const char *name);
 GQuark ipatch_error_quark (void);
 G_CONST_RETURN char *ipatch_gerror_message (GError *err);

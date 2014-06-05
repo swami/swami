@@ -376,6 +376,20 @@ ipatch_init (void)
                    "mime-type", "audio/x-spectralis", NULL);
 }
 
+/**
+ * ipatch_close:
+ *
+ * Perform cleanup of libInstPatch prior to application close.  Such as deleting
+ * temporary files.
+ *
+ * Since: 1.1.0
+ */
+void
+ipatch_close (void)
+{
+  ipatch_sample_store_swap_close ();
+}
+
 static gboolean
 ipatch_strv_xml_encode (GNode *node, GObject *object, GParamSpec *pspec,
                         GValue *value, GError **err)
