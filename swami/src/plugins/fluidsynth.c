@@ -342,9 +342,9 @@ plugin_fluidsynth_init (SwamiPlugin *plugin, GError **err)
 
   g_object_set (plugin,
 		"name", "FluidSynth",
-		"version", "1.01",
-		"author", "Josh Green",
-		"copyright", "Copyright (C) 2002-2008",
+		"version", "1.1",
+		"author", "Element Green",
+		"copyright", "Copyright (C) 2002-2014",
 		"descr", N_("FluidSynth software wavetable synth plugin"),
 		"license", "GPL",
 		NULL);

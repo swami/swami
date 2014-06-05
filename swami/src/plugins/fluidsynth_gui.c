@@ -73,9 +73,9 @@ plugin_fluidsynth_gui_init (SwamiPlugin *plugin, GError **err)
 
   g_object_set (plugin,
 		"name", "FluidSynthGui",
-		"version", "1.01",
-		"author", "Josh Green",
-		"copyright", "Copyright (C) 2007-2008",
+		"version", "1.1",
+		"author", "Element Green",
+		"copyright", "Copyright (C) 2007-2014",
 		"descr", N_("FluidSynth software wavetable synth GUI plugin"),
 		"license", "GPL",
 		NULL);

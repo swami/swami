@@ -155,8 +155,8 @@ plugin_fftune_gui_init (SwamiPlugin *plugin, GError **err)
   g_object_set (plugin,
 		"name", "FFTuneGui",
 		"version", "1.0",
-		"author", "Josh Green",
-		"copyright", "Copyright (C) 2005",
+		"author", "Element Green",
+		"copyright", "Copyright (C) 2005-2014",
 		"descr", N_("GUI for Fast Fourier Transform sample tuner"),
 		"license", "GPL",
 		NULL);
