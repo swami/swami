@@ -863,14 +863,18 @@ ipatch_sample_data_open_native_sample (IpatchSampleData *sampledata,
                                        int format, guint32 channel_map, GError **err)
 {
   IpatchSampleStore *native_sample;
+  gboolean retval;
 
   g_return_val_if_fail (IPATCH_IS_SAMPLE_DATA (sampledata), FALSE);
 
-  native_sample = ipatch_sample_data_get_native_sample (sampledata);
+  native_sample = ipatch_sample_data_get_native_sample (sampledata);    // ++ ref sample store
   g_return_val_if_fail (native_sample != NULL, FALSE);
 
-  return (ipatch_sample_handle_open ((IpatchSample *)native_sample, handle, mode,
-                                     format, channel_map, err));
+  retval = ipatch_sample_handle_open ((IpatchSample *)native_sample, handle, mode,
+                                      format, channel_map, err);
+  g_object_unref (native_sample);               // -- unref sample store
+
+  return (retval);
 }
 
 /**
