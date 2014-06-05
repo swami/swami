@@ -617,7 +617,7 @@ swamigui_new_item (IpatchItem *parent_hint, GType type)
 
   if (!parent_hint) parent_hint = IPATCH_ITEM (swami_root->patch_root);
 
-  new_item = g_object_new (type, NULL);	/* create new item */
+  new_item = g_object_new (type, NULL);	/* ++ ref new item */
 
   /* parent hint is a virtual container? */
   if (IPATCH_IS_VIRTUAL_CONTAINER (parent_hint))
@@ -625,7 +625,7 @@ swamigui_new_item (IpatchItem *parent_hint, GType type)
     ipatch_type_get (G_OBJECT_TYPE (parent_hint), "virtual-child-conform-func",
 		     &conform_func, NULL);
 
-    real_parent = ipatch_item_get_parent (parent_hint);
+    real_parent = ipatch_item_get_parent (parent_hint); /* ++ ref parent */
     g_return_if_fail (real_parent != NULL);
 
     parent_hint = real_parent;
@@ -642,7 +642,7 @@ swamigui_new_item (IpatchItem *parent_hint, GType type)
 
   /* update selection to be new item */
   list = ipatch_list_new ();	/* ++ ref new list */
-  list->items = g_list_append (list->items, g_object_ref (new_item));
+  list->items = g_list_append (list->items, new_item);  /* !! list takes over ref */
 
   g_object_set (swamigui_root, "selection", list, NULL);
   g_object_unref (list);	/* -- unref new list */
