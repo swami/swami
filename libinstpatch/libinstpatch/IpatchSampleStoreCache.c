@@ -267,14 +267,17 @@ ipatch_sample_store_cache_new (gpointer location)
 void
 ipatch_sample_store_cache_open (IpatchSampleStoreCache *store)
 {
+  int size;
+
   g_return_if_fail (IPATCH_IS_SAMPLE_STORE_CACHE (store));
+
+  size = ipatch_sample_store_get_size_bytes ((IpatchSampleStore *)store);
 
   IPATCH_ITEM_WLOCK (store);
   store->last_open = 0;         /* Reset time to 0 to indicate store is open */
 
   if (store->open_count == 0)   /* Recursive lock: store, sample_cache_vars */
-    _ipatch_sample_data_cache_add_unused_size
-      (-(int)ipatch_sample_store_get_size_bytes ((IpatchSampleStore *)store));
+    _ipatch_sample_data_cache_add_unused_size (-size);
 
   g_atomic_int_inc (&store->open_count);
   IPATCH_ITEM_WUNLOCK (store);
@@ -291,8 +294,11 @@ void
 ipatch_sample_store_cache_close (IpatchSampleStoreCache *store)
 {
   GTimeVal timeval;
+  int size;
 
   g_return_if_fail (IPATCH_IS_SAMPLE_STORE_CACHE (store));
+
+  size = ipatch_sample_store_get_size_bytes ((IpatchSampleStore *)store);
 
   IPATCH_ITEM_WLOCK (store);
 
@@ -303,8 +309,7 @@ ipatch_sample_store_cache_close (IpatchSampleStoreCache *store)
     store->last_open = timeval.tv_sec;
 
     /* Recursive lock: store, sample_cache_vars */
-    _ipatch_sample_data_cache_add_unused_size
-      (ipatch_sample_store_get_size_bytes ((IpatchSampleStore *)store));
+    _ipatch_sample_data_cache_add_unused_size (size);
   }
 
   IPATCH_ITEM_WUNLOCK (store);
