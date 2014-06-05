@@ -536,6 +536,7 @@ swamigui_multi_save_set_selection (SwamiguiMultiSave *multi, IpatchList *selecti
 {
   GHashTable *base_hash;
   IpatchItem *item, *base;
+  GtkTreeSelection *treesel;
   GtkTreeIter iter;
   char *title, *path;
   gboolean changed, saved, close_mode;
@@ -587,6 +588,13 @@ swamigui_multi_save_set_selection (SwamiguiMultiSave *multi, IpatchList *selecti
     g_free (title);             /* -- free title */
     g_free (path);              /* -- free path */
     g_object_unref (base);      /* -- unref base */
+  }
+
+  // Select first item in list
+  if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (multi->store), &iter))
+  {
+    treesel = gtk_tree_view_get_selection (GTK_TREE_VIEW (multi->treeview));
+    gtk_tree_selection_select_iter (treesel, &iter);
   }
 
   g_hash_table_destroy (base_hash);
