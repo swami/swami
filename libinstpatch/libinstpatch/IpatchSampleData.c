@@ -201,6 +201,7 @@ ipatch_migrate_file_sample_data (IpatchFile *oldfile, IpatchFile *newfile, const
   GList *p, *p2;
   int native_fmt, new_fmt;
   int sample_rate;
+  gboolean is_swap_store;
 
   g_return_val_if_fail (!oldfile || IPATCH_IS_FILE (oldfile), FALSE);
   g_return_val_if_fail (!newfile || IPATCH_IS_FILE (newfile), FALSE);
@@ -218,6 +219,7 @@ ipatch_migrate_file_sample_data (IpatchFile *oldfile, IpatchFile *newfile, const
   }
   else p = NULL;
 
+  // Loop over sample stores referencing old file
   for (; p; p = p->next)
   {
     old_store = (IpatchSampleStore *)(p->data);
@@ -315,8 +317,8 @@ ipatch_migrate_file_sample_data (IpatchFile *oldfile, IpatchFile *newfile, const
     }
   }
 
-  // Process new stores if newfile specified and REMOVE_NEW_IF_UNUSED or TO_NEWFILE flags are set
-  if (newfile && (flags & (IPATCH_SAMPLE_DATA_MIGRATE_REMOVE_NEW_IF_UNUSED | IPATCH_SAMPLE_DATA_MIGRATE_TO_NEWFILE)))
+  // Process new stores if newfile specified
+  if (newfile)
   {
     store_list = ipatch_file_get_refs_by_type (newfile, IPATCH_TYPE_SAMPLE_STORE);  // ++ ref list of stores referencing newfile
 
@@ -325,26 +327,33 @@ ipatch_migrate_file_sample_data (IpatchFile *oldfile, IpatchFile *newfile, const
       store = (IpatchSampleStore *)(p->data);
       if (g_hash_table_lookup (replace_hash, store)) continue;          // Already in replace hash? - skip
 
-      // If TO_NEWFILE check if sample can be migrated to this store
-      if (flags & IPATCH_SAMPLE_DATA_MIGRATE_TO_NEWFILE)
+      // If TO_NEWFILE or not LEAVE_IN_SWAP and is in swap, check if sample can be migrated to this store
+      if ((flags & IPATCH_SAMPLE_DATA_MIGRATE_TO_NEWFILE) || !(flags & IPATCH_SAMPLE_DATA_MIGRATE_LEAVE_IN_SWAP))
       {
         sampledata = (IpatchSampleData *)ipatch_item_get_parent ((IpatchItem *)store);  // ++ ref parent sample data
-        if (!sampledata) continue;          // Probably shouldn't happen, right?
+        if (!sampledata) continue;              // Probably shouldn't happen, right?
 
         native_store = ipatch_sample_data_get_native_sample (sampledata);               // ++ ref native sample store
-        if (native_store) native_fmt = ipatch_sample_store_get_format (native_store);
-
-        g_object_unref (native_store);          // -- unref native store (only need the pointer value)
         g_object_unref (sampledata);            // -- unref sample data
 
-        if (store == native_store) continue;      // already the native store? - skip
-
-        if (native_fmt == ipatch_sample_store_get_format (store))
+        if (native_store)
         {
-          g_hash_table_insert (replace_hash, g_object_ref (store), GUINT_TO_POINTER (1));       // ++ ref store for replace hash
-          continue;
-        }
-      }
+          native_fmt = ipatch_sample_store_get_format (native_store);
+          is_swap_store = IPATCH_IS_SAMPLE_STORE_SWAP (native_store);
+          g_object_unref (native_store);        // -- unref native store (only need the pointer value from here on)
+
+          if (store == native_store) continue;  // already the native store? - skip
+
+          // Is format compatible and TO_NEWFILE flag set or native store is swap and LEAVE_IN_SWAP flag not set
+          if (native_fmt == ipatch_sample_store_get_format (store)
+              && ((flags & IPATCH_SAMPLE_DATA_MIGRATE_TO_NEWFILE)
+                  || (is_swap_store && !(flags & IPATCH_SAMPLE_DATA_MIGRATE_LEAVE_IN_SWAP))))
+          {
+            g_hash_table_insert (replace_hash, g_object_ref (store), GUINT_TO_POINTER (1));       // ++ ref store for replace hash
+            continue;
+          }
+        }       // if native_store
+      } // if TO_NEWFILE or !LEAVE_IN_SWAP
 
       if (flags & IPATCH_SAMPLE_DATA_MIGRATE_REMOVE_NEW_IF_UNUSED)
         g_hash_table_insert (remove_hash, g_object_ref (store), GUINT_TO_POINTER (1));    // ++ ref store for remove hash
