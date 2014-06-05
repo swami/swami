@@ -112,7 +112,9 @@ gboolean ipatch_sample_data_open_cache_sample (IpatchSampleData *sampledata,
                                                IpatchSampleHandle *handle,
                                                int format, guint32 channel_map,
                                                GError **err);
+guint64 ipatch_sample_cache_get_unused_size (void);
 void ipatch_sample_cache_clean (guint64 max_unused_size, guint max_unused_age);
+
 IpatchSampleData *ipatch_sample_data_get_blank (void);
 
 #endif

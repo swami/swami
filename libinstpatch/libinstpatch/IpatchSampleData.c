@@ -1155,6 +1155,27 @@ ipatch_sample_data_open_cache_sample (IpatchSampleData *sampledata,
 }
 
 /**
+ * ipatch_sample_cache_get_unused_size:
+ *
+ * Get the current unused sample cache data size.
+ *
+ * Returns: Total amount of unused sample cache data in RAM.
+ *
+ * Since: 1.1.0
+ */
+guint64
+ipatch_sample_cache_get_unused_size (void)
+{
+  guint64 cur_unused_size;
+
+  G_LOCK (sample_cache_vars);           /* ++ lock sample data list and variables */
+  cur_unused_size = sample_cache_unused_size;
+  G_UNLOCK (sample_cache_vars);         /* -- unlock sample data list and variables */
+
+  return (cur_unused_size);
+}
+
+/**
  * ipatch_sample_data_cache_clean:
  * @max_unused_size: Maximum unused cached sample data size (0 to remove all unused samples)
  * @max_unused_age: Maximum age of unused cached samples in seconds (0 to disable
