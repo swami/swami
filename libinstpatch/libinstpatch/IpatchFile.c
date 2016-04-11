@@ -629,10 +629,11 @@ ipatch_file_rename (IpatchFile *file, const char *new_name, GError **err)
 
   // Check if new file name is already referenced by a file object
   new_name_file = ipatch_file_pool_lookup (new_name);   // ++ ref file object
-  g_object_unref (new_name_file);                       // -- unref file object (only need pointer value)
 
   if (new_name_file)
   {
+    g_object_unref (new_name_file);                     // -- unref file object (only need pointer value)
+
     g_set_error (err, IPATCH_ERROR, IPATCH_ERROR_BUSY,
                  "New file name '%s' is already claimed", new_name);
     return (FALSE);
