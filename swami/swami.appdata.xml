@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 1999-2016 Element Green <element@elementsofsound.org> -->
+<application>
+ <id type="desktop">swami.desktop</id>
+ <metadata_license>CC0-1.0</metadata_license>
+ <project_license>GPL-2.0</project_license>
+ <description>
+  <p>
+   SWAMI (Sampled Waveforms And Musical Instruments) is a collection
+   of free software for editing, managing and playing musical instruments for
+   MIDI music composition.
+  </p>
+  <p>Software features:</p>
+  <ul>
+   <li>Uses FluidSynth for audio synthesis</li>
+   <li>24 bit SoundFont support</li>
+   <li>Loop point cross section view</li>
+   <li>Real time effect modulators</li>
+   <li>Multi file browsing and editing interface</li>
+   <li>Supports several instrument formats</li>
+   <li>Loop point finder</li>
+   <li>Audio sample tuner</li>
+  </ul>
+ </description>
+ <screenshots>
+  <screenshot type="default" width="800" height="600">http://www.swamiproject.org/Swami-screenshot1.png</screenshot>
+  <screenshot width="800" height="600">http://www.swamiproject.org/Swami-screenshot2.png</screenshot>
+  <screenshot width="800" height="600">http://www.swamiproject.org/Swami-screenshot3.png</screenshot>
+  <screenshot width="800" height="600">http://www.swamiproject.org/Swami-screenshot4.png</screenshot>
+ </screenshots>
+ <url type="homepage">http://www.swamiproject.org</url>
+ <updatecontact>element@elementsofsound.org</updatecontact>
+</application>
+
