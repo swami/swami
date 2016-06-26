@@ -65,7 +65,7 @@ static void ipatch_sf2_inst_get_property (GObject *object,
 static void ipatch_sf2_inst_item_copy (IpatchItem *dest, IpatchItem *src,
 				       IpatchItemCopyLinkFunc link_func,
 				       gpointer user_data);
-static void ipatch_sf2_inst_item_remove (IpatchItem *item);
+static void ipatch_sf2_inst_item_remove_full (IpatchItem *item, gboolean full);
 
 static const GType *ipatch_sf2_inst_container_child_types (void);
 static gboolean
@@ -123,13 +123,12 @@ ipatch_sf2_inst_class_init (IpatchSF2InstClass *klass)
   parent_class = g_type_class_ref (IPATCH_TYPE_CONTAINER);
 
   obj_class->finalize = ipatch_sf2_inst_finalize;
-
   obj_class->get_property = ipatch_sf2_inst_get_property;
 
   /* we use the IpatchItem item_set_property method */
   item_class->item_set_property = ipatch_sf2_inst_set_property;
   item_class->copy = ipatch_sf2_inst_item_copy;
-  item_class->remove = ipatch_sf2_inst_item_remove;
+  item_class->remove_full = ipatch_sf2_inst_item_remove_full;
 
   container_class->child_types = ipatch_sf2_inst_container_child_types;
   container_class->init_iter = ipatch_sf2_inst_container_init_iter;
@@ -297,29 +296,28 @@ ipatch_sf2_inst_item_copy (IpatchItem *dest, IpatchItem *src,
 }
 
 static void
-ipatch_sf2_inst_item_remove (IpatchItem *item)
+ipatch_sf2_inst_item_remove_full (IpatchItem *item, gboolean full)
 {
-  IpatchItem *parent, *zitem, *temp;
+  IpatchItem *zitem, *temp;
   IpatchList *list;
   IpatchIter iter;
 
   list = ipatch_sf2_get_zone_references (item);	/* ++ ref zone list */
+
   ipatch_list_init_iter (list, &iter);
   zitem = ipatch_item_first (&iter);
+
   while (zitem)
-    {
-      temp = zitem;
-      zitem = ipatch_item_next (&iter);
-      ipatch_item_remove (temp);
-    }
+  {
+    temp = zitem;
+    zitem = ipatch_item_next (&iter);
+    ipatch_item_remove (temp);
+  }
+
   g_object_unref (list);	/* -- unref list */
 
-  parent = ipatch_item_get_parent (item); /* ++ ref parent */
-  if (parent)
-    {
-      ipatch_container_remove (IPATCH_CONTAINER (parent), item);
-      g_object_unref (parent);	/* -- unref parent */
-    }
+  if (IPATCH_ITEM_CLASS (parent_class)->remove_full)
+    IPATCH_ITEM_CLASS (parent_class)->remove_full (item, full);
 }
 
 static const GType *

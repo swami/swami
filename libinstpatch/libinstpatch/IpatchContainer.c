@@ -42,6 +42,7 @@ extern void ipatch_container_remove_notify (IpatchContainer *container,
 
 static void ipatch_container_init_class (IpatchContainerClass *klass);
 static void ipatch_container_dispose (GObject *object);
+static void ipatch_container_item_remove_full (IpatchItem *item, gboolean full);
 
 static GObjectClass *parent_class = NULL;
 
@@ -76,11 +77,14 @@ static void
 ipatch_container_init_class (IpatchContainerClass *klass)
 {
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
+  IpatchItemClass *item_class = IPATCH_ITEM_CLASS (klass);
 
   parent_class = g_type_class_peek_parent (klass);
   real_container_class = klass;
 
   obj_class->dispose = ipatch_container_dispose;
+
+  item_class->remove_full = ipatch_container_item_remove_full;
 }
 
 static void
@@ -94,6 +98,16 @@ ipatch_container_dispose (GObject *object)
 
   if (parent_class->dispose)
     parent_class->dispose (object);
+}
+
+static void
+ipatch_container_item_remove_full (IpatchItem *item, gboolean full)
+{
+  if (full)
+    ipatch_container_remove_all (IPATCH_CONTAINER (item));
+
+  if (IPATCH_ITEM_CLASS (parent_class)->remove_full)
+    IPATCH_ITEM_CLASS (parent_class)->remove_full (item, full);
 }
 
 /**

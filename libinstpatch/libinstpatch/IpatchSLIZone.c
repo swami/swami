@@ -60,6 +60,7 @@ static void ipatch_sli_zone_get_property (GObject *object,
 static void ipatch_sli_zone_item_copy (IpatchItem *dest, IpatchItem *src,
 				       IpatchItemCopyLinkFunc link_func,
 				       gpointer user_data);
+static void ipatch_sli_zone_item_remove_full (IpatchItem *item, gboolean full);
 static void ipatch_sli_zone_real_set_sample (IpatchSLIZone *zone,
                                              IpatchSLISample *sample,
                                              gboolean sample_notify);
@@ -144,6 +145,7 @@ ipatch_sli_zone_class_init (IpatchSLIZoneClass *klass)
 
   item_class->copy = ipatch_sli_zone_item_copy;
   item_class->item_set_property = ipatch_sli_zone_set_property;
+  item_class->remove_full = ipatch_sli_zone_item_remove_full;
 
   g_object_class_override_property (obj_class, PROP_TITLE, "title");
 
@@ -538,6 +540,16 @@ ipatch_sli_zone_item_copy (IpatchItem *dest, IpatchItem *src,
 	  sizeof (IpatchSF2GenArray));
 
   IPATCH_ITEM_RUNLOCK (src_zone);
+}
+
+static void
+ipatch_sli_zone_item_remove_full (IpatchItem *item, gboolean full)
+{
+  if (full)
+    ipatch_sli_zone_set_sample (IPATCH_SLI_ZONE (item), NULL);
+
+  if (IPATCH_ITEM_CLASS (ipatch_sli_zone_parent_class)->remove_full)
+    IPATCH_ITEM_CLASS (ipatch_sli_zone_parent_class)->remove_full (item, full);
 }
 
 /**

@@ -82,9 +82,12 @@ static void ipatch_item_set_property_override (GObject *object,
 					       GParamSpec *pspec);
 static void ipatch_item_init (IpatchItem *item);
 static void ipatch_item_finalize (GObject *object);
+static void ipatch_item_item_remove_full (IpatchItem *item, gboolean full);
 static void ipatch_item_recursive_base_set (IpatchContainer *container,
 					    SetParentBag *bag);
 static void ipatch_item_recursive_base_unset (IpatchContainer *container);
+static void ipatch_item_real_remove_full (IpatchItem *item, gboolean full);
+static void ipatch_item_real_remove_recursive (IpatchItem *item, gboolean full);
 static void copy_hash_to_list_GHFunc (gpointer key, gpointer value,
 				      gpointer user_data);
 static UniqueBag *item_lookup_unique_bag (GType type);
@@ -222,6 +225,8 @@ ipatch_item_class_init (IpatchItemClass *klass)
   obj_class->get_property = ipatch_item_get_property;
   obj_class->finalize = ipatch_item_finalize;
 
+  klass->remove_full = ipatch_item_item_remove_full;
+
   g_object_class_install_property (obj_class, PROP_FLAGS,
 		    g_param_spec_uint ("flags", _("Flags"), _("Flags"),
 				       0, G_MAXUINT, 0,
@@ -324,6 +329,20 @@ ipatch_item_finalize (GObject *object)
 
   if (parent_class->finalize)
     parent_class->finalize (object);
+}
+
+static void
+ipatch_item_item_remove_full (IpatchItem *item, gboolean full)
+{
+  IpatchItem *parent;
+
+  parent = ipatch_item_get_parent (item);       // ++ ref parent
+
+  if (parent)
+  {
+    ipatch_container_remove (IPATCH_CONTAINER (parent), item);
+    g_object_unref (parent);                    // -- unref parent
+  }
 }
 
 /**
@@ -703,22 +722,109 @@ ipatch_item_peek_ancestor_by_type (IpatchItem *item, GType ancestor_type)
 void
 ipatch_item_remove (IpatchItem *item)
 {
+  g_return_if_fail (IPATCH_IS_ITEM (item));
+  ipatch_item_real_remove_full (item, FALSE);
+}
+
+/**
+ * ipatch_item_remove_full:
+ * @item: Item to remove
+ * @full: %TRUE removes all references to and from @item, %FALSE removes only references to @item
+ *
+ * Like ipatch_item_remove() but will also remove all references from @item (in the same #IpatchBase
+ * object) if @full is %TRUE, behaves like ipatch_item_remove() if @full is %FALSE.
+ *
+ * Since: 1.1.0
+ */
+void
+ipatch_item_remove_full (IpatchItem *item, gboolean full)
+{
+  g_return_if_fail (IPATCH_IS_ITEM (item));
+  ipatch_item_real_remove_full (item, full);
+}
+
+static void
+ipatch_item_real_remove_full (IpatchItem *item, gboolean full)
+{
   IpatchItemClass *klass;
   IpatchItem *parent;
 
-  g_return_if_fail (IPATCH_IS_ITEM (item));
-
   klass = IPATCH_ITEM_GET_CLASS (item);
-  if (!klass->remove)		/* use default remove method? */
+
+  if (klass->remove_full)
+    (*klass->remove_full)(item, full);  /* call the remove_full class method */
+  else if (klass->remove)
+  {
+    (*klass->remove)(item);     /* call the remove class method */
+
+    // If full removal specified and item only has older remove method, remove all children
+    if (full && IPATCH_IS_CONTAINER (item))
+      ipatch_container_remove_all (IPATCH_CONTAINER (item));
+  }
+  else
+  { // Default remove if no class method
+    parent = ipatch_item_get_parent (item);
+
+    if (parent) // Remove item from parent
     {
-      parent = ipatch_item_get_parent (item);
-      if (parent)
-	{			/* just remove the item from its parent */
-	  ipatch_container_remove (IPATCH_CONTAINER (parent), item);
-	  g_object_unref (parent);
-	}
+      ipatch_container_remove (IPATCH_CONTAINER (parent), item);
+      g_object_unref (parent);
     }
-  else (*klass->remove)(item);	/* call the remove class method */
+
+    // If full removal specified, remove all children
+    if (full && IPATCH_IS_CONTAINER (item))
+      ipatch_container_remove_all (IPATCH_CONTAINER (item));
+  }
+}
+
+/**
+ * ipatch_item_remove_recursive:
+ * @item: Item to recursively remove
+ * @full: %TRUE removes all references to and from items, %FALSE removes only references to items
+ *
+ * This function calls ipatch_item_remove_full() on @item and all of its children recursively.
+ *
+ * Since: 1.1.0
+ */
+void
+ipatch_item_remove_recursive (IpatchItem *item, gboolean full)
+{
+  g_return_if_fail (IPATCH_IS_ITEM (item));
+  ipatch_item_real_remove_recursive (item, full);
+}
+
+static void
+ipatch_item_real_remove_recursive (IpatchItem *item, gboolean full)
+{
+  const GType *child_types, *ptype;
+  IpatchList *list;
+  GList *p;
+
+  if (IPATCH_IS_CONTAINER (item))
+  {
+    child_types = ipatch_container_get_child_types ((IpatchContainer *)item);
+
+    /* loop over child types */
+    for (ptype = child_types; *ptype; ptype++)
+    {
+      list = ipatch_container_get_children ((IpatchContainer *)item, *ptype);   /* ++ ref new list */
+
+      if (g_type_is_a (*ptype, IPATCH_TYPE_CONTAINER))
+      {
+        for (p = list->items; p; p = p->next)
+          ipatch_item_real_remove_recursive ((IpatchItem *)(p->data), full);
+      }
+      else      // Shortcut for non-container types (removes a level of unnecessary recursiveness)
+      {
+        for (p = list->items; p; p = p->next)
+          ipatch_item_real_remove_full ((IpatchItem *)(p->data), full);
+      }
+
+      g_object_unref (list);      /* -- unref list */
+    }
+  }
+
+  ipatch_item_real_remove_full (item, full);
 }
 
 /**

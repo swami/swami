@@ -72,7 +72,7 @@ static void ipatch_sli_sample_get_property (GObject *object,
 static void ipatch_sli_sample_item_copy (IpatchItem *dest, IpatchItem *src,
 					 IpatchItemCopyLinkFunc link_func,
 					 gpointer user_data);
-static void ipatch_sli_sample_item_remove (IpatchItem *item);
+static void ipatch_sli_sample_item_remove_full (IpatchItem *item, gboolean full);
 static int
 ipatch_sli_sample_voice_cache_update_handler (IpatchSF2VoiceCache *cache,
 					      int *select_values,
@@ -125,7 +125,7 @@ ipatch_sli_sample_class_init (IpatchSLISampleClass *klass)
   /* we use the IpatchItem item_set_property method */
   item_class->item_set_property = ipatch_sli_sample_set_property;
   item_class->copy = ipatch_sli_sample_item_copy;
-  item_class->remove = ipatch_sli_sample_item_remove;
+  item_class->remove_full = ipatch_sli_sample_item_remove_full;
 
   /* "name" property is used as the title */
   g_object_class_override_property (obj_class, PROP_NAME, "title");
@@ -329,31 +329,31 @@ ipatch_sli_sample_item_copy (IpatchItem *dest, IpatchItem *src,
 }
 
 static void
-ipatch_sli_sample_item_remove (IpatchItem *item)
+ipatch_sli_sample_item_remove_full (IpatchItem *item, gboolean full)
 {
   IpatchList *list;
-  IpatchItem *parent, *zone, *temp;
+  IpatchItem *zone, *temp;
   IpatchIter iter;
 
   /* ++ ref zone list */
   list = ipatch_sli_get_zone_references (IPATCH_SLI_SAMPLE (item));
   ipatch_list_init_iter (list, &iter);
-
   zone = ipatch_item_first (&iter);
+
   while (zone)
   {
     temp = zone;
     zone = ipatch_item_next (&iter);
     ipatch_item_remove (temp);
   }
+
   g_object_unref (list);	/* -- unref list */
 
-  parent = ipatch_item_get_parent (item); /* ++ ref parent */
-  if (parent)
-  {
-    ipatch_container_remove (IPATCH_CONTAINER (parent), item);
-    g_object_unref (parent);	/* -- unref parent */
-  }
+  if (full)
+    ipatch_sli_sample_set_data (IPATCH_SLI_SAMPLE (item), NULL);
+
+  if (IPATCH_ITEM_CLASS (ipatch_sli_sample_parent_class)->remove_full)
+    IPATCH_ITEM_CLASS (ipatch_sli_sample_parent_class)->remove_full (item, full);
 }
 
 /* IpatchSF2VoiceCache update function for realtime effects */

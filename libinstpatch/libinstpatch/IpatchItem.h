@@ -89,6 +89,19 @@ struct _IpatchItemClass
   void (*copy)(IpatchItem *dest, IpatchItem *src,
 	       IpatchItemCopyLinkFunc link_func, gpointer user_data);
   void (*remove)(IpatchItem *item);
+
+/**
+ * remove_full:
+ * @item: Item to remove references to/from
+ * @full: %TRUE removes all references to and from @item, %FALSE removes only references to @item
+ *
+ * Removes references to/from (depending on the value of @full) @item of other objects in the same
+ * #IpatchBase object.  The remove method can be used instead for default behavior of removing item's
+ * children if it is a container and @full is TRUE.
+ *
+ * Since: 1.1.0
+ */
+  void (*remove_full)(IpatchItem *item, gboolean full);
 };
 
 typedef enum
@@ -249,6 +262,8 @@ IpatchItem *ipatch_item_get_ancestor_by_type (IpatchItem *item,
 IpatchItem *ipatch_item_peek_ancestor_by_type (IpatchItem *item,
 					       GType ancestor_type);
 void ipatch_item_remove (IpatchItem *item);
+void ipatch_item_remove_full (IpatchItem *item, gboolean full);
+void ipatch_item_remove_recursive (IpatchItem *item, gboolean full);
 void ipatch_item_changed (IpatchItem *item);
 void ipatch_item_get_property_fast (IpatchItem *item, GParamSpec *pspec,
 				    GValue *value);

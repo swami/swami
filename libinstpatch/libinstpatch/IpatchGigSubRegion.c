@@ -64,6 +64,7 @@ static void ipatch_gig_sub_region_finalize (GObject *gobject);
 static void ipatch_gig_sub_region_item_copy (IpatchItem *dest, IpatchItem *src,
 					     IpatchItemCopyLinkFunc link_func,
 					     gpointer user_data);
+static void ipatch_gig_sub_region_item_remove_full (IpatchItem *item, gboolean full);
 static void
 ipatch_gig_sub_region_real_set_sample (IpatchGigSubRegion *subregion,
 				       IpatchGigSample *sample,
@@ -104,6 +105,7 @@ ipatch_gig_sub_region_class_init (IpatchGigSubRegionClass *klass)
 
   item_class->item_set_property = ipatch_gig_sub_region_set_property;
   item_class->copy = ipatch_gig_sub_region_item_copy;
+  item_class->remove_full = ipatch_gig_sub_region_item_remove_full;
 
   /* use parent's mutex (IpatchGigRegion) */
   item_class->mutex_slave = TRUE;
@@ -363,6 +365,16 @@ ipatch_gig_sub_region_item_copy (IpatchItem *dest, IpatchItem *src,
       = ipatch_dls2_sample_info_duplicate (src_sub->sample_info);
 
   IPATCH_ITEM_RUNLOCK (src_sub);
+}
+
+static void
+ipatch_gig_sub_region_item_remove_full (IpatchItem *item, gboolean full)
+{
+  if (full)
+    ipatch_gig_sub_region_real_set_sample (IPATCH_GIG_SUB_REGION (item), NULL, TRUE);
+
+  if (IPATCH_ITEM_CLASS (ipatch_gig_sub_region_parent_class)->remove_full)
+    IPATCH_ITEM_CLASS (ipatch_gig_sub_region_parent_class)->remove_full (item, full);
 }
 
 /**

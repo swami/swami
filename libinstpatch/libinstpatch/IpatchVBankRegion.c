@@ -61,7 +61,7 @@ static void ipatch_vbank_region_finalize (GObject *object);
 static void ipatch_vbank_region_real_set_id_props (IpatchVBankRegion *region,
 						   char **id_props,
 						   gboolean notify);
-
+static void ipatch_vbank_region_remove_full (IpatchItem *item, gboolean full);
 static void ipatch_vbank_region_real_set_item (IpatchVBankRegion *region,
                                                IpatchItem *item,
                                                gboolean sample_notify);
@@ -80,6 +80,7 @@ ipatch_vbank_region_class_init (IpatchVBankRegionClass *klass)
   obj_class->finalize = ipatch_vbank_region_finalize;
 
   item_class->item_set_property = ipatch_vbank_region_set_property;
+  item_class->remove_full = ipatch_vbank_region_remove_full;
 
   g_object_class_override_property (obj_class, PROP_TITLE, "title");
 
@@ -256,6 +257,16 @@ ipatch_vbank_region_get_property (GObject *object, guint property_id,
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
   }
+}
+
+static void
+ipatch_vbank_region_remove_full (IpatchItem *item, gboolean full)
+{
+  if (full)
+    ipatch_vbank_region_real_set_item (IPATCH_VBANK_REGION (item), NULL, TRUE);
+
+  if (IPATCH_ITEM_CLASS (ipatch_vbank_region_parent_class)->remove_full)
+    IPATCH_ITEM_CLASS (ipatch_vbank_region_parent_class)->remove_full (item, full);
 }
 
 static void

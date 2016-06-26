@@ -57,6 +57,7 @@ static void ipatch_sf2_zone_get_property (GObject *object,
 static void ipatch_sf2_zone_item_copy (IpatchItem *dest, IpatchItem *src,
 				       IpatchItemCopyLinkFunc link_func,
 				       gpointer user_data);
+static void ipatch_sf2_zone_item_remove_full (IpatchItem *item, gboolean full);
 static void ipatch_sf2_zone_link_item_title_notify (IpatchItemPropNotify *info);
 
 /* generator property IDs go before these */
@@ -87,6 +88,7 @@ ipatch_sf2_zone_class_init (IpatchSF2ZoneClass *klass)
 
   item_class->copy = ipatch_sf2_zone_item_copy;
   item_class->item_set_property = ipatch_sf2_zone_set_property;
+  item_class->remove_full = ipatch_sf2_zone_item_remove_full;
 
   g_object_class_override_property (obj_class, PROP_TITLE, "title");
   g_object_class_override_property (obj_class, PROP_MODULATORS, "modulators");
@@ -236,6 +238,16 @@ ipatch_sf2_zone_item_copy (IpatchItem *dest, IpatchItem *src,
   IPATCH_ITEM_RUNLOCK (src_zone);
 
   dest_zone->mods = g_slist_reverse (dest_zone->mods);
+}
+
+static void
+ipatch_sf2_zone_item_remove_full (IpatchItem *item, gboolean full)
+{
+  if (full)
+    ipatch_sf2_zone_set_link_item (IPATCH_SF2_ZONE (item), NULL);
+
+  if (IPATCH_ITEM_CLASS (ipatch_sf2_zone_parent_class)->remove_full)
+    IPATCH_ITEM_CLASS (ipatch_sf2_zone_parent_class)->remove_full (item, full);
 }
 
 /**

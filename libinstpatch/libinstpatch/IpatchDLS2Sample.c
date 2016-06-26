@@ -86,7 +86,7 @@ static void ipatch_dls2_sample_get_property (GObject *object,
 static void ipatch_dls2_sample_item_copy (IpatchItem *dest, IpatchItem *src,
 					  IpatchItemCopyLinkFunc link_func,
 					  gpointer user_data);
-static void ipatch_dls2_sample_item_remove (IpatchItem *item);
+static void ipatch_dls2_sample_item_remove_full (IpatchItem *item, gboolean full);
 static gboolean ipatch_dls2_sample_real_set_data (IpatchDLS2Sample *sample,
 						  IpatchSampleData *sampledata);
 
@@ -129,7 +129,7 @@ ipatch_dls2_sample_class_init (IpatchDLS2SampleClass *klass)
   /* we use the IpatchItem item_set_property method */
   item_class->item_set_property = ipatch_dls2_sample_set_property;
   item_class->copy = ipatch_dls2_sample_item_copy;
-  item_class->remove = ipatch_dls2_sample_item_remove;
+  item_class->remove_full = ipatch_dls2_sample_item_remove_full;
 
   g_object_class_override_property (obj_class, IPATCH_DLS2_NAME, "title");
 
@@ -278,10 +278,9 @@ ipatch_dls2_sample_item_copy (IpatchItem *dest, IpatchItem *src,
 }
 
 static void
-ipatch_dls2_sample_item_remove (IpatchItem *item)
+ipatch_dls2_sample_item_remove_full (IpatchItem *item, gboolean full)
 {
   IpatchList *list;
-  IpatchItem *parent;
   IpatchIter iter;
 
   /* ++ ref new list */
@@ -289,19 +288,20 @@ ipatch_dls2_sample_item_remove (IpatchItem *item)
   ipatch_list_init_iter (list, &iter);
 
   item = ipatch_item_first (&iter);
+
   while (item)
-    {
-      ipatch_item_remove (item);
-      item = ipatch_item_next (&iter);
-    }
+  {
+    ipatch_item_remove (item);
+    item = ipatch_item_next (&iter);
+  }
+
   g_object_unref (list);	/* -- unref list */
 
-  parent = ipatch_item_get_parent (item); /* ++ ref parent */
-  if (parent)
-    {
-      ipatch_container_remove (IPATCH_CONTAINER (parent), item);
-      g_object_unref (parent);	/* -- unref parent */
-    }
+  if (full)
+    ipatch_dls2_sample_set_data (IPATCH_DLS2_SAMPLE (item), NULL);
+
+  if (IPATCH_ITEM_CLASS (ipatch_dls2_sample_parent_class)->remove_full)
+    IPATCH_ITEM_CLASS (ipatch_dls2_sample_parent_class)->remove_full (item, full);
 }
 
 /**
