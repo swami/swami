@@ -106,4 +106,8 @@ void ipatch_vbank_region_set_id_props (IpatchVBankRegion *region,
 				       char **id_props);
 char **ipatch_vbank_region_get_id_props (IpatchVBankRegion *region,
 					 guint *n_elements);
+void ipatch_vbank_region_set_item (IpatchVBankRegion *region, IpatchItem *item);
+IpatchItem *ipatch_vbank_region_get_item (IpatchVBankRegion *region);
+
 #endif
+

@@ -62,9 +62,13 @@ static void ipatch_vbank_region_real_set_id_props (IpatchVBankRegion *region,
 						   char **id_props,
 						   gboolean notify);
 
+static void ipatch_vbank_region_real_set_item (IpatchVBankRegion *region,
+                                               IpatchItem *item,
+                                               gboolean sample_notify);
 
 G_DEFINE_TYPE (IpatchVBankRegion, ipatch_vbank_region, IPATCH_TYPE_ITEM);
 
+static GParamSpec *link_item_pspec;
 
 static void
 ipatch_vbank_region_class_init (IpatchVBankRegionClass *klass)
@@ -79,11 +83,12 @@ ipatch_vbank_region_class_init (IpatchVBankRegionClass *klass)
 
   g_object_class_override_property (obj_class, PROP_TITLE, "title");
 
-  g_object_class_install_property (obj_class, PROP_LINK_ITEM,
-		    g_param_spec_object ("link-item", _("Link item"),
+  link_item_pspec = g_param_spec_object ("link-item", _("Link item"),
 					 _("Link item"),
 					 IPATCH_TYPE_ITEM,
-					 G_PARAM_READWRITE));
+					 G_PARAM_READWRITE);
+
+  g_object_class_install_property (obj_class, PROP_LINK_ITEM, link_item_pspec);
   g_object_class_install_property (obj_class, PROP_ID_PROPS,
       g_param_spec_value_array ("id-props", _("ID props"),
 				_("Identification properties"),
@@ -137,22 +142,15 @@ ipatch_vbank_region_set_property (GObject *object, guint property_id,
   IpatchVBankRegion *region = IPATCH_VBANK_REGION (object);
   GValueArray *valarray;
   IpatchRange *range;
-  GObject *obj;
   char **strv;
   int i;
 
   switch (property_id)
   {
     case PROP_LINK_ITEM:
-      obj = g_value_get_object (value);
-      g_return_if_fail (!obj || IPATCH_IS_ITEM (obj));
-
-      if (obj) g_object_ref (obj);
-
-      IPATCH_ITEM_WLOCK (region);
-      if (region->item) g_object_unref (region->item);
-      region->item = (IpatchItem *)obj;
-      IPATCH_ITEM_WUNLOCK (region);
+      ipatch_vbank_region_real_set_item (region,
+                                         (IpatchItem *)g_value_get_object (value),
+                                         FALSE);
       break;
     case PROP_ID_PROPS:
       valarray = g_value_get_boxed (value);
@@ -201,7 +199,6 @@ ipatch_vbank_region_get_property (GObject *object, guint property_id,
   GValueArray *valarray;
   IpatchRange range;
   guint n_elements;
-  GObject *obj;
   char **strv;
   GValue val = { 0 };
   int i;
@@ -212,12 +209,7 @@ ipatch_vbank_region_get_property (GObject *object, guint property_id,
       ipatch_vbank_region_get_title (region, value);
       break;
     case PROP_LINK_ITEM:
-      IPATCH_ITEM_RLOCK (region);
-      obj = (GObject *)(region->item);
-      if (obj) g_object_ref (obj);
-      IPATCH_ITEM_RUNLOCK (region);
-
-      g_value_take_object (value, obj);
+      g_value_take_object (value, ipatch_vbank_region_get_item (region));
       break;
     case PROP_ID_PROPS:
       strv = ipatch_vbank_region_get_id_props (region, &n_elements);	/* ++ alloc */
@@ -406,3 +398,81 @@ ipatch_vbank_region_get_id_props (IpatchVBankRegion *region, guint *n_elements)
 
   return (id_props);	/* !! owned */
 }
+
+/**
+ * ipatch_vbank_region_set_item:
+ * @region: Region to set sample of
+ * @item: Instrument item to assign
+ *
+ * Sets the referenced instrument item of a virtual bank region.
+ */
+void
+ipatch_vbank_region_set_item (IpatchVBankRegion *region, IpatchItem *item)
+{
+  g_return_if_fail (IPATCH_IS_VBANK_REGION (region));
+  g_return_if_fail (IPATCH_IS_ITEM (item));
+
+  ipatch_vbank_region_real_set_item (region, item, TRUE);
+}
+
+static void
+ipatch_vbank_region_real_set_item (IpatchVBankRegion *region,
+				   IpatchItem *item,
+				   gboolean sample_notify)
+{
+  GValue newval = { 0 }, oldval = { 0 };
+  IpatchItem *olditem;
+
+  if (item) g_object_ref (item);        // !! ref item for region
+
+  IPATCH_ITEM_WLOCK (region);
+  olditem = region->item;
+  region->item = item;
+  IPATCH_ITEM_WUNLOCK (region);
+
+  if (sample_notify)
+  {
+    g_value_init (&oldval, IPATCH_TYPE_ITEM);
+    g_value_set_object (&oldval, olditem);
+    g_value_init (&newval, IPATCH_TYPE_ITEM);
+    g_value_set_object (&newval, item);
+    ipatch_item_prop_notify ((IpatchItem *)region, link_item_pspec,
+                             &newval, &oldval);
+    g_value_unset (&newval);
+    g_value_unset (&oldval);
+  }
+
+  if (olditem) g_object_unref (olditem);        // !! unref old item (no longer referenced by region)
+
+  /* notify title property change */
+  g_value_init (&newval, G_TYPE_STRING);
+  ipatch_vbank_region_get_title (region, &newval);
+  ipatch_item_prop_notify ((IpatchItem *)region, ipatch_item_pspec_title,
+			   &newval, NULL);
+  g_value_unset (&newval);
+}
+
+/**
+ * ipatch_vbank_region_get_item:
+ * @region: Region to get referenced instrument item from
+ *
+ * Gets the referenced instrument item from a region.
+ *
+ * Returns: Region's referenced item or %NULL if not set yet. Remember to
+ * unreference the item with g_object_unref() when done with it.
+ */
+IpatchItem *
+ipatch_vbank_region_get_item (IpatchVBankRegion *region)
+{
+  IpatchItem *item;
+
+  g_return_val_if_fail (IPATCH_IS_VBANK_REGION (region), NULL);
+
+  IPATCH_ITEM_RLOCK (region);
+  item = region->item;
+  if (item) g_object_ref (item);        // ++ reference for caller
+  IPATCH_ITEM_RUNLOCK (region);
+
+  return (item);                        // !! caller takes on reference
+}
+
