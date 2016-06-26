@@ -573,7 +573,7 @@ ipatch_base_save (IpatchBase *base, const char *filename, int flags, GError **er
   if ((flags & IPATCH_BASE_SAVE_A_COPY) == 0)
   {
     if (!ipatch_migrate_file_sample_data (oldfile, newfile, abs_fname, IPATCH_SAMPLE_DATA_MIGRATE_REMOVE_NEW_IF_UNUSED
-                                          | (tempsave ? IPATCH_SAMPLE_DATA_MIGRATE_REPLACE : 0), err))
+                                          | IPATCH_SAMPLE_DATA_MIGRATE_TO_NEWFILE | (tempsave ? IPATCH_SAMPLE_DATA_MIGRATE_REPLACE : 0), err))
       goto error;
 
     ipatch_base_set_file (IPATCH_BASE (base), newfile); // Assign new file to base object
@@ -655,7 +655,7 @@ ipatch_base_close (IpatchBase *base, GError **err)
  * @list: List of base objects to close (non base objects are skipped)
  * @err: Location to store error info or %NULL
  *
- * Close a list of base instrument objects (using ipatch_item_remove()),
+ * Close a list of base instrument objects (using ipatch_item_remove_recursive()),
  * migrating sample data as needed.  Using this function instead of ipatch_base_close()
  * can save on unnecessary sample data migrations, if multiple base objects reference
  * the same sample data.
@@ -681,7 +681,7 @@ ipatch_close_base_list (IpatchList *list, GError **err)
     if (!IPATCH_IS_BASE (p->data)) continue;            // Just skip if its not a base object
 
     g_object_get (p->data, "file", &file, NULL);        // ++ ref file (if any)
-    ipatch_item_remove (IPATCH_ITEM (p->data));
+    ipatch_item_remove_recursive (IPATCH_ITEM (p->data), TRUE);         // Recursively remove to release IpatchSampleData resources
 
     if (file) file_list = g_list_prepend (file_list, file);
   }
