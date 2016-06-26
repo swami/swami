@@ -36,6 +36,9 @@
 #define DEFAULT_SWAP_MAX_WASTE	64      // Maximum swap file waste in megabytes
 #define DEFAULT_SWAP_RAM_SIZE   32      // Size of RAM sample swap in megabytes
 
+#define DEFAULT_SAMPLE_CACHE_MAX_WASTE  64      // Maximum unused sample cache in megabytes
+#define DEFAULT_SAMPLE_CACHE_MAX_AGE    0       // Maximum age of unused samples in seconds (0 to disable)
+
 /* Maximum sample size to import in megabytes
  * (To prevent "O crap, I didn't mean to load that one!") */
 #define DEFAULT_SAMPLE_MAX_SIZE	32
@@ -52,6 +55,8 @@ enum
   PROP_SAMPLE_FORMAT,
   PROP_SWAP_MAX_WASTE,
   PROP_SWAP_RAM_SIZE,
+  PROP_SAMPLE_CACHE_MAX_WASTE,
+  PROP_SAMPLE_CACHE_MAX_AGE,
   PROP_SAMPLE_MAX_SIZE,
   PROP_PATCH_ROOT
 };
@@ -66,7 +71,7 @@ enum
 
 /* --- private function prototypes --- */
 
-static gboolean swami_root_swap_waste_check (gpointer user_data);
+static gboolean swami_root_sample_waste_checks (gpointer user_data);
 static void swami_root_set_property (GObject *object, guint property_id,
 				     const GValue *value, GParamSpec *pspec);
 static void swami_root_get_property (GObject *object, guint property_id,
@@ -79,6 +84,8 @@ guint root_signals[LAST_SIGNAL] = { 0 };
 G_DEFINE_TYPE (SwamiRoot, swami_root, SWAMI_TYPE_LOCK);
 
 static int swami_root_swap_max_waste = DEFAULT_SWAP_MAX_WASTE;
+static int swami_root_sample_cache_max_waste = DEFAULT_SAMPLE_CACHE_MAX_WASTE;     /* max sample cache unused size in megabytes */
+static int swami_root_sample_cache_max_age = DEFAULT_SAMPLE_CACHE_MAX_AGE;         /* max age of unused samples in seconds */
 
 
 static void
@@ -135,6 +142,16 @@ swami_root_class_init (SwamiRootClass *klass)
 				  N_("Swap RAM size"),
 				  N_("Size of RAM sample swap in megabytes"),
 				  0, G_MAXINT, DEFAULT_SWAP_RAM_SIZE, G_PARAM_READWRITE));
+  g_object_class_install_property (obj_class, PROP_SAMPLE_CACHE_MAX_WASTE,
+		g_param_spec_int ("sample-cache-max-waste",
+				  N_("Sample cache max waste"),
+				  N_("Max unused sample cache in megabytes"),
+				  0, G_MAXINT, DEFAULT_SAMPLE_CACHE_MAX_WASTE, G_PARAM_READWRITE));
+  g_object_class_install_property (obj_class, PROP_SAMPLE_CACHE_MAX_AGE,
+		g_param_spec_int ("sample-cache-max-age",
+				  N_("Sample cache max age"),
+				  N_("Max unused age of cached samples in seconds (0 disables)"),
+				  0, G_MAXINT, DEFAULT_SAMPLE_CACHE_MAX_AGE, G_PARAM_READWRITE));
   g_object_class_install_property (obj_class, PROP_SAMPLE_MAX_SIZE,
 		g_param_spec_int ("sample-max-size",
 				  N_("Sample max size"),
@@ -145,12 +162,12 @@ swami_root_class_init (SwamiRootClass *klass)
 				     N_("Root container of instrument patch tree"),
 				     SWAMI_TYPE_CONTAINER, G_PARAM_READABLE | IPATCH_PARAM_NO_SAVE));
 
-  g_timeout_add_seconds (SWAP_MAX_WASTE_INTERVAL, swami_root_swap_waste_check, NULL);
+  g_timeout_add_seconds (SWAP_MAX_WASTE_INTERVAL, swami_root_sample_waste_checks, NULL);
 }
 
-/* Periodically check if max swap waste has been exceeded and compact swap if it has */
+/* Periodically check if max swap or sample cache waste has been exceeded and compact them if so */
 static gboolean
-swami_root_swap_waste_check (gpointer user_data)
+swami_root_sample_waste_checks (gpointer user_data)
 {
   GError *err = NULL;
 
@@ -162,6 +179,9 @@ swami_root_swap_waste_check (gpointer user_data)
       g_clear_error (&err);
     }
   }
+
+  ipatch_sample_cache_clean ((guint64)swami_root_sample_cache_max_waste * (1024 * 1024),
+                             swami_root_sample_cache_max_age);
 
   return (TRUE);
 }
@@ -197,6 +217,12 @@ swami_root_set_property (GObject *object, guint property_id,
       root->swap_ram_size = g_value_get_int (value);
       ipatch_set_sample_store_swap_max_memory (root->swap_ram_size * 1024 * 1024);
       break;
+    case PROP_SAMPLE_CACHE_MAX_WASTE:
+      swami_root_sample_cache_max_waste = g_value_get_int (value);
+      break;
+    case PROP_SAMPLE_CACHE_MAX_AGE:
+      swami_root_sample_cache_max_age = g_value_get_int (value);
+      break;
     case PROP_SAMPLE_MAX_SIZE:
       root->sample_max_size = g_value_get_int (value);
       break;
@@ -231,6 +257,12 @@ swami_root_get_property (GObject *object, guint property_id,
       break;
     case PROP_SWAP_RAM_SIZE:
       g_value_set_int (value, root->swap_ram_size);
+      break;
+    case PROP_SAMPLE_CACHE_MAX_WASTE:
+      g_value_set_int (value, swami_root_sample_cache_max_waste);
+      break;
+    case PROP_SAMPLE_CACHE_MAX_AGE:
+      g_value_set_int (value, swami_root_sample_cache_max_age);
       break;
     case PROP_SAMPLE_MAX_SIZE:
       g_value_set_int (value, root->sample_max_size);

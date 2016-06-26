@@ -4017,7 +4017,7 @@ BALATON Zoltan &lt;balaton@users.sourceforge.net&gt; (Spectralis support, Mac OS
   <object class="GtkTable" id="SamplePrefs">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="n_rows">4</property>
+    <property name="n_rows">6</property>
     <property name="n_columns">2</property>
     <property name="column_spacing">2</property>
     <property name="row_spacing">2</property>
@@ -4054,7 +4054,7 @@ BALATON Zoltan &lt;balaton@users.sourceforge.net&gt; (Spectralis support, Mac OS
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="xalign">0</property>
-        <property name="label" translatable="yes">Max audio swap unused</property>
+        <property name="label" translatable="yes">Max unused audio swap</property>
       </object>
       <packing>
         <property name="top_attach">3</property>
@@ -4140,6 +4140,70 @@ BALATON Zoltan &lt;balaton@users.sourceforge.net&gt; (Spectralis support, Mac OS
         <property name="right_attach">2</property>
         <property name="top_attach">3</property>
         <property name="bottom_attach">4</property>
+        <property name="y_options"/>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="label5">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="xalign">0</property>
+        <property name="label" translatable="yes">Max unused audio cache</property>
+      </object>
+      <packing>
+        <property name="top_attach">4</property>
+        <property name="bottom_attach">5</property>
+        <property name="y_options"/>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkLabel" id="label6">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="xalign">0</property>
+        <property name="label" translatable="yes">Oldest unused cached audio</property>
+      </object>
+      <packing>
+        <property name="top_attach">5</property>
+        <property name="bottom_attach">6</property>
+        <property name="y_options"/>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkSpinButton" id="PROP::sample-cache-max-waste">
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="tooltip_text" translatable="yes">Maximum unused cached audio sample size (in megabytes)</property>
+        <property name="invisible_char">•</property>
+        <property name="primary_icon_activatable">False</property>
+        <property name="secondary_icon_activatable">False</property>
+        <property name="primary_icon_sensitive">True</property>
+        <property name="secondary_icon_sensitive">True</property>
+      </object>
+      <packing>
+        <property name="left_attach">1</property>
+        <property name="right_attach">2</property>
+        <property name="top_attach">4</property>
+        <property name="bottom_attach">5</property>
+        <property name="y_options"/>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkSpinButton" id="PROP::sample-cache-max-age">
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="tooltip_text" translatable="yes">Maximum age of unused cached audio samples (in seconds, 0 disables)</property>
+        <property name="invisible_char">•</property>
+        <property name="primary_icon_activatable">False</property>
+        <property name="secondary_icon_activatable">False</property>
+        <property name="primary_icon_sensitive">True</property>
+        <property name="secondary_icon_sensitive">True</property>
+      </object>
+      <packing>
+        <property name="left_attach">1</property>
+        <property name="right_attach">2</property>
+        <property name="top_attach">5</property>
+        <property name="bottom_attach">6</property>
         <property name="y_options"/>
       </packing>
     </child>
