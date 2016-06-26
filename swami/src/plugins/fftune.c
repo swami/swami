@@ -82,7 +82,7 @@ enum
   SIGNAL_COUNT
 };
 
-#define ERRMSG_MALLOC_1  "Failed to allocate %d bytes in FFTune plugin"
+#define ERRMSG_MALLOC_1  "Failed to allocate %u bytes in FFTune plugin"
 
 static gboolean plugin_fftune_init (SwamiPlugin *plugin, GError **err);
 static GType sample_mode_register_type (SwamiPlugin *plugin);
@@ -522,7 +522,7 @@ fftune_spectra_calc_spectrum (FFTuneSpectra *spectra)
 
   if (!data)
   {
-    g_critical (_(ERRMSG_MALLOC_1), sizeof (double) * (dsize / 2 + 1));
+    g_critical (_(ERRMSG_MALLOC_1), (guint)(sizeof (double) * (dsize / 2 + 1)));
     return (FALSE);
   }
 
@@ -608,7 +608,7 @@ fftune_spectra_run_fftw (void *data, int *dsize)
 
   if (!outdata)
   {
-    g_critical (_(ERRMSG_MALLOC_1), sizeof (float) * size);
+    g_critical (_(ERRMSG_MALLOC_1), (guint)(sizeof (float) * size));
     return (NULL);
   }
 
