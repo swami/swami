@@ -156,7 +156,7 @@ static guint
 type_prop_value_GHashFunc (gconstpointer key)
 {
   TypePropValueKey *valkey = (TypePropValueKey *)key;
-  return ((guint)(valkey->type) + (guint)(valkey->spec));
+  return ((guint)(valkey->type) + G_PARAM_SPEC_TYPE (valkey->spec));
 }
 
 /* key equal function for GType property value hash */
