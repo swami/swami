@@ -56,9 +56,6 @@ enum
   PROP_FINE_TUNE
 };
 
-#define OBJECT_REFCOUNT(obj)         (((GObject *)(obj))->ref_count)
-#define OBJECT_REFCOUNT_VALUE(obj)   g_atomic_int_get ((gint *)&OBJECT_REFCOUNT (obj))
-
 /* Info structure used to ensure that duplicate sample caching does not occur */
 typedef struct
 {
@@ -501,10 +498,7 @@ ipatch_sample_data_get_property (GObject *object, guint property_id,
 static void
 ipatch_sample_data_init (IpatchSampleData *sampledata)
 {
-  /* add to the master list */
-  G_LOCK (sample_data_list);
-  sample_data_list = g_slist_prepend (sample_data_list, sampledata);
-  G_UNLOCK (sample_data_list);
+  g_atomic_int_set (&sampledata->usecount, 0);  // Initial use count is 0
 }
 
 static void
@@ -523,11 +517,6 @@ ipatch_sample_data_dispose (GObject *gobject)
   IPATCH_ITEM_WUNLOCK (sampledata);
 
 
-  /* remove from master list */
-  G_LOCK (sample_data_list);
-  sample_data_list = g_slist_remove (sample_data_list, sampledata);
-  G_UNLOCK (sample_data_list);
-
   if (G_OBJECT_CLASS (ipatch_sample_data_parent_class)->dispose)
     G_OBJECT_CLASS (ipatch_sample_data_parent_class)->dispose (gobject);
 }
@@ -537,14 +526,55 @@ ipatch_sample_data_dispose (GObject *gobject)
  *
  * Create a new sample data object.
  *
- * Returns: New sample data with a reference count of 1. Caller owns
- * the reference and removing it will destroy the item, unless another
- * reference is added (if its parented for example).
+ * Returns: New sample data with a reference count of 1 which the caller owns.
+ * Use count should be incremented when added to an active instrument sample
+ * using ipatch_sample_data_used() which will add it to the pool of sample data objects.
  */
 IpatchSampleData *
 ipatch_sample_data_new (void)
 {
   return (IPATCH_SAMPLE_DATA (g_object_new (IPATCH_TYPE_SAMPLE_DATA, NULL)));
+}
+
+/**
+ * ipatch_sample_data_used:
+ * @sampledata: Sample data object
+ *
+ * Increment use count of a sample data object.  Use references are not the same as object references and
+ * in contrast indicate if a sample data object should continue to be a part of the sample data pool - if it is
+ * a dependency of an active loaded instrument for example.
+ */
+void 
+ipatch_sample_data_used (IpatchSampleData *sampledata)
+{
+  g_return_if_fail (IPATCH_IS_SAMPLE_DATA (sampledata));
+
+  if (g_atomic_int_exchange_and_add (&sampledata->usecount, 1) == 0)
+  { // add to the master list
+    G_LOCK (sample_data_list);
+    sample_data_list = g_slist_prepend (sample_data_list, sampledata);
+    G_UNLOCK (sample_data_list);
+  }
+}
+
+/**
+ * ipatch_sample_data_unused:
+ * @sampledata: Sample data object
+ *
+ * Decrement use count of a sample data object.  When the use count drops to 0 it will be removed from the
+ * pool of active sample data objects.  Sample data object is only freed after it's reference count goes to 0 though.
+ */
+void
+ipatch_sample_data_unused (IpatchSampleData *sampledata)
+{
+  g_return_if_fail (IPATCH_IS_SAMPLE_DATA (sampledata));
+
+  if (g_atomic_int_dec_and_test (&sampledata->usecount))
+  { // remove from master list
+    G_LOCK (sample_data_list);
+    sample_data_list = g_slist_remove (sample_data_list, sampledata);
+    G_UNLOCK (sample_data_list);
+  }
 }
 
 /**
@@ -1323,6 +1353,7 @@ ipatch_sample_data_get_blank (void)
     {
       blank_sampledata = ipatch_sample_data_new (); /* ++ ref new item */
       g_object_ref (blank_sampledata); /* ++ ref for static blank_sampledata */
+      ipatch_sample_data_used (blank_sampledata);   // ++ inc use count for static blank_sampledata
 
       sample = ipatch_sample_store_ram_get_blank ();
       ipatch_sample_data_add (blank_sampledata, (IpatchSampleStore *)sample);
@@ -1361,7 +1392,7 @@ ipatch_sample_data_dump (void)
   {
     store_list = ipatch_sample_data_get_samples (IPATCH_SAMPLE_DATA (pdata->data));     // ++ ref stores list
 
-    printf ("Data 0x%p: samples=%d\n", pdata->data, g_list_length (store_list->items));
+    printf ("Data %p: samples=%d\n", pdata->data, g_list_length (store_list->items));
 
     for (pstore = store_list->items; pstore; pstore = pstore->next)
     {
@@ -1383,7 +1414,7 @@ ipatch_sample_data_dump (void)
                     "fine-tune", &fine_tune,
                     NULL);
 
-      printf ("  Store 0x%p (%s): title='%s' size=%u fmt=0x%X rate=%d ltype=%d lstart=%u lend=%u root=%d fine=%d\n",
+      printf ("  Store %p (%s): title='%s' size=%u fmt=0x%X rate=%d ltype=%d lstart=%u lend=%u root=%d fine=%d\n",
               store, g_type_name (G_OBJECT_TYPE (store)), title, sample_size, sample_format,
               sample_rate, loop_type, loop_start, loop_end, root_note, fine_tune);
 
@@ -1400,7 +1431,7 @@ ipatch_sample_data_dump (void)
 
         if (file) filename = ipatch_file_get_name (file);                       // ++ alloc file name
 
-        printf ("    File 0x%p (%s): filename='%s' location=%u\n", file, g_type_name (G_OBJECT_TYPE (file)),
+        printf ("    File %p (%s): filename='%s' location=%u\n", file, g_type_name (G_OBJECT_TYPE (file)),
                 filename, location);
 
         g_free (filename);                                                      // -- free file name
@@ -1411,7 +1442,7 @@ ipatch_sample_data_dump (void)
         IpatchSampleStoreSwap *swap_store = (IpatchSampleStoreSwap *)store;
 
         if (swap_store->ram_location)
-          printf ("    RAM 0x%p\n", swap_store->ram_location);
+          printf ("    RAM %p\n", swap_store->ram_location);
         else printf ("    Swap %u\n", swap_store->location);
       }
     }

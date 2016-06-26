@@ -186,13 +186,9 @@ ipatch_sli_sample_finalize (GObject *gobject)
      sample is required since in reality all its children do
      still hold references */
 
-  IPATCH_ITEM_WLOCK (sample);
+  ipatch_sli_sample_real_set_data (sample, NULL, FALSE);
 
-  if (sample->sample_data)
-  {
-    g_object_unref (sample->sample_data);
-    sample->sample_data = NULL;
-  }
+  IPATCH_ITEM_WLOCK (sample);
 
   g_free (sample->name);
   sample->name = NULL;
@@ -564,27 +560,32 @@ ipatch_sli_sample_real_set_data (IpatchSLISample *sample,
 				 gboolean data_notify)
 {
   GValue oldval = { 0 }, newval = { 0 };
+  IpatchSampleData *old_sampledata;
 
   if (data_notify) g_value_init (&oldval, IPATCH_TYPE_SAMPLE_DATA);
   if (sampledata) g_object_ref (sampledata);
 
   IPATCH_ITEM_WLOCK (sample);
-  if (data_notify) g_value_take_object (&oldval, sample->sample_data);
-  else if (sample->sample_data) g_object_unref (sample->sample_data);
-
+  old_sampledata = sample->sample_data;
   sample->sample_data = sampledata;
   IPATCH_ITEM_WUNLOCK (sample);
 
-  if (data_notify)
-    {
-      g_value_init (&newval, IPATCH_TYPE_SAMPLE_DATA);
-      g_value_set_object (&newval, sampledata);
+  if (old_sampledata)
+    ipatch_sample_data_unused (old_sampledata);     // -- dec use count
 
-      ipatch_item_prop_notify ((IpatchItem *)sample, sample_data_pspec,
-			       &newval, &oldval);
-      g_value_unset (&newval);
-      g_value_unset (&oldval);
-    }
+  if (data_notify)
+  {
+    g_value_init (&newval, IPATCH_TYPE_SAMPLE_DATA);
+    g_value_set_object (&newval, sampledata);
+
+    g_value_take_object (&oldval, old_sampledata);
+
+    ipatch_item_prop_notify ((IpatchItem *)sample, sample_data_pspec, &newval, &oldval);
+    g_value_unset (&newval);
+    g_value_unset (&oldval);
+  }
+  else if (old_sampledata)
+    g_object_unref (old_sampledata);
 }
 
 /**

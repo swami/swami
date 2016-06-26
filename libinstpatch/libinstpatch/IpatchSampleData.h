@@ -50,6 +50,7 @@ struct _IpatchSampleData
 {
   IpatchItem parent_instance;
   GSList *samples;              /* list of IpatchSampleStore (1st is native sample) */
+  int usecount;                 /* Count of users of this sample data object */
 };
 
 struct _IpatchSampleDataClass
@@ -87,6 +88,9 @@ gboolean ipatch_migrate_file_sample_data (IpatchFile *oldfile, IpatchFile *newfi
 
 GType ipatch_sample_data_get_type (void);
 IpatchSampleData *ipatch_sample_data_new (void);
+
+void ipatch_sample_data_used (IpatchSampleData *sampledata);
+void ipatch_sample_data_unused (IpatchSampleData *sampledata);
 
 void ipatch_sample_data_add (IpatchSampleData *sampledata, IpatchSampleStore *store);
 void ipatch_sample_data_remove (IpatchSampleData *sampledata, IpatchSampleStore *store);
