@@ -1256,31 +1256,29 @@ sfload_shdrs (IpatchSF2Reader *reader, GError **err)
       if (((shdr.type & IPATCH_SF2_FILE_SAMPLE_TYPE_ROM) || shdr.end <= samchunk_size)
 	  && ((shdr.type & IPATCH_SF2_FILE_SAMPLE_TYPE_ROM) || samchunk_pos > 0)
 	  && (shdr.start < shdr.end && shdr.end - shdr.start > 4))
-	{ /* loop is okay? */
-	  if (shdr.loop_end <= shdr.end
-	      && shdr.loop_start < shdr.loop_end
-	      && shdr.start <= shdr.loop_start)
-	    {
-	      sample->loop_start = shdr.loop_start - shdr.start;
-	      sample->loop_end = shdr.loop_end - shdr.start;
-	    }
-	  else			/* loop is on krak */
-	    {
-	      int size = shdr.end - shdr.start;
+	{
+          if (shdr.loop_start < shdr.start)
+          {
+            g_warning (_("Sample '%s' loop start begins before sample data, setting to offset 0"),
+                       sample->name);
+            sample->loop_start = 0;
+          }
+          else sample->loop_start = shdr.loop_start - shdr.start;
 
-	      g_warning (_("Invalid loop for sample '%s'"), sample->name);
+          if (shdr.loop_end < shdr.start)
+          {
+            g_warning (_("Sample '%s' loop end begins before sample data, setting to offset 0"),
+                       sample->name);
+            sample->loop_end = 0;
+          }
+          else sample->loop_end = shdr.loop_end - shdr.start;
 
-	      if (size >= 48)
-		{
-		  sample->loop_start = 8;
-		  sample->loop_end = size - 8;
-		}
-	      else		/* sample is rather small */
-		{
-		  sample->loop_start = 1;
-		  sample->loop_end = size - 1;
-		}
-	    }
+          /* Keep invalid loop indexes since instrument zones offsets may correct them.
+           * In particular samples have been seen with end loop points 1 sample off the
+           * end of the sample.  Output warning though. */
+          if (shdr.loop_end > shdr.end || shdr.loop_start >= shdr.loop_end)
+            g_warning (_("Sample '%s' has invalid loop, keeping it (start:%u end:%u loop_start:%u loop_end:%u)"),
+                       sample->name, shdr.start, shdr.end, shdr.loop_start, shdr.loop_end);
 
 	  sample->rate = shdr.rate;
 	  sample->root_note = shdr.root_note;
