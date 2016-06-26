@@ -390,7 +390,7 @@ ipatch_sample_store_swap_sample_iface_read (IpatchSampleHandle *handle,
                  _("Error reading from sample store swap file: %s"), g_strerror (errno));
   else if (retval < frames * frame_size)
     g_set_error (err, IPATCH_ERROR, IPATCH_ERROR_IO,
-                 _("Short read from sample store swap file, expected %d but got %d"),
+                 _("Short read from sample store swap file, expected %d but got %" G_GSSIZE_FORMAT),
                  frames * frame_size, retval);
 
   G_UNLOCK (swap);    // -- unlock swap
@@ -430,7 +430,7 @@ ipatch_sample_store_swap_sample_iface_write (IpatchSampleHandle *handle,
                  _("Error writing to sample store swap file: %s"), g_strerror (errno));
   else if (retval < frames * frame_size)
     g_set_error (err, IPATCH_ERROR, IPATCH_ERROR_IO,
-                 _("Short write to sample store swap file, expected %d but got %d"),
+                 _("Short write to sample store swap file, expected %d but got %" G_GSSIZE_FORMAT),
                  frames * frame_size, retval);
 
   G_UNLOCK (swap);    // -- unlock swap
@@ -451,7 +451,7 @@ ipatch_sample_store_swap_finalize (GObject *gobject)
   SwapRecover *recover;
   guint size;
 
-  size = ipatch_sample_store_get_size ((IpatchSampleStore *)store);
+  size = ipatch_sample_store_get_size_bytes ((IpatchSampleStore *)store);
 
   if (store->ram_location)                      // Allocated in RAM?
   {
@@ -618,7 +618,6 @@ ipatch_compact_sample_store_swap (GError **err)
   guint8 *buf;
   char *newname;
   int newfd;
-  guint new_position = 0;
   GArray *position_array;
   GSList *p;
   guint size, ofs, this_size;
@@ -649,20 +648,24 @@ ipatch_compact_sample_store_swap (GError **err)
 
   G_LOCK (swap);        // ++ lock swap
 
+  swap_position = 0;
+
   for (p = swap_list; p; p = p->next)
   {
     store = (IpatchSampleStoreSwap *)(p->data);
     ipatch_sample_get_size (IPATCH_SAMPLE (store), &size);
     ofs = 0;
 
-    g_array_append_val (position_array, new_position);
+    g_array_append_val (position_array, swap_position);
+
+    this_size = IPATCH_SAMPLE_COPY_BUFFER_SIZE;
 
     while (ofs < size)
     {
       if (size - ofs < IPATCH_SAMPLE_COPY_BUFFER_SIZE)
         this_size = size - ofs;
 
-      new_position += this_size;
+      swap_position += this_size;
 
       if (lseek (swap_fd, store->location + ofs, SEEK_SET) == -1)
       {
@@ -794,7 +797,7 @@ ipatch_sample_store_swap_dump (void)
                   "fine-tune", &fine_tune,
                   NULL);
 
-    printf ("  Store 0x%p: loc=%u title='%s' size=%u fmt=0x%X rate=%d ltype=%d lstart=%u lend=%u root=%d fine=%d\n",
+    printf ("  Store %p: loc=%u title='%s' size=%u fmt=0x%X rate=%d ltype=%d lstart=%u lend=%u root=%d fine=%d\n",
             swap_store, swap_store->location, title, sample_size, sample_format,
             sample_rate, loop_type, loop_start, loop_end, root_note, fine_tune);
 
