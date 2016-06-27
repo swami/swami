@@ -596,14 +596,14 @@ ipatch_sample_transform_convert_sizes (IpatchSampleTransform *transform,
   int src_frame_size, dest_frame_size, frames;
   gpointer destbuf;
 
-  g_return_if_fail (transform != NULL);
-  g_return_if_fail (src_size > 0);
+  g_return_val_if_fail (transform != NULL, NULL);
+  g_return_val_if_fail (src_size > 0, NULL);
 
   src_frame_size = ipatch_sample_format_size (transform->src_format);
-  g_return_if_fail (src_size % src_frame_size == 0);
+  g_return_val_if_fail (src_size % src_frame_size == 0, NULL);
 
   dest_frame_size = ipatch_sample_format_size (transform->dest_format);
-  g_return_if_fail (dest_frame_size > 0);
+  g_return_val_if_fail (dest_frame_size > 0, NULL);
 
   frames = src_size / src_frame_size;
 

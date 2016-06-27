@@ -249,8 +249,8 @@ ipatch_list_remove (IpatchList *list, GObject *object)
 {
   GList *p;
 
-  g_return_if_fail (IPATCH_IS_LIST (list));
-  g_return_if_fail (G_IS_OBJECT (object));
+  g_return_val_if_fail (IPATCH_IS_LIST (list), FALSE);
+  g_return_val_if_fail (G_IS_OBJECT (object), FALSE);
 
   p = g_list_find (list->items, object);
   if (!p) return (FALSE);

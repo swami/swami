@@ -122,7 +122,7 @@ ipatch_register_paste_handler (IpatchPasteTestFunc test_func,
  * which @test_func returns %TRUE.  Like ipatch_register_paste_handler() but is friendly
  * to GObject Introspection.
  *
- * Returns: Handler ID, which can be used to unregister it.
+ * Returns: Handler ID, which can be used to unregister it or -1 if invalid parameters
  *
  * Since: 1.1.0
  */
@@ -135,8 +135,8 @@ ipatch_register_paste_handler_full (IpatchPasteTestFunc test_func,
   PasteHandler *handler;
   int id;
 
-  g_return_if_fail (test_func != NULL);
-  g_return_if_fail (exec_func != NULL);
+  g_return_val_if_fail (test_func != NULL, -1);
+  g_return_val_if_fail (exec_func != NULL, -1);
 
   if (flags == 0) flags = IPATCH_PASTE_PRIORITY_DEFAULT;
 
