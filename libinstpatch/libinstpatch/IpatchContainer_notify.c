@@ -29,11 +29,25 @@ typedef struct
 {
   IpatchContainerCallback callback; /* callback function */
   IpatchContainerDisconnect disconnect; /* called when callback is disconnected */
+  GDestroyNotify notify_func;   /* destroy notify function (this or disconnect will be set but not both) */
   gpointer user_data;		/* user data to pass to function */
   guint handler_id;		/* unique handler ID */
 } ContainerCallback;
 
 
+static guint
+ipatch_container_real_add_connect (IpatchContainer *container,
+                                   IpatchContainerCallback callback,
+                                   IpatchContainerDisconnect disconnect,
+                                   GDestroyNotify notify_func,
+                                   gpointer user_data);
+static guint
+ipatch_container_real_remove_connect (IpatchContainer *container,
+                                 IpatchItem *child,
+                                 IpatchContainerCallback callback,
+                                 IpatchContainerDisconnect disconnect,
+                                 GDestroyNotify notify_func,
+                                 gpointer user_data);
 static void
 ipatch_container_real_disconnect (guint handler_id, IpatchContainer *container,
 				  IpatchItem *child,
@@ -63,7 +77,9 @@ static GHashTable *remove_container_callback_hash;  /* IpatchContainer -> GSList
 static GHashTable *remove_child_callback_hash;  /* IpatchItem -> GSList<ContainerCallback> */
 static GSList *remove_wild_callback_list = NULL;  /* container add wildcard cbs */
 
-
+/**
+ * _ipatch_container_notify_init: (skip)
+ */
 void
 _ipatch_container_notify_init (void)
 {
@@ -297,10 +313,10 @@ ipatch_container_remove_notify (IpatchContainer *container, IpatchItem *child)
 }
 
 /**
- * ipatch_container_add_connect:
- * @container: Container to match (%NULL for wildcard)
+ * ipatch_container_add_connect: (skip)
+ * @container: (allow-none): Container to match (%NULL for wildcard)
  * @callback: Callback function to call on match
- * @disconnect: Function to call when callback is disconnected or %NULL
+ * @disconnect: (allow-none): Function to call when callback is disconnected or %NULL
  * @user_data: User defined data pointer to pass to @callback and @disconnect
  *
  * Adds a callback which gets called when a container item add operation occurs
@@ -315,6 +331,42 @@ ipatch_container_add_connect (IpatchContainer *container,
 			      IpatchContainerCallback callback,
 			      IpatchContainerDisconnect disconnect,
 			      gpointer user_data)
+{
+  return (ipatch_container_real_add_connect (container, callback, disconnect, NULL, user_data));
+}
+
+/**
+ * ipatch_container_add_connect_notify: (rename-to ipatch_container_add_connect)
+ * @container: (allow-none): Container to match (%NULL for wildcard)
+ * @callback: (scope notified) (closure user_data): Callback function to call on match
+ * @notify_func: (scope async) (closure user_data) (allow-none): Callback destroy notify
+ *   when callback is disconnected or %NULL
+ * @user_data: (allow-none): User defined data pointer to pass to @callback and @disconnect
+ *
+ * Adds a callback which gets called when a container item add operation occurs
+ * and the container matches @container.  When @container is %NULL, @callback
+ * will be called for every container add operation.
+ *
+ * Returns: Handler ID which can be used to disconnect the callback or
+ *   0 on error (only occurs on invalid function parameters).
+ *
+ * Since: 1.1.0
+ */
+guint
+ipatch_container_add_connect_notify (IpatchContainer *container,
+			             IpatchContainerCallback callback,
+			             GDestroyNotify notify_func,
+			             gpointer user_data)
+{
+  return (ipatch_container_real_add_connect (container, callback, NULL, notify_func, user_data));
+}
+
+static guint
+ipatch_container_real_add_connect (IpatchContainer *container,
+                                   IpatchContainerCallback callback,
+                                   IpatchContainerDisconnect disconnect,
+                                   GDestroyNotify notify_func,
+                                   gpointer user_data)
 {
   ContainerCallback *cb;
   GSList *cblist;
@@ -351,12 +403,12 @@ ipatch_container_add_connect (IpatchContainer *container,
 }
 
 /**
- * ipatch_container_remove_connect:
- * @container: Container to match (%NULL for wildcard)
- * @child: Child item to match (%NULL for wildcard)
+ * ipatch_container_remove_connect: (skip)
+ * @container: (allow-none): Container to match (%NULL for wildcard)
+ * @child: (allow-none): Child item to match (%NULL for wildcard)
  * @callback: Callback function to call on match
- * @disconnect: Function to call when callback is disconnected or %NULL
- * @user_data: User defined data pointer to pass to @callback and @disconnect
+ * @disconnect: (allow-none): Function to call when callback is disconnected or %NULL
+ * @user_data: (closure): User defined data pointer to pass to @callback and @disconnect
  *
  * Adds a callback which gets called when a container item remove operation
  * occurs and the container matches @container and child item matches @child.
@@ -375,6 +427,50 @@ ipatch_container_remove_connect (IpatchContainer *container,
 				 IpatchContainerDisconnect disconnect,
 				 gpointer user_data)
 {
+  return (ipatch_container_real_remove_connect (container, child, callback,
+                                                disconnect, NULL, user_data));
+}
+
+/**
+ * ipatch_container_remove_connect_notify: (rename-to ipatch_container_remove_connect)
+ * @container: (allow-none): Container to match (%NULL for wildcard)
+ * @child: (allow-none): Child item to match (%NULL for wildcard)
+ * @callback: (scope notified) (closure user_data): Callback function to call on match
+ * @notify_func: (scope async) (closure user_data) (allow-none): Function to call
+ *   when callback is disconnected or %NULL
+ * @user_data: (allow-none): User defined data pointer to pass to @callback and @disconnect
+ *
+ * Adds a callback which gets called when a container item remove operation
+ * occurs and the container matches @container and child item matches @child.
+ * The @container and/or @child parameters can be %NULL in which case they are
+ * wildcard.  If both are %NULL then @callback will be called for every
+ * container remove operation.  Note that specifying only @child or both
+ * @container and @child is the same, since a child belongs to only one container.
+ *
+ * Returns: Handler ID which can be used to disconnect the callback or
+ *   0 on error (only occurs on invalid function parameters).
+ *
+ * Since: 1.1.0
+ */
+guint
+ipatch_container_remove_connect_notify (IpatchContainer *container,
+                                        IpatchItem *child,
+                                        IpatchContainerCallback callback,
+                                        GDestroyNotify notify_func,
+                                        gpointer user_data)
+{
+  return (ipatch_container_real_remove_connect (container, child, callback,
+                                                NULL, notify_func, user_data));
+}
+
+static guint
+ipatch_container_real_remove_connect (IpatchContainer *container,
+                                 IpatchItem *child,
+                                 IpatchContainerCallback callback,
+                                 IpatchContainerDisconnect disconnect,
+                                 GDestroyNotify notify_func,
+                                 gpointer user_data)
+{
   ContainerCallback *cb;
   GSList *cblist;
   guint handler_id;
@@ -386,6 +482,7 @@ ipatch_container_remove_connect (IpatchContainer *container,
   cb = g_slice_new (ContainerCallback);
   cb->callback = callback;
   cb->disconnect = disconnect;
+  cb->notify_func = notify_func;
   cb->user_data = user_data;
 
   G_LOCK (remove_callbacks);
@@ -434,7 +531,7 @@ ipatch_container_add_disconnect (guint handler_id)
 }
 
 /**
- * ipatch_container_add_disconnect_matched:
+ * ipatch_container_add_disconnect_matched: (skip)
  * @container: Container to match
  * @callback: Callback function to match
  * @user_data: User data to match
@@ -468,9 +565,9 @@ ipatch_container_remove_disconnect (guint handler_id)
 }
 
 /**
- * ipatch_container_remove_disconnect_matched:
- * @container: Container to match
- * @child: Child item to match
+ * ipatch_container_remove_disconnect_matched: (skip)
+ * @container: (allow-none): Container to match (can be %NULL if @child is set)
+ * @child: (allow-none): Child item to match (can be %NULL if @container is set)
  * @callback: Callback function to match
  * @user_data: User data to match
  *

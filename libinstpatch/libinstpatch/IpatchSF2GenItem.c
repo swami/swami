@@ -99,7 +99,7 @@ ipatch_sf2_gen_item_get_type (void)
  * ipatch_sf2_gen_item_get_amount:
  * @item: Item with generators to get value from
  * @genid: Generator ID (#IpatchSF2GenType) of value to get
- * @out_amt: Output: Pointer to store generator amount to
+ * @out_amt: (out): Pointer to store generator amount to
  *
  * Get a generator amount from an item with generator properties.
  *
@@ -205,7 +205,7 @@ ipatch_sf2_gen_item_set_amount (IpatchSF2GenItem *item, guint genid,
  * ipatch_sf2_gen_item_set_gen_flag:
  * @item: Item with generator properties to set value of a gen "set" flag of
  * @genid: Generator ID (#IpatchSF2GenType) of generator to set "set" flag value of
- * @setflag: If %TRUE then generatore amount is assigned, FALSE will cause the
+ * @setflag: If %TRUE then generator amount is assigned, FALSE will cause the
  *   amount to be unset (and revert to its default value)
  *
  * Sets the value of a generator "set" flag in an item with generators.
@@ -338,7 +338,7 @@ ipatch_sf2_gen_item_count_set (IpatchSF2GenItem *item)
 /**
  * ipatch_sf2_gen_item_copy_all:
  * @item: Item with generators
- * @array: Destination generator array to store to
+ * @array: (out): Destination generator array to store to
  *
  * Copies an item's generators to a caller supplied generator array.
  */
@@ -364,7 +364,7 @@ ipatch_sf2_gen_item_copy_all (IpatchSF2GenItem *item, IpatchSF2GenArray *array)
 /**
  * ipatch_sf2_gen_item_copy_set:
  * @item: Item with generators
- * @array: Destination generator array to store to
+ * @array: (out): Destination generator array to store to
  *
  * Copies a item's "set" generators to a caller supplied generator array.
  * This function differs from ipatch_sf2_gen_item_copy_all() in that it
@@ -543,7 +543,7 @@ ipatch_sf2_gen_item_intersect_test (IpatchSF2GenItem *item,
  *
  * Get the parameter specification for a given generator ID and object class.
  *
- * Returns: The parameter specification for the generator or %NULL if
+ * Returns: (transfer none): The parameter specification for the generator or %NULL if
  *   the given @genid for @klass is not valid.
  */
 GParamSpec *
@@ -568,7 +568,7 @@ ipatch_sf2_gen_item_class_get_pspec (GObjectClass *klass, guint genid)
  * Get a "-set" property parameter specification for a given generator ID and
  * object class.
  *
- * Returns: The "-set" property parameter specification for the generator or
+ * Returns: (transfer none): The "-set" property parameter specification for the generator or
  *   %NULL if the given @genid or @klass are not valid.
  */
 GParamSpec *
@@ -586,7 +586,7 @@ ipatch_sf2_gen_item_class_get_pspec_set (GObjectClass *klass, guint genid)
 }
 
 /**
- * ipatch_sf2_gen_item_iface_install_properties:
+ * ipatch_sf2_gen_item_iface_install_properties: (skip)
  * @klass: Object class to install properties on
  * @propstype: Type of properties to install (instrument/preset)
  * @specs: Location to store a pointer to an allocated array of parameter

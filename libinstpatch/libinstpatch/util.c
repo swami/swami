@@ -36,6 +36,9 @@
 GValue *ipatch_util_value_bool_true;
 GValue *ipatch_util_value_bool_false;
 
+/**
+ * _ipatch_util_init: (skip)
+ */
 void
 _ipatch_util_init (void)
 {
@@ -156,9 +159,9 @@ ipatch_util_value_array_hash (GValueArray *valarray)
 }
 
 /**
- * ipatch_util_file_size:
+ * ipatch_util_file_size: (skip)
  * @fname: Path of file to get size of.
- * @err: Location to store error or NULL
+ * @err: (allow-none): Location to store error or %NULL
  *
  * Get the size of a file (tired of using stat every time?).
  *
@@ -184,7 +187,7 @@ ipatch_util_file_size (const char *fname, GError **err)
 }
 
 /**
- * ipatch_util_abs_filename:
+ * ipatch_util_abs_filename: (skip)
  * @filename: File name to make absolute
  *
  * Make a file name absolute, if it isn't already.
@@ -212,7 +215,7 @@ ipatch_util_abs_filename (const char *filename)
 }
 
 /**
- * ipatch_util_weakref_destroy:
+ * ipatch_util_weakref_destroy: (skip)
  * @value: Slice allocated GWeakRef to destroy
  *
  * A GDestroyNotify function for freeing a slice allocated

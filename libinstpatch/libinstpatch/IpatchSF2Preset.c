@@ -512,7 +512,7 @@ ipatch_sf2_preset_new (void)
 }
 
 /**
- * ipatch_sf2_preset_first:
+ * ipatch_sf2_preset_first: (skip)
  * @iter: Patch item iterator containing #IpatchSF2Preset items
  *
  * Gets the first item in a preset iterator. A convenience wrapper for
@@ -532,7 +532,7 @@ ipatch_sf2_preset_first (IpatchIter *iter)
 }
 
 /**
- * ipatch_sf2_preset_next:
+ * ipatch_sf2_preset_next: (skip)
  * @iter: Patch item iterator containing #IpatchSF2Preset items
  *
  * Gets the next item in a preset iterator. A convenience wrapper for
@@ -578,7 +578,7 @@ ipatch_sf2_preset_new_zone (IpatchSF2Preset *preset, IpatchSF2Inst *inst)
 /**
  * ipatch_sf2_preset_set_name:
  * @preset: Preset to set name of
- * @name: Value to set name to
+ * @name: (allow-none): Value to set name to
  *
  * Sets the name of a SoundFont preset.
  */

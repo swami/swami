@@ -544,7 +544,7 @@ ipatch_item_recursive_base_unset (IpatchContainer *container)
  * with in a multi-thread environment (there is no guarantee an item won't
  * be destroyed unless a refcount is held).
  *
- * Returns: The parent of @item or %NULL if not parented or a root item. If
+ * Returns: (transfer full): The parent of @item or %NULL if not parented or a root item. If
  * not %NULL then the reference count of parent has been incremented and the
  * caller is responsible for removing it when finished with parent.
  */
@@ -564,7 +564,7 @@ ipatch_item_get_parent (IpatchItem *item)
 }
 
 /**
- * ipatch_item_peek_parent:
+ * ipatch_item_peek_parent: (skip)
  * @item: Item to get the parent of
  *
  * This function is the same as ipatch_item_get_parent() (gets an
@@ -591,7 +591,7 @@ ipatch_item_peek_parent (IpatchItem *item)
  * decrementing the reference count with g_object_unref when finished
  * with it. If @item is itself a #IpatchBase object then it is returned.
  *
- * Returns: The base parent of @item or %NULL if no #IpatchBase type
+ * Returns: (transfer full): The base parent of @item or %NULL if no #IpatchBase type
  * in parent ancestry. If not %NULL then the reference count of
  * parent has been incremented and the caller is responsible for
  * removing it when finished with the base parent.
@@ -615,7 +615,7 @@ ipatch_item_get_base (IpatchItem *item)
 }
 
 /**
- * ipatch_item_peek_base:
+ * ipatch_item_peek_base: (skip)
  * @item: Item to get the base parent of
  *
  * This function is the same as ipatch_item_get_base() (gets an
@@ -651,7 +651,7 @@ ipatch_item_peek_base (IpatchItem *item)
  * the caller to remove it with g_object_unref() when finished with
  * it.
  *
- * Returns: The matched item (can be the @item itself) or %NULL if no
+ * Returns: (transfer full): The matched item (can be the @item itself) or %NULL if no
  * item matches @ancestor_type in the ancestry. Remember to unref the
  * matched item when done with it.
  */
@@ -687,7 +687,7 @@ ipatch_item_get_ancestor_by_type (IpatchItem *item, GType ancestor_type)
 }
 
 /**
- * ipatch_item_peek_ancestor_by_type:
+ * ipatch_item_peek_ancestor_by_type: (skip)
  * @item: Item to search for parent of a given type
  * @ancestor_type: Type of parent in the @item object's ancestry
  *
@@ -933,9 +933,9 @@ ipatch_item_copy (IpatchItem *dest, IpatchItem *src)
  * @dest: New destination item to copy to (should be same type or derived
  *   from @src type)
  * @src: Item to copy from
- * @link_func: Function to call for each object link pointer in @src.  This
- *   function can alter the copied link if desired.
- * @user_data: User defined data to pass to @link_func.
+ * @link_func: (scope call) (closure user_data): Function to call for each
+ *   object link pointer in @src.  This function can alter the copied link if desired.
+ * @user_data: (allow-none): User defined data to pass to @link_func.
  *
  * Copy an item using the item class' "copy" method.  Like ipatch_item_copy()
  * but takes a @link_func which can be used for handling replication of
@@ -952,6 +952,8 @@ ipatch_item_copy_link_func (IpatchItem *dest, IpatchItem *src,
 
   g_return_if_fail (IPATCH_IS_ITEM (dest));
   g_return_if_fail (IPATCH_IS_ITEM (src));
+  g_return_if_fail (link_func != NULL);
+
   dest_type = G_OBJECT_TYPE (dest);
   src_type = G_OBJECT_TYPE (src);
   g_return_if_fail (g_type_is_a (dest_type, src_type));
@@ -967,8 +969,9 @@ ipatch_item_copy_link_func (IpatchItem *dest, IpatchItem *src,
  * @dest: New destination item to copy to (should be same type or derived
  *   from @src type)
  * @src: Item to copy from
- * @repl_hash: Hash of link pointer substitutions.  The original link pointer
- *   is the hash key, and the hash value is the replacement pointer.
+ * @repl_hash: (element-type IpatchItem IpatchItem): Hash of link pointer
+ *   substitutions.  The original link pointer is the hash key, and the
+ *   hash value is the replacement pointer.
  *
  * Like ipatch_item_copy() but takes a link replacement hash, which can be
  * used for substituting different objects for object links.  See
@@ -1002,7 +1005,7 @@ ipatch_item_copy_replace (IpatchItem *dest, IpatchItem *src,
  * that externally linked objects are not duplicated for non #IpatchBase
  * derived types, making the item local to the same #IpatchBase object.
  *
- * Returns: New duplicate item. Caller owns the reference to the new item.
+ * Returns: (transfer full): New duplicate item. Caller owns the reference to the new item.
  */
 IpatchItem *
 ipatch_item_duplicate (IpatchItem *item)
@@ -1021,14 +1024,14 @@ ipatch_item_duplicate (IpatchItem *item)
 /**
  * ipatch_item_duplicate_link_func:
  * @item: Item to duplicate
- * @link_func: Function to call for each object link pointer in @item.  This
- *   function can alter the copied link if desired.
- * @user_data: User defined data to pass to @link_func.
+ * @link_func: (scope call) (closure user_data): Function to call for each
+ *   object link pointer in @item.  This function can alter the copied link if desired.
+ * @user_data: (allow-none): User defined data to pass to @link_func.
  *
  * Like ipatch_item_copy_link_func() but duplicates the item instead of
  * copying to an existing item.
  *
- * Returns: New duplicate item. Caller owns the reference to the new item.
+ * Returns: (transfer full): New duplicate item. Caller owns the reference to the new item.
  */
 IpatchItem *
 ipatch_item_duplicate_link_func (IpatchItem *item,
@@ -1049,13 +1052,14 @@ ipatch_item_duplicate_link_func (IpatchItem *item,
 /**
  * ipatch_item_duplicate_replace:
  * @item: Item to duplicate
- * @repl_hash: Hash of link pointer substitutions.  The original link pointer
- *   is the hash key, and the hash value is the replacement pointer.
+ * @repl_hash: (element-type IpatchItem IpatchItem): Hash of link pointer
+ *   substitutions.  The original link pointer is the hash key, and the
+ *   hash value is the replacement pointer.
  *
  * Like ipatch_item_copy_replace() but duplicates the item instead of
  * copying it to an already created item.
  *
- * Returns: New duplicate item. Caller owns the reference to the new item.
+ * Returns: (transfer full): New duplicate item. Caller owns the reference to the new item.
  */
 IpatchItem *
 ipatch_item_duplicate_replace (IpatchItem *item, GHashTable *repl_hash)
@@ -1077,9 +1081,9 @@ ipatch_item_duplicate_replace (IpatchItem *item, GHashTable *repl_hash)
  *
  * Recursively duplicate an item (i.e., its dependencies also).
  *
- * Returns: List of duplicated @item and dependencies (duplicated @item is the
- * first in the list).  List object is owned by the caller and should be
- * unreferenced when finished using it.
+ * Returns: (transfer full): List of duplicated @item and dependencies
+ * (duplicated @item is the first in the list).  List object is owned by
+ * the caller and should be unreferenced when finished using it.
  */
 IpatchList *
 ipatch_item_duplicate_deep (IpatchItem *item)
@@ -1129,7 +1133,16 @@ static void copy_hash_to_list_GHFunc (gpointer key, gpointer value,
   list->items = g_list_prepend (list->items, value);
 }
 
-/* IpatchItemCopyLinkFunc for deep duplicating an object and dependencies */
+/**
+ * ipatch_item_copy_link_func_deep: (skip)
+ * @item: Item which is being linked (contains a reference to @link).
+ * @link: The item being referenced (can be %NULL).
+ * @user_data: User data supplied to copy/duplicate function.
+ *
+ * IpatchItemCopyLinkFunc for deep duplicating an object and dependencies.
+ *
+ * Returns: Pointer to item to use for link property (duplicated).
+ */
 IpatchItem *
 ipatch_item_copy_link_func_deep (IpatchItem *item, IpatchItem *link,
 				 gpointer user_data)
@@ -1157,10 +1170,10 @@ ipatch_item_copy_link_func_deep (IpatchItem *item, IpatchItem *link,
 }
 
 /**
- * ipatch_item_copy_link_func_hash:
+ * ipatch_item_copy_link_func_hash: (skip)
  * @item: Item which is being linked (contains a reference to @link).
  * @link: The item being referenced.
- * @user_data: User data supplied to copy/duplicate function.
+ * @user_data: (type GHashTable): User data supplied to copy/duplicate function.
  *
  * A predefined #IpatchItemCopyLinkFunc which takes a hash for the @user_data
  * component, which is used for replacing link pointers.  @link is used as the
@@ -1205,8 +1218,8 @@ ipatch_item_type_can_conflict (GType item_type)
 /**
  * ipatch_item_type_get_unique_specs:
  * @item_type: Type to get unique parameter specs for
- * @groups: Location to store an integer describing groups.  Each bit
- *   corresponds to a GParamSpec in the returned array.  GParamSpecs of the
+ * @groups: (out) (allow-none): Location to store an integer describing groups.
+ *   Each bit corresponds to a GParamSpec in the returned array.  GParamSpecs of the
  *   same group will have the same bit value (0 or 1) and be consecutive.
  *   Unique properties in the same group must all match (logic AND) for a
  *   conflict to occur.  Pass %NULL to ignore.
@@ -1214,9 +1227,9 @@ ipatch_item_type_can_conflict (GType item_type)
  * Get the list of unique parameter specs which can conflict for a given
  * item type.
  *
- * Returns: %NULL terminated list of parameter specs or %NULL if @item_type
- * can never conflict.  The returned array is internal and should not be
- * modified or freed.
+ * Returns: (array zero-terminated=1) (transfer none): %NULL terminated list of
+ * parameter specs or %NULL if @item_type can never conflict.  The returned
+ * array is internal and should not be modified or freed.
  */
 GParamSpec **
 ipatch_item_type_get_unique_specs (GType item_type, guint32 *groups)
@@ -1451,11 +1464,11 @@ unique_group_list_sort_func (gconstpointer a, gconstpointer b)
 
 /**
  * ipatch_item_set_atomic:
- * @item: IpatchItem derived object to set properties of
+ * @item: (type IpatchItem): IpatchItem derived object to set properties of
  * @first_property_name: Name of first property
- * @Varargs: Variable list of arguments that should start with the value to
- * set @first_property_name to, followed by property name/value pairs. List is
- * terminated with a %NULL property name.
+ * @...: Variable list of arguments that should start with the value to
+ *   set @first_property_name to, followed by property name/value pairs. List is
+ *   terminated with a %NULL property name.
  *
  * Sets properties on a patch item atomically (i.e. item is
  * multi-thread locked while all properties are set). This avoids
@@ -1481,12 +1494,12 @@ ipatch_item_set_atomic (gpointer item, const char *first_property_name, ...)
 
 /**
  * ipatch_item_get_atomic:
- * @item: IpatchItem derived object to get properties from
+ * @item: (type IpatchItem): IpatchItem derived object to get properties from
  * @first_property_name: Name of first property
- * @Varargs: Variable list of arguments that should start with a
- * pointer to store the value from @first_property_name, followed by
- * property name/value pointer pairs. List is terminated with a %NULL
- * property name.
+ * @...: Variable list of arguments that should start with a
+ *   pointer to store the value from @first_property_name, followed by
+ *   property name/value pointer pairs. List is terminated with a %NULL
+ *   property name.
  *
  * Gets properties from a patch item atomically (i.e. item is
  * multi-thread locked while all properties are retrieved). This
@@ -1511,7 +1524,7 @@ ipatch_item_get_atomic (gpointer item, const char *first_property_name, ...)
 }
 
 /**
- * ipatch_item_first:
+ * ipatch_item_first: (skip)
  * @iter: Patch item iterator containing #IpatchItem items
  *
  * Gets the first item in a patch item iterator. A convenience wrapper for
@@ -1531,7 +1544,7 @@ ipatch_item_first (IpatchIter *iter)
 }
 
 /**
- * ipatch_item_next:
+ * ipatch_item_next: (skip)
  * @iter: Patch item iterator containing #IpatchItem items
  *
  * Gets the next item in a patch item iterator. A convenience wrapper for

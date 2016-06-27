@@ -129,7 +129,8 @@ ipatch_sample_store_rom_sample_iface_open (IpatchSampleHandle *handle,
  * from this store type.  Its used only to keep track of ROM locations in older
  * SoundFont files.
  *
- * Returns: New rom sample store, cast as an #IpatchSample for convenience.
+ * Returns: (type IpatchSampleStoreRom): New rom sample store, cast
+ *   as an #IpatchSample for convenience.
  */
 IpatchSample *
 ipatch_sample_store_rom_new (guint location)

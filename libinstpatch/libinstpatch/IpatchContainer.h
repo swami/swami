@@ -138,11 +138,22 @@ guint ipatch_container_add_connect (IpatchContainer *container,
 				    IpatchContainerCallback callback,
 				    IpatchContainerDisconnect disconnect,
 				    gpointer user_data);
+guint
+ipatch_container_add_connect_notify (IpatchContainer *container,
+			             IpatchContainerCallback callback,
+			             GDestroyNotify notify_func,
+			             gpointer user_data);
 guint ipatch_container_remove_connect (IpatchContainer *container,
 				       IpatchItem *child,
 				       IpatchContainerCallback callback,
 				       IpatchContainerDisconnect disconnect,
 				       gpointer user_data);
+guint
+ipatch_container_remove_connect_notify (IpatchContainer *container,
+                                        IpatchItem *child,
+                                        IpatchContainerCallback callback,
+                                        GDestroyNotify notify_func,
+                                        gpointer user_data);
 void ipatch_container_add_disconnect (guint handler_id);
 void ipatch_container_add_disconnect_matched (IpatchContainer *container,
 					      IpatchContainerCallback callback,

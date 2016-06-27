@@ -514,7 +514,8 @@ ipatch_get_sample_store_swap_file_name (void)
  *
  * Creates a new disk swap sample store.
  *
- * Returns: New disk swap sample store, cast as an #IpatchSample for convenience.
+ * Returns: (type IpatchSampleStoreSwap): New disk swap sample store, cast
+ *   as an #IpatchSample for convenience.
  */
 IpatchSample *
 ipatch_sample_store_swap_new (void)
@@ -596,7 +597,7 @@ ipatch_get_sample_store_swap_max_memory (void)
 
 /**
  * ipatch_sample_store_swap_compact:
- * @err: Location to store error information or %NULL to ignore
+ * @err: (allow-none): Location to store error information or %NULL to ignore
  *
  * Compact the sample store swap file by re-writing it to a new file
  * and creating new sample stores to replace the old ones.  This should be
@@ -760,7 +761,7 @@ error:
 
 #ifdef IPATCH_DEBUG
 /**
- * ipatch_sample_store_swap_dump:
+ * ipatch_sample_store_swap_dump: (skip)
  *
  * Dump information about sample swap to stdout for debugging.
  */

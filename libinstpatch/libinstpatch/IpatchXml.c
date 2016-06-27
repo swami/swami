@@ -47,12 +47,13 @@ xml_text (GMarkupParseContext *context, const gchar *text, gsize text_len,
           gpointer user_data, GError **error);
 
 /**
- * ipatch_xml_new_node:
- * @parent: Parent node to add new node to as a child, or %NULL to create new root node
+ * ipatch_xml_new_node: (skip)
+ * @parent: (allow-none): Parent node to add new
+ *   node to as a child, or %NULL to create new root node
  * @name: Name of the new XML node
- * @value: Text value to assign to the new node or %NULL
- * @attr_name: First attribute name to assign or %NULL
- * @...: If @attr_name was supplied first string value to be assigned should be
+ * @value: (allow-none): Text value to assign to the new node or %NULL
+ * @attr_name: (allow-none): First attribute name to assign or %NULL
+ * @...: (type char*): If @attr_name was supplied first string value to be assigned should be
  *   the first parameter, additional name/value attribute string pairs may
  *   follow terminated by a %NULL name.
  *
@@ -104,12 +105,15 @@ ipatch_xml_new_node (GNode *parent, const char *name, const char *value,
 }
 
 /**
- * ipatch_xml_new_node_strv:
- * @parent: Parent node to add new node to as a child, or %NULL to create new root node
+ * ipatch_xml_new_node_strv: (skip)
+ * @parent: (allow-none): Parent node to add
+ *   new node to as a child, or %NULL to create new root node
  * @name: Name of the new XML node
- * @value: Text value to assign to the new node or %NULL
- * @attr_names: %NULL terminated array of attribute names or %NULL
- * @attr_values: %NULL terminated array of attribute values or %NULL
+ * @value: (allow-none): Text value to assign to the new node or %NULL
+ * @attr_names: (array zero-terminated=1) (allow-none): %NULL terminated
+ *   array of attribute names or %NULL
+ * @attr_values: (array zero-terminated=1) (allow-none): %NULL terminated
+ *   array of attribute values or %NULL
  *
  * Like ipatch_xml_new_node() but takes attribute name/values as separate strv
  * arrays.
@@ -151,7 +155,7 @@ ipatch_xml_new_node_strv (GNode *parent, const char *name, const char *value,
 #define QDATA(node)	&(((IpatchXmlNode *)(node->data))->qdata)
 
 /**
- * ipatch_xml_get_data:
+ * ipatch_xml_get_data: (skip)
  * @node: XML node
  * @key: Name of the key
  *
@@ -167,7 +171,7 @@ ipatch_xml_get_data (GNode *node, const char *key)
 }
 
 /**
- * ipatch_xml_set_data:
+ * ipatch_xml_set_data: (skip)
  * @node: XML node
  * @key: Name of the key
  * @data: Data to associate with the key
@@ -182,10 +186,11 @@ ipatch_xml_set_data (GNode *node, const char *key, gpointer data)
 }
 
 /**
- * ipatch_xml_set_data_full:
+ * ipatch_xml_set_data_full: (skip)
  * @node: XML node
  * @key: Name of the key
  * @data: Data to associate with the key
+ * @destroy_func: (allow-none): Destroy function or %NULL
  *
  * Assigns arbitrary data to an XML node specified by a @key.  Also assigns a
  * @destroy_func callback to destroy the data when it is removed.
@@ -199,14 +204,14 @@ ipatch_xml_set_data_full (GNode *node, const char *key, gpointer data,
 }
 
 /**
- * ipatch_xml_steal_data:
+ * ipatch_xml_steal_data: (skip)
  * @node: XML node
  * @key: Name of the key
  *
  * Remove keyed data from an XML node, but don't call the data's destroy notify.
  * Caller is thus given the ownership of the data.
  *
- * Returns: The data pointer or %NULL if not set
+ * Returns: (transfer none): The data pointer or %NULL if not set
  */
 gpointer
 ipatch_xml_steal_data (GNode *node, const char *key)
@@ -226,14 +231,14 @@ ipatch_xml_steal_data (GNode *node, const char *key)
 }
 
 /**
- * ipatch_xml_get_data:
+ * ipatch_xml_get_qdata: (skip)
  * @node: XML node
  * @quark: Quark key
  *
  * Lookup data assigned to an XML node using a quark.  This is faster than
  * ipatch_xml_get_data() since the key must be converted to a quark anyways.
  *
- * Returns: The data pointer or %NULL if not set
+ * Returns: (transfer none): The data pointer or %NULL if not set
  */
 gpointer
 ipatch_xml_get_qdata (GNode *node, GQuark quark)
@@ -243,7 +248,7 @@ ipatch_xml_get_qdata (GNode *node, GQuark quark)
 }
 
 /**
- * ipatch_xml_set_qdata:
+ * ipatch_xml_set_qdata: (skip)
  * @node: XML node
  * @quark: Quark key
  * @data: Data to associate with the key
@@ -260,10 +265,11 @@ ipatch_xml_set_qdata (GNode *node, GQuark quark, gpointer data)
 }
 
 /**
- * ipatch_xml_set_qdata_full:
+ * ipatch_xml_set_qdata_full: (skip)
  * @node: XML node
  * @quark: Quark key
  * @data: Data to associate with the key
+ * @destroy_func: (allow-none): Destroy function or %NULL
  *
  * Assigns arbitrary data to an XML node specified by a @key.  Also assigns a
  * @destroy_func callback to destroy the data when it is removed.  This is
@@ -279,7 +285,7 @@ ipatch_xml_set_qdata_full (GNode *node, GQuark quark, gpointer data,
 }
 
 /**
- * ipatch_xml_steal_qdata:
+ * ipatch_xml_steal_qdata: (skip)
  * @node: XML node
  * @quark: Quark key
  *
@@ -288,7 +294,7 @@ ipatch_xml_set_qdata_full (GNode *node, GQuark quark, gpointer data,
  * ipatch_xml_steal_data() since the key must be converted to a quark
  * anyways.
  *
- * Returns: The data pointer or %NULL if not set
+ * Returns: (transfer none): The data pointer or %NULL if not set
  */
 gpointer
 ipatch_xml_steal_qdata (GNode *node, GQuark quark)
@@ -304,7 +310,7 @@ ipatch_xml_steal_qdata (GNode *node, GQuark quark)
 }
 
 /**
- * ipatch_xml_destroy:
+ * ipatch_xml_destroy: (skip)
  * @node: Root of XML tree/sub tree to destroy
  *
  * Free an XML tree (a root @node and all its children).  Does not need to be
@@ -325,7 +331,7 @@ xml_destroy_traverse_func (GNode *node, gpointer data)
 }
 
 /**
- * ipatch_xml_copy:
+ * ipatch_xml_copy: (skip)
  * @node: XML tree to copy
  *
  * Perform a deep copy on an XML tree.
@@ -341,7 +347,7 @@ ipatch_xml_copy (GNode *node)
 }
 
 /**
- * ipatch_xml_set_name:
+ * ipatch_xml_set_name: (skip)
  * @node: XML node
  * @name: Name to assign
  *
@@ -361,7 +367,7 @@ ipatch_xml_set_name (GNode *node, const char *name)
 }
 
 /**
- * ipatch_xml_set_value:
+ * ipatch_xml_set_value: (skip)
  * @node: XML node
  * @value: Text value to assign or %NULL to clear it
  *
@@ -380,7 +386,7 @@ ipatch_xml_set_value (GNode *node, const char *value)
 }
 
 /**
- * ipatch_xml_set_value_printf:
+ * ipatch_xml_set_value_printf: (skip)
  * @node: XML node
  * @format: Printf format
  * @...: Printf arguments
@@ -404,9 +410,9 @@ ipatch_xml_set_value_printf (GNode *node, const char *format, ...)
 }
 
 /**
- * ipatch_xml_take_name:
+ * ipatch_xml_take_name: (skip)
  * @node: XML node
- * @name: Name to assign or %NULL to clear it
+ * @name: (allow-none) (transfer full): Name to assign or %NULL to clear it
  *
  * Like ipatch_xml_set_name() but takes over the allocation of @name rather than
  * duplicating it.
@@ -425,9 +431,9 @@ ipatch_xml_take_name (GNode *node, char *name)
 }
 
 /**
- * ipatch_xml_take_value:
+ * ipatch_xml_take_value: (skip)
  * @node: XML node
- * @value: Text value to assign
+ * @value: (transfer full): Text value to assign
  *
  * Like ipatch_xml_set_value() but takes over the allocation of @value rather than
  * duplicating it.
@@ -445,7 +451,7 @@ ipatch_xml_take_value (GNode *node, char *value)
 }
 
 /**
- * ipatch_xml_get_name:
+ * ipatch_xml_get_name: (skip)
  * @node: XML node to get name of
  *
  * Get the name of an XML node.
@@ -460,7 +466,7 @@ ipatch_xml_get_name (GNode *node)
 }
 
 /**
- * ipatch_xml_test_name:
+ * ipatch_xml_test_name: (skip)
  * @node: XML node to get name of
  * @cmpname: Name to compare to
  *
@@ -482,7 +488,7 @@ ipatch_xml_test_name (GNode *node, const char *cmpname)
 }
 
 /**
- * ipatch_xml_get_value:
+ * ipatch_xml_get_value: (skip)
  * @node: XML node to get value of
  *
  * Get the text value of an XML node.
@@ -498,7 +504,7 @@ ipatch_xml_get_value (GNode *node)
 }
 
 /**
- * ipatch_xml_dup_value:
+ * ipatch_xml_dup_value: (skip)
  * @node: XML node to duplicate value of
  *
  * Duplicate the text value of an XML node.  Like ipatch_xml_get_value() but
@@ -514,7 +520,7 @@ ipatch_xml_dup_value (GNode *node)
 }
 
 /**
- * ipatch_xml_test_value:
+ * ipatch_xml_test_value: (skip)
  * @node: XML node to get name of
  * @cmpvalue: Value to compare to
  *
@@ -536,10 +542,10 @@ ipatch_xml_test_value (GNode *node, const char *cmpvalue)
 }
 
 /**
- * ipatch_xml_set_attribute:
+ * ipatch_xml_set_attribute: (skip)
  * @node: XML node
  * @attr_name: Attribute name to assign to
- * @attr_value: Attribute value to assign or %NULL to unset
+ * @attr_value: (allow-none): Attribute value to assign or %NULL to unset
  *
  * Set or unset an attribute of an XML node.  If there is already an existing
  * attribute with the given @attr_name, its value will be replaced.
@@ -585,7 +591,7 @@ ipatch_xml_set_attribute (GNode *node, const char *attr_name,
 }
 
 /**
- * ipatch_xml_set_attributes:
+ * ipatch_xml_set_attributes: (skip)
  * @node: XML node
  * @attr_name: First attribute name
  * @attr_value: First attribute value
@@ -617,7 +623,7 @@ ipatch_xml_set_attributes (GNode *node, const char *attr_name,
 }
 
 /**
- * ipatch_xml_get_attribute:
+ * ipatch_xml_get_attribute: (skip)
  * @node: XML node
  * @attr_name: Name of attribute
  *
@@ -647,7 +653,7 @@ ipatch_xml_get_attribute (GNode *node, const char *attr_name)
 }
 
 /**
- * ipatch_xml_test_attribute:
+ * ipatch_xml_test_attribute: (skip)
  * @node: XML node
  * @attr_name: Name of attribute
  * @cmpval: Value to compare attribute to (%NULL to just check existence).
@@ -670,14 +676,14 @@ ipatch_xml_test_attribute (GNode *node, const char *attr_name, const char *cmpva
 }
 
 /**
- * ipatch_xml_find_child:
+ * ipatch_xml_find_child: (skip)
  * @node: XML node
  * @name: Node name of child to find
  *
  * Find a child node with the given @name.  Only searches the children of @node
  * and does not search recursively.
  *
- * Returns: Matching node or %NULL if not found.
+ * Returns: (transfer none): Matching node or %NULL if not found.
  */
 GNode *
 ipatch_xml_find_child (GNode *node, const char *name)
@@ -700,14 +706,14 @@ ipatch_xml_find_child (GNode *node, const char *name)
 }
 
 /**
- * ipatch_xml_find_by_path:
+ * ipatch_xml_find_by_path: (skip)
  * @node: XML node
  * @path: Path specification in the form "name1.name2.name3" where each child
  *   of a node is separated by a '.' character.
  *
  * Get a node in a tree from a path string.
  *
- * Returns: Matching node or %NULL if not found.
+ * Returns: (transfer none): Matching node or %NULL if not found.
  */
 GNode *
 ipatch_xml_find_by_path (GNode *node, const char *path)
@@ -744,7 +750,7 @@ ipatch_xml_find_by_path_recurse (GNode *node, const char *path)
 }
 
 /**
- * ipatch_xml_to_str:
+ * ipatch_xml_to_str: (skip)
  * @node: XML node
  * @indent: Number of spaces of indent per level (0 for no indent)
  *
@@ -825,11 +831,11 @@ ipatch_xml_to_str_recurse (GString *str, GNode *node, guint indent, guint inc)
 }
 
 /**
- * ipatch_xml_save_to_file:
+ * ipatch_xml_save_to_file: (skip)
  * @node: XML tree to save
  * @indent: Number of spaces to indent per level
  * @filename: File name to save to
- * @err: Location to store error info or %NULL to ignore
+ * @err: (allow-none): Location to store error info or %NULL to ignore
  *
  * Store an XML tree to a file.
  *
@@ -853,14 +859,14 @@ ipatch_xml_save_to_file (GNode *node, guint indent, const char *filename,
 }
 
 /**
- * ipatch_xml_from_str:
+ * ipatch_xml_from_str: (skip)
  * @str: XML content to parse
- * @err: Location to store error info or %NULL to ignore
+ * @err: (allow-none): Location to store error info or %NULL to ignore
  *
  * Parse XML content into an XML node tree.
  *
- * Returns: Newly allocated XML node tree or %NULL on error (@err may be set),
- *   can be freed with ipatch_xml_destroy().
+ * Returns: Newly allocated XML node tree or
+ *   %NULL on error (@err may be set), can be freed with ipatch_xml_destroy().
  */
 GNode *
 ipatch_xml_from_str (const char *str, GError **err)
@@ -929,14 +935,14 @@ xml_text (GMarkupParseContext *context, const gchar *text, gsize text_len,
 }
 
 /**
- * ipatch_xml_load_from_file:
+ * ipatch_xml_load_from_file: (skip)
  * @filename: File name containing XML content to parse
- * @err: Location to store error info or %NULL to ignore
+ * @err: (allow-none): Location to store error info or %NULL to ignore
  *
  * Parse an XML file into an XML node tree.
  *
- * Returns: Newly allocated XML node tree or %NULL on error (@err may be set),
- *   can be freed with ipatch_xml_destroy().
+ * Returns: Newly allocated XML node tree
+ *   or %NULL on error (@err may be set), can be freed with ipatch_xml_destroy().
  */
 GNode *
 ipatch_xml_load_from_file (const char *filename, GError **err)
@@ -958,7 +964,7 @@ ipatch_xml_load_from_file (const char *filename, GError **err)
 }
 
 /**
- * ipatch_xml_node_new:
+ * ipatch_xml_node_new: (skip)
  *
  * Create a new XML node structure.  Not normally used.
  *
@@ -976,7 +982,7 @@ ipatch_xml_node_new (void)
 }
 
 /**
- * ipatch_xml_node_free:
+ * ipatch_xml_node_free: (skip)
  * @xmlnode: XML node structure to free
  *
  * Free an XML node structure and its contents.  Not normally used.
@@ -1000,7 +1006,7 @@ ipatch_xml_node_free (IpatchXmlNode *xmlnode)
 }
 
 /**
- * ipatch_xml_node_duplicate:
+ * ipatch_xml_node_duplicate: (skip)
  * @xmlnode: XML node structure to duplicate
  *
  * Duplicate an XML node structure and its contents.  Not normally used.
@@ -1033,7 +1039,7 @@ ipatch_xml_node_duplicate (const IpatchXmlNode *xmlnode)
 }
 
 /**
- * ipatch_xml_attr_new:
+ * ipatch_xml_attr_new: (skip)
  *
  * Create a new XML attribute structure.  Not normally used.
  *
@@ -1047,7 +1053,7 @@ ipatch_xml_attr_new (void)
 }
 
 /**
- * ipatch_xml_attr_free:
+ * ipatch_xml_attr_free: (skip)
  * @attr: Attribute structure to free
  *
  * Free an XML attribute structure.  Not normally used.
@@ -1062,7 +1068,7 @@ ipatch_xml_attr_free (IpatchXmlAttr *attr)
 }
 
 /**
- * ipatch_xml_attr_duplicate:
+ * ipatch_xml_attr_duplicate: (skip)
  * @attr: Attribute structure to duplicate
  *
  * Duplicate an XML attribute structure.  Not normally used.

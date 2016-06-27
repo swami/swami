@@ -77,7 +77,11 @@ static void _sf2_to_file_get_property (GObject *object, guint property_id,
 static void _sf2_to_file_set_property (GObject *object, guint property_id,
                                        const GValue *value, GParamSpec *pspec);
 
-/* init routine for SF2 conversion types */
+/**
+ * _ipatch_convert_SF2_init: (skip)
+ *
+ * Init routine for SF2 conversion types
+ */
 void
 _ipatch_convert_SF2_init (void)
 {

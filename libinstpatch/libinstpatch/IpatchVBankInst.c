@@ -292,7 +292,7 @@ ipatch_vbank_inst_new (void)
 }
 
 /**
- * ipatch_vbank_inst_first:
+ * ipatch_vbank_inst_first: (skip)
  * @iter: Patch item iterator containing #IpatchVBankInst items
  *
  * Gets the first item in an instrument iterator. A convenience wrapper for
@@ -312,7 +312,7 @@ ipatch_vbank_inst_first (IpatchIter *iter)
 }
 
 /**
- * ipatch_vbank_inst_next:
+ * ipatch_vbank_inst_next: (skip)
  * @iter: Patch item iterator containing #IpatchVBankInst items
  *
  * Gets the next item in an instrument iterator. A convenience wrapper for
@@ -372,8 +372,10 @@ ipatch_vbank_inst_set_midi_locale (IpatchVBankInst *inst,
 /**
  * ipatch_vbank_inst_get_midi_locale:
  * @inst: Virtual bank instrument to get MIDI locale from
- * @bank: Location to store instrument's MIDI bank number or %NULL
- * @program: Location to store instrument's MIDI program number or %NULL
+ * @bank: (out) (allow-none): Location to store instrument's
+ *   MIDI bank number or %NULL
+ * @program: (out) (allow-none): Location to store instrument's
+ *   MIDI program number or %NULL
  *
  * Gets the MIDI locale of a virtual bank instrument (bank and program numbers).
  */

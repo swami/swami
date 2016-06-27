@@ -79,7 +79,7 @@ ipatch_dls2_info_get (IpatchDLS2Info *info, guint32 fourcc)
  * Like ipatch_dls2_info_get but returns the string value without duplicating
  * it.
  *
- * Returns: Info string value or %NULL if the specified info is not
+ * Returns: (transfer none): Info string value or %NULL if the specified info is not
  * set. Value is internal and should not be modified or freed.
  */
 G_CONST_RETURN char *
@@ -101,7 +101,7 @@ ipatch_dls2_info_peek (IpatchDLS2Info *info, guint32 fourcc)
  * ipatch_dls2_info_set:
  * @info: DLS2 info list
  * @fourcc: FOURCC info ID
- * @value: String value to set info to or %NULL to unset
+ * @value: (allow-none): String value to set info to or %NULL to unset
  *
  * Sets the info specified by the @fourcc ID in an @info list to a
  * string @value.
@@ -170,7 +170,7 @@ ipatch_dls2_info_free (IpatchDLS2Info *info)
  *
  * Duplicate a DLS2 info list.
  *
- * Returns: Newly created info list or %NULL if @info was NULL. Free it with
+ * Returns: (transfer full): Newly created info list or %NULL if @info was NULL. Free it with
  * ipatch_dls2_info_free() when finished with it.
  */
 IpatchDLS2Info *
@@ -422,7 +422,7 @@ ipatch_dls2_info_notify (IpatchItem *item, guint32 fourcc,
 }
 
 /**
- * ipatch_dls2_info_bag_new:
+ * ipatch_dls2_info_bag_new: (skip)
  *
  * Create a new DLS info bag structure.
  *
@@ -435,7 +435,7 @@ ipatch_dls2_info_bag_new (void)
 }
 
 /**
- * ipatch_dls2_info_bag_free:
+ * ipatch_dls2_info_bag_free: (skip)
  * @bag: Info bag structure to free
  *
  * Free a DLS info bag allocated with ipatch_dls2_info_bag_new().

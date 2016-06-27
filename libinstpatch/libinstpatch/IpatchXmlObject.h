@@ -68,6 +68,11 @@ typedef gboolean (*IpatchXmlDecodeFunc)(GNode *node, GObject *object,
 void ipatch_xml_register_handler (GType type, const char *prop_name,
                                   IpatchXmlEncodeFunc encode_func,
                                   IpatchXmlDecodeFunc decode_func);
+void
+ipatch_xml_register_handler_full (GType type, const char *prop_name,
+                                  IpatchXmlEncodeFunc encode_func,
+                                  IpatchXmlDecodeFunc decode_func,
+                                  GDestroyNotify notify_func, gpointer user_data);
 gboolean ipatch_xml_lookup_handler (GType type, GParamSpec *pspec,
                                     IpatchXmlEncodeFunc *encode_func,
                                     IpatchXmlDecodeFunc *decode_func);

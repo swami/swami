@@ -166,11 +166,11 @@ ipatch_sf2_reader_set_file_handle (IpatchSF2Reader *reader, IpatchFileHandle *ha
 /**
  * ipatch_sf2_reader_load:
  * @reader: SF2 reader object
- * @err: Location to store error info or %NULL
+ * @err: (allow-none): Location to store error info or %NULL
  *
  * Load an SF2 file.
  *
- * Returns: New SF2 object with refcount of 1.
+ * Returns: (transfer full): New SF2 object with refcount of 1.
  */
 IpatchSF2 *
 ipatch_sf2_reader_load (IpatchSF2Reader *reader, GError **err)
@@ -233,7 +233,7 @@ ipatch_sf2_reader_load (IpatchSF2Reader *reader, GError **err)
 }
 
 /**
- * ipatch_sf2_load_phdr:
+ * ipatch_sf2_load_phdr: (skip)
  * @handle: File handle containing buffered data
  * @phdr: Pointer to a user supplied preset header structure
  *
@@ -255,7 +255,7 @@ ipatch_sf2_load_phdr (IpatchFileHandle *handle, IpatchSF2Phdr *phdr)
 }
 
 /**
- * ipatch_sf2_load_ihdr:
+ * ipatch_sf2_load_ihdr: (skip)
  * @handle: File handle containing buffered data
  * @ihdr: Pointer to a user supplied instrument header structure
  *
@@ -272,7 +272,7 @@ ipatch_sf2_load_ihdr (IpatchFileHandle *handle, IpatchSF2Ihdr *ihdr)
 }
 
 /**
- * ipatch_sf2_load_shdr:
+ * ipatch_sf2_load_shdr: (skip)
  * @handle: File handle containing buffered data
  * @shdr: Pointer to a user supplied sample header structure
  *
@@ -297,7 +297,7 @@ ipatch_sf2_load_shdr (IpatchFileHandle *handle, IpatchSF2Shdr *shdr)
 }
 
 /**
- * ipatch_sf2_load_bag:
+ * ipatch_sf2_load_bag: (skip)
  * @handle: File handle containing buffered data
  * @bag: Pointer to a user supplied bag structure
  *
@@ -314,7 +314,7 @@ ipatch_sf2_load_bag (IpatchFileHandle *handle, IpatchSF2Bag *bag)
 }
 
 /**
- * ipatch_sf2_load_mod:
+ * ipatch_sf2_load_mod: (skip)
  * @handle: File handle containing buffered data
  * @mod: Pointer to a user supplied modulator structure
  *
@@ -334,7 +334,7 @@ ipatch_sf2_load_mod (IpatchFileHandle *handle, IpatchSF2Mod *mod)
 }
 
 /**
- * ipatch_sf2_load_gen:
+ * ipatch_sf2_load_gen: (skip)
  * @handle: File handle containing buffered data
  * @genid: Pointer to store the generator ID in
  * @amount: Pointer to a generator amount to store the amount in

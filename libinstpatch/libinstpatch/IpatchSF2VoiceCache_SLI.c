@@ -35,6 +35,9 @@
 #include "IpatchSF2VoiceCache.h"
 #include "IpatchSample.h"
 
+/**
+ * _ipatch_sf2_voice_cache_init_SLI: (skip)
+ */
 void
 _ipatch_sf2_voice_cache_init_SLI (void)
 {

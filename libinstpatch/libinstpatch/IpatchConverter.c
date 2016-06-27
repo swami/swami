@@ -84,7 +84,11 @@ static GHashTable *conv_types = NULL;
 static gpointer parent_class = NULL;
 
 
-/* converter system init function */
+/**
+ * _ipatch_converter_init: (skip)
+ *
+ * Converter system init function
+ */
 void
 _ipatch_converter_init (void)
 {
@@ -98,7 +102,7 @@ _ipatch_converter_init (void)
  * ipatch_convert_objects:
  * @input: Input object
  * @output: Output object
- * @err: Location to store error info or %NULL
+ * @err: (allow-none): Location to store error info or %NULL
  *
  * A convenience function for converting from one object to another.  This
  * function will only work for converters which take exactly one input and
@@ -144,15 +148,15 @@ ipatch_convert_objects (GObject *input, GObject *output, GError **err)
  * ipatch_convert_object_to_type:
  * @object: Object to convert from
  * @type: Type of object to convert to
- * @err: Location to store error info or %NULL to ignore
+ * @err: (allow-none): Location to store error info or %NULL to ignore
  *
  * A convenience function to convert an object to another object of a given
  * type.  This function will only work for converters which require 1
  * input and one or zero outputs. The output object is created as needed
  * and returned.
  *
- * Returns: The output object or %NULL on error (in which case @err may be set).
- * The returned object has a refcount of 1 which the caller owns.
+ * Returns: (transfer full): The output object or %NULL on error (in which
+ * case @err may be set). The returned object has a refcount of 1 which the caller owns.
  */
 GObject *
 ipatch_convert_object_to_type (GObject *object, GType type, GError **err)
@@ -211,14 +215,14 @@ ipatch_convert_object_to_type (GObject *object, GType type, GError **err)
  * ipatch_convert_object_to_type_multi:
  * @object: Object to convert from
  * @type: Type of object to convert to
- * @err: Location to store error info or %NULL to ignore
+ * @err: (allow-none): Location to store error info or %NULL to ignore
  *
  * A convenience function to convert an object to one or more objects of a given
  * @type.  This function will work for converters which require 1
  * input and any number of outputs.
  *
- * Returns: List of output objects or %NULL on error (in which case @err may be set).
- * The returned object list has a refcount of 1 which the caller owns.
+ * Returns: (transfer full): List of output objects or %NULL on error (in which
+ * case @err may be set). The returned object list has a refcount of 1 which the caller owns.
  */
 IpatchList *
 ipatch_convert_object_to_type_multi (GObject *object, GType type, GError **err)
@@ -230,8 +234,8 @@ ipatch_convert_object_to_type_multi (GObject *object, GType type, GError **err)
  * ipatch_convert_object_to_type_multi_set:
  * @object: Object to convert from
  * @type: Type of object to convert to
- * @err: Location to store error info or %NULL to ignore
- * @first_property_name: Name of first property to assign or %NULL
+ * @err: (allow-none): Location to store error info or %NULL to ignore
+ * @first_property_name: (allow-none): Name of first property to assign or %NULL
  * @...: First property value followed by property name/value pairs (as per
  *   g_object_set()) to assign to the resulting converter, terminated with a
  *   %NULL property name.
@@ -241,8 +245,8 @@ ipatch_convert_object_to_type_multi (GObject *object, GType type, GError **err)
  * input and any number of outputs.  Like ipatch_convert_object_to_type_multi()
  * but allows for properties of the converter to be assigned.
  *
- * Returns: List of output objects or %NULL on error (in which case @err may be set).
- * The returned object list has a refcount of 1 which the caller owns.
+ * Returns: (transfer full): List of output objects or %NULL on error (in which
+ * case @err may be set). The returned object list has a refcount of 1 which the caller owns.
  */
 IpatchList *
 ipatch_convert_object_to_type_multi_set (GObject *object, GType type, GError **err,
@@ -316,8 +320,9 @@ ipatch_convert_object_to_type_multi_set (GObject *object, GType type, GError **e
  * ipatch_find_converter() and create an instance of the returned type.
  * See ipatch_find_converter() for more details.
  *
- * Returns: The new converter object with a reference count of 1 which the
- *   caller owns, or %NULL if there is no matching conversion handler type.
+ * Returns: (transfer full): The new converter object with a reference count
+ *   of 1 which the caller owns, or %NULL if there is no matching conversion
+ *   handler type.
  */
 IpatchConverter *
 ipatch_create_converter (GType src_type, GType dest_type)
@@ -333,6 +338,8 @@ ipatch_create_converter (GType src_type, GType dest_type)
   /* ++ ref new object and let the caller have it */
   return (IPATCH_CONVERTER (g_object_new (conv_type, NULL)));
 }
+
+/* FIXME-GIR: @flags is a combo Flags and priority parameter */
 
 /**
  * ipatch_register_converter_map:
@@ -696,8 +703,8 @@ find_match_from_lists (GSList *src_list, GSList *dest_list, GType conv_type)
  *
  * Lookup converter map info.
  *
- * Returns: Converter info structure or %NULL if no match.  The returned
- * pointer is internal and should not be modified or freed.
+ * Returns: (transfer none): Converter info structure or %NULL if no match.
+ * The returned pointer is internal and should not be modified or freed.
  */
 IpatchConverterInfo *
 ipatch_lookup_converter_info (GType conv_type, GType src_type, GType dest_type)
@@ -756,6 +763,10 @@ ipatch_converter_finalize (GObject *gobject)
 {
   IpatchConverter *converter = IPATCH_CONVERTER (gobject);
   GList *p;
+
+  // Call destroy notify function for link function assignment (if set)
+  if (converter->notify_func)
+    converter->notify_func (converter->user_data);
 
   p = converter->inputs;
   while (p)
@@ -902,7 +913,7 @@ ipatch_converter_add_outputs (IpatchConverter *converter, GList *objects)
  *
  * Get a single input object from a converter.
  *
- * Returns: The first input object from a converter or %NULL if
+ * Returns: (transfer full): The first input object from a converter or %NULL if
  *   no input objects. The caller owns a reference to the returned
  *   object.
  */
@@ -924,7 +935,7 @@ ipatch_converter_get_input (IpatchConverter *converter)
  *
  * Get a single output object from a converter.
  *
- * Returns: The first output object from a converter or %NULL if
+ * Returns: (transfer full): The first output object from a converter or %NULL if
  *   no output objects. The caller owns a reference to the returned
  *   object.
  */
@@ -946,7 +957,7 @@ ipatch_converter_get_output (IpatchConverter *converter)
  *
  * Get a list of input objects from a converter.
  *
- * Returns: A newly created input object list from a converter or
+ * Returns: (transfer full): A newly created input object list from a converter or
  *   %NULL if no input objects. The caller owns a reference to the
  *   returned list.
  */
@@ -979,7 +990,7 @@ ipatch_converter_get_inputs (IpatchConverter *converter)
  *
  * Get a list of output objects from a converter.
  *
- * Returns: A newly created output object list from a converter or
+ * Returns: (transfer full): A newly created output object list from a converter or
  *   %NULL if no output objects. The caller owns a reference to the
  *   returned list.
  */
@@ -1009,7 +1020,7 @@ ipatch_converter_get_outputs (IpatchConverter *converter)
 /**
  * ipatch_converter_verify:
  * @converter: Converter object
- * @failmsg: Location to store a failure message if @converter fails
+ * @failmsg: (out) (transfer full): Location to store a failure message if @converter fails
  *   verification. The stored message should be freed when no longer needed.
  *
  * Verifies the settings of a converter object. This is automatically called
@@ -1144,7 +1155,7 @@ ipatch_converter_init (IpatchConverter *converter)
 /**
  * ipatch_converter_convert:
  * @converter: Converter object
- * @err: Location to store error info or %NULL
+ * @err: (allow-none): Location to store error info or %NULL
  *
  * Runs the conversion method of a converter object. The @converter object's
  * conversion paramters are first verified before the conversion is run.
@@ -1243,10 +1254,12 @@ ipatch_converter_get_notes (IpatchConverter *converter)
   return ((klass->notes)(converter));
 }
 
+/* FIXME-GIR: @type consists of multiple flags types?  @msg can be static or dynamic. */
+
 /**
- * ipatch_converter_log:
+ * ipatch_converter_log: (skip)
  * @converter: Converter object
- * @item: Item the log entry pertains to or %NULL if not item specific
+ * @item: (allow-none): Item the log entry pertains to or %NULL if not item specific
  * @type: #IpatchConverterLogType and other flags
  * @msg: Message of the log. If message is dynamically allocated then
  *   the #IPATCH_CONVERTER_LOG_MSG_ALLOC flag should be set in @type
@@ -1272,10 +1285,12 @@ ipatch_converter_log (IpatchConverter *converter, GObject *item,
   converter->log = g_list_prepend (converter->log, entry);
 }
 
+/* FIXME-GIR: @type consists of multiple flags types? */
+
 /**
  * ipatch_converter_log_printf:
  * @converter: Converter object
- * @item: Item the log entry pertains to or %NULL if not item specific
+ * @item: (allow-none): Item the log entry pertains to or %NULL if not item specific
  * @type: #IpatchConverterLogType and other flags
  * @fmt: Printf format style string
  * @...: Arguments to @fmt message string
@@ -1309,13 +1324,13 @@ ipatch_converter_log_printf (IpatchConverter *converter, GObject *item,
 /**
  * ipatch_converter_log_next:
  * @converter: Converter object
- * @pos: Opaque current position in log, should be %NULL on first call to
+ * @pos: (out): Opaque current position in log, should be %NULL on first call to
  *   this function to return first log item (oldest item)
- * @item: Location to store item of the log entry or %NULL, no reference is
- *   added so the item is only guarenteed to exist for as long as the
+ * @item: (out) (transfer none) (allow-none): Location to store item of the log entry or %NULL,
+ *   no reference is added so the item is only guarenteed to exist for as long as the
  *   @converter does
- * @type: Location to store the type parameter of the log entry or %NULL
- * @msg: Location to store the message of the log entry or %NULL, message
+ * @type: (out) (allow-none): Location to store the type parameter of the log entry or %NULL
+ * @msg: (out) (transfer none): Location to store the message of the log entry or %NULL, message
  *   is internal and should not be messed with and is only guarenteed for
  *   the lifetime of the @converter
  *
@@ -1348,7 +1363,7 @@ ipatch_converter_log_next (IpatchConverter *converter, gpointer *pos,
 }
 
 /**
- * ipatch_converter_set_link_funcs:
+ * ipatch_converter_set_link_funcs: (skip)
  * @converter: Converter object
  * @link_lookup: Set the link lookup callback function
  * @link_notify: Set the link notify callback function
@@ -1370,7 +1385,44 @@ ipatch_converter_set_link_funcs (IpatchConverter *converter,
 				 IpatchConverterLinkNotifyFunc *link_notify)
 {
   g_return_if_fail (IPATCH_IS_CONVERTER (converter));
+  ipatch_converter_set_link_funcs_full (converter, link_lookup, link_notify, NULL, NULL);
+}
+
+/**
+ * ipatch_converter_set_link_funcs_full: (rename-to ipatch_converter_set_link_funcs)
+ * @converter: Converter object
+ * @link_lookup: (scope notified) (allow-none): Set the link lookup callback function
+ * @link_notify: (scope notified) (allow-none): Set the link notify callback function
+ * @notify_func: (scope async) (closure user_data) (allow-none): Callback which gets
+ *   called when link functions are removed.
+ * @user_data: (allow-none): User data passed to @notify_func (not @link_lookup or @link_notify)
+ *
+ * This function allows for object link interception by the user of
+ * an #IpatchConverter instance.  The callback functions are used by
+ * conversion processes which create objects linking other external
+ * objects which need to be converted.  For each link object needing
+ * conversion @link_lookup will be called.  If @link_lookup returns a valid
+ * pointer it is used as the converted link object, if %NULL is returned then
+ * the link will be converted and @link_notify will be called with the new
+ * converted item.  An example usage of this feature is
+ * the #IpatchPaste system, which does object conversions and substitutes
+ * already converted objects (a conversion pool).
+ *
+ * Since: 1.1.0
+ */
+void
+ipatch_converter_set_link_funcs_full (IpatchConverter *converter,
+                                      IpatchConverterLinkLookupFunc *link_lookup,
+                                      IpatchConverterLinkNotifyFunc *link_notify,
+                                      GDestroyNotify notify_func, gpointer user_data)
+{
+  g_return_if_fail (IPATCH_IS_CONVERTER (converter));
+
+  if (converter->notify_func)
+    converter->notify_func (converter->user_data);
 
   converter->link_lookup = link_lookup;
   converter->link_notify = link_notify;
+  converter->notify_func = notify_func;
+  converter->user_data = user_data;
 }

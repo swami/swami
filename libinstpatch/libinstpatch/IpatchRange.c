@@ -52,7 +52,11 @@ static gint ipatch_param_spec_range_values_cmp (GParamSpec *pspec,
 						const GValue *value1,
 						const GValue *value2);
 
-/* init function to register pickle XML encode/decode functions */
+/**
+ * _ipatch_range_init: (skip)
+ *
+ * Init function to register pickle XML encode/decode functions for ranges
+ */
 void
 _ipatch_range_init (void)
 {
@@ -178,9 +182,9 @@ ipatch_value_set_range (GValue *value, const IpatchRange *range)
 }
 
 /**
- * ipatch_value_set_static_range:
+ * ipatch_value_set_static_range: (skip)
  * @value: A valid GValue of IPATCH_TYPE_RANGE boxed type
- * @range: Range structure to assign to @value
+ * @range: (transfer full): Range structure to assign to @value
  *
  * Set the range values of a IPATCH_TYPE_RANGE GValue. This function uses
  * @range directly and so it should be static, use ipatch_value_set_range()
@@ -199,7 +203,7 @@ ipatch_value_set_static_range (GValue *value, IpatchRange *range)
  *
  * Get the range structure from a IPATCH_TYPE_RANGE GValue.
  *
- * Returns: #IpatchRange structure containing the range values of @value or
+ * Returns: (transfer none): #IpatchRange structure containing the range values of @value or
  * %NULL if not set. The returned structure is NOT duplicated and is the
  * same pointer used in @value.
  */
@@ -322,7 +326,7 @@ ipatch_param_spec_range_values_cmp (GParamSpec *pspec, const GValue *value1,
  *
  * Create a parameter specification for IPATCH_TYPE_RANGE GValues.
  *
- * Returns: New range parameter specification.
+ * Returns: (transfer full): New range parameter specification.
  */
 GParamSpec *
 ipatch_param_spec_range (const char *name, const char *nick, const char *blurb,

@@ -68,6 +68,7 @@ void ipatch_type_set_valist (GType type, const char *first_property_name,
 			     va_list args);
 void ipatch_type_set_property (GType type, const char *property_name,
 			       const GValue *value);
+void ipatch_type_unset_property (GType type, const char *property_name);
 void ipatch_type_get (GType type, const char *first_property_name, ...);
 void ipatch_type_get_valist (GType type, const char *first_property_name,
 			     va_list args);
@@ -82,6 +83,9 @@ void ipatch_type_object_get_property (GObject *object,
 				      const char *property_name, GValue *value);
 void ipatch_type_set_dynamic_func (GType type, const char *property_name,
 				   IpatchTypePropGetFunc func);
+void ipatch_type_set_dynamic_func_full (GType type, const char *property_name,
+			                IpatchTypePropGetFunc func,
+                                        GDestroyNotify notify_func, gpointer user_data);
 IpatchTypePropGetFunc ipatch_type_get_dynamic_func (GType type,
 						    const char *property_name);
 #endif

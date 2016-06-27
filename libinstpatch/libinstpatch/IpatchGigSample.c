@@ -169,7 +169,7 @@ ipatch_gig_sample_new (void)
 }
 
 /**
- * ipatch_gig_sample_first:
+ * ipatch_gig_sample_first: (skip)
  * @iter: Patch item iterator containing #IpatchGigSample items
  *
  * Gets the first item in a GigaSampler sample iterator. A convenience
@@ -189,7 +189,7 @@ ipatch_gig_sample_first (IpatchIter *iter)
 }
 
 /**
- * ipatch_gig_sample_next:
+ * ipatch_gig_sample_next: (skip)
  * @iter: Patch item iterator containing #IpatchGigSample items
  *
  * Gets the next item in a GigaSampler sample iterator. A convenience

@@ -251,7 +251,7 @@ ipatch_sf2_zone_item_remove_full (IpatchItem *item, gboolean full)
 }
 
 /**
- * ipatch_sf2_zone_first:
+ * ipatch_sf2_zone_first: (skip)
  * @iter: Patch item iterator containing #IpatchSF2Zone items
  *
  * Gets the first item in a zone iterator. A convenience
@@ -271,7 +271,7 @@ ipatch_sf2_zone_first (IpatchIter *iter)
 }
 
 /**
- * ipatch_sf2_zone_next:
+ * ipatch_sf2_zone_next: (skip)
  * @iter: Patch item iterator containing #IpatchSF2Zone items
  *
  * Gets the next item in a zone iterator. A convenience wrapper
@@ -395,7 +395,7 @@ ipatch_sf2_zone_link_item_title_notify (IpatchItemPropNotify *info)
  * checking. The returned item's reference count is incremented and the caller
  * is responsible for unrefing it with g_object_unref().
  *
- * Returns: Zone's referenced item or %NULL if global zone. Remember to
+ * Returns: (transfer full): Zone's referenced item or %NULL if global zone. Remember to
  * unreference the item with g_object_unref() when done with it.
  */
 IpatchItem *
@@ -414,7 +414,7 @@ ipatch_sf2_zone_get_link_item (IpatchSF2Zone *zone)
 }
 
 /**
- * ipatch_sf2_zone_peek_link_item:
+ * ipatch_sf2_zone_peek_link_item: (skip)
  * @zone: Zone to get referenced item of
  *
  * Like ipatch_sf2_zone_get_link_item() but does not add a reference to

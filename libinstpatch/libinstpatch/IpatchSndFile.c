@@ -181,13 +181,13 @@ ipatch_snd_file_new (void)
 
 /**
  * ipatch_snd_file_format_get_sub_formats:
- * @format: "IpatchSndFileFormat" GEnum to get sub formats of
- * @size: Location to store size of returned sub formats array
+ * @format: (type IpatchSndFileFormat): "IpatchSndFileFormat" GEnum to get sub formats of
+ * @size: (out): Location to store size of returned sub formats array
  *
  * Get supported sub formats of a given libsndfile format.
  *
- * Returns: Newly allocated list of sub format enum values or %NULL if @format
- *   is invalid
+ * Returns: (array length=size): Newly allocated list of sub format
+ *   enum values or %NULL if @format is invalid
  */
 int *
 ipatch_snd_file_format_get_sub_formats (int format, guint *size)
@@ -223,6 +223,8 @@ ipatch_snd_file_format_get_sub_formats (int format, guint *size)
 
   return ((int *)g_array_free (array, FALSE)); /* !! caller takes over alloc */
 }
+
+/* FIXME-GIR: @file_format accepts -1 as well! */
 
 /**
  * ipatch_snd_file_sample_format_to_sub_format:

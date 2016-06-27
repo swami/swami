@@ -171,5 +171,5 @@ void ipatch_sli_inst_new_zone (IpatchSLIInst *inst, IpatchSLISample *sample);
 void ipatch_sli_inst_set_name (IpatchSLIInst *inst, const char *name);
 char *ipatch_sli_inst_get_name (IpatchSLIInst *inst);
 
-gchar *ipatch_sli_inst_get_category_as_path (IpatchSLIInst *inst);
+char *ipatch_sli_inst_get_category_as_path (IpatchSLIInst *inst);
 #endif

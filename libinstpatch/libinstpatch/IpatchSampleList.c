@@ -50,6 +50,18 @@ ipatch_sample_list_get_type (void)
   return (type);
 }
 
+GType
+ipatch_sample_list_item_get_type (void)
+{
+  static GType type = 0;
+
+  if (!type)
+    type = g_boxed_type_register_static ("IpatchSampleListItem",
+                                (GBoxedCopyFunc)ipatch_sample_list_item_duplicate,
+                                (GBoxedFreeFunc)ipatch_sample_list_item_free);
+  return (type);
+}
+
 /**
  * ipatch_sample_list_new:
  *
@@ -440,20 +452,22 @@ list_item_free_next (IpatchSampleList *list, GList *itemp)
 }
 
 /**
- * ipatch_sample_list_render:
+ * ipatch_sample_list_render: (skip)
  * @list: Sample list
- * @buf: Buffer to store the rendered audio to (should be @size * bytes_per_frame)
+ * @buf: Buffer to store the rendered audio to (should be @frames * bytes_per_frame)
  * @pos: Position in sample list audio to start from, in frames
- * @size: Size of sample data to render in frames
+ * @frames: Size of sample data to render in frames
  * @format: Sample format to render to (must be mono)
- * @err: Location to store error to or %NULL to ignore
+ * @err: (allow-none): Location to store error to or %NULL to ignore
  *
  * Copies sample data from a sample list, converting as necessary and storing
  * to @buf.
+ *
+ * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set).
  */
 gboolean
 ipatch_sample_list_render (IpatchSampleList *list, gpointer buf,
-                           guint pos, guint size, int format, GError **err)
+                           guint pos, guint frames, int format, GError **err)
 {
   IpatchSampleListItem *item = NULL;
   guint startofs, block, format_size;
@@ -461,7 +475,7 @@ ipatch_sample_list_render (IpatchSampleList *list, gpointer buf,
 
   g_return_val_if_fail (list != NULL, FALSE);
   g_return_val_if_fail (ipatch_sample_format_verify (format), FALSE);
-  g_return_val_if_fail (pos + size <= list->total_size, FALSE);
+  g_return_val_if_fail (pos + frames <= list->total_size, FALSE);
   g_return_val_if_fail (buf != NULL, FALSE);
   g_return_val_if_fail (IPATCH_SAMPLE_FORMAT_GET_CHANNEL_COUNT (format) == 1, FALSE);
   g_return_val_if_fail (!err || !*err, FALSE);
@@ -479,9 +493,9 @@ ipatch_sample_list_render (IpatchSampleList *list, gpointer buf,
   block = item->size - (pos - startofs);	/* remaining size of segment */
   format_size = ipatch_sample_format_size (format);
 
-  while (size > 0 && p)
+  while (frames > 0 && p)
   {
-    if (block > size) block = size;
+    if (block > frames) block = frames;
 
     /* Read sample data and transform (if necessary) */
     if (!ipatch_sample_read_transform
@@ -490,7 +504,7 @@ ipatch_sample_list_render (IpatchSampleList *list, gpointer buf,
       return (FALSE);
 
     buf += block * format_size;
-    size -= block;
+    frames -= block;
 
     p = p->next;
 
@@ -503,13 +517,56 @@ ipatch_sample_list_render (IpatchSampleList *list, gpointer buf,
     }
   }
 
-  g_return_val_if_fail (size == 0, FALSE);	/* means total_size is out of sync! */
+  g_return_val_if_fail (frames == 0, FALSE);	/* means total_size is out of sync! */
 
   return (TRUE);
 }
 
+/**
+ * ipatch_sample_list_render_alloc: (rename-to ipatch_sample_list_render)
+ * @list: Sample list
+ * @pos: Position in sample list audio to start from, in frames
+ * @size: Size of sample data to render in bytes (must be a multiple of frame size)
+ * @format: Sample format to render to (must be mono)
+ * @err: (allow-none): Location to store error to or %NULL to ignore
+ *
+ * Copies sample data from a sample list, converting as necessary and returning
+ * an allocated buffer.
+ *
+ * Returns: (array length=size) (element-type guint8) (transfer full): Buffer containing
+ *   rendered audio of the requested @format or %NULL on error (in which case @err may be set)
+ *
+ * Since: 1.1.0
+ */
+gpointer
+ipatch_sample_list_render_alloc (IpatchSampleList *list, guint pos, guint size,
+                                 int format, GError **err)
+{
+  gpointer buf;
+  int frame_size;
+
+  g_return_val_if_fail (size > 0, NULL);
+
+  frame_size = ipatch_sample_format_size (format);
+  g_return_val_if_fail (size % frame_size == 0, NULL);
+
+  buf = g_malloc (size);        // ++ alloc
+
+  if (!ipatch_sample_list_render (list, buf, pos, size / frame_size, format, err))
+  {
+    g_free (buf);               // -- free
+    return (NULL);
+  }
+
+  return (buf);                 // !! caller takes over buffer
+}
+
 #ifdef IPATCH_DEBUG
-/* For debugging purposes, dumps sample list info to stdout. */
+/**
+ * ipatch_sample_list_dump: (skip)
+ *
+ * For debugging purposes, dumps sample list info to stdout.
+ */
 void
 ipatch_sample_list_dump (IpatchSampleList *list)
 {

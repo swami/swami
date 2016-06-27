@@ -36,7 +36,7 @@ _ipatch_file_write_no_pos_update (IpatchFileHandle *handle, gconstpointer buf,
 
 /**
  * ipatch_file_read_u8:
- * @file: File to read from
+ * @handle: File handle
  * @val: Location to store value
  * @err: Location to store error info or %NULL
  *
@@ -346,7 +346,7 @@ ipatch_file_write_s64 (IpatchFileHandle *handle, gint64 val, GError **err)
 
 /**
  * ipatch_file_buf_load:
- * @filebuf: Initialized file buffer structure
+ * @handle: File handle
  * @size: Size of data to load
  * @err: Location to store error info or %NULL
  *

@@ -258,7 +258,7 @@ ipatch_sf2_writer_set_file_handle (IpatchSF2Writer *writer,
 /**
  * ipatch_sf2_writer_save:
  * @writer: SoundFont writer object
- * @err: Location to store error info or %NULL
+ * @err: (allow-none): Location to store error info or %NULL
  *
  * Write a SoundFont object to a file.
  *
@@ -322,7 +322,7 @@ ipatch_sf2_writer_save (IpatchSF2Writer *writer, GError **err)
  * Create sample stores and add them to applicable #IpatchSampleData objects and return object list.
  * This function can be called multiple times, additional calls will return the same list.
  *
- * Returns: List of sample stores which the caller owns a reference to or %NULL
+ * Returns: (transfer full): List of sample stores which the caller owns a reference to or %NULL
  *
  * Since: 1.1.0
  */
@@ -398,7 +398,7 @@ ipatch_sf2_writer_create_stores (IpatchSF2Writer *writer)
 }
 
 /**
- * ipatch_sf2_write_phdr:
+ * ipatch_sf2_write_phdr: (skip)
  * @handle: File handle to buffer writes to, commit after calling this function
  * @phdr: Preset header structure to store
  *
@@ -420,7 +420,7 @@ ipatch_sf2_write_phdr (IpatchFileHandle *handle, const IpatchSF2Phdr *phdr)
 }
 
 /**
- * ipatch_sf2_write_ihdr:
+ * ipatch_sf2_write_ihdr: (skip)
  * @handle: File handle to buffer writes to, commit after calling this function
  * @ihdr: Instrument header structure to store
  *
@@ -437,7 +437,7 @@ ipatch_sf2_write_ihdr (IpatchFileHandle *handle, const IpatchSF2Ihdr *ihdr)
 }
 
 /**
- * ipatch_sf2_write_shdr:
+ * ipatch_sf2_write_shdr: (skip)
  * @handle: File handle to buffer writes to, commit after calling this function
  * @shdr: Sample header structure to store
  *
@@ -462,7 +462,7 @@ ipatch_sf2_write_shdr (IpatchFileHandle *handle, const IpatchSF2Shdr *shdr)
 }
 
 /**
- * ipatch_sf2_write_bag:
+ * ipatch_sf2_write_bag: (skip)
  * @handle: File handle to buffer writes to, commit after calling this function
  * @bag: Bag structure to store
  *
@@ -479,7 +479,7 @@ ipatch_sf2_write_bag (IpatchFileHandle *handle, const IpatchSF2Bag *bag)
 }
 
 /**
- * ipatch_sf2_write_mod:
+ * ipatch_sf2_write_mod: (skip)
  * @handle: File handle to buffer writes to, commit after calling this function
  * @mod: Modulator structure to store
  *
@@ -499,7 +499,7 @@ ipatch_sf2_write_mod (IpatchFileHandle *handle, const IpatchSF2Mod *mod)
 }
 
 /**
- * ipatch_sf2_write_gen:
+ * ipatch_sf2_write_gen: (skip)
  * @handle: File handle to buffer writes to, commit after calling this function
  * @genid: ID of generator to store
  * @amount: Generator amount to store

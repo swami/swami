@@ -325,7 +325,8 @@ ipatch_sample_store_virtual_sample_iface_read (IpatchSampleHandle *handle,
  *
  * Creates a new virtual sample store.
  *
- * Returns: New virtual sample store, cast as a #IpatchSample for convenience.
+ * Returns: (type IpatchSampleStoreVirtual): New virtual sample store, cast
+ *   as a #IpatchSample for convenience.
  */
 IpatchSample *
 ipatch_sample_store_virtual_new (void)
@@ -341,7 +342,7 @@ ipatch_sample_store_virtual_new (void)
  *
  * Gets a sample list from a virtual sample store.
  *
- * Returns: The sample list for the corresponding channel or %NULL if not
+ * Returns: (transfer none): The sample list for the corresponding channel or %NULL if not
  *   assigned.  The list is internal and should not be modified or freed and
  *   should be used only as long as @store.
  */
@@ -368,7 +369,7 @@ ipatch_sample_store_virtual_get_list (IpatchSampleStoreVirtual *store, guint cha
  * @store: Virtual store to set sample list of
  * @chan: Which channel to set sample list of (0 = mono or left stereo channel,
  *   1 = right stereo channel).
- * @list: List to assign to virtual store.  The allocation is taken over by
+ * @list: (transfer full): List to assign to virtual store.  The allocation is taken over by
  *   the virtual store (if caller would like to continue using it beyond the
  *   life of @store or modify it, it should be duplicated).
  *

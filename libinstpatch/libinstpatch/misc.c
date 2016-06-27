@@ -209,6 +209,9 @@ ipatch_init (void)
   g_type_class_ref (IPATCH_TYPE_SF2_READER);
   ipatch_sf2_mod_get_type ();
   ipatch_sf2_mod_list_get_type ();
+  ipatch_sample_transform_get_type ();
+  ipatch_sample_list_get_type ();
+  ipatch_sample_list_item_get_type ();
   g_type_class_ref (IPATCH_TYPE_SF2_PRESET);
   g_type_class_ref (IPATCH_TYPE_SF2_PZONE);
   g_type_class_ref (IPATCH_TYPE_SF2_SAMPLE);
@@ -536,9 +539,9 @@ ipatch_set_application_name (const char *name)
 
 /**
  * ipatch_version:
- * @major: Pointer to store major version or %NULL
- * @minor: Pointer to store minor version or %NULL
- * @micro: Pointer to store micro version or %NULL
+ * @major: (out) (allow-none): Pointer to store major version or %NULL
+ * @minor: (out) (allow-none): Pointer to store minor version or %NULL
+ * @micro: (out) (allow-none): Pointer to store micro version or %NULL
  *
  * Fetch the runtime version of the libInstPatch library.
  */
@@ -561,6 +564,9 @@ ipatch_error_quark (void)
   return (q);
 }
 
+/**
+ * _ret_g_log: (skip)
+ */
 int
 _ret_g_log (const gchar *log_domain, GLogLevelFlags log_level,
 	    const gchar *format, ...)
@@ -574,8 +580,8 @@ _ret_g_log (const gchar *log_domain, GLogLevelFlags log_level,
 }
 
 /**
- * ipatch_gerror_message:
- * @err: A GError object or %NULL
+ * ipatch_gerror_message: (skip)
+ * @err:  A GError object or %NULL
  *
  * A utility function to check if a GError is set and return the
  * GError's message field if it is, or a string explaining that there
@@ -589,7 +595,11 @@ ipatch_gerror_message (GError *err)
   return ((err) ? (err)->message : _("<No detailed error information>"));
 }
 
-/* internal function used by ipatch_code_error macros */
+/**
+ * _ipatch_code_error: (skip)
+ *
+ * Internal function used by ipatch_code_error macros
+ */
 void
 _ipatch_code_error (const char *file, guint line, const char *func,
 		    GError **err, const char *format, ...)
@@ -600,7 +610,11 @@ _ipatch_code_error (const char *file, guint line, const char *func,
   va_end (args);
 }
 
-/* internal function used by ipatch_code_error macros */
+/**
+ * _ipatch_code_errorv: (skip)
+ *
+ * Internal function used by ipatch_code_error macros
+ */
 void
 _ipatch_code_errorv (const char *file, guint line, const char *func,
 		     GError **err, const char *format, va_list args)
@@ -624,7 +638,7 @@ _ipatch_code_errorv (const char *file, guint line, const char *func,
 }
 
 /**
- * ipatch_strconcat_num:
+ * ipatch_strconcat_num: (skip)
  * @src: Source string
  * @num: Number to concatenate
  * @dest: Destination buffer
@@ -660,7 +674,7 @@ ipatch_strconcat_num (const char *src, int num, char *dest, int size)
 }
 
 /**
- * ipatch_dump_object:
+ * ipatch_dump_object: (skip)
  * @object: Object to dump
  * @recursive: Set to %TRUE to recurse the @object children (if its a
  *   #IpatchContainer derived object).

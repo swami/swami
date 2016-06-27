@@ -33,6 +33,9 @@
 #include "IpatchSF2VoiceCache.h"
 #include "IpatchSample.h"
 
+/**
+ * _ipatch_sf2_voice_cache_init_DLS: (skip)
+ */
 void
 _ipatch_sf2_voice_cache_init_DLS (void)
 {
@@ -156,8 +159,12 @@ _dls2_inst_to_sf2_voice_cache_convert (IpatchConverter *converter, GError **err)
 #define _dls2_region_to_sf2_voice_cache_convert \
     _dls2_inst_to_sf2_voice_cache_convert
 
-/* DLS2Sample voice cache converter - Not declared static, since used by
-   IpatchSF2VoiceCache_Gig.c */ 
+/**
+ * _dls2_sample_to_sf2_voice_cache_convert: (skip)
+ *
+ * DLS2Sample voice cache converter - Not declared static, since used by
+ * IpatchSF2VoiceCache_Gig.c
+ */ 
 gboolean
 _dls2_sample_to_sf2_voice_cache_convert (IpatchConverter *converter,
                                          GError **err)

@@ -207,7 +207,7 @@ ipatch_sli_writer_set_patch (IpatchSLIWriter *writer, IpatchSLI *sli)
 /**
  * ipatch_sli_writer_set_file_handle:
  * @writer: SLI writer object
- * @handle: SLI file handle
+ * @handle: (allow-none): SLI file handle or %NULL to clear
  *
  * Set the SLI file handle of an SLI writer.
  */
@@ -226,7 +226,7 @@ ipatch_sli_writer_set_file_handle (IpatchSLIWriter *writer, IpatchFileHandle *ha
 /**
  * ipatch_sli_writer_save:
  * @writer: SLI writer object
- * @err: Location to store error info or %NULL
+ * @err: (allow-none): Location to store error info or %NULL
  *
  * Write an SLI object to a file.
  *
@@ -308,7 +308,7 @@ end:
  * Create sample stores and add them to applicable #IpatchSampleData objects and return object list.
  * This function can be called multiple times, additional calls will return the same list.
  *
- * Returns: List of sample stores which the caller owns a reference to or %NULL
+ * Returns: (transfer full): List of sample stores which the caller owns a reference to or %NULL
  */
 IpatchList *
 ipatch_sli_writer_create_stores (IpatchSLIWriter *writer)

@@ -160,11 +160,13 @@ ipatch_sf2_voice_cache_finalize (GObject *gobject)
     G_OBJECT_CLASS (parent_class)->finalize (gobject);
 }
 
+/* FIXME-GIR: Voice cache interface isn't currently binding friendly */
+
 /**
- * ipatch_sf2_voice_cache_new:
- * @info: Array of selection info structures (length should be @sel_count), use
+ * ipatch_sf2_voice_cache_new: (skip)
+ * @info: (allow-none): Array of selection info structures (length should be @sel_count), use
  *   %NULL for default selection info (MIDI note and velocity)
- * @sel_count: Count of selection ranges for this cache (ignored if @info is
+ * @sel_count: (allow-none): Count of selection ranges for this cache (ignored if @info is
  *   %NULL)
  *
  * Create a new SoundFont voice cache object.  The @sel_count parameter
@@ -196,7 +198,7 @@ ipatch_sf2_voice_cache_new (IpatchSF2VoiceSelInfo *info, int sel_count)
 }
 
 /**
- * ipatch_sf2_voice_cache_set_default_mods:
+ * ipatch_sf2_voice_cache_set_default_mods: (skip)
  * @cache: Voice cache
  * @mods: (element-type IpatchSF2Mod) (transfer full): SoundFont modulator list
  *   to use as default (used directly)
@@ -217,7 +219,7 @@ ipatch_sf2_voice_cache_set_default_mods (IpatchSF2VoiceCache *cache,
 }
 
 /**
- * ipatch_sf2_voice_cache_set_override_mods:
+ * ipatch_sf2_voice_cache_set_override_mods: (skip)
  * @cache: Voice cache
  * @mods: (element-type IpatchSF2Mod) (transfer full): SoundFont modulator list
  *   which overrides rendered voice modulators (used directly)
@@ -240,12 +242,12 @@ ipatch_sf2_voice_cache_set_override_mods (IpatchSF2VoiceCache *cache,
 }
 
 /**
- * ipatch_sf2_voice_cache_add_voice:
+ * ipatch_sf2_voice_cache_add_voice: (skip)
  * @cache: Voice cache to create voice for
  * 
  * Adds a new initialized voice to a SoundFont voice cache.
  * 
- * Returns: Newly allocated and initialized SoundFont voice structure.
+ * Returns: (transfer none): Pointer to new voice which is owned by the @cache.
  * The sample pointer is set to NULL, generator array is initialized to default
  * absolute unset values, selection ranges are set to G_MININT-G_MAXINT and
  * all other fields are initialized to defaults.
@@ -285,7 +287,7 @@ ipatch_sf2_voice_cache_add_voice (IpatchSF2VoiceCache *cache)
 }
 
 /**
- * ipatch_sf2_voice_cache_set_voice_range:
+ * ipatch_sf2_voice_cache_set_voice_range: (skip)
  * @cache: Voice cache object
  * @voice: Voice pointer in cache
  * @sel_index: Selection index
@@ -313,10 +315,9 @@ ipatch_sf2_voice_cache_set_voice_range (IpatchSF2VoiceCache *cache,
 }
 
 /**
- * ipatch_sf2_voice_set_sample_data:
+ * ipatch_sf2_voice_set_sample_data: (skip)
  * @voice: SoundFont voice structure
  * @sample_data: Sample data to assign to voice
- * @err: Location to store error info or %NULL to ignore
  * 
  * Assign sample data to a SoundFont voice.
  */
@@ -334,9 +335,9 @@ ipatch_sf2_voice_set_sample_data (IpatchSF2Voice *voice, IpatchSampleData *sampl
 }
 
 /**
- * ipatch_sf2_voice_cache_sample_data:
+ * ipatch_sf2_voice_cache_sample_data: (skip)
  * @voice: SoundFont voice structure
- * @err: Location to store error info or %NULL to ignore
+ * @err: (allow-none): Location to store error info or %NULL to ignore
  * 
  * Cache an already assigned sample data object of a voice.  The sample data is
  * cached as 16 bit mono native endian format, if not already cached, and the
@@ -363,7 +364,7 @@ ipatch_sf2_voice_cache_sample_data (IpatchSF2Voice *voice, GError **err)
 }
 
 /**
- * ipatch_sf2_voice_copy:
+ * ipatch_sf2_voice_copy: (skip)
  * @dest: Destination voice to copy to (initialized to 0s or already valid)
  * @src: Source voice to copy from
  *
@@ -399,7 +400,7 @@ ipatch_sf2_voice_copy (IpatchSF2Voice *dest, IpatchSF2Voice *src)
 }
 
 /**
- * ipatch_sf2_voice_cache_optimize:
+ * ipatch_sf2_voice_cache_optimize: (skip)
  * @cache: SoundFont voice cache
  * 
  * Can be called after all voices have been added to a voice cache.
@@ -413,7 +414,7 @@ ipatch_sf2_voice_cache_optimize (IpatchSF2VoiceCache *cache)
 }
 
 /**
- * ipatch_sf2_voice_cache_select:
+ * ipatch_sf2_voice_cache_select: (skip)
  * @cache: SoundFont voice cache
  * @select_values: Array of select values which must be the same length as
  *   the voice cache was initialized with.  Each selection value is tested
@@ -481,7 +482,7 @@ ipatch_sf2_voice_cache_select (IpatchSF2VoiceCache *cache, int *select_values,
 }
 
 /**
- * ipatch_sf2_voice_cache_updates:
+ * ipatch_sf2_voice_cache_updates: (skip)
  * @cache: Voice cache to get updates for
  * @select_values: The voice selection criteria to use, should be the same
  *   number of select values as in @cache
@@ -526,9 +527,14 @@ ipatch_sf2_voice_cache_update (IpatchSF2VoiceCache *cache,
 		  updates, max_updates);
 }
 
-/* Debugging function to dump a voice cache to stdout */
+#ifdef IPATCH_DEBUG
+/**
+ * ipatch_sf2_voice_cache_dump: (skip)
+ *
+ * Debugging function to dump a voice cache to stdout
+ */
 void
-_ipatch_sf2_voice_cache_dump (IpatchSF2VoiceCache *cache, int start, int count)
+ipatch_sf2_voice_cache_dump (IpatchSF2VoiceCache *cache, int start, int count)
 {
   IpatchSF2Voice *voice;
   char *selnames[] = { "Note", "Vel", "AftTch", "CC" };
@@ -582,8 +588,11 @@ _ipatch_sf2_voice_cache_dump (IpatchSF2VoiceCache *cache, int start, int count)
   }
 }
 
+/**
+ * ipatch_sf2_voice_cache_dump_select: (skip)
+ */
 void
-_ipatch_sf2_voice_cache_dump_select (IpatchSF2VoiceCache *cache, ...)
+ipatch_sf2_voice_cache_dump_select (IpatchSF2VoiceCache *cache, ...)
 {
   IpatchSF2Voice *voice;
   va_list args;
@@ -625,3 +634,4 @@ _ipatch_sf2_voice_cache_dump_select (IpatchSF2VoiceCache *cache, ...)
     printf ("\n");
   }
 }
+#endif

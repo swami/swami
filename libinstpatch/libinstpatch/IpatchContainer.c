@@ -121,7 +121,7 @@ ipatch_container_item_remove_full (IpatchItem *item, gboolean full)
  * performance is an issue, ipatch_container_init_iter() can be used instead,
  * although it requires locking of the container object.
  *
- * Returns: New object list containing all matching items (an empty
+ * Returns: (transfer full): New object list containing all matching items (an empty
  * list if no items matched). The caller owns a reference to the
  * object list and removing the reference will destroy it.
  */
@@ -170,8 +170,8 @@ ipatch_container_get_children (IpatchContainer *container, GType type)
  * Get an array of child types for a container object. The number of types
  * is the number of individual lists the container has.
  *
- * Returns: Pointer to a zero terminated array of types. Array is
- * static and should not be modified or freed.
+ * Returns: (array zero-terminated=1) (transfer none): Pointer to a zero
+ * terminated array of types. Array is static and should not be modified or freed.
  */
 const GType *
 ipatch_container_get_child_types (IpatchContainer *container)
@@ -198,8 +198,9 @@ ipatch_container_get_child_types (IpatchContainer *container)
  * "virtual-parent-type" type property (ipatch_type_get() or
  * ipatch_type_object_get()).
  *
- * Returns: Pointer to a zero terminated array of types or %NULL if no virtual
- * types for @container. Array is static and should not be modified or freed.
+ * Returns: (array zero-terminated=1) (transfer none): Pointer to a zero
+ * terminated array of types or %NULL if no virtual types for @container.
+ * Array is static and should not be modified or freed.
  */
 const GType *
 ipatch_container_get_virtual_types (IpatchContainer *container)
@@ -224,8 +225,8 @@ ipatch_container_get_virtual_types (IpatchContainer *container)
  * ipatch_container_get_child_types() but takes a container GType instead of
  * a container object.
  *
- * Returns: Pointer to a zero terminated array of types. Array is
- * static and should not be modified or freed.
+ * Returns: (array zero-terminated=1) (transfer none): Pointer to a zero
+ * terminated array of types. Array is static and should not be modified or freed.
  */
 const GType *
 ipatch_container_type_get_child_types (GType container_type)
@@ -492,7 +493,7 @@ ipatch_container_add_unique (IpatchContainer *container, IpatchItem *item)
 /**
  * ipatch_container_init_iter:
  * @container: Container object
- * @iter: Iterator structure to initialize
+ * @iter: (out): Iterator structure to initialize
  * @type: Container child type list to initialize @iter to
  *
  * Initialize an iterator structure to a child list of the specified
@@ -527,7 +528,7 @@ ipatch_container_init_iter (IpatchContainer *container, IpatchIter *iter,
  * ipatch_container_insert_iter:
  * @container: Container object
  * @item: Patch item to insert
- * @iter: Iterator marking position to insert after (%NULL position to
+ * @iter: (allow-none): Iterator marking position to insert after (%NULL position to
  *   prepend).  Iterator is advanced after insert to point to new
  *   inserted item. Note that this makes appending multiple items rather
  *   fast.

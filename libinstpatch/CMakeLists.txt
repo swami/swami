@@ -41,6 +41,7 @@ option ( GTKDOC_ENABLED "Create Gtk-Doc API reference (default=no)" off )
 
 # Options enabled by default
 option ( BUILD_SHARED_LIBS "Build a shared object or DLL" on )
+option ( INTROSPECTION_ENABLED "Create GObject Introspection typelib" on )
 
 # Initialize the library directory name suffix.
 if ( CMAKE_SIZEOF_VOID_P EQUAL 8 )
@@ -121,6 +122,11 @@ include ( UnsetPkgConfig )
 # Check for libsndfile
 pkg_check_modules ( SNDFILE REQUIRED sndfile>=1.0.0 )
 
+# Check for GObjectIntrospection binding
+if (INTROSPECTION_ENABLED)
+  include (FindGObjectIntrospection)
+endif ()
+
 # Check for Gtk-Doc
 if (GTKDOC_ENABLED)
   include (FindGtkDoc)
@@ -163,15 +169,6 @@ add_subdirectory ( libinstpatch )
 add_subdirectory ( utils )
 add_subdirectory ( docs )
 
-unset ( PYGOBJECT_FOUND )
-if (BUILD_PYTHON_BINDING)
-    pkg_check_modules ( PYGOBJECT pygobject-2.0 )
-
-    if ( PYGOBJECT_FOUND )
-        add_subdirectory ( python )
-    endif ( PYGOBJECT_FOUND )
-endif (BUILD_PYTHON_BINDING)
-
 # CPack support 
 set ( CPACK_PACKAGE_DESCRIPTION_SUMMARY "libInstPatch instrument editing library" )
 set ( CPACK_PACKAGE_VENDOR "swami.sourceforge.net" )
@@ -202,6 +199,12 @@ if ( ENABLE_DEBUG )
 else ( ENABLE_DEBUG )
   message ( "Debug:                 no" )
 endif ( ENABLE_DEBUG )
+
+if (INTROSPECTION_FOUND)
+  message ( "GObjectIntrospection:  yes" ) 
+else (INTROSPECTION_FOUND)
+  message ( "GObjectIntrospection:  no" ) 
+endif(INTROSPECTION_FOUND)
 
 if (GTKDOC_FOUND)
   message ( "Gtk-Doc API reference: yes" ) 

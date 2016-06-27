@@ -50,6 +50,8 @@ typedef struct
 {
   GValue value;			/* a static assigned value (or NULL) */
   IpatchTypePropGetFunc func;	/* a dynamic prop function (or NULL) */
+  GDestroyNotify notify_func;
+  gpointer user_data;
 } TypePropValueVal;
 
 static guint type_prop_value_GHashFunc (gconstpointer key);
@@ -58,8 +60,10 @@ static void type_prop_value_destroy (gpointer user_data);
 
 static void type_list_properties_GHFunc (gpointer key, gpointer value,
 					 gpointer user_data);
-static void type_set_property (GType type, GParamSpec *prop_spec,
-			       const GValue *value, IpatchTypePropGetFunc func);
+static void
+type_set_property (GType type, GParamSpec *prop_spec, const GValue *value,
+		   IpatchTypePropGetFunc func, GDestroyNotify notify_func,
+                   gpointer user_data);
 static void type_get_property (GType type, GParamSpec *prop_spec,
 			       GValue *value, GObject *object);
 
@@ -73,7 +77,11 @@ static GHashTable *type_prop_hash = NULL;
 /* hash of all GType property values (GType:GParamSpec -> GValue) */
 static GHashTable *type_prop_value_hash = NULL;
 
-/* initialize GType property system */
+/**
+ * _ipatch_type_prop_init: (skip)
+ *
+ * Initialize GType property system
+ */
 void
 _ipatch_type_prop_init (void)
 {
@@ -175,12 +183,15 @@ type_prop_value_destroy (gpointer user_data)
   TypePropValueVal *val = (TypePropValueVal *)user_data;
 
   g_value_unset (&val->value);
-  g_free (val);
+
+  if (val->notify_func) val->notify_func (val->user_data);
+
+  g_slice_free (TypePropValueVal, val);
 }
 
 /**
  * ipatch_type_install_property:
- * @prop_spec: Specification for the new #GType property.  Ownership
+ * @prop_spec: (transfer full): Specification for the new #GType property.  Ownership
  *   of the GParamSpec is taken over by this function.  The name field of
  *   the GParamSpec should be a static string and is used as the property's
  *   ID.
@@ -213,7 +224,7 @@ ipatch_type_install_property (GParamSpec *prop_spec)
  * 
  * Lookup a GType property by name.
  * 
- * Returns: The matching GParamSpec or %NULL if not found.  The GParamSpec is
+ * Returns: (transfer none): The matching GParamSpec or %NULL if not found.  The GParamSpec is
  *   internal and should NOT be modified or freed.
  */
 GParamSpec *
@@ -236,11 +247,12 @@ ipatch_type_find_property (const char *name)
 
 /**
  * ipatch_type_list_properties:
- * @n_properties: Output: Length of returned array
+ * @n_properties: (out): Length of returned array
  * 
  * Get a list of all registered GType properties.
  * 
- * Returns: An array of GParamSpecs which should be freed when finished.
+ * Returns: (array length=n_properties) (transfer container): An array of GParamSpecs
+ *   which should be freed when finished (only the array, not the GParamSpecs themselves)
  */
 GParamSpec **
 ipatch_type_list_properties (guint *n_properties)
@@ -270,14 +282,16 @@ type_list_properties_GHFunc (gpointer key, gpointer value, gpointer user_data)
 /**
  * ipatch_type_find_types_with_property:
  * @name: Name of type property
- * @value: Optional value to match to type property values (%NULL to match any value)
- * @n_types: Location to store count of types in returned array or %NULL to ignore
+ * @value: (allow-none): Optional value to match to type property values
+ *   (%NULL to match any value)
+ * @n_types: (out) (allow-none): Location to store count of types in returned
+ *   array or %NULL to ignore
  *
  * Get an array of types which have the given type property assigned and match
  * @value (optional, %NULL matches any value).
  *
- * Returns: Newly allocated 0 terminated array of types which have the named
- *   property set or %NULL if type property not found.
+ * Returns: (array length=n_types): Newly allocated 0 terminated array of types
+ *   which have the named property set or %NULL if type property not found.
  */
 GType *
 ipatch_type_find_types_with_property (const char *name, const GValue *value,
@@ -371,7 +385,7 @@ ipatch_type_find_types_with_property (const char *name, const GValue *value,
  * ipatch_type_set:
  * @type: GType to set properties of
  * @first_property_name: Name of first property to set
- * @Varargs: Value of first property to set and optionally followed by more
+ * @...: Value of first property to set and optionally followed by more
  *   property name/value pairs, terminated with %NULL name.
  * 
  * Set GType properties.  GType properties are used to associate arbitrary
@@ -440,7 +454,7 @@ ipatch_type_set_valist (GType type, const char *first_property_name,
 	  break;
 	}
 
-      type_set_property (type, prop_spec, &value, NULL);
+      type_set_property (type, prop_spec, &value, NULL, NULL, NULL);
 
       g_value_unset (&value);
       name = va_arg (args, char *);
@@ -490,14 +504,15 @@ ipatch_type_set_property (GType type, const char *property_name,
       return;
     }
 
-  type_set_property (type, prop_spec, value, NULL);
+  type_set_property (type, prop_spec, value, NULL, NULL, NULL);
 }
 
 /* does the actual setting of a GType property, note that the value is
    is copied and not used directly */
 static void
 type_set_property (GType type, GParamSpec *prop_spec, const GValue *value,
-		   IpatchTypePropGetFunc func)
+		   IpatchTypePropGetFunc func, GDestroyNotify notify_func,
+                   gpointer user_data)
 {
   TypePropValueKey *key;
   TypePropValueVal *val;
@@ -506,7 +521,7 @@ type_set_property (GType type, GParamSpec *prop_spec, const GValue *value,
   key->type = type;
   key->spec = prop_spec;
 
-  val = g_new0 (TypePropValueVal, 1);
+  val = g_slice_new0 (TypePropValueVal);
 
   if (value)
     {
@@ -515,6 +530,8 @@ type_set_property (GType type, GParamSpec *prop_spec, const GValue *value,
     }
 
   val->func = func;
+  val->notify_func = notify_func;
+  val->user_data = user_data;
 
   /* value is taken over by the hash table */
   G_LOCK (type_prop_value_hash);
@@ -523,10 +540,52 @@ type_set_property (GType type, GParamSpec *prop_spec, const GValue *value,
 }
 
 /**
+ * ipatch_type_unset_property:
+ * @type: GType to unset a property of
+ * @property_name: The property to unset
+ *
+ * Unsets the value or dynamic function of a type property.
+ *
+ * Since: 1.1.0
+ */
+void
+ipatch_type_unset_property (GType type, const char *property_name)
+{
+  GParamSpec *prop_spec;
+  TypePropValueKey key;
+
+  g_return_if_fail (type != 0);
+  g_return_if_fail (property_name != NULL);
+
+  prop_spec = ipatch_type_find_property (property_name);
+
+  if (!prop_spec)
+  {
+    g_warning ("%s: no type property named `%s'",
+               G_STRLOC, property_name);
+    return;
+  }
+
+  if (!(prop_spec->flags & G_PARAM_WRITABLE))
+  {
+    g_warning ("%s: type property `%s' is not writable",
+               G_STRLOC, property_name);
+    return;
+  }
+
+  key.type = type;
+  key.spec = prop_spec;
+
+  G_LOCK (type_prop_value_hash);
+  g_hash_table_remove (type_prop_value_hash, &key);
+  G_UNLOCK (type_prop_value_hash);
+}
+
+/**
  * ipatch_type_get:
  * @type: GType to get properties from
  * @first_property_name: Name of first property to get
- * @Varargs: Pointer to store first property value and optionally followed
+ * @...: Pointer to store first property value and optionally followed
  *   by more property name/value pairs, terminated with %NULL name.
  *
  * Get GType property values.
@@ -603,7 +662,7 @@ ipatch_type_get_valist (GType type, const char *first_property_name,
  * ipatch_type_get_property:
  * @type: GType to get property from
  * @property_name: Name of property to get
- * @value: An initialized value to store the property value in. The value's
+ * @value: (out): An initialized value to store the property value in. The value's
  *   type must be a type that the property can be transformed to.
  *
  * Get a single property from a #GType.
@@ -687,7 +746,7 @@ type_get_property (GType type, GParamSpec *prop_spec, GValue *value,
  * ipatch_type_object_get:
  * @object: Object instance to get type property from
  * @first_property_name: Name of first property to get
- * @Varargs: Pointer to store first property value and optionally followed
+ * @...: Pointer to store first property value and optionally followed
  *   by more property name/value pairs, terminated with %NULL name.
  *
  * Get GType property values.  Like ipatch_type_get() but takes an object
@@ -770,7 +829,7 @@ ipatch_type_object_get_valist (GObject *object, const char *first_property_name,
  * ipatch_type_object_get_property:
  * @object: Object instance to get type property from
  * @property_name: Name of property to get
- * @value: An initialized value to store the property value in. The value's
+ * @value: (out): An initialized value to store the property value in. The value's
  *   type must be a type that the property can be transformed to.
  *
  * Get a single type property from an @object instance.
@@ -832,7 +891,7 @@ ipatch_type_object_get_property (GObject *object, const char *property_name,
 }
 
 /**
- * ipatch_type_set_dynamic_func:
+ * ipatch_type_set_dynamic_func: (skip)
  * @type: GType of the type property
  * @property_name: Name of a previously registered type property
  * @func: Callback function used for getting values for this type property
@@ -848,6 +907,33 @@ void
 ipatch_type_set_dynamic_func (GType type, const char *property_name,
 			      IpatchTypePropGetFunc func)
 {
+  ipatch_type_set_dynamic_func_full (type, property_name, func, NULL, NULL);
+}
+
+/**
+ * ipatch_type_set_dynamic_func_full: (rename-to ipatch_type_set_dynamic_func)
+ * @type: GType of the type property
+ * @property_name: Name of a previously registered type property
+ * @func: Callback function used for getting values for this type property
+ * @notify_func: (allow-none) (scope async) (closure user_data): Destroy function
+ *   callback when @func is removed
+ * @user_data: (allow-none): Data passed to @notify_func
+ *
+ * Registers a callback function for dynamically getting the value of a
+ * type property.  Like ipatch_type_set_dynamic_func() but more GObject Introspection
+ * friendly.
+ *
+ * Example: A dynamic property is created for SoundFont presets to return a
+ * different "virtual-parent-type" depending on if its a percussion or
+ * melodic preset (determined from a preset's bank number).
+ *
+ * Since: 1.1.0
+ */
+void
+ipatch_type_set_dynamic_func_full (GType type, const char *property_name,
+			           IpatchTypePropGetFunc func,
+                                   GDestroyNotify notify_func, gpointer user_data)
+{
   GParamSpec *prop_spec;
 
   g_return_if_fail (type != 0);
@@ -862,11 +948,11 @@ ipatch_type_set_dynamic_func (GType type, const char *property_name,
       return;
     }
 
-  type_set_property (type, prop_spec, NULL, func);
+  type_set_property (type, prop_spec, NULL, func, notify_func, user_data);
 }
 
 /**
- * ipatch_type_get_dynamic_func:
+ * ipatch_type_get_dynamic_func: (skip)
  * @type: GType of the type property
  * @property_name: Name of a previously registered type property
  *

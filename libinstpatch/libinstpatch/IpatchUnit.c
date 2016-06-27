@@ -35,6 +35,17 @@
 #include "i18n.h"
 
 
+typedef struct
+{
+  IpatchValueTransform func;
+  GDestroyNotify notify_func;
+  gpointer user_data;
+} ConversionHashVal;
+
+static void ipatch_unit_conversion_hash_val_destroy (gpointer data);
+static ConversionHashVal *ipatch_unit_conversion_hash_val_new (void);
+static void ipatch_unit_conversion_hash_val_free (ConversionHashVal *val);
+
 G_LOCK_DEFINE_STATIC (unit_info);
 
 static GHashTable *unit_id_hash = NULL; /* unit registry (id) */
@@ -53,20 +64,59 @@ void _ipatch_unit_dls_init (void);
 void _ipatch_unit_sf2_init (void);
 
 
-/* initialize unit system */
+/**
+ * _ipatch_unit_init: (skip)
+ *
+ * Initialize unit system
+ */
 void
 _ipatch_unit_init (void)
 {
   unit_id_hash = g_hash_table_new (NULL, NULL);
   unit_name_hash = g_hash_table_new (g_str_hash, g_str_equal);
   class_map_hash = g_hash_table_new (NULL, NULL);
-  conversion_hash = g_hash_table_new (NULL, NULL);
+  conversion_hash = g_hash_table_new_full (NULL, NULL, NULL,
+                                           ipatch_unit_conversion_hash_val_destroy);
 
   /* initialize unit types and conversion handlers */
 
   _ipatch_unit_generic_init ();
   _ipatch_unit_dls_init ();
   _ipatch_unit_sf2_init ();
+}
+
+static void
+ipatch_unit_conversion_hash_val_destroy (gpointer data)
+{
+  ConversionHashVal *val = data;
+
+  if (val->notify_func) val->notify_func (val->user_data);
+  ipatch_unit_conversion_hash_val_free (val);
+}
+
+static ConversionHashVal *
+ipatch_unit_conversion_hash_val_new (void)
+{
+  return (g_slice_new (ConversionHashVal));
+}
+
+static void
+ipatch_unit_conversion_hash_val_free (ConversionHashVal *val)
+{
+  g_slice_free (ConversionHashVal, val);
+}
+
+GType
+ipatch_unit_info_get_type (void)
+{
+  static GType type = 0;
+
+  if (!type)
+    type = g_boxed_type_register_static ("IpatchUnitInfo",
+				(GBoxedCopyFunc)ipatch_unit_info_duplicate,
+				(GBoxedFreeFunc)ipatch_unit_info_free);
+
+  return (type);
 }
 
 /**
@@ -95,6 +145,26 @@ void
 ipatch_unit_info_free (IpatchUnitInfo *info)
 {
   g_slice_free (IpatchUnitInfo, info);
+}
+
+/**
+ * ipatch_unit_info_duplicate:
+ * @info: Unit info to duplicate
+ *
+ * Duplicate a unit info structure.
+ *
+ * Returns: Newly allocated duplicate unit info structure
+ *
+ * Since: 1.1.0
+ */
+IpatchUnitInfo *
+ipatch_unit_info_duplicate (const IpatchUnitInfo *info)
+{
+  IpatchUnitInfo *new;
+
+  new = ipatch_unit_info_new ();
+  memcpy (new, info, sizeof (IpatchUnitInfo));
+  return (new);
 }
 
 /**
@@ -148,7 +218,7 @@ ipatch_unit_register (const IpatchUnitInfo *info)
  *
  * Looks up unit info by ID.
  *
- * Returns: Unit info structure with @id or %NULL if not found,
+ * Returns: (transfer none): Unit info structure with @id or %NULL if not found,
  * returned structure is internal and should not be modified or freed
  */
 IpatchUnitInfo *
@@ -169,7 +239,7 @@ ipatch_unit_lookup (guint16 id)
  *
  * Looks up unit info by name.
  *
- * Returns: Unit info structure with @name or %NULL if not found,
+ * Returns: (transfer none): Unit info structure with @name or %NULL if not found,
  * returned structure is internal and should not be modified or freed
  */
 IpatchUnitInfo *
@@ -186,7 +256,7 @@ ipatch_unit_lookup_by_name (const char *name)
 
 /**
  * ipatch_unit_class_register_map:
- * @class_type: Class type (see #IpatchUnitClassType)
+ * @class_type: (type IpatchUnitClassType): Class type (see #IpatchUnitClassType)
  * @src_units: Source unit type of mapping
  * @dest_units: Destination unit type for this map
  * 
@@ -228,12 +298,14 @@ ipatch_unit_class_register_map (guint16 class_type, guint16 src_units,
 
 /**
  * ipatch_unit_class_lookup_map:
- * @class_type: Class type (see #IpatchUnitClassType)
+ * @class_type: (type IpatchUnitClassType): Class type (see #IpatchUnitClassType)
  * @src_units: Source unit type of mapping to lookup
  * 
  * Lookup a unit class mapping (see ipatch_unit_class_register_map ()).
  * 
- * Returns: Pointer to destination unit info structure, or %NULL if not found.
+ * Returns: (transfer none): Pointer to destination unit info structure,
+ *   or %NULL if not found.  Returned structure is internal and should not
+ *   be modified or freed.
  */
 IpatchUnitInfo *
 ipatch_unit_class_lookup_map (guint16 class_type, guint16 src_units)
@@ -254,7 +326,7 @@ ipatch_unit_class_lookup_map (guint16 class_type, guint16 src_units)
 }
 
 /**
- * ipatch_unit_conversion_register:
+ * ipatch_unit_conversion_register: (skip)
  * @src_units: Source unit type
  * @dest_units: Destination unit type
  * @func: Conversion function handler or %NULL for unity conversion (the
@@ -267,18 +339,47 @@ void
 ipatch_unit_conversion_register (guint16 src_units, guint16 dest_units,
 				 IpatchValueTransform func)
 {
-  guint32 hashkey;
-
-  hashkey = src_units | (dest_units << 16);
-  func += 1; /* store as func + 1 to differentiate between NULL and invalid */
-
-  G_LOCK (unit_info);
-  g_hash_table_insert (conversion_hash, GUINT_TO_POINTER (hashkey), func);
-  G_UNLOCK (unit_info);
+  ipatch_unit_conversion_register_full (src_units, dest_units, func, NULL, NULL);
 }
 
 /**
- * ipatch_unit_conversion_lookup:
+ * ipatch_unit_conversion_register_full: (rename-to ipatch_unit_conversion_register)
+ * @src_units: Source unit type
+ * @dest_units: Destination unit type
+ * @func: Conversion function handler or %NULL for unity conversion (the
+ *   value type will be converted but not the actual value, example: float to int).
+ * @notify_func: (allow-none) (scope async) (closure user_data): Destroy notification
+ *   when conversion function is removed
+ * @user_data: (allow-none): Data to pass to @notify_func callback
+ *
+ * Register a parameter unit conversion function.  Like ipatch_unit_conversion_register()
+ * but friendlier to GObject Introspection.
+ *
+ * Since: 1.1.0
+ */
+void
+ipatch_unit_conversion_register_full (guint16 src_units, guint16 dest_units,
+				      IpatchValueTransform func, GDestroyNotify notify_func,
+                                      gpointer user_data)
+{
+  ConversionHashVal *val;
+  guint32 hashkey;
+
+  hashkey = src_units | (dest_units << 16);
+
+  val = ipatch_unit_conversion_hash_val_new ();         // ++ alloc
+  val->func = func;
+  val->notify_func = notify_func;
+  val->user_data = user_data;
+
+  G_LOCK (unit_info);   // !! hash takes over value
+  g_hash_table_insert (conversion_hash, GUINT_TO_POINTER (hashkey), val);
+  G_UNLOCK (unit_info);
+}
+
+
+/**
+ * ipatch_unit_conversion_lookup: (skip)
  * @src_units: Source unit type
  * @dest_units: Destination unit type
  * @set: Location to store a boolean value indicating if the conversion is
@@ -294,17 +395,19 @@ IpatchValueTransform
 ipatch_unit_conversion_lookup (guint16 src_units, guint16 dest_units,
 			       gboolean *set)
 {
+  ConversionHashVal *hashval;
   IpatchValueTransform func;
   guint32 hashkey;
 
   hashkey = src_units | (dest_units << 16);
 
   G_LOCK (unit_info);
-  func = g_hash_table_lookup (conversion_hash, GUINT_TO_POINTER (hashkey));
+  hashval = g_hash_table_lookup (conversion_hash, GUINT_TO_POINTER (hashkey));
+  if (hashval) func = hashval->func;
   G_UNLOCK (unit_info);
 
-  if (set) *set = func != NULL;
-  return (func != NULL ? func - 1 : NULL); /* we store as func + 1 */
+  if (set) *set = hashval != NULL;
+  return (hashval ? func : NULL);
 }
 
 /**
@@ -313,7 +416,7 @@ ipatch_unit_conversion_lookup (guint16 src_units, guint16 dest_units,
  * @dest_units: Destination unit type ID
  * @src_val: Source value (type should be compatible with the source unit's
  *   value type)
- * @dest_val: Destination value (value should be initialized to a type that is
+ * @dest_val: (out): Destination value (value should be initialized to a type that is
  *   compatible with the destination unit's value type)
  *
  * Convert a value from one unit type to another.
@@ -331,6 +434,7 @@ ipatch_unit_convert (guint16 src_units, guint16 dest_units,
 {
   IpatchValueTransform convert_func;
   IpatchUnitInfo *src_info, *dest_info;
+  ConversionHashVal *unit_converter;            // More descriptive for g_return_val_if_fail
   const GValue *sv;
   GValue tmpsv = { 0 }, tmpdv = { 0 }, *dv;
   guint32 hashkey;
@@ -344,14 +448,14 @@ ipatch_unit_convert (guint16 src_units, guint16 dest_units,
 				  GUINT_TO_POINTER ((guint32)src_units));
   dest_info = g_hash_table_lookup (unit_id_hash,
 				   GUINT_TO_POINTER ((guint32)dest_units));
-  convert_func = g_hash_table_lookup (conversion_hash,
-				      GUINT_TO_POINTER (hashkey));
+  unit_converter = g_hash_table_lookup (conversion_hash, GUINT_TO_POINTER (hashkey));
+  convert_func = unit_converter ? unit_converter->func : NULL;
+
   G_UNLOCK (unit_info);
 
   g_return_val_if_fail (src_info != NULL, FALSE);
   g_return_val_if_fail (dest_info != NULL, FALSE);
-  g_return_val_if_fail (convert_func != NULL, FALSE);
-  convert_func -= 1;		/* we store as func + 1 */
+  g_return_val_if_fail (unit_converter != NULL, FALSE);
 
   if (G_UNLIKELY (!convert_func))	/* unity conversion? */
     {

@@ -38,6 +38,9 @@
 #include "misc.h"
 #include "i18n.h"
 
+/**
+ * _ipatch_sf2_voice_cache_init_VBank: (skip)
+ */
 void
 _ipatch_sf2_voice_cache_init_VBank (void)
 {

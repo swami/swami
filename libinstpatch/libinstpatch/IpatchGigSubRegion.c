@@ -393,7 +393,7 @@ ipatch_gig_sub_region_new (void)
 }
 
 /**
- * ipatch_gig_sub_region_first:
+ * ipatch_gig_sub_region_first: (skip)
  * @iter: Patch item iterator containing #IpatchGigSubRegion items
  *
  * Gets the first item in a sub region iterator. A convenience
@@ -413,7 +413,7 @@ ipatch_gig_sub_region_first (IpatchIter *iter)
 }
 
 /**
- * ipatch_gig_sub_region_next:
+ * ipatch_gig_sub_region_next: (skip)
  * @iter: Patch item iterator containing #IpatchGigSubRegion items
  *
  * Gets the next item in a sub region iterator. A convenience wrapper
@@ -437,7 +437,7 @@ ipatch_gig_sub_region_next (IpatchIter *iter)
  * ipatch_gig_sub_region_get_sample:
  * @subregion: GigaSampler sub region to get sample of
  *
- * Returns: The sub region's sample, referenced for the caller, unref
+ * Returns: (transfer full): The sub region's sample, referenced for the caller, unref
  *   it when finished.
  */
 IpatchGigSample *

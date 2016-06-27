@@ -84,7 +84,7 @@ void ipatch_xml_set_attribute (GNode *node, const char *attr_name,
                                const char *attr_value);
 void ipatch_xml_set_attributes (GNode *node, const char *attr_name,
                                 const char *attr_value, const char *attr2_name, ...);
-G_CONST_RETURN char *ipatch_xml_get_attribute (GNode *node, const char *name);
+G_CONST_RETURN char *ipatch_xml_get_attribute (GNode *node, const char *attr_name);
 gboolean ipatch_xml_test_attribute (GNode *node, const char *attr_name,
                                     const char *cmpval);
 GNode *ipatch_xml_find_child (GNode *node, const char *name);
@@ -96,7 +96,7 @@ GNode *ipatch_xml_from_str (const char *str, GError **err);
 GNode *ipatch_xml_load_from_file (const char *filename, GError **err);
 
 IpatchXmlNode *ipatch_xml_node_new (void);
-void ipatch_xml_node_free (IpatchXmlNode *node);
+void ipatch_xml_node_free (IpatchXmlNode *xmlnode);
 IpatchXmlNode *ipatch_xml_node_duplicate (const IpatchXmlNode *xmlnode);
 IpatchXmlAttr *ipatch_xml_attr_new (void);
 void ipatch_xml_attr_free (IpatchXmlAttr *attr);

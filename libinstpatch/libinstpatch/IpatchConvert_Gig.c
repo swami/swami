@@ -55,7 +55,11 @@
 gboolean _file_to_dls2_sample_convert (IpatchConverter *converter, GError **err);
 
 
-/* init routine for GigaSampler conversion types */
+/**
+ * _ipatch_convert_gig_init: (skip)
+ *
+ * Init routine for GigaSampler conversion types
+ */
 void
 _ipatch_convert_gig_init (void)
 {

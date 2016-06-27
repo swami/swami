@@ -283,7 +283,7 @@ ipatch_sli_inst_new (void)
 }
 
 /**
- * ipatch_sli_inst_first:
+ * ipatch_sli_inst_first: (skip)
  * @iter: Patch item iterator containing #IpatchSLIInst items
  *
  * Gets the first item in an instrument iterator. A convenience wrapper for
@@ -303,7 +303,7 @@ ipatch_sli_inst_first (IpatchIter *iter)
 }
 
 /**
- * ipatch_sli_inst_next:
+ * ipatch_sli_inst_next: (skip)
  * @iter: Patch item iterator containing #IpatchSLIInst items
  *
  * Gets the next item in an instrument iterator. A convenience wrapper for
@@ -349,7 +349,7 @@ ipatch_sli_inst_new_zone (IpatchSLIInst *inst, IpatchSLISample *sample)
 /**
  * ipatch_sli_inst_set_name:
  * @inst: Instrument to set name of
- * @name: Value to set name to
+ * @name: (allow-none): Value to set name to
  *
  * Sets the name of a Spectralis instrument.
  */
@@ -425,7 +425,8 @@ ipatch_sli_inst_get_name (IpatchSLIInst *inst)
  * Returns: Category of instrument or %NULL if not set. String value should be
  * g_freed when finished with it.
  */
-gchar *ipatch_sli_inst_get_category_as_path (IpatchSLIInst *inst)
+char *
+ipatch_sli_inst_get_category_as_path (IpatchSLIInst *inst)
 {
   guint cat, i;
   GString *catstr;

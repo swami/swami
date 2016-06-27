@@ -245,7 +245,8 @@ ipatch_sample_store_cache_sample_iface_write (IpatchSampleHandle *handle,
  * NOTE: This store type should not be used outside of the #IpatchSampleData
  * implementation, as it is tightly coupled with it.
  *
- * Returns: New cached RAM sample store, cast as a #IpatchSample for convenience.
+ * Returns: (type IpatchSampleStoreCache): New cached RAM sample store, cast
+ *   as a #IpatchSample for convenience.
  */
 IpatchSample *
 ipatch_sample_store_cache_new (gpointer location)

@@ -57,7 +57,11 @@ static void _dls2_to_file_get_property (GObject *object, guint property_id,
 static void _dls2_to_file_set_property (GObject *object, guint property_id,
                                         const GValue *value, GParamSpec *pspec);
 
-/* init routine for DLS conversion types */
+/**
+ * _ipatch_convert_DLS2_init: (skip)
+ *
+ * Init routine for DLS conversion types
+ */
 void
 _ipatch_convert_DLS2_init (void)
 {
@@ -140,7 +144,11 @@ _file_to_dls2_convert (IpatchConverter *converter, GError **err)
   else return (FALSE);
 }
 
-/* also used by IpatchConvert_Gig.c */
+/**
+ * _file_to_dls2_sample_convert: (skip)
+ *
+ * Also used by IpatchConvert_Gig.c
+ */
 gboolean
 _file_to_dls2_sample_convert (IpatchConverter *converter, GError **err)
 {

@@ -40,7 +40,7 @@ if (GTKDOC_FOUND)
     CFLAGS -I${CMAKE_SOURCE_DIR}
     LDFLAGS -L${CMAKE_CURRENT_BINARY_DIR}/../../libinstpatch -linstpatch-1.0
     LDPATH ${CMAKE_CURRENT_BINARY_DIR}/../../libinstpatch
-    DEPENDS libinstpatch-1.0
+    DEPENDS instpatch-1.0
   )
 endif ()
 

@@ -498,7 +498,7 @@ ipatch_sf2_sample_new (void)
 }
 
 /**
- * ipatch_sf2_sample_first:
+ * ipatch_sf2_sample_first: (skip)
  * @iter: Patch item iterator containing #IpatchSF2Sample items
  *
  * Gets the first item in a sample iterator. A convenience wrapper for
@@ -518,7 +518,7 @@ ipatch_sf2_sample_first (IpatchIter *iter)
 }
 
 /**
- * ipatch_sf2_sample_next:
+ * ipatch_sf2_sample_next: (skip)
  * @iter: Patch item iterator containing #IpatchSF2Sample items
  *
  * Gets the next item in a sample iterator. A convenience wrapper for
@@ -540,7 +540,7 @@ ipatch_sf2_sample_next (IpatchIter *iter)
 /**
  * ipatch_sf2_sample_set_name:
  * @sample: Sample to set name of
- * @name: Value to set name to
+ * @name: (allow-none): Value to set name to
  *
  * Sets the name of a SoundFont sample.
  */
@@ -666,7 +666,7 @@ ipatch_sf2_sample_real_set_data (IpatchSF2Sample *sample,
  * before returning and caller is responsible for unreferencing it with
  * g_object_unref() when finished with it.
  *
- * Returns: Sample data object of sample or %NULL if none. Remember to
+ * Returns: (transfer full): Sample data object of sample or %NULL if none. Remember to
  * unreference with g_object_unref() when finished with it.
  */
 IpatchSampleData *
@@ -685,7 +685,7 @@ ipatch_sf2_sample_get_data (IpatchSF2Sample *sample)
 }
 
 /**
- * ipatch_sf2_sample_peek_data:
+ * ipatch_sf2_sample_peek_data: (skip)
  * @sample: Sample to get sample data from
  *
  * Get the #IpatchSampleData item of a sample. Like
@@ -713,7 +713,7 @@ ipatch_sf2_sample_peek_data (IpatchSF2Sample *sample)
 /**
  * ipatch_sf2_sample_set_linked:
  * @sample: Sample to set linked sample of
- * @linked: Sample that is stereo linked to @sample or %NULL to unset.
+ * @linked: (allow-none): Sample that is stereo linked to @sample or %NULL to unset.
  *
  * Sets the stereo linked sample of a sample item.
  */
@@ -764,7 +764,7 @@ ipatch_sf2_sample_real_set_linked (IpatchSF2Sample *sample,
  * caller owns a reference and should unref it with g_object_unref()
  * when finished with it.
  *
- * Returns: The linked stereo sample or %NULL if no linked sample. Remember to
+ * Returns: (transfer full): The linked stereo sample or %NULL if no linked sample. Remember to
  * unref the returned sample with g_object_unref() when finished with it.
  */
 IpatchSF2Sample *
@@ -780,7 +780,7 @@ ipatch_sf2_sample_get_linked (IpatchSF2Sample *sample)
 }
 
 /**
- * ipatch_sf2_sample_peek_linked:
+ * ipatch_sf2_sample_peek_linked: (skip)
  * @sample: Sample to get linked sample from
  *
  * Get the stereo linked sample from @sample. Like

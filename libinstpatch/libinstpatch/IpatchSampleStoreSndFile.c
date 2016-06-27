@@ -583,7 +583,8 @@ ipatch_sample_store_snd_file_sample_iface_write (IpatchSampleHandle *handle,
  * or ipatch_sample_store_snd_file_init_write() must be called, depending on
  * audio file mode, prior to opening the sample.
  *
- * Returns: New libsndfile sample store, cast as a #IpatchSample for convenience.
+ * Returns: (type IpatchSampleStoreSndFile): New libsndfile sample store, cast
+ *   as a #IpatchSample for convenience.
  */
 IpatchSample *
 ipatch_sample_store_snd_file_new (const char *filename)

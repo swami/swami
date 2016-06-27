@@ -182,7 +182,7 @@ ipatch_sf2_pzone_new (void)
 }
 
 /**
- * ipatch_sf2_pzone_first:
+ * ipatch_sf2_pzone_first: (skip)
  * @iter: Patch item iterator containing #IpatchSF2PZone items
  *
  * Gets the first item in a preset zone iterator. A convenience
@@ -202,7 +202,7 @@ ipatch_sf2_pzone_first (IpatchIter *iter)
 }
 
 /**
- * ipatch_sf2_pzone_next:
+ * ipatch_sf2_pzone_next: (skip)
  * @iter: Patch item iterator containing #IpatchSF2PZone items
  *
  * Gets the next item in a preset zone iterator. A convenience wrapper
@@ -233,7 +233,7 @@ void
 ipatch_sf2_pzone_set_inst (IpatchSF2PZone *pzone, IpatchSF2Inst *inst)
 {
   g_return_if_fail (IPATCH_IS_SF2_PZONE (pzone));
-  g_return_if_fail (!inst || IPATCH_IS_SF2_INST (inst));
+  g_return_if_fail (IPATCH_IS_SF2_INST (inst));
 
   ipatch_sf2_zone_set_link_item (IPATCH_SF2_ZONE (pzone), IPATCH_ITEM (inst));
 }
@@ -246,7 +246,7 @@ ipatch_sf2_pzone_set_inst (IpatchSF2PZone *pzone, IpatchSF2Inst *inst)
  * The returned instrument's reference count is incremented and the caller
  * is responsible for unrefing it with g_object_unref().
  *
- * Returns: Preset zone's referenced instrument or %NULL if global
+ * Returns: (transfer full): Preset zone's referenced instrument or %NULL if global
  * zone. Remember to unreference the instrument with g_object_unref() when
  * done with it.
  */

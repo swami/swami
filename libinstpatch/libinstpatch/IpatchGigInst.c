@@ -212,7 +212,7 @@ ipatch_gig_inst_new (void)
 }
 
 /**
- * ipatch_gig_inst_first:
+ * ipatch_gig_inst_first: (skip)
  * @iter: Patch item iterator containing #IpatchGigInst items
  *
  * Gets the first item in a GigaSampler instrument iterator. A convenience
@@ -232,7 +232,7 @@ ipatch_gig_inst_first (IpatchIter *iter)
 }
 
 /**
- * ipatch_gig_inst_next:
+ * ipatch_gig_inst_next: (skip)
  * @iter: Patch item iterator containing #IpatchGigInst items
  *
  * Gets the next item in a GigaSampler instrument iterator. A convenience

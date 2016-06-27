@@ -23,6 +23,9 @@
 
 /* Older glib implementation of GWeakRef (not thread safe!) */
 
+/**
+ * g_weak_ref_init: (skip)
+ */
 void
 g_weak_ref_init (GWeakRef *weak_ref, gpointer object)
 {
@@ -30,6 +33,9 @@ g_weak_ref_init (GWeakRef *weak_ref, gpointer object)
   if (object) g_object_add_weak_pointer ((GObject *)object, &weak_ref->obj);
 }
 
+/**
+ * g_weak_ref_clear: (skip)
+ */
 void
 g_weak_ref_clear (GWeakRef *weak_ref)
 {
@@ -46,6 +52,9 @@ g_weak_ref_clear (GWeakRef *weak_ref)
   }
 }
 
+/**
+ * g_weak_ref_get: (skip)
+ */
 gpointer
 g_weak_ref_get (GWeakRef *weak_ref)
 {
@@ -58,6 +67,9 @@ g_weak_ref_get (GWeakRef *weak_ref)
   return (object);              // !! caller takes over reference
 }
 
+/**
+ * g_weak_ref_set: (skip)
+ */
 void
 g_weak_ref_set (GWeakRef *weak_ref, gpointer object)
 {
@@ -70,6 +82,9 @@ g_weak_ref_set (GWeakRef *weak_ref, gpointer object)
 
 #ifdef IPATCH_COMPAT_SLIST_FREE_FULL
 
+/**
+ * g_slist_free_full: (skip)
+ */
 void
 g_slist_free_full (GSList *list, GDestroyNotify free_func)
 {

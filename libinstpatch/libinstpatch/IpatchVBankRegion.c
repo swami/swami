@@ -304,7 +304,7 @@ ipatch_vbank_region_new (void)
 }
 
 /**
- * ipatch_vbank_region_first:
+ * ipatch_vbank_region_first: (skip)
  * @iter: Patch item iterator containing #IpatchVBankRegion items
  *
  * Gets the first item in a virtual bank region iterator. A convenience
@@ -324,7 +324,7 @@ ipatch_vbank_region_first (IpatchIter *iter)
 }
 
 /**
- * ipatch_vbank_region_next:
+ * ipatch_vbank_region_next: (skip)
  * @iter: Patch item iterator containing #IpatchVBankRegion items
  *
  * Gets the next item in a virtual bank region iterator. A convenience wrapper
@@ -347,7 +347,7 @@ ipatch_vbank_region_next (IpatchIter *iter)
 /**
  * ipatch_vbank_region_set_id_props:
  * @region: VBank region
- * @id_props: NULL terminated array of name/value string pairs
+ * @id_props: (array zero-terminated=1): NULL terminated array of name/value string pairs
  *
  * Set the ID properties of a virtual bank region.  These are used to uniquely
  * identify an item in an external instrument file.  This function is likely
@@ -384,15 +384,15 @@ ipatch_vbank_region_real_set_id_props (IpatchVBankRegion *region,
 /**
  * ipatch_vbank_region_get_id_props:
  * @region: VBank region
- * @n_elements: Pointer to store count of elements in returned string array
- *   or %NULL to ignore.
+ * @n_elements: (out) (allow-none): Pointer to store count of elements in
+ *   returned string array or %NULL to ignore.
  *
  * Get ID properties which uniquely identify the referenced item.  These are
  * usually only available until the item gets resolved, at which point
  * "item-link" is set.
  *
- * Returns: %NULL terminated array of name/value pair property strings or
- * %NULL if none.  Free with g_strfreev() when finished using it.
+ * Returns: (array zero-terminated=1) (transfer full): %NULL terminated array of name/value
+ * pair property strings or %NULL if none.  Free with g_strfreev() when finished using it.
  */
 char **
 ipatch_vbank_region_get_id_props (IpatchVBankRegion *region, guint *n_elements)
