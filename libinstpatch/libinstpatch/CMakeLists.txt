@@ -245,6 +245,7 @@ install ( FILES
           ${instpatch_public_HEADERS}
           ${public_main_HEADER}
           ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.h
+          ${CMAKE_CURRENT_BINARY_DIR}/version.h
           DESTINATION include/libinstpatch-1.0/libinstpatch )
 
 find_program (GLIB2_MKENUMS glib-mkenums)
