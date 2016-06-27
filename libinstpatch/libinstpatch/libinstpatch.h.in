@@ -78,6 +78,7 @@ G_BEGIN_DECLS
 #include <libinstpatch/IpatchSF2IZone.h>
 #include <libinstpatch/IpatchSF2Mod.h>
 #include <libinstpatch/IpatchSF2ModItem.h>
+#include <libinstpatch/IpatchSF2ModList.h>
 #include <libinstpatch/IpatchSF2Preset.h>
 #include <libinstpatch/IpatchSF2PZone.h>
 #include <libinstpatch/IpatchSF2Reader.h>

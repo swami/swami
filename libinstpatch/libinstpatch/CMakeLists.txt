@@ -74,6 +74,7 @@ set ( instpatch_public_HEADERS
     IpatchSF2IZone.h
     IpatchSF2Mod.h
     IpatchSF2ModItem.h
+    IpatchSF2ModList.h
     IpatchSF2Preset.h
     IpatchSF2PZone.h
     IpatchSF2Reader.h
@@ -173,6 +174,7 @@ set ( instpatch_SOURCES
     IpatchSF2IZone.c
     IpatchSF2Mod.c
     IpatchSF2ModItem.c
+    IpatchSF2ModList.c
     IpatchSF2Preset.c
     IpatchSF2PZone.c
     IpatchSF2Reader.c
