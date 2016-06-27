@@ -416,6 +416,8 @@ ipatch_vbank_region_get_id_props (IpatchVBankRegion *region, guint *n_elements)
  * @item: Instrument item to assign
  *
  * Sets the referenced instrument item of a virtual bank region.
+ *
+ * Since: 1.1.0
  */
 void
 ipatch_vbank_region_set_item (IpatchVBankRegion *region, IpatchItem *item)
@@ -469,8 +471,10 @@ ipatch_vbank_region_real_set_item (IpatchVBankRegion *region,
  *
  * Gets the referenced instrument item from a region.
  *
- * Returns: Region's referenced item or %NULL if not set yet. Remember to
+ * Returns: (transfer full): Region's referenced item or %NULL if not set yet. Remember to
  * unreference the item with g_object_unref() when done with it.
+ *
+ * Since: 1.1.0
  */
 IpatchItem *
 ipatch_vbank_region_get_item (IpatchVBankRegion *region)

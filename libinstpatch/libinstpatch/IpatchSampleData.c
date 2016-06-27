@@ -543,6 +543,8 @@ ipatch_sample_data_new (void)
  * Increment use count of a sample data object.  Use references are not the same as object references and
  * in contrast indicate if a sample data object should continue to be a part of the sample data pool - if it is
  * a dependency of an active loaded instrument for example.
+ *
+ * Since: 1.1.0
  */
 void 
 ipatch_sample_data_used (IpatchSampleData *sampledata)
@@ -563,6 +565,8 @@ ipatch_sample_data_used (IpatchSampleData *sampledata)
  *
  * Decrement use count of a sample data object.  When the use count drops to 0 it will be removed from the
  * pool of active sample data objects.  Sample data object is only freed after it's reference count goes to 0 though.
+ *
+ * Since: 1.1.0
  */
 void
 ipatch_sample_data_unused (IpatchSampleData *sampledata)
