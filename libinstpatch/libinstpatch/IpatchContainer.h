@@ -111,10 +111,7 @@ const GType *ipatch_container_type_get_child_types (GType container_type);
 void ipatch_container_insert (IpatchContainer *container,
 			      IpatchItem *item, int pos);
 void ipatch_container_append (IpatchContainer *container, IpatchItem *item);
-
-// An alias for ipatch_container_append
-#define ipatch_container_add  ipatch_container_append
-
+void ipatch_container_add (IpatchContainer *container, IpatchItem *item);
 void ipatch_container_prepend (IpatchContainer *container, IpatchItem *item);
 void ipatch_container_remove (IpatchContainer *container, IpatchItem *item);
 void ipatch_container_remove_all (IpatchContainer *container);

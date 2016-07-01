@@ -301,12 +301,25 @@ ipatch_container_insert (IpatchContainer *container, IpatchItem *item, int pos)
 /**
  * ipatch_container_append:
  * @container: Container item
- * @item: Item to insert
+ * @item: Item to append
  *
  * Appends an item to a container's children.
  */
 void
 ipatch_container_append (IpatchContainer *container, IpatchItem *item)
+{
+  ipatch_container_insert (container, item, -1);
+}
+
+/**
+ * ipatch_container_add:
+ * @container: Container item
+ * @item: Item to append
+ *
+ * Just an alias for ipatch_container_append().
+ */
+void
+ipatch_container_add (IpatchContainer *container, IpatchItem *item)
 {
   ipatch_container_insert (container, item, -1);
 }
