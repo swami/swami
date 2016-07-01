@@ -200,7 +200,7 @@ ipatch_state_end_group (IpatchState *state)
 /**
  * ipatch_state_set_active_group:
  * @state: State history object
- * @group: (allow-none): State group or %NULL to deactivate grouping
+ * @group: (nullable): State group or %NULL to deactivate grouping
  *
  * Sets the active state group for the calling thread in a state history
  * object or deactivates grouping if @group is NULL.
@@ -295,7 +295,7 @@ ipatch_state_record_item (IpatchState *state, IpatchStateItem *item)
  * ipatch_state_record:
  * @state: State history object
  * @type_name: Name of #IpatchStateItem derived type to record
- * @first_property_name: (allow-none): Name of first item property to set or NULL to not
+ * @first_property_name: (nullable): Name of first item property to set or NULL to not
  *   set any properties.
  * @Varargs: Name/value pairs of properties to set on new #IpatchStateItem item.
  *   Variable argument list starts with the value for @first_property_name and

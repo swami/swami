@@ -540,7 +540,7 @@ ipatch_sf2_sample_next (IpatchIter *iter)
 /**
  * ipatch_sf2_sample_set_name:
  * @sample: Sample to set name of
- * @name: (allow-none): Value to set name to
+ * @name: (nullable): Value to set name to
  *
  * Sets the name of a SoundFont sample.
  */
@@ -713,7 +713,7 @@ ipatch_sf2_sample_peek_data (IpatchSF2Sample *sample)
 /**
  * ipatch_sf2_sample_set_linked:
  * @sample: Sample to set linked sample of
- * @linked: (allow-none): Sample that is stereo linked to @sample or %NULL to unset.
+ * @linked: (nullable): Sample that is stereo linked to @sample or %NULL to unset.
  *
  * Sets the stereo linked sample of a sample item.
  */

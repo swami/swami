@@ -161,7 +161,7 @@ ipatch_sli_reader_set_file_handle (IpatchSLIReader *reader, IpatchFileHandle *ha
 /**
  * ipatch_sli_reader_load:
  * @reader: Spectralis reader object
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Load a Spectralis file.
  *

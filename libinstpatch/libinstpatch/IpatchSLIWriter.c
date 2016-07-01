@@ -207,7 +207,7 @@ ipatch_sli_writer_set_patch (IpatchSLIWriter *writer, IpatchSLI *sli)
 /**
  * ipatch_sli_writer_set_file_handle:
  * @writer: SLI writer object
- * @handle: (allow-none): SLI file handle or %NULL to clear
+ * @handle: (nullable): SLI file handle or %NULL to clear
  *
  * Set the SLI file handle of an SLI writer.
  */
@@ -226,7 +226,7 @@ ipatch_sli_writer_set_file_handle (IpatchSLIWriter *writer, IpatchFileHandle *ha
 /**
  * ipatch_sli_writer_save:
  * @writer: SLI writer object
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Write an SLI object to a file.
  *

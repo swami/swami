@@ -539,9 +539,9 @@ ipatch_set_application_name (const char *name)
 
 /**
  * ipatch_version:
- * @major: (out) (allow-none): Pointer to store major version or %NULL
- * @minor: (out) (allow-none): Pointer to store minor version or %NULL
- * @micro: (out) (allow-none): Pointer to store micro version or %NULL
+ * @major: (out) (optional): Pointer to store major version or %NULL
+ * @minor: (out) (optional): Pointer to store minor version or %NULL
+ * @micro: (out) (optional): Pointer to store micro version or %NULL
  *
  * Fetch the runtime version of the libInstPatch library.
  */

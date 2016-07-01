@@ -541,7 +541,7 @@ ipatch_container_init_iter (IpatchContainer *container, IpatchIter *iter,
  * ipatch_container_insert_iter:
  * @container: Container object
  * @item: Patch item to insert
- * @iter: (allow-none): Iterator marking position to insert after (%NULL position to
+ * @iter: (nullable): Iterator marking position to insert after (%NULL position to
  *   prepend).  Iterator is advanced after insert to point to new
  *   inserted item. Note that this makes appending multiple items rather
  *   fast.

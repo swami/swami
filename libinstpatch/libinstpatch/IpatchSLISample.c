@@ -471,7 +471,7 @@ ipatch_sli_sample_next (IpatchIter *iter)
 /**
  * ipatch_sli_sample_set_name:
  * @sample: Sample to set name of
- * @name: (allow-none): Value to set name to
+ * @name: (nullable): Value to set name to
  *
  * Sets the name of a Spectralis sample.
  */

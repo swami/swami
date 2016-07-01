@@ -357,8 +357,8 @@ ipatch_sli_get_file (IpatchSLI *sli)
  * ipatch_sli_make_unique_name:
  * @sli: SLI object
  * @child_type: A child type of @sli to search for a unique name in
- * @name: (allow-none): An initial name to use or %NULL
- * @exclude: (allow-none): An item to exclude from search or %NULL
+ * @name: (nullable): An initial name to use or %NULL
+ * @exclude: (nullable): An item to exclude from search or %NULL
  *
  * Generates a unique name for the given @child_type in @sli. The @name
  * parameter is used as a base and is modified, by appending a number, to
@@ -434,7 +434,7 @@ ipatch_sli_make_unique_name (IpatchSLI *sli, GType child_type,
  * ipatch_sli_find_inst:
  * @sli: SLI to search in
  * @name: Name of Instrument to find
- * @exclude: (allow-none): An instrument to exclude from the search or %NULL
+ * @exclude: (nullable): An instrument to exclude from the search or %NULL
  *
  * Find an instrument by @name in an SLI object. If a matching instrument
  * is found, its reference count is incremented before it is returned.
@@ -480,7 +480,7 @@ ipatch_sli_find_inst (IpatchSLI *sli, const char *name,
  * ipatch_sli_find_sample:
  * @sli: SLI to search in
  * @name: Name of sample to find
- * @exclude: (allow-none): A sample to exclude from the search or %NULL
+ * @exclude: (nullable): A sample to exclude from the search or %NULL
  *
  * Find a sample by @name in a SLI object. If a sample is found its
  * reference count is incremented before it is returned. The caller

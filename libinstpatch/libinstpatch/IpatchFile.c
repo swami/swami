@@ -276,7 +276,7 @@ ipatch_file_new (void)
 /**
  * ipatch_file_pool_new:
  * @file_name: File name (converted to an absolute file name if it isn't already)
- * @created: (out) (allow-none): Location to store %TRUE if file object was
+ * @created: (out) (optional): Location to store %TRUE if file object was
  *   newly created, %FALSE if not (%NULL to ignore)
  *
  * Lookup existing file object from file pool by file name or create a new one if not open.
@@ -606,7 +606,7 @@ ipatch_file_get_name (IpatchFile *file)
  * ipatch_file_rename:
  * @file: File object to rename
  * @new_name: New file name (can be a full path to move the file)
- * @err: (allow-none): Location to store error info or %NULL to ignore
+ * @err: Location to store error info or %NULL to ignore
  *
  * Physically rename the file referenced by a @file object. The given file
  * object must have a file name assigned and no file descriptor or I/O channel.
@@ -688,7 +688,7 @@ error:
 /**
  * ipatch_file_unlink:
  * @file: File object to rename
- * @err: (allow-none): Location to store error info or %NULL to ignore
+ * @err: Location to store error info or %NULL to ignore
  *
  * Physically delete the file referenced by a @file object. The given file
  * object must have a file name assigned and no file descriptor or I/O channel.
@@ -741,7 +741,7 @@ error:
  * ipatch_file_replace:
  * @newfile: New file to replace the @oldfile with (must have an assigned #IpatchFile::file-name property)
  * @oldfile: The old file to replace (must have an assigned #IpatchFile::file-name property)
- * @err: (allow-none): Location to store error info or %NULL to ignore
+ * @err: Location to store error info or %NULL to ignore
  *
  * Replace one file object with another.  After successful execution of this function
  * @oldfile will have an unset file name, @newfile will be assigned what was the oldfile name,
@@ -864,10 +864,10 @@ ipatch_file_replace (IpatchFile *newfile, IpatchFile *oldfile, GError **err)
 /**
  * ipatch_file_open:
  * @file: File object to open from a file name.
- * @file_name: (allow-none): Name of file to open or %NULL to use the file
+ * @file_name: (nullable): Name of file to open or %NULL to use the file
      object's assigned file name (in which case it should not be %NULL).
  * @mode: File open mode ("r" for read or "w" for write)
- * @err: (allow-none): Error information
+ * @err: Error information
  *
  * Opens a handle to a file object.  If a I/O channel or file descriptor is
  * already assigned (with ipatch_file_assign_fd() or
@@ -1114,7 +1114,7 @@ ipatch_file_update_position (IpatchFileHandle *handle, guint offset)
  * @handle: File handle
  * @buf: (out) (array length=size) (element-type guint8): Buffer to read data into
  * @size: Amount of data to read, in bytes.
- * @err: (allow-none): A location to return an error of type GIOChannelError or %NULL.
+ * @err: A location to return an error of type GIOChannelError or %NULL.
  *
  * Reads data from a file handle. An end of file encountered while
  * trying to read the specified @size of data is treated as an error.
@@ -1147,8 +1147,8 @@ ipatch_file_read (IpatchFileHandle *handle, gpointer buf, guint size, GError **e
  * @handle: File handle
  * @buf: (out) (array length=size) (element-type guint8): Buffer to read data into
  * @size: Amount of data to read, in bytes.
- * @bytes_read: (out) (allow-none): Pointer to store number of bytes actually read or %NULL.
- * @err: (allow-none): A location to return an error of type GIOChannelError or %NULL.
+ * @bytes_read: (out) (optional): Pointer to store number of bytes actually read or %NULL.
+ * @err: A location to return an error of type GIOChannelError or %NULL.
  *
  * Reads data from a file handle. This function does not treat end of file
  * as an error and will return #G_IO_STATUS_EOF with the number of bytes
@@ -1204,7 +1204,7 @@ _ipatch_file_read_no_pos_update (IpatchFileHandle *handle, gpointer buf,
  * @handle: File handle
  * @buf: (array length=size) (element-type guint8): Buffer of data to write
  * @size: Amount of data to write, in bytes.
- * @err: (allow-none): A location to return an error of type GIOChannelError or %NULL.
+ * @err: A location to return an error of type GIOChannelError or %NULL.
  *
  * Writes data to a file object.
  *
@@ -1251,7 +1251,7 @@ _ipatch_file_write_no_pos_update (IpatchFileHandle *handle, gconstpointer buf,
  * @offset: Offset in bytes to seek from the position specified by @type
  * @type: Position in file to seek from (see g_io_channel_seek_position
  *   for more details, only #G_SEEK_CUR and #G_SEEK_SET allowed).
- * @err: (allow-none): A location to return error info or %NULL.
+ * @err: A location to return error info or %NULL.
  *
  * Seek in a file handle. An end of file condition is treated as an error, use
  * ipatch_file_seek_eof() if this is undesirable.
@@ -1283,7 +1283,7 @@ ipatch_file_seek (IpatchFileHandle *handle, int offset, GSeekType type, GError *
  * @offset: Offset in bytes to seek from the position specified by @type
  * @type: Position in file to seek from (see g_io_channel_seek_position
  *   for more details, only G_SEEK_CUR and G_SEEK_SET allowed).
- * @err: (allow-none): A location to return error info or %NULL.
+ * @err: A location to return error info or %NULL.
  *
  * Seek in a file object. Does not treat end of file as an error, use
  * ipatch_file_seek() for convenience if this is desirable.
@@ -1318,7 +1318,7 @@ ipatch_file_seek_eof (IpatchFileHandle *handle, int offset, GSeekType type,
 /**
  * ipatch_file_get_size:
  * @file: File object to get size of
- * @err: (allow-none): Location to store error information
+ * @err: Location to store error information
  *
  * Get the size of a file object.
  *
@@ -1343,7 +1343,7 @@ ipatch_file_get_size (IpatchFile *file, GError **err)
 /**
  * ipatch_file_identify:
  * @file: File object to identify type of
- * @err: (allow-none): Location to store error information
+ * @err: Location to store error information
  *
  * Attempts to identify the type of a file using the "identify" method of
  * registered types derived from #IpatchFile.  The #IpatchFile:file-name property
@@ -1362,7 +1362,7 @@ ipatch_file_identify (IpatchFile *file, GError **err)
 /**
  * ipatch_file_identify_name:
  * @filename: Name of file to identify type of
- * @err: (allow-none): Location to store error information
+ * @err: Location to store error information
  *
  * Like ipatch_file_identify() but uses a file name for convenience.
  *
@@ -1514,7 +1514,7 @@ sort_type_by_identify_order (gconstpointer a, gconstpointer b)
 /**
  * ipatch_file_identify_open:
  * @file_name: File name to identify and open
- * @err: (allow-none): Location to store error of type GIOChannelError
+ * @err: Location to store error of type GIOChannelError
  *
  * A convenience function which calls ipatch_file_identify() to determine the
  * file type of @file_name. If the type is identified a new file object, of the
@@ -1553,7 +1553,7 @@ ipatch_file_identify_open (const char *file_name, GError **err)
 /**
  * ipatch_file_identify_new:
  * @file_name: File name to identify and create file object for
- * @err: (allow-none): Location to store error of type GIOChannelError
+ * @err: Location to store error of type GIOChannelError
  *
  * A convenience function which calls ipatch_file_identify() to determine the
  * file type of @file_name. If the type is identified a new file object, of the
@@ -1729,7 +1729,7 @@ ipatch_file_set_iofuncs_null (IpatchFile *file)
  * ipatch_file_default_open_method: (skip)
  * @handle: File handle
  * @mode: File open mode
- * @err: (allow-none): Error info
+ * @err: Error info
  *
  * Default "open" method for #IpatchFileIOFuncs. Useful when overriding only
  * some I/O functions.

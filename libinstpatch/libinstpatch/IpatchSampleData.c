@@ -141,13 +141,13 @@ remove_stores (gpointer key, gpointer value, gpointer user_data)
 
 /**
  * ipatch_migrate_file_sample_data:
- * @oldfile: (allow-none): Old file to migrate samples from (can be %NULL, but not both @oldfile and @newfile)
- * @newfile: (allow-none): New file which has stores which may be used for migration
+ * @oldfile: (nullable): Old file to migrate samples from (can be %NULL, but not both @oldfile and @newfile)
+ * @newfile: (nullable): New file which has stores which may be used for migration
  *   (can be %NULL, but not both @oldfile and @newfile)
- * @filename: (allow-none): File name used for replace if @oldfile is %NULL and
+ * @filename: (nullable): File name used for replace if @oldfile is %NULL and
  *   #IPATCH_SAMPLE_DATA_MIGRATE_REPLACE is set in @flags
  * @flags: (type IpatchSampleDataMigrateFlags): Flag options for migration
- * @err: (allow-none): Location to store error info or %NULL to ignore
+ * @err: Location to store error info or %NULL to ignore
  *
  * Used for migrating sample data when saving, deleting, replacing or closing instrument files.
  *
@@ -882,7 +882,7 @@ ipatch_sample_data_get_native_format (IpatchSampleData *sampledata)
  * @channel_map: Channel mapping if @format is set (set to 0 otherwise), use
  *   #IPATCH_SAMPLE_UNITY_CHANNEL_MAP for 1 to 1 channel mapping
  *   (see ipatch_sample_get_transform_funcs() for details).
- * @err: (allow-none): Location to store error information
+ * @err: Location to store error information
  *
  * A convenience function to open a handle to a @sampledata object's native sample.
  * See ipatch_sample_handle_open() for more details.  This is identical to calling
@@ -918,7 +918,7 @@ ipatch_sample_data_open_native_sample (IpatchSampleData *sampledata,
  * @channel_map: Channel mapping to use for new cached sample when converting
  *   from native format, use #IPATCH_SAMPLE_UNITY_CHANNEL_MAP for 1 to 1 channel
  *   mapping (see ipatch_sample_get_transform_funcs() for details).
- * @err: (allow-none): Location to store error information
+ * @err: Location to store error information
  *
  * Get a cached version, in RAM, of a sample.  If an existing cached sample
  * already exists with the given format and channel map, it is used.  Otherwise
@@ -1159,7 +1159,7 @@ ipatch_sample_data_lookup_cache_sample (IpatchSampleData *sampledata, int format
  * @sampledata: Sample data object
  * @handle: Caller supplied sample handle to initialize
  * @format: Sample format
- * @err: (allow-none): Location to store error information
+ * @err: Location to store error information
  *
  * Like ipatch_sample_data_get_cache_sample() but opens the resulting cached
  * sample as a convenience.

@@ -282,9 +282,9 @@ type_list_properties_GHFunc (gpointer key, gpointer value, gpointer user_data)
 /**
  * ipatch_type_find_types_with_property:
  * @name: Name of type property
- * @value: (allow-none): Optional value to match to type property values
+ * @value: (nullable): Optional value to match to type property values
  *   (%NULL to match any value)
- * @n_types: (out) (allow-none): Location to store count of types in returned
+ * @n_types: (out) (optional): Location to store count of types in returned
  *   array or %NULL to ignore
  *
  * Get an array of types which have the given type property assigned and match
@@ -915,9 +915,9 @@ ipatch_type_set_dynamic_func (GType type, const char *property_name,
  * @type: GType of the type property
  * @property_name: Name of a previously registered type property
  * @func: Callback function used for getting values for this type property
- * @notify_func: (allow-none) (scope async) (closure user_data): Destroy function
+ * @notify_func: (nullable) (scope async) (closure user_data): Destroy function
  *   callback when @func is removed
- * @user_data: (allow-none): Data passed to @notify_func
+ * @user_data: (nullable): Data passed to @notify_func
  *
  * Registers a callback function for dynamically getting the value of a
  * type property.  Like ipatch_type_set_dynamic_func() but more GObject Introspection

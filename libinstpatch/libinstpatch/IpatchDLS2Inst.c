@@ -428,7 +428,7 @@ ipatch_dls2_inst_get_info (IpatchDLS2Inst *inst, guint32 fourcc)
  * ipatch_dls2_inst_set_info:
  * @inst: DLS instrument to set info of
  * @fourcc: FOURCC integer ID of INFO to set
- * @val: (allow-none): Value to set info to or %NULL to unset (clear) info.
+ * @val: (nullable): Value to set info to or %NULL to unset (clear) info.
  *
  * Sets an INFO value in a DLS instrument object.
  * Emits changed signal.
@@ -478,8 +478,8 @@ ipatch_dls2_inst_set_midi_locale (IpatchDLS2Inst *inst, int bank, int program)
 /**
  * ipatch_dls2_inst_get_midi_locale:
  * @inst: Instrument to get MIDI locale from
- * @bank: (out) (allow-none): Location to store instrument's MIDI bank number or %NULL
- * @program: (out) (allow-none): Location to store instrument's MIDI program number or %NULL
+ * @bank: (out) (optional): Location to store instrument's MIDI bank number or %NULL
+ * @program: (out) (optional): Location to store instrument's MIDI program number or %NULL
  *
  * Gets the MIDI locale of a DLS instrument (bank and program numbers).
  */

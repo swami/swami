@@ -950,12 +950,12 @@ ipatch_sf2_get_info_max_size (IpatchSF2InfoType infotype)
 /**
  * ipatch_sf2_find_preset:
  * @sf: SoundFont to search in
- * @name: (allow-none): Name of preset to find or %NULL to match any name
+ * @name: (nullable): Name of preset to find or %NULL to match any name
  * @bank: MIDI bank number of preset to search for or -1 to not search by
  *   MIDI bank:program numbers
  * @program: MIDI program number of preset to search for, only used
  *   if @bank is 0-128
- * @exclude: (allow-none): A preset to exclude from the search or %NULL
+ * @exclude: (nullable): A preset to exclude from the search or %NULL
  *
  * Find a preset by name or bank:preset MIDI numbers. If preset @name
  * and @bank:@program are specified then match for either condition.
@@ -1008,7 +1008,7 @@ ipatch_sf2_find_preset (IpatchSF2 *sf, const char *name, int bank,
  * ipatch_sf2_find_inst:
  * @sf: SoundFont to search in
  * @name: Name of Instrument to find
- * @exclude: (allow-none): An instrument to exclude from the search or %NULL
+ * @exclude: (nullable): An instrument to exclude from the search or %NULL
  *
  * Find an instrument by @name in a SoundFont. If a matching instrument
  * is found, its reference count is incremented before it is returned.
@@ -1054,7 +1054,7 @@ ipatch_sf2_find_inst (IpatchSF2 *sf, const char *name,
  * ipatch_sf2_find_sample:
  * @sf: SoundFont to search in
  * @name: Name of sample to find
- * @exclude: (allow-none): A sample to exclude from the search or %NULL
+ * @exclude: (nullable): A sample to exclude from the search or %NULL
  *
  * Find a sample by @name in a SoundFont. If a sample is found its
  * reference count is incremented before it is returned. The caller
@@ -1163,8 +1163,8 @@ ipatch_sf2_get_zone_references (IpatchItem *item)
  * ipatch_sf2_make_unique_name:
  * @sfont: SoundFont item
  * @child_type: A child type of @sfont to search for a unique name in
- * @name: (allow-none): An initial name to use or %NULL
- * @exclude: (allow-none): An item to exclude from search or %NULL
+ * @name: (nullable): An initial name to use or %NULL
+ * @exclude: (nullable): An item to exclude from search or %NULL
  *
  * Generates a unique name for the given @child_type in @sfont. The @name
  * parameter is used as a base and is modified, by appending a number, to

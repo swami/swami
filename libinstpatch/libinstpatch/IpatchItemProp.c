@@ -116,7 +116,7 @@ prop_callback_equal_func (gconstpointer a, gconstpointer b)
  * @item: Item whose property changed
  * @pspec: Parameter specification for @item of parameter that changed
  * @new_value: The new value that was assigned
- * @old_value: (allow-none): Old value that property had (can be %NULL for read only props)
+ * @old_value: (nullable): Old value that property had (can be %NULL for read only props)
  *
  * Usually only used by #IpatchItem object implementations, rather
  * than explicitly called by the user.  It should be called AFTER item
@@ -253,7 +253,7 @@ ipatch_item_prop_notify (IpatchItem *item, GParamSpec *pspec,
  * @item: Item whose property changed
  * @prop_name: Name of property that changed
  * @new_value: The new value that was assigned
- * @old_value: (allow-none): Old value that property had (can be %NULL
+ * @old_value: (nullable): Old value that property had (can be %NULL
  *   for read only properties)
  *
  * Usually only used by #IpatchItem object implementations, rather
@@ -288,12 +288,12 @@ ipatch_item_prop_notify_by_name (IpatchItem *item, const char *prop_name,
 
 /**
  * ipatch_item_prop_connect: (skip)
- * @item: (allow-none): IpatchItem to match (or %NULL for wildcard)
- * @pspec: (allow-none): Property parameter specification to match (or %NULL for wildcard)
+ * @item: (nullable): IpatchItem to match (or %NULL for wildcard)
+ * @pspec: (nullable): Property parameter specification to match (or %NULL for wildcard)
  * @callback: (scope notified): Callback function
- * @disconnect: (allow-none) (closure user_data): Callback disconnect function
+ * @disconnect: (nullable) (closure user_data): Callback disconnect function
  *   (called when the callback is disconnected) can be %NULL.
- * @user_data: (allow-none): User defined data to pass to @callback and @disconnect function.
+ * @user_data: (nullable): User defined data to pass to @callback and @disconnect function.
  *
  * Connect a callback for a specific #IpatchItem and property. If a property
  * change occurs for the given @item and @pspec then the callback is
@@ -315,12 +315,12 @@ ipatch_item_prop_connect (IpatchItem *item, GParamSpec *pspec,
 
 /**
  * ipatch_item_prop_connect_notify: (rename-to ipatch_item_prop_connect)
- * @item: (allow-none): IpatchItem to match (or %NULL for wildcard)
- * @pspec: (allow-none): Property parameter specification to match (or %NULL for wildcard)
+ * @item: (nullable): IpatchItem to match (or %NULL for wildcard)
+ * @pspec: (nullable): Property parameter specification to match (or %NULL for wildcard)
  * @callback: (scope notified): Callback function
- * @notify_func: (scope async) (closure user_data) (allow-none): Callback destroy notify
+ * @notify_func: (scope async) (closure user_data) (nullable): Callback destroy notify
  *   (called when the callback is disconnected) can be %NULL.
- * @user_data: (allow-none): User defined data to pass to @callback and @disconnect function.
+ * @user_data: (nullable): User defined data to pass to @callback and @disconnect function.
  *
  * Connect a callback for a specific #IpatchItem and property. If a property
  * change occurs for the given @item and @pspec then the callback is
@@ -395,10 +395,10 @@ ipatch_item_prop_real_connect (IpatchItem *item, GParamSpec *pspec,
 
 /**
  * ipatch_item_prop_connect_by_name: (skip)
- * @item: (allow-none): IpatchItem to match (or %NULL for wildcard)
+ * @item: (nullable): IpatchItem to match (or %NULL for wildcard)
  * @prop_name: Name of property of @item to match
  * @callback: Callback function
- * @disconnect: (allow-none): Callback disconnect function (called when the callback is
+ * @disconnect: (nullable): Callback disconnect function (called when the callback is
  *   disconnect) can be NULL.
  * @user_data: (closure): User defined data to pass to @callback and @disconnect function.
  * 
@@ -427,12 +427,12 @@ ipatch_item_prop_connect_by_name (IpatchItem *item, const char *prop_name,
 
 /**
  * ipatch_item_prop_connect_by_name_notify: (rename-to ipatch_item_prop_connect_by_name)
- * @item: (allow-none): IpatchItem to match (or %NULL for wildcard)
+ * @item: (nullable): IpatchItem to match (or %NULL for wildcard)
  * @prop_name: Name of property of @item to match
  * @callback: Callback function
- * @notify_func: (scope async) (closure user_data) (allow-none): Callback destroy notify
+ * @notify_func: (scope async) (closure user_data) (nullable): Callback destroy notify
  *   (called when the callback is disconnected) can be %NULL.
- * @user_data: (allow-none): User defined data to pass to @callback and @disconnect function.
+ * @user_data: (nullable): User defined data to pass to @callback and @disconnect function.
  * 
  * Like ipatch_item_prop_add_callback() but takes the name of a property
  * instead of the parameter spec, for added convenience.
@@ -485,10 +485,10 @@ ipatch_item_prop_disconnect (guint handler_id)
 
 /**
  * ipatch_item_prop_disconnect_matched: (skip)
- * @item: (allow-none): #IpatchItem of handler to match (does not need to be valid)
- * @pspec: (allow-none): GParamSpec of handler to match (does not need to be valid)
+ * @item: (nullable): #IpatchItem of handler to match (does not need to be valid)
+ * @pspec: (nullable): GParamSpec of handler to match (does not need to be valid)
  * @callback: Callback function to match
- * @user_data: (allow-none): User data to match
+ * @user_data: (nullable): User data to match
  * 
  * Disconnects first #IpatchItem property change callback matching all the
  * function parameters.
@@ -508,8 +508,8 @@ ipatch_item_prop_disconnect_matched (IpatchItem *item, GParamSpec *pspec,
  * ipatch_item_prop_disconnect_by_name: (skip)
  * @item: #IpatchItem of handler to match (NOTE: Must be a valid object!)
  * @prop_name: Name of property of @item to match
- * @callback: (allow-none): Callback function to match
- * @user_data: (allow-none): User data to match
+ * @callback: (nullable): Callback function to match
+ * @user_data: (nullable): User data to match
  *
  * Like ipatch_item_prop_disconnect_matched() but takes a name of the
  * property to match instead of a parameter spec, for added convenience.

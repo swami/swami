@@ -368,7 +368,7 @@ ipatch_base_get_file_name (IpatchBase *base)
  * @base: Patch base object
  * @bank: (inout): MIDI bank number
  * @program: (inout): MIDI program number
- * @exclude: (allow-none): Child of @base with MIDI locale to exclude or %NULL
+ * @exclude: (nullable): Child of @base with MIDI locale to exclude or %NULL
  * @percussion: Set to %TRUE to find a free percussion MIDI locale
  *
  * Finds an unused MIDI locale (bank:program number pair) in a patch
@@ -444,9 +444,9 @@ remove_created_stores (gpointer data, gpointer user_data)
 /**
  * ipatch_base_save:
  * @base: Base item to save
- * @filename: (allow-none): New file name to save to or %NULL to use current one
+ * @filename: (nullable): New file name to save to or %NULL to use current one
  * @flags: (type IpatchBaseSaveFlags): Save flags
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Save a patch item to a file.  This function handles saving over an existing
  * file and migrates sample stores as needed.  It is an error to try to save
@@ -619,7 +619,7 @@ error:
 /**
  * ipatch_base_close:
  * @base: Base item to close
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Close a base instrument object (using ipatch_item_remove()), migrating sample data as needed.
  *
@@ -653,7 +653,7 @@ ipatch_base_close (IpatchBase *base, GError **err)
 /**
  * ipatch_close_base_list:
  * @list: List of base objects to close (non base objects are skipped)
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Close a list of base instrument objects (using ipatch_item_remove_recursive()),
  * migrating sample data as needed.  Using this function instead of ipatch_base_close()

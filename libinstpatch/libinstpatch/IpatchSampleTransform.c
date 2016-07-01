@@ -421,8 +421,8 @@ ipatch_sample_transform_set_buffers_size (IpatchSampleTransform *transform,
 /**
  * ipatch_sample_transform_get_buffers: (skip)
  * @transform: Sample transform object
- * @buf1: (out) (allow-none): First buffer or %NULL to ignore
- * @buf2: (out) (allow-none): Second buffer or %NULL to ignore
+ * @buf1: (out) (optional): First buffer or %NULL to ignore
+ * @buf2: (out) (optional): Second buffer or %NULL to ignore
  * 
  * Get the sample data buffers in a sample transform object.
  */
@@ -439,8 +439,8 @@ ipatch_sample_transform_get_buffers (IpatchSampleTransform *transform,
 /**
  * ipatch_sample_transform_get_frame_sizes:
  * @transform: Initialized transform object
- * @buf1_size: (out) (allow-none): Maximum frame size for buffer 1 or %NULL to ignore
- * @buf2_size: (out) (allow-none): Maximum frame size for buffer 2 or %NULL to ignore
+ * @buf1_size: (out) (optional): Maximum frame size for buffer 1 or %NULL to ignore
+ * @buf2_size: (out) (optional): Maximum frame size for buffer 2 or %NULL to ignore
  * 
  * Get max frame sizes for transform buffers. When transforming audio the
  * first buffer must be at least frames * buf1_size bytes in size and the

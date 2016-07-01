@@ -102,7 +102,7 @@ _ipatch_converter_init (void)
  * ipatch_convert_objects:
  * @input: Input object
  * @output: Output object
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * A convenience function for converting from one object to another.  This
  * function will only work for converters which take exactly one input and
@@ -148,7 +148,7 @@ ipatch_convert_objects (GObject *input, GObject *output, GError **err)
  * ipatch_convert_object_to_type:
  * @object: Object to convert from
  * @type: Type of object to convert to
- * @err: (allow-none): Location to store error info or %NULL to ignore
+ * @err: Location to store error info or %NULL to ignore
  *
  * A convenience function to convert an object to another object of a given
  * type.  This function will only work for converters which require 1
@@ -215,7 +215,7 @@ ipatch_convert_object_to_type (GObject *object, GType type, GError **err)
  * ipatch_convert_object_to_type_multi:
  * @object: Object to convert from
  * @type: Type of object to convert to
- * @err: (allow-none): Location to store error info or %NULL to ignore
+ * @err: Location to store error info or %NULL to ignore
  *
  * A convenience function to convert an object to one or more objects of a given
  * @type.  This function will work for converters which require 1
@@ -234,8 +234,8 @@ ipatch_convert_object_to_type_multi (GObject *object, GType type, GError **err)
  * ipatch_convert_object_to_type_multi_set:
  * @object: Object to convert from
  * @type: Type of object to convert to
- * @err: (allow-none): Location to store error info or %NULL to ignore
- * @first_property_name: (allow-none): Name of first property to assign or %NULL
+ * @err: Location to store error info or %NULL to ignore
+ * @first_property_name: (nullable): Name of first property to assign or %NULL
  * @...: First property value followed by property name/value pairs (as per
  *   g_object_set()) to assign to the resulting converter, terminated with a
  *   %NULL property name.
@@ -1155,7 +1155,7 @@ ipatch_converter_init (IpatchConverter *converter)
 /**
  * ipatch_converter_convert:
  * @converter: Converter object
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Runs the conversion method of a converter object. The @converter object's
  * conversion paramters are first verified before the conversion is run.
@@ -1259,7 +1259,7 @@ ipatch_converter_get_notes (IpatchConverter *converter)
 /**
  * ipatch_converter_log: (skip)
  * @converter: Converter object
- * @item: (allow-none): Item the log entry pertains to or %NULL if not item specific
+ * @item: (nullable): Item the log entry pertains to or %NULL if not item specific
  * @type: #IpatchConverterLogType and other flags
  * @msg: Message of the log. If message is dynamically allocated then
  *   the #IPATCH_CONVERTER_LOG_MSG_ALLOC flag should be set in @type
@@ -1290,7 +1290,7 @@ ipatch_converter_log (IpatchConverter *converter, GObject *item,
 /**
  * ipatch_converter_log_printf:
  * @converter: Converter object
- * @item: (allow-none): Item the log entry pertains to or %NULL if not item specific
+ * @item: (nullable): Item the log entry pertains to or %NULL if not item specific
  * @type: #IpatchConverterLogType and other flags
  * @fmt: Printf format style string
  * @...: Arguments to @fmt message string
@@ -1326,10 +1326,10 @@ ipatch_converter_log_printf (IpatchConverter *converter, GObject *item,
  * @converter: Converter object
  * @pos: (out): Opaque current position in log, should be %NULL on first call to
  *   this function to return first log item (oldest item)
- * @item: (out) (transfer none) (allow-none): Location to store item of the log entry or %NULL,
+ * @item: (out) (transfer none) (optional): Location to store item of the log entry or %NULL,
  *   no reference is added so the item is only guarenteed to exist for as long as the
  *   @converter does
- * @type: (out) (allow-none): Location to store the type parameter of the log entry or %NULL
+ * @type: (out) (optional): Location to store the type parameter of the log entry or %NULL
  * @msg: (out) (transfer none): Location to store the message of the log entry or %NULL, message
  *   is internal and should not be messed with and is only guarenteed for
  *   the lifetime of the @converter
@@ -1391,11 +1391,11 @@ ipatch_converter_set_link_funcs (IpatchConverter *converter,
 /**
  * ipatch_converter_set_link_funcs_full: (rename-to ipatch_converter_set_link_funcs)
  * @converter: Converter object
- * @link_lookup: (scope notified) (allow-none): Set the link lookup callback function
- * @link_notify: (scope notified) (allow-none): Set the link notify callback function
- * @notify_func: (scope async) (closure user_data) (allow-none): Callback which gets
+ * @link_lookup: (scope notified) (nullable): Set the link lookup callback function
+ * @link_notify: (scope notified) (nullable): Set the link notify callback function
+ * @notify_func: (scope async) (closure user_data) (nullable): Callback which gets
  *   called when link functions are removed.
- * @user_data: (allow-none): User data passed to @notify_func (not @link_lookup or @link_notify)
+ * @user_data: (nullable): User data passed to @notify_func (not @link_lookup or @link_notify)
  *
  * This function allows for object link interception by the user of
  * an #IpatchConverter instance.  The callback functions are used by

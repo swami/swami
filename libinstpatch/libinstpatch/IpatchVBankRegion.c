@@ -384,7 +384,7 @@ ipatch_vbank_region_real_set_id_props (IpatchVBankRegion *region,
 /**
  * ipatch_vbank_region_get_id_props:
  * @region: VBank region
- * @n_elements: (out) (allow-none): Pointer to store count of elements in
+ * @n_elements: (out) (optional): Pointer to store count of elements in
  *   returned string array or %NULL to ignore.
  *
  * Get ID properties which uniquely identify the referenced item.  These are

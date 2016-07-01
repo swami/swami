@@ -348,9 +348,9 @@ ipatch_unit_conversion_register (guint16 src_units, guint16 dest_units,
  * @dest_units: Destination unit type
  * @func: Conversion function handler or %NULL for unity conversion (the
  *   value type will be converted but not the actual value, example: float to int).
- * @notify_func: (allow-none) (scope async) (closure user_data): Destroy notification
+ * @notify_func: (nullable) (scope async) (closure user_data): Destroy notification
  *   when conversion function is removed
- * @user_data: (allow-none): Data to pass to @notify_func callback
+ * @user_data: (nullable): Data to pass to @notify_func callback
  *
  * Register a parameter unit conversion function.  Like ipatch_unit_conversion_register()
  * but friendlier to GObject Introspection.

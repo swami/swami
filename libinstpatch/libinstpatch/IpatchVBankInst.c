@@ -372,9 +372,9 @@ ipatch_vbank_inst_set_midi_locale (IpatchVBankInst *inst,
 /**
  * ipatch_vbank_inst_get_midi_locale:
  * @inst: Virtual bank instrument to get MIDI locale from
- * @bank: (out) (allow-none): Location to store instrument's
+ * @bank: (out) (optional): Location to store instrument's
  *   MIDI bank number or %NULL
- * @program: (out) (allow-none): Location to store instrument's
+ * @program: (out) (optional): Location to store instrument's
  *   MIDI program number or %NULL
  *
  * Gets the MIDI locale of a virtual bank instrument (bank and program numbers).

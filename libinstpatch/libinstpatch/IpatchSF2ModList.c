@@ -283,7 +283,7 @@ ipatch_sf2_mod_list_insert (IpatchSF2ModList *mods, const IpatchSF2Mod *modvals,
  * ipatch_sf2_mod_list_remove:
  * @mods: (transfer full): Modulator list to remove from
  * @modvals: Values of modulator to remove
- * @changed: (out) (allow-none): Pointer to store bool of whether the list was changed
+ * @changed: (out) (optional): Pointer to store bool of whether the list was changed
  *   (%NULL to ignore)
  *
  * Remove a modulator from a modulator list. The modulator values in @modvals

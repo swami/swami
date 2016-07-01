@@ -663,7 +663,7 @@ ipatch_dls2_region_get_info (IpatchDLS2Region *region, guint32 fourcc)
  * ipatch_dls2_region_set_info:
  * @region: DLS region to set info of
  * @fourcc: FOURCC integer ID of INFO to set
- * @val: (allow-none): Value to set info to or %NULL to unset (clear) info.
+ * @val: (nullable): Value to set info to or %NULL to unset (clear) info.
  *
  * Sets an INFO value in a DLS region object.
  * Emits changed signal.

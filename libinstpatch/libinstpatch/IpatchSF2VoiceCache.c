@@ -164,9 +164,9 @@ ipatch_sf2_voice_cache_finalize (GObject *gobject)
 
 /**
  * ipatch_sf2_voice_cache_new: (skip)
- * @info: (allow-none): Array of selection info structures (length should be @sel_count), use
+ * @info: (nullable): Array of selection info structures (length should be @sel_count), use
  *   %NULL for default selection info (MIDI note and velocity)
- * @sel_count: (allow-none): Count of selection ranges for this cache (ignored if @info is
+ * @sel_count: (nullable): Count of selection ranges for this cache (ignored if @info is
  *   %NULL)
  *
  * Create a new SoundFont voice cache object.  The @sel_count parameter
@@ -337,7 +337,7 @@ ipatch_sf2_voice_set_sample_data (IpatchSF2Voice *voice, IpatchSampleData *sampl
 /**
  * ipatch_sf2_voice_cache_sample_data: (skip)
  * @voice: SoundFont voice structure
- * @err: (allow-none): Location to store error info or %NULL to ignore
+ * @err: Location to store error info or %NULL to ignore
  * 
  * Cache an already assigned sample data object of a voice.  The sample data is
  * cached as 16 bit mono native endian format, if not already cached, and the

@@ -101,7 +101,7 @@ ipatch_dls2_info_peek (IpatchDLS2Info *info, guint32 fourcc)
  * ipatch_dls2_info_set:
  * @info: DLS2 info list
  * @fourcc: FOURCC info ID
- * @value: (allow-none): String value to set info to or %NULL to unset
+ * @value: (nullable): String value to set info to or %NULL to unset
  *
  * Sets the info specified by the @fourcc ID in an @info list to a
  * string @value.

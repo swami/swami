@@ -578,7 +578,7 @@ ipatch_sf2_preset_new_zone (IpatchSF2Preset *preset, IpatchSF2Inst *inst)
 /**
  * ipatch_sf2_preset_set_name:
  * @preset: Preset to set name of
- * @name: (allow-none): Value to set name to
+ * @name: (nullable): Value to set name to
  *
  * Sets the name of a SoundFont preset.
  */

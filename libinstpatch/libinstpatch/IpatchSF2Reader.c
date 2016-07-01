@@ -166,7 +166,7 @@ ipatch_sf2_reader_set_file_handle (IpatchSF2Reader *reader, IpatchFileHandle *ha
 /**
  * ipatch_sf2_reader_load:
  * @reader: SF2 reader object
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Load an SF2 file.
  *

@@ -314,9 +314,9 @@ ipatch_container_remove_notify (IpatchContainer *container, IpatchItem *child)
 
 /**
  * ipatch_container_add_connect: (skip)
- * @container: (allow-none): Container to match (%NULL for wildcard)
+ * @container: (nullable): Container to match (%NULL for wildcard)
  * @callback: Callback function to call on match
- * @disconnect: (allow-none): Function to call when callback is disconnected or %NULL
+ * @disconnect: (nullable): Function to call when callback is disconnected or %NULL
  * @user_data: User defined data pointer to pass to @callback and @disconnect
  *
  * Adds a callback which gets called when a container item add operation occurs
@@ -337,11 +337,11 @@ ipatch_container_add_connect (IpatchContainer *container,
 
 /**
  * ipatch_container_add_connect_notify: (rename-to ipatch_container_add_connect)
- * @container: (allow-none): Container to match (%NULL for wildcard)
+ * @container: (nullable): Container to match (%NULL for wildcard)
  * @callback: (scope notified) (closure user_data): Callback function to call on match
- * @notify_func: (scope async) (closure user_data) (allow-none): Callback destroy notify
+ * @notify_func: (scope async) (closure user_data) (nullable): Callback destroy notify
  *   when callback is disconnected or %NULL
- * @user_data: (allow-none): User defined data pointer to pass to @callback and @disconnect
+ * @user_data: (nullable): User defined data pointer to pass to @callback and @disconnect
  *
  * Adds a callback which gets called when a container item add operation occurs
  * and the container matches @container.  When @container is %NULL, @callback
@@ -404,10 +404,10 @@ ipatch_container_real_add_connect (IpatchContainer *container,
 
 /**
  * ipatch_container_remove_connect: (skip)
- * @container: (allow-none): Container to match (%NULL for wildcard)
- * @child: (allow-none): Child item to match (%NULL for wildcard)
+ * @container: (nullable): Container to match (%NULL for wildcard)
+ * @child: (nullable): Child item to match (%NULL for wildcard)
  * @callback: Callback function to call on match
- * @disconnect: (allow-none): Function to call when callback is disconnected or %NULL
+ * @disconnect: (nullable): Function to call when callback is disconnected or %NULL
  * @user_data: (closure): User defined data pointer to pass to @callback and @disconnect
  *
  * Adds a callback which gets called when a container item remove operation
@@ -433,12 +433,12 @@ ipatch_container_remove_connect (IpatchContainer *container,
 
 /**
  * ipatch_container_remove_connect_notify: (rename-to ipatch_container_remove_connect)
- * @container: (allow-none): Container to match (%NULL for wildcard)
- * @child: (allow-none): Child item to match (%NULL for wildcard)
+ * @container: (nullable): Container to match (%NULL for wildcard)
+ * @child: (nullable): Child item to match (%NULL for wildcard)
  * @callback: (scope notified) (closure user_data): Callback function to call on match
- * @notify_func: (scope async) (closure user_data) (allow-none): Function to call
+ * @notify_func: (scope async) (closure user_data) (nullable): Function to call
  *   when callback is disconnected or %NULL
- * @user_data: (allow-none): User defined data pointer to pass to @callback and @disconnect
+ * @user_data: (nullable): User defined data pointer to pass to @callback and @disconnect
  *
  * Adds a callback which gets called when a container item remove operation
  * occurs and the container matches @container and child item matches @child.
@@ -566,8 +566,8 @@ ipatch_container_remove_disconnect (guint handler_id)
 
 /**
  * ipatch_container_remove_disconnect_matched: (skip)
- * @container: (allow-none): Container to match (can be %NULL if @child is set)
- * @child: (allow-none): Child item to match (can be %NULL if @container is set)
+ * @container: (nullable): Container to match (can be %NULL if @child is set)
+ * @child: (nullable): Child item to match (can be %NULL if @container is set)
  * @callback: Callback function to match
  * @user_data: User data to match
  *

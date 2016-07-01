@@ -207,7 +207,7 @@ ipatch_sample_store_ram_sample_iface_write (IpatchSampleHandle *handle,
 
 /**
  * ipatch_sample_store_ram_new:
- * @location: (allow-none): Location of existing sample data or %NULL if the sample buffer
+ * @location: (nullable): Location of existing sample data or %NULL if the sample buffer
  *   should be allocated (in which case the sample must be written to first).
  * @free_data: %TRUE if sample data at @location should be freed when object
  *   is destroyed

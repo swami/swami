@@ -458,7 +458,7 @@ list_item_free_next (IpatchSampleList *list, GList *itemp)
  * @pos: Position in sample list audio to start from, in frames
  * @frames: Size of sample data to render in frames
  * @format: Sample format to render to (must be mono)
- * @err: (allow-none): Location to store error to or %NULL to ignore
+ * @err: Location to store error to or %NULL to ignore
  *
  * Copies sample data from a sample list, converting as necessary and storing
  * to @buf.
@@ -528,7 +528,7 @@ ipatch_sample_list_render (IpatchSampleList *list, gpointer buf,
  * @pos: Position in sample list audio to start from, in frames
  * @size: Size of sample data to render in bytes (must be a multiple of frame size)
  * @format: Sample format to render to (must be mono)
- * @err: (allow-none): Location to store error to or %NULL to ignore
+ * @err: Location to store error to or %NULL to ignore
  *
  * Copies sample data from a sample list, converting as necessary and returning
  * an allocated buffer.

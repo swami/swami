@@ -303,7 +303,7 @@ ipatch_riff_push_state (IpatchRiff *riff)
 /**
  * ipatch_riff_pop_state:
  * @riff: RIFF object
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Pops the most recent state pushed onto the state stack. This causes the
  * position in the RIFF file stored by the state to be restored.
@@ -353,7 +353,7 @@ ipatch_riff_reset (IpatchRiff *riff)
 /**
  * ipatch_riff_start_read:
  * @riff: RIFF object
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Start parsing the @riff file object as if it were at the
  * beginning of a RIFF file. Clears any current chunk state,
@@ -400,7 +400,7 @@ ipatch_riff_start_read (IpatchRiff *riff, GError **err)
 /**
  * ipatch_riff_start_read_chunk:
  * @riff: RIFF object
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Start parsing the @riff file object at an arbitrary chunk.
  * Clears any current chunk state and loads a chunk. If this
@@ -434,7 +434,7 @@ ipatch_riff_start_read_chunk (IpatchRiff *riff, GError **err)
 /**
  * ipatch_riff_read_chunk:
  * @riff: RIFF object
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Parse next RIFF chunk header. The ipatch_riff_close_chunk()
  * function should be called at the end of parsing a chunk, otherwise this
@@ -625,7 +625,7 @@ ipatch_riff_update_positions (IpatchRiff *riff)
  * @riff: RIFF object
  * @type: Expected chunk type
  * @id: Expected chunk ID
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Like ipatch_riff_read_chunk() but ensures that the new chunk matches a
  * specific type and ID.  If the chunk is not the expected chunk or no more
@@ -703,7 +703,7 @@ verify_chunk_idstr (char idstr[4])
  * @riff: RIFF object
  * @type: Chunk type (RIFF, LIST, or SUB)
  * @id: Chunk ID (secondary ID for RIFF and LIST chunks)
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Opens a new chunk and writes a chunk header to the file object in @riff.
  * The size field of the chunk is set to 0 and will be filled in when the
@@ -776,7 +776,7 @@ ipatch_riff_write_chunk (IpatchRiff *riff,
  * ipatch_riff_close_chunk:
  * @riff: RIFF object
  * @level: Level of chunk to close (-1 for current chunk)
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Closes the chunk specified by @level and all its children (if any).
  *
@@ -913,7 +913,7 @@ ipatch_riff_close_chunk (IpatchRiff *riff, int level, GError **err)
  * ipatch_riff_skip_chunks:
  * @riff: RIFF object
  * @count: Number of chunks to skip
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Skips RIFF chunks at the current chunk level (children of the current
  * chunk).
@@ -937,7 +937,7 @@ ipatch_riff_skip_chunks (IpatchRiff *riff, guint count, GError **err)
 /**
  * ipatch_riff_get_error:
  * @riff: RIFF object
- * @err: (allow-none): Location to store error info
+ * @err: Location to store error info
  *
  * Gets error information from a RIFF object.
  *

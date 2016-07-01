@@ -112,9 +112,9 @@ ipatch_register_paste_handler (IpatchPasteTestFunc test_func,
  * ipatch_register_paste_handler_full: (rename-to ipatch_register_paste_handler)
  * @test_func: (scope notified): Callback function to test if a paste operation is handled
  * @exec_func: (scope notified): Paste execution function
- * @notify_func: (allow-none) (scope async) (closure user_data): Called when paste
+ * @notify_func: (nullable) (scope async) (closure user_data): Called when paste
  *   handler is unregistered
- * @user_data: (allow-none): Data to pass to @notify_func or %NULL
+ * @user_data: (nullable): Data to pass to @notify_func or %NULL
  * @flags: (type IpatchPastePriority): Currently just a value
  *   from #IpatchPastePriority or 0 for default priority.
  *
@@ -211,7 +211,7 @@ ipatch_unregister_paste_handler (int id)
  * ipatch_simple_paste:
  * @dest: Destination item to paste to
  * @src: Source item
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Simple paste of a single @src item to @dest item.  Any conflicts are
  * ignored which means that conflicts will remain and should be resolved.
@@ -367,7 +367,7 @@ ipatch_paste_new (void)
  * @paste: Paste object
  * @dest: Destination item of paste
  * @src: Source item of paste
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Setup a paste operation.  Multiple item pastes can occur for the same
  * @paste instance.  Existing duplicated items are used if present (example:
@@ -753,7 +753,7 @@ check_item_conflicts_GHFunc (gpointer key, gpointer value,
 /**
  * ipatch_paste_finish:
  * @paste: Paste object
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Complete the paste operation(s) (add/link objects).  Conflicts are handled
  * for the choices made with ipatch_paste_resolve() (defaults to ignore which
@@ -840,7 +840,7 @@ ipatch_paste_get_add_list (IpatchPaste *paste)
  * @paste: Paste object
  * @additem: New item to add.
  * @parent: Container to parent @additem to.
- * @orig: (allow-none): Original item associated with @additem (if duplicated for example).
+ * @orig: (nullable): Original item associated with @additem (if duplicated for example).
  *   If supplied then an association between the @orig object and the @additem
  *   will be made, and any references to @orig of subsequent deep duplications
  *   will use the new @additem instead.
@@ -1018,9 +1018,9 @@ paste_copy_link_func_deep (IpatchItem *item, IpatchItem *link,
  * @conv_type: IpatchConverter derived type to use for conversion.
  * @item: Item to convert and add.
  * @parent: Container to parent converted item to.
- * @item_list: (out) (allow-none): Location to store pointer to the list of added items or %NULL
+ * @item_list: (out) (optional): Location to store pointer to the list of added items or %NULL
  *   to ignore.  Caller owns a reference to the list.
- * @err: (allow-none): Location to store error info or %NULL to ignore.
+ * @err: Location to store error info or %NULL to ignore.
  *
  * Used by #IpatchPasteExecFunc handlers.  Converts @item using an
  * #IpatchConverter of type @conv_type and registers
@@ -1253,7 +1253,7 @@ ipatch_paste_default_test_func (IpatchItem *dest, IpatchItem *src)
  * @paste: Paste object
  * @src: Source object of paste
  * @dest: Destination object of paste
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Default #IpatchPasteExecFunc.  Useful for alternative paste implementations
  * which would like to chain to the default function (to override only specific

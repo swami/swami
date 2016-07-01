@@ -349,7 +349,7 @@ ipatch_sli_inst_new_zone (IpatchSLIInst *inst, IpatchSLISample *sample)
 /**
  * ipatch_sli_inst_set_name:
  * @inst: Instrument to set name of
- * @name: (allow-none): Value to set name to
+ * @name: (nullable): Value to set name to
  *
  * Sets the name of a Spectralis instrument.
  */

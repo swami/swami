@@ -389,12 +389,12 @@ ipatch_vbank_new (void)
 /**
  * ipatch_vbank_find_inst:
  * @vbank: VBank to search in
- * @name: (allow-none): Name of instrument to find or %NULL to match any name
+ * @name: (nullable): Name of instrument to find or %NULL to match any name
  * @bank: MIDI bank number of instrument to search for or -1 to not search by
  *   MIDI bank:program numbers
  * @program: MIDI program number of instrument to search for, only used
  *   if @bank is 0-128
- * @exclude: (allow-none): An instrument to exclude from the search or %NULL
+ * @exclude: (nullable): An instrument to exclude from the search or %NULL
  *
  * Find an instrument by name or bank:preset MIDI numbers. If instrument @name
  * and @bank:@program are specified then match for either condition.
@@ -451,8 +451,8 @@ ipatch_vbank_find_inst (IpatchVBank *vbank, const char *name, int bank,
 /**
  * ipatch_vbank_make_unique_name:
  * @vbank: VBank item
- * @name: (allow-none): An initial name to use or %NULL
- * @exclude: (allow-none): An item to exclude from search or %NULL
+ * @name: (nullable): An initial name to use or %NULL
+ * @exclude: (nullable): An item to exclude from search or %NULL
  *
  * Generates a unique instrument name for @vbank. The @name
  * parameter is used as a base and is modified, by appending a number, to

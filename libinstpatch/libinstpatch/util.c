@@ -161,7 +161,7 @@ ipatch_util_value_array_hash (GValueArray *valarray)
 /**
  * ipatch_util_file_size: (skip)
  * @fname: Path of file to get size of.
- * @err: (allow-none): Location to store error or %NULL
+ * @err: Location to store error or %NULL
  *
  * Get the size of a file (tired of using stat every time?).
  *

@@ -591,7 +591,7 @@ ipatch_dls2_get_info (IpatchDLS2 *dls, guint32 fourcc)
  * ipatch_dls2_set_info:
  * @dls: DLS to set info of
  * @fourcc: FOURCC integer ID of INFO to set
- * @val: (allow-none): Value to set info to or %NULL to unset (clear) info.
+ * @val: (nullable): Value to set info to or %NULL to unset (clear) info.
  *
  * Sets an INFO value in a DLS object.
  *
@@ -629,8 +629,8 @@ ipatch_dls2_set_info (IpatchDLS2 *dls, guint32 fourcc, const char *val)
  * ipatch_dls2_make_unique_name:
  * @dls: DLS object
  * @child_type: A child type of @dls to search for a unique name in
- * @name: (allow-none): An initial name to use or NULL
- * @exclude: (allow-none): An item to exclude from search or NULL
+ * @name: (nullable): An initial name to use or NULL
+ * @exclude: (nullable): An item to exclude from search or NULL
  *
  * Generates a unique name for the given @child_type in @dls. The @name
  * parameter is used as a base and is modified, by appending a number, to
@@ -717,12 +717,12 @@ ipatch_dls2_make_unique_name (IpatchDLS2 *dls, GType child_type,
 /**
  * ipatch_dls2_find_inst:
  * @dls: DLS object to search in
- * @name: (allow-none): Name of instrument to find or %NULL to match any name
+ * @name: (nullable): Name of instrument to find or %NULL to match any name
  * @bank: MIDI bank number of instrument to search for or -1 to not search by
  *   MIDI bank:program numbers
  * @program: MIDI program number of instrument to search for, only used
  *   if @bank is 0-128
- * @exclude: (allow-none): A instrument to exclude from the search or %NULL
+ * @exclude: (nullable): A instrument to exclude from the search or %NULL
  *
  * Find a instrument by name or bank:program MIDI numbers. If instrument @name
  * and @bank:@program are specified then match for either condition.
@@ -778,7 +778,7 @@ ipatch_dls2_find_inst (IpatchDLS2 *dls, const char *name, int bank,
  * ipatch_dls2_find_sample:
  * @dls: DLS object to search in
  * @name: Name of sample to find
- * @exclude: (allow-none): A sample to exclude from the search or %NULL
+ * @exclude: (nullable): A sample to exclude from the search or %NULL
  *
  * Find a sample by @name in a SoundFont. If a sample is found its
  * reference count is incremented before it is returned. The caller

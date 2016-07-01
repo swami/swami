@@ -935,7 +935,7 @@ ipatch_item_copy (IpatchItem *dest, IpatchItem *src)
  * @src: Item to copy from
  * @link_func: (scope call) (closure user_data): Function to call for each
  *   object link pointer in @src.  This function can alter the copied link if desired.
- * @user_data: (allow-none): User defined data to pass to @link_func.
+ * @user_data: (nullable): User defined data to pass to @link_func.
  *
  * Copy an item using the item class' "copy" method.  Like ipatch_item_copy()
  * but takes a @link_func which can be used for handling replication of
@@ -1026,7 +1026,7 @@ ipatch_item_duplicate (IpatchItem *item)
  * @item: Item to duplicate
  * @link_func: (scope call) (closure user_data): Function to call for each
  *   object link pointer in @item.  This function can alter the copied link if desired.
- * @user_data: (allow-none): User defined data to pass to @link_func.
+ * @user_data: (nullable): User defined data to pass to @link_func.
  *
  * Like ipatch_item_copy_link_func() but duplicates the item instead of
  * copying to an existing item.
@@ -1218,7 +1218,7 @@ ipatch_item_type_can_conflict (GType item_type)
 /**
  * ipatch_item_type_get_unique_specs:
  * @item_type: Type to get unique parameter specs for
- * @groups: (out) (allow-none): Location to store an integer describing groups.
+ * @groups: (out) (optional): Location to store an integer describing groups.
  *   Each bit corresponds to a GParamSpec in the returned array.  GParamSpecs of the
  *   same group will have the same bit value (0 or 1) and be consecutive.
  *   Unique properties in the same group must all match (logic AND) for a

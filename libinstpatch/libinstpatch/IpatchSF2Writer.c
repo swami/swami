@@ -258,7 +258,7 @@ ipatch_sf2_writer_set_file_handle (IpatchSF2Writer *writer,
 /**
  * ipatch_sf2_writer_save:
  * @writer: SoundFont writer object
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Write a SoundFont object to a file.
  *

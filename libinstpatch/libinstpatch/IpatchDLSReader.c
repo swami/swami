@@ -181,7 +181,7 @@ ipatch_dls_reader_new (IpatchFileHandle *handle)
 /**
  * ipatch_dls_reader_load:
  * @reader: DLS reader object
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Load a DLS file.
  *
@@ -232,7 +232,7 @@ ipatch_dls_reader_load (IpatchDLSReader *reader, GError **err)
 /**
  * ipatch_dls_reader_start:
  * @reader: DLS/Gig reader
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Starts parsing a DLS/Gig file. This function only needs to be
  * called if using an IpatchDLSReader without ipatch_dls_load()
@@ -280,7 +280,7 @@ ipatch_dls_reader_start (IpatchDLSReader *reader, GError **err)
 /**
  * ipatch_dls_reader_set_pool_table:
  * @reader: DLS/Gig reader
- * @pool_table: (array length=size) (allow-none): An array of unsigned 32 bit integers which
+ * @pool_table: (array length=size) (nullable): An array of unsigned 32 bit integers which
  *   are file offsets to samples in a DLS file, can be %NULL if @size is 0
  * @size: Number of entries in @pool_table
  *
@@ -309,7 +309,7 @@ ipatch_dls_reader_set_pool_table (IpatchDLSReader *reader,
 /**
  * ipatch_dls_reader_fixup:
  * @reader: DLS/Gig reader
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Fixup sample pointers in DLS/GigaSampler regions of the DLS object in
  * @reader. The sample pointers should be sample pool indexes previously
@@ -489,7 +489,7 @@ assert_loading_gig (IpatchDLSReader *reader, GError **err)
 /**
  * ipatch_dls_reader_load_level_0:
  * @reader: DLS/Gig reader
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Load the top level DLS chunk of a DLS or GigaSampler file (essentially
  * the entire file except the toplevel chunk itself).
@@ -593,7 +593,7 @@ ipatch_dls_reader_load_level_0 (IpatchDLSReader *reader, GError **err)
 /**
  * ipatch_dls_reader_load_inst_list:
  * @reader: DLS/Gig reader
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Loads DLS or GigaSampler instrument list from the current position in
  * the file assigned to @reader.
@@ -724,7 +724,7 @@ ipatch_dls_reader_load_inst_list (IpatchDLSReader *reader, GError **err)
  * ipatch_dls_reader_load_region_list:
  * @reader: DLS reader
  * @inst: DLS instrument to fill with loaded regions
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Loads DLS region list into an @inst object from the current
  * position in the file assigned to @reader.
@@ -836,7 +836,7 @@ ipatch_dls_reader_load_region_list (IpatchDLSReader *reader,
  * ipatch_gig_reader_load_region_list:
  * @reader: DLS/Gig reader
  * @giginst: Gig instrument to fill with loaded regions
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Loads GigaSampler region list into an @inst object from the current
  * position in the file assigned to @reader.
@@ -948,7 +948,7 @@ ipatch_gig_reader_load_region_list (IpatchDLSReader *reader,
  * ipatch_dls_reader_load_art_list:
  * @reader: DLS/Gig reader
  * @conn_list: (out) (element-type IpatchDLS2Conn): Pointer to a list to populate 
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Loads DLS or GigaSampler articulator list from the current position in
  * the file assigned to @reader.
@@ -995,7 +995,7 @@ ipatch_dls_reader_load_art_list (IpatchDLSReader *reader, GSList **conn_list,
 /**
  * ipatch_dls_reader_load_wave_pool:
  * @reader: DLS/Gig reader
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Loads DLS or GigaSampler wave pool ("wvpl" chunk) from the current position
  * in the file assigned to @reader. Populates the @reader wave pool hash with
@@ -1157,7 +1157,7 @@ ipatch_dls_reader_load_wave_pool (IpatchDLSReader *reader, GError **err)
  * ipatch_gig_reader_load_sub_regions:
  * @reader: Gig reader
  * @region: Gig region to load GigaSampler sub regions into
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Loads GigaSampler sub regions ("3prg" chunk) from the current position
  * in the file assigned to @reader.
@@ -1253,7 +1253,7 @@ ipatch_gig_reader_load_sub_regions (IpatchDLSReader *reader,
 /**
  * ipatch_gig_reader_load_inst_lart:
  * @reader: Gig reader
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Loads a GigaSampler global parameter chunk '3ewg' from an instrument 'lart'
  * list.
@@ -1298,7 +1298,7 @@ ipatch_gig_reader_load_inst_lart (IpatchDLSReader *reader,
  * ipatch_dls_load_info:
  * @riff: RIFF parser
  * @info: Pointer to DLS info list
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Loads DLS or GigaSampler info from the current position in the file
  * assigned to @riff.
@@ -1347,7 +1347,7 @@ ipatch_dls_load_info (IpatchRiff *riff, IpatchDLS2Info **info,
  * ipatch_dls_load_region_header:
  * @riff: RIFF parser
  * @region: DLS region to store header info in
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Loads DLS instrument region header ("rgnh" chunk)
  * from the current position in the file assigned to @riff. The "rgnh" chunk
@@ -1398,7 +1398,7 @@ ipatch_dls_load_region_header (IpatchRiff *riff,
  * ipatch_gig_load_region_header:
  * @riff: RIFF parser
  * @region: Gig region to store header info in
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Loads GigaSampler instrument region header ("rgnh" chunk)
  * from the current position in the file assigned to @riff. The "rgnh" chunk
@@ -1449,7 +1449,7 @@ ipatch_gig_load_region_header (IpatchRiff *riff,
  * ipatch_dls_load_wave_link:
  * @riff: RIFF parser
  * @region: DLS region to load info into
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Loads DLS wave link chunk ("wlnk" chunk) from the current position in the
  * file assigned to @riff. The "wlnk" chunk header should have already been
@@ -1501,7 +1501,7 @@ ipatch_dls_load_wave_link (IpatchRiff *riff, IpatchDLS2Region *region,
  * ipatch_dls_load_sample_info:
  * @riff: RIFF parser
  * @info: (out): Sample info structure to load info into
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Loads DLS or GigaSampler sample info ("wsmp" chunk) from the
  * current position in the file assigned to @riff. The "wsmp" chunk header
@@ -1577,7 +1577,7 @@ ipatch_dls_load_sample_info (IpatchRiff *riff,
  * @riff: RIFF parser
  * @conn_list: (out) (element-type IpatchDLS2Conn): Pointer to a list to populate
  *   with loaded #IpatchDLS2Conn structures.
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Load a DLS articulator chunk ("art1" or "art2") containing connection
  * blocks which are loded into @conn_list. The articulation chunk header
@@ -1657,11 +1657,11 @@ ipatch_dls_load_connection (IpatchRiff *riff, GSList **conn_list,
  * ipatch_dls_load_sample_format:
  * @riff: RIFF parser
  * @sample: DLS sample to load data into
- * @bitwidth: (out) (allow-none): Pointer to an integer to fill with the
+ * @bitwidth: (out) (optional): Pointer to an integer to fill with the
  *   sample's bit width or %NULL
- * @channels: (out) (allow-none): Pointer to an integer to fill with the
+ * @channels: (out) (optional): Pointer to an integer to fill with the
  *   number of channels or %NULL
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Parses DLS sample format info ("fmt " chunk) from the current
  * position in the file assigned to the @riff (chunk header should already
@@ -1734,7 +1734,7 @@ ipatch_dls_load_sample_format (IpatchRiff *riff,
  * @riff: RIFF parser
  * @size: (out): Pointer to an unsigned integer to store number of entries in
  *   returned pool table array
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Load a sample pool table ("ptbl" chunk) of a DLS or GigaSampler
  * file from the current position in the file assigned to @riff (chunk
@@ -1827,7 +1827,7 @@ ipatch_dls_load_pool_table (IpatchRiff *riff, guint *size,
  * ipatch_dls_load_dlid:
  * @riff: Riff parser
  * @dlid: (out): Location to store 16 byte DLSID
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  * 
  * Load a DLSID from the current position in a riff object.  This is a
  * 16 byte unique ID used for tracking data changes.  The "dlid" header
@@ -1860,7 +1860,7 @@ ipatch_dls_load_dlid (IpatchRiff *riff, guint8 *dlid, GError **err)
  * ipatch_gig_load_sample_info:
  * @riff: RIFF parser
  * @info: DLS sample info to load data into
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Load Gig sample info ("smpl" chunk) from current position in file assigned
  * to @riff (chunk header should already be loaded).
@@ -1922,7 +1922,7 @@ ipatch_gig_load_sample_info (IpatchRiff *riff,
  * ipatch_gig_load_dimension_info:
  * @riff: RIFF parser
  * @region: Region to load data into
- * @err: (allow-none): Location to store an error or %NULL
+ * @err: Location to store an error or %NULL
  *
  * Load Gigasampler dimension info ("3lnk" chunk), from the current position
  * in the file assigned to @riff (chunk header should already be loaded).
@@ -2013,7 +2013,7 @@ ipatch_gig_load_dimension_info (IpatchRiff *riff,
  * ipatch_gig_load_dimension_names:
  * @riff: RIFF parser
  * @region: Gig region to load names into
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Loads Gigasampler dimension names from the current position in the file
  * assigned to @riff. The "3dnl" chunk header should already have been
@@ -2065,7 +2065,7 @@ ipatch_gig_load_dimension_names (IpatchRiff *riff,
  * ipatch_gig_load_group_names:
  * @riff: Riff parser
  * @name_list: (out) (element-type char*): List to add names to
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  * 
  * Load a '3gri' sample group name chunk into a GSList of strings.  The
  * 3gri chunk header should have already been loaded.

@@ -597,7 +597,7 @@ ipatch_get_sample_store_swap_max_memory (void)
 
 /**
  * ipatch_sample_store_swap_compact:
- * @err: (allow-none): Location to store error information or %NULL to ignore
+ * @err: Location to store error information or %NULL to ignore
  *
  * Compact the sample store swap file by re-writing it to a new file
  * and creating new sample stores to replace the old ones.  This should be

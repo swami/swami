@@ -48,11 +48,11 @@ xml_text (GMarkupParseContext *context, const gchar *text, gsize text_len,
 
 /**
  * ipatch_xml_new_node: (skip)
- * @parent: (allow-none): Parent node to add new
+ * @parent: (nullable): Parent node to add new
  *   node to as a child, or %NULL to create new root node
  * @name: Name of the new XML node
- * @value: (allow-none): Text value to assign to the new node or %NULL
- * @attr_name: (allow-none): First attribute name to assign or %NULL
+ * @value: (nullable): Text value to assign to the new node or %NULL
+ * @attr_name: (nullable): First attribute name to assign or %NULL
  * @...: (type char*): If @attr_name was supplied first string value to be assigned should be
  *   the first parameter, additional name/value attribute string pairs may
  *   follow terminated by a %NULL name.
@@ -106,13 +106,13 @@ ipatch_xml_new_node (GNode *parent, const char *name, const char *value,
 
 /**
  * ipatch_xml_new_node_strv: (skip)
- * @parent: (allow-none): Parent node to add
+ * @parent: (nullable): Parent node to add
  *   new node to as a child, or %NULL to create new root node
  * @name: Name of the new XML node
- * @value: (allow-none): Text value to assign to the new node or %NULL
- * @attr_names: (array zero-terminated=1) (allow-none): %NULL terminated
+ * @value: (nullable): Text value to assign to the new node or %NULL
+ * @attr_names: (array zero-terminated=1) (nullable): %NULL terminated
  *   array of attribute names or %NULL
- * @attr_values: (array zero-terminated=1) (allow-none): %NULL terminated
+ * @attr_values: (array zero-terminated=1) (nullable): %NULL terminated
  *   array of attribute values or %NULL
  *
  * Like ipatch_xml_new_node() but takes attribute name/values as separate strv
@@ -190,7 +190,7 @@ ipatch_xml_set_data (GNode *node, const char *key, gpointer data)
  * @node: XML node
  * @key: Name of the key
  * @data: Data to associate with the key
- * @destroy_func: (allow-none): Destroy function or %NULL
+ * @destroy_func: (nullable): Destroy function or %NULL
  *
  * Assigns arbitrary data to an XML node specified by a @key.  Also assigns a
  * @destroy_func callback to destroy the data when it is removed.
@@ -269,7 +269,7 @@ ipatch_xml_set_qdata (GNode *node, GQuark quark, gpointer data)
  * @node: XML node
  * @quark: Quark key
  * @data: Data to associate with the key
- * @destroy_func: (allow-none): Destroy function or %NULL
+ * @destroy_func: (nullable): Destroy function or %NULL
  *
  * Assigns arbitrary data to an XML node specified by a @key.  Also assigns a
  * @destroy_func callback to destroy the data when it is removed.  This is
@@ -412,7 +412,7 @@ ipatch_xml_set_value_printf (GNode *node, const char *format, ...)
 /**
  * ipatch_xml_take_name: (skip)
  * @node: XML node
- * @name: (allow-none) (transfer full): Name to assign or %NULL to clear it
+ * @name: (nullable) (transfer full): Name to assign or %NULL to clear it
  *
  * Like ipatch_xml_set_name() but takes over the allocation of @name rather than
  * duplicating it.
@@ -545,7 +545,7 @@ ipatch_xml_test_value (GNode *node, const char *cmpvalue)
  * ipatch_xml_set_attribute: (skip)
  * @node: XML node
  * @attr_name: Attribute name to assign to
- * @attr_value: (allow-none): Attribute value to assign or %NULL to unset
+ * @attr_value: (nullable): Attribute value to assign or %NULL to unset
  *
  * Set or unset an attribute of an XML node.  If there is already an existing
  * attribute with the given @attr_name, its value will be replaced.
@@ -835,7 +835,7 @@ ipatch_xml_to_str_recurse (GString *str, GNode *node, guint indent, guint inc)
  * @node: XML tree to save
  * @indent: Number of spaces to indent per level
  * @filename: File name to save to
- * @err: (allow-none): Location to store error info or %NULL to ignore
+ * @err: Location to store error info or %NULL to ignore
  *
  * Store an XML tree to a file.
  *
@@ -861,7 +861,7 @@ ipatch_xml_save_to_file (GNode *node, guint indent, const char *filename,
 /**
  * ipatch_xml_from_str: (skip)
  * @str: XML content to parse
- * @err: (allow-none): Location to store error info or %NULL to ignore
+ * @err: Location to store error info or %NULL to ignore
  *
  * Parse XML content into an XML node tree.
  *
@@ -937,7 +937,7 @@ xml_text (GMarkupParseContext *context, const gchar *text, gsize text_len,
 /**
  * ipatch_xml_load_from_file: (skip)
  * @filename: File name containing XML content to parse
- * @err: (allow-none): Location to store error info or %NULL to ignore
+ * @err: Location to store error info or %NULL to ignore
  *
  * Parse an XML file into an XML node tree.
  *

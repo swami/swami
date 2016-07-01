@@ -198,7 +198,7 @@ ipatch_dls_writer_set_file_handle (IpatchDLSWriter *writer, IpatchFileHandle *ha
 /**
  * ipatch_dls_writer_save:
  * @writer: DLS writer object
- * @err: (allow-none): Location to store error info or %NULL
+ * @err: Location to store error info or %NULL
  *
  * Write a DLS or GigaSampler object to a file.
  *
