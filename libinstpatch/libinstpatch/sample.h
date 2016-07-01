@@ -23,7 +23,7 @@
 #include <glib.h>
 
 /**
- * IPATCH_SAMPLE_MAX_TRANSFORM_FUNCS:
+ * IPATCH_SAMPLE_MAX_TRANSFORM_FUNCS: (skip)
  *
  * Maximum number of transform functions returned by
  * ipatch_sample_get_transform_funcs().  Is larger than current actual maximum
@@ -75,14 +75,37 @@
 typedef enum
 {
   IPATCH_SAMPLE_INVALID = 0,
-  IPATCH_SAMPLE_8BIT  = 1,
-  IPATCH_SAMPLE_16BIT = 2,
-  IPATCH_SAMPLE_24BIT = 3,
-  IPATCH_SAMPLE_32BIT = 4,
-  IPATCH_SAMPLE_FLOAT = 5,
-  IPATCH_SAMPLE_DOUBLE = 6,
+  IPATCH_SAMPLE_BIT8    = 1,
+  IPATCH_SAMPLE_BIT16   = 2,
+  IPATCH_SAMPLE_BIT24   = 3,
+  IPATCH_SAMPLE_BIT32   = 4,
+  IPATCH_SAMPLE_FLOAT   = 5,
+  IPATCH_SAMPLE_DOUBLE  = 6,
   IPATCH_SAMPLE_REAL24BIT = 7
 } IpatchSampleWidth;
+
+/* Renamed to be GObject Introspection friendly (symbols can't start with numbers).
+ * Backwards compatible defines below. */
+
+/**
+ * IPATCH_SAMPLE_8BIT: (skip)
+ */
+#define IPATCH_SAMPLE_8BIT      IPATCH_SAMPLE_BIT8
+
+/**
+ * IPATCH_SAMPLE_16BIT: (skip)
+ */
+#define IPATCH_SAMPLE_16BIT     IPATCH_SAMPLE_BIT16
+
+/**
+ * IPATCH_SAMPLE_24BIT: (skip)
+ */
+#define IPATCH_SAMPLE_24BIT     IPATCH_SAMPLE_BIT24
+
+/**
+ * IPATCH_SAMPLE_32BIT: (skip)
+ */
+#define IPATCH_SAMPLE_32BIT     IPATCH_SAMPLE_BIT32
 
 /**
  * IpatchSampleChannel:
