@@ -400,7 +400,7 @@ if (INTROSPECTION_FOUND)
     ${CMAKE_CURRENT_BINARY_DIR}/version.h
   )
   set(Ipatch_1_1_gir_NAMESPACE Ipatch)
-  set(Ipatch_1_1_gir_VERSION 1.0)
+  set(Ipatch_1_1_gir_VERSION 1.1)
   set(Ipatch_1_1_gir_FILES ${_abs_introspection_files})
   set(Ipatch_1_1_gir_SCANNERFLAGS --c-include ${public_main_HEADER})
 
