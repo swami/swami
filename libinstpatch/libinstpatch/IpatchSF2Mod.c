@@ -44,7 +44,7 @@ ipatch_sf2_mod_get_type (void)
 }
 
 /**
- * ipatch_sf2_mod_new:
+ * ipatch_sf2_mod_new: (skip)
  *
  * Create a new modulator
  *
@@ -57,7 +57,7 @@ ipatch_sf2_mod_new (void)
 }
 
 /**
- * ipatch_sf2_mod_free:
+ * ipatch_sf2_mod_free: (skip)
  * @mod: Modulator to free, should not be referenced by any zones.
  *
  * Free an #IpatchSF2Mod structure
@@ -70,7 +70,7 @@ ipatch_sf2_mod_free (IpatchSF2Mod *mod)
 }
 
 /**
- * ipatch_sf2_mod_duplicate:
+ * ipatch_sf2_mod_duplicate: (skip)
  * @mod: Modulator to duplicate
  *
  * Duplicate a modulator
