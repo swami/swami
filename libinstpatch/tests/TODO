@@ -7,6 +7,14 @@ Error detection:
  * Hook glib logv messages with non success exit value
 
 
+IpatchSampleTransform
+ * Transform tests
+
+
+IpatchSF2
+ * Create, Save, Load, Compare
+ * Generators
+ * Modulators
 
 
 TODO
@@ -79,17 +87,6 @@ IpatchSampleList
 
 IpatchSampleStore*
  * File, RAM, ROM, SndFile, Split24, Swap, Virtual
-
-
-IpatchSampleTransform
- * Transform tests
- * Transform pool
-
-
-IpatchSF2
- * Create, Save, Load, Compare
- * Generators
- * Modulators
 
 
 IpatchSF2VoiceCache
