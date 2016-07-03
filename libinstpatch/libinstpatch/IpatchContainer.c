@@ -111,7 +111,7 @@ ipatch_container_item_remove_full (IpatchItem *item, gboolean full)
 }
 
 /**
- * ipatch_container_get_children:
+ * ipatch_container_get_children: (skip)
  * @container: Container object
  * @type: GType of child items to get (will match type descendants as well)
  *
@@ -129,14 +129,55 @@ IpatchList *
 ipatch_container_get_children (IpatchContainer *container, GType type)
 {
   IpatchList *list;
+  GList *items;
+
+  items = ipatch_container_get_children_by_type (container, type);
+  list = ipatch_list_new ();
+  list->items = items;
+  return (list);
+}
+
+/**
+ * ipatch_container_get_children_list: (rename-to ipatch_container_get_children)
+ * @container: Container object
+ *
+ * Get a list of all child items from a container object. The returned list object can
+ * be iterated over safely even in a multi-thread environment.
+ *
+ * Returns: (element-type Ipatch.Item) (transfer full) (nullable): New object list containing all child items (an empty
+ * list if no children). Free the list with ipatch_glist_unref_free() when finished using it.
+ *
+ * Since: 1.1.0
+ */
+GList *
+ipatch_container_get_children_list (IpatchContainer *container)
+{
+  return ipatch_container_get_children_by_type (container, IPATCH_TYPE_ITEM);
+}
+
+/**
+ * ipatch_container_get_children_by_type:
+ * @container: Container object
+ * @type: GType of child items to get (will match type descendants as well)
+ *
+ * Get a list of child items from a container object. The returned list object can
+ * be iterated over safely even in a multi-thread environment.
+ *
+ * Returns: (element-type Ipatch.Item) (transfer full) (nullable): New object list containing all matching items (an empty
+ * list if no items matched). Free the list with ipatch_glist_unref_free() when finished using it.
+ *
+ * Since: 1.1.0
+ */
+GList *
+ipatch_container_get_children_by_type (IpatchContainer *container, GType type)
+{
+  GList *list = NULL;
   const GType *child_types;
   IpatchIter iter;
   GObject *obj;
 
   g_return_val_if_fail (IPATCH_IS_CONTAINER (container), NULL);
   g_return_val_if_fail (g_type_is_a (type, G_TYPE_OBJECT), NULL);
-
-  list = ipatch_list_new ();
 
   /* get container child types */
   child_types = ipatch_container_get_child_types (container);
@@ -150,7 +191,7 @@ ipatch_container_get_children (IpatchContainer *container, GType type)
 	  while (obj)		/* add object list to children list */
 	    {
 	      g_object_ref (obj); /* ++ ref object for list */
-	      list->items = g_list_prepend (list->items, obj);
+	      list = g_list_prepend (list, obj);
 	      obj = ipatch_iter_next (&iter);
 	    }
 	  IPATCH_ITEM_RUNLOCK (container);
@@ -159,8 +200,7 @@ ipatch_container_get_children (IpatchContainer *container, GType type)
       child_types++;
     }
 
-  list->items = g_list_reverse (list->items); /* since we prepended */
-  return (list);
+  return g_list_reverse (list);         /* since we prepended */
 }
 
 /**

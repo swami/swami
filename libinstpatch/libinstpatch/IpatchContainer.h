@@ -105,6 +105,10 @@ GType ipatch_container_get_type (void);
 
 IpatchList *ipatch_container_get_children (IpatchContainer *container,
 					   GType type);
+GList *ipatch_container_get_children_list (IpatchContainer *container);
+
+GList *ipatch_container_get_children_by_type (IpatchContainer *container,
+                                              GType type);
 const GType *ipatch_container_get_child_types (IpatchContainer *container);
 const GType *ipatch_container_get_virtual_types (IpatchContainer *container);
 const GType *ipatch_container_type_get_child_types (GType container_type);
