@@ -160,6 +160,8 @@ ipatch_init (void)
 
   /* initialize interfaces before objects */
   ipatch_sample_get_type ();
+  ipatch_sf2_gen_item_get_type ();
+  ipatch_sf2_mod_item_get_type ();
 
   /* declares property types which other types may use */
   g_type_class_ref (IPATCH_TYPE_SF2_VOICE_CACHE);
