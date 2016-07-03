@@ -554,6 +554,6 @@ swami_root_patch_load (SwamiRoot *root, const char *filename, IpatchItem **item,
 gboolean
 swami_root_patch_save (IpatchItem *item, const char *filename, GError **err)
 {
-  return (ipatch_base_save (IPATCH_BASE (item), filename, 0, err));
+  return (ipatch_base_save_to_filename (IPATCH_BASE (item), filename, err));
 }
 

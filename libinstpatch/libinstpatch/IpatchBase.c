@@ -57,6 +57,8 @@ static void ipatch_base_get_property (GObject *object, guint property_id,
 static void ipatch_base_real_set_file (IpatchBase *base, IpatchFile *file);
 static void ipatch_base_real_set_file_name (IpatchBase *base,
 					    const char *file_name);
+static gboolean ipatch_base_real_save (IpatchBase *base, const char *filename,
+                                       gboolean save_a_copy, GError **err);
 
 /* private var used by IpatchItem, for fast "changed" property notifies */
 GParamSpec *ipatch_base_pspec_changed;
@@ -444,22 +446,74 @@ remove_created_stores (gpointer data, gpointer user_data)
 /**
  * ipatch_base_save:
  * @base: Base item to save
- * @filename: (nullable): New file name to save to or %NULL to use current one
- * @flags: (type IpatchBaseSaveFlags): Save flags
  * @err: Location to store error info or %NULL
  *
- * Save a patch item to a file.  This function handles saving over an existing
- * file and migrates sample stores as needed.  It is an error to try to save
- * over an open file that is not owned by @base though.
- * A new file object is created and assigned to the @base object, except when
- * #IPATCH_BASE_SAVE_A_COPY flag is passed in @flags.
+ * Save a patch item to the assigned filename or file object.  This function handles
+ * saving over an existing file and migrates sample stores as needed.
  *
  * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set)
  *
  * Since: 1.1.0
  */
 gboolean
-ipatch_base_save (IpatchBase *base, const char *filename, int flags, GError **err)
+ipatch_base_save (IpatchBase *base, GError **err)
+{
+  return ipatch_base_real_save (base, NULL, FALSE, err);
+}
+
+/**
+ * ipatch_base_save_to_filename:
+ * @base: Base item to save
+ * @filename: (nullable): New file name to save to or %NULL to use current one
+ * @err: Location to store error info or %NULL
+ *
+ * Save a patch item to a file.  This function handles saving over an existing
+ * file and migrates sample stores as needed.  It is an error to try to save
+ * over an open file that is not owned by @base.
+ *
+ * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set)
+ *
+ * Since: 1.1.0
+ */
+gboolean
+ipatch_base_save_to_filename (IpatchBase *base, const char *filename, GError **err)
+{
+  return ipatch_base_real_save (base, filename, FALSE, err);
+}
+
+/**
+ * ipatch_base_save_a_copy:
+ * @base: Base item to save
+ * @filename: File name to save a copy to
+ * @err: Location to store error info or %NULL
+ *
+ * Save a patch item to a file name.
+ *
+ * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set)
+ *
+ * Since: 1.1.0
+ */
+gboolean
+ipatch_base_save_a_copy (IpatchBase *base, const char *filename, GError **err)
+{
+  return ipatch_base_real_save (base, filename, TRUE, err);
+}
+
+/*
+ * ipatch_base_real_save:
+ * @base: Base item to save
+ * @filename: New file name to save to or %NULL to use current one
+ * @save_a_copy: If TRUE then new file object will not be assigned
+ * @err: Location to store error info or %NULL
+ *
+ * Save a patch item to a file.  This function handles saving over an existing
+ * file and migrates sample stores as needed.  It is an error to try to save
+ * over an open file that is not owned by @base though.
+ *
+ * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set)
+ */
+static gboolean
+ipatch_base_real_save (IpatchBase *base, const char *filename, gboolean save_a_copy, GError **err)
 {
   IpatchConverterInfo *info;
   IpatchFile *lookup_file, *newfile = NULL, *oldfile = NULL;
@@ -542,8 +596,7 @@ ipatch_base_save (IpatchBase *base, const char *filename, int flags, GError **er
     newfile = IPATCH_FILE (g_object_new (info->dest_type, "file-name", abs_fname, NULL));       /* ++ ref new file */
 
   // ++ Create new converter and set create-stores property if not "save a copy" mode
-  converter = IPATCH_CONVERTER (g_object_new (info->conv_type, "create-stores",
-                                (flags & IPATCH_BASE_SAVE_A_COPY) == 0, NULL));
+  converter = IPATCH_CONVERTER (g_object_new (info->conv_type, "create-stores", !save_a_copy, NULL));
 
   ipatch_converter_add_input (converter, G_OBJECT (base));
   ipatch_converter_add_output (converter, G_OBJECT (newfile));
@@ -556,7 +609,7 @@ ipatch_base_save (IpatchBase *base, const char *filename, int flags, GError **er
   }
 
   // If "create-stores" was set, then we get the list of stores in case of error, so new stores can be removed
-  if ((flags & IPATCH_BASE_SAVE_A_COPY) == 0)
+  if (!save_a_copy)
   {
     IpatchList *out_list = ipatch_converter_get_outputs (converter);    // ++ ref output object list
     created_stores = (IpatchList *)g_list_nth_data (out_list->items, 1);
@@ -570,7 +623,7 @@ ipatch_base_save (IpatchBase *base, const char *filename, int flags, GError **er
     ipatch_file_assign_fd (newfile, -1, FALSE); // Unset file descriptor of file (now using file name), closes file descriptor
 
   // Migrate samples
-  if ((flags & IPATCH_BASE_SAVE_A_COPY) == 0)
+  if (!save_a_copy)
   {
     if (!ipatch_migrate_file_sample_data (oldfile, newfile, abs_fname, IPATCH_SAMPLE_DATA_MIGRATE_REMOVE_NEW_IF_UNUSED
                                           | IPATCH_SAMPLE_DATA_MIGRATE_TO_NEWFILE | (tempsave ? IPATCH_SAMPLE_DATA_MIGRATE_REPLACE : 0), err))

@@ -82,17 +82,6 @@ struct _IpatchBaseClass
 
 #define IPATCH_BASE_DEFAULT_NAME "Untitled"
 
-/**
- * IpatchBaseSaveFlags:
- * @IPATCH_BASE_SAVE_A_COPY: Save a copy of the file, but don't assign new file to it.
- *
- * Since: 1.1.0
- */
-typedef enum
-{
-  IPATCH_BASE_SAVE_A_COPY       = 1 << 0
-} IpatchBaseSaveFlags;
-
 GType ipatch_base_get_type (void);
 char *ipatch_base_type_get_mime_type (GType base_type);
 void ipatch_base_set_file (IpatchBase *base, IpatchFile *file);
@@ -107,7 +96,9 @@ void ipatch_base_find_unused_midi_locale (IpatchBase *base,
 IpatchItem *ipatch_base_find_item_by_midi_locale (IpatchBase *base, int bank,
 						  int program);
 
-gboolean ipatch_base_save (IpatchBase *base, const char *filename, int flags, GError **err);
+gboolean ipatch_base_save (IpatchBase *base, GError **err);
+gboolean ipatch_base_save_to_filename (IpatchBase *base, const char *filename, GError **err);
+gboolean ipatch_base_save_a_copy (IpatchBase *base, const char *filename, GError **err);
 gboolean ipatch_base_close (IpatchBase *base, GError **err);
 gboolean ipatch_close_base_list (IpatchList *list, GError **err);
 
