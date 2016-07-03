@@ -120,7 +120,7 @@ ipatch_unit_info_get_type (void)
 }
 
 /**
- * ipatch_unit_info_new:
+ * ipatch_unit_info_new: (skip)
  *
  * Allocate a unit info structure for registering unit types with
  * ipatch_unit_register(). Using this function should minimize API changes
@@ -136,7 +136,7 @@ ipatch_unit_info_new (void)
 }
 
 /**
- * ipatch_unit_info_free:
+ * ipatch_unit_info_free: (skip)
  * @info: Unit info to free
  *
  * Free a unit info structure that was created with ipatch_unit_info_new().
@@ -148,7 +148,7 @@ ipatch_unit_info_free (IpatchUnitInfo *info)
 }
 
 /**
- * ipatch_unit_info_duplicate:
+ * ipatch_unit_info_duplicate: (skip)
  * @info: Unit info to duplicate
  *
  * Duplicate a unit info structure.
@@ -169,7 +169,7 @@ ipatch_unit_info_duplicate (const IpatchUnitInfo *info)
 
 /**
  * ipatch_unit_register:
- * @info: Unit info (shallow copied)
+ * @info: (transfer container): Unit info (shallow copied)
  *
  * Add a new unit type to the unit registry. Note that the @info structure
  * is shallow copied, so strings should be constant or guaranteed to not
@@ -416,7 +416,7 @@ ipatch_unit_conversion_lookup (guint16 src_units, guint16 dest_units,
  * @dest_units: Destination unit type ID
  * @src_val: Source value (type should be compatible with the source unit's
  *   value type)
- * @dest_val: (out): Destination value (value should be initialized to a type that is
+ * @dest_val: (transfer none): Destination value (value should be initialized to a type that is
  *   compatible with the destination unit's value type)
  *
  * Convert a value from one unit type to another.
