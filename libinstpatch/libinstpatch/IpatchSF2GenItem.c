@@ -85,7 +85,7 @@ ipatch_sf2_gen_item_get_type (void)
 	  (GClassFinalizeFunc) NULL
 	};
 
-      itype = g_type_register_static (G_TYPE_INTERFACE, "IpatchSF2GenItemIface",
+      itype = g_type_register_static (G_TYPE_INTERFACE, "IpatchSF2GenItem",
 				      &info, 0);
 
       /* IpatchSF2GenItemIface types must be IpatchItem objects (for locking) */
@@ -187,7 +187,7 @@ ipatch_sf2_gen_item_set_amount (IpatchSF2GenItem *item, guint genid,
       pspec = iface->specs[genid];
       ipatch_sf2_gen_amount_to_value (genid, amt, &newval);
       ipatch_sf2_gen_amount_to_value (genid, &oldamt, &oldval);
-      ipatch_item_prop_notify (item, pspec, &newval, &oldval);
+      ipatch_item_prop_notify (IPATCH_ITEM (item), pspec, &newval, &oldval);
       g_value_unset (&newval);
       g_value_unset (&oldval);
     }
@@ -195,7 +195,7 @@ ipatch_sf2_gen_item_set_amount (IpatchSF2GenItem *item, guint genid,
   if (oldset != TRUE)	/* "set" state of property changed? */
     {
       pspec = iface->setspecs[genid];
-      ipatch_item_prop_notify (item, pspec,
+      ipatch_item_prop_notify (IPATCH_ITEM (item), pspec,
 			       ipatch_util_value_bool_true,
 			       ipatch_util_value_bool_false);
     }
@@ -229,7 +229,7 @@ ipatch_sf2_gen_item_set_gen_flag (IpatchSF2GenItem *item, guint genid,
   /* do "-set" property notify */
   pspec = iface->setspecs[genid];
 
-  ipatch_item_prop_notify (item, pspec,
+  ipatch_item_prop_notify (IPATCH_ITEM (item), pspec,
 			   IPATCH_UTIL_VALUE_BOOL (setflag),
 			   IPATCH_UTIL_VALUE_BOOL (!setflag));
 }
@@ -296,7 +296,7 @@ ipatch_sf2_gen_item_set_gen_flag_no_notify (IpatchSF2GenItem *item, guint genid,
       pspec = iface->specs[genid];
       ipatch_sf2_gen_amount_to_value (genid, &defamt, &newval);
       ipatch_sf2_gen_amount_to_value (genid, &oldamt, &oldval);
-      ipatch_item_prop_notify (item, pspec, &newval, &oldval);
+      ipatch_item_prop_notify (IPATCH_ITEM (item), pspec, &newval, &oldval);
       g_value_unset (&newval);
       g_value_unset (&oldval);
     }
@@ -809,7 +809,7 @@ ipatch_sf2_gen_item_iface_set_property (IpatchSF2GenItem *item,
       if (oldset != TRUE)	/* "set" state of property changed? */
 	{
 	  pspec = iface->setspecs[genid];
-	  ipatch_item_prop_notify (item, pspec, ipatch_util_value_bool_true,
+	  ipatch_item_prop_notify (IPATCH_ITEM (item), pspec, ipatch_util_value_bool_true,
 				   ipatch_util_value_bool_false);
 	}
 
@@ -818,7 +818,7 @@ ipatch_sf2_gen_item_iface_set_property (IpatchSF2GenItem *item,
 	  pspec = iface->specs[coarse];
 	  ipatch_sf2_gen_amount_to_value (genid, &newcoarseamt, &newval);
 	  ipatch_sf2_gen_amount_to_value (genid, &oldcoarseamt, &oldval);
-	  ipatch_item_prop_notify (item, pspec, &newval, &oldval);
+	  ipatch_item_prop_notify (IPATCH_ITEM (item), pspec, &newval, &oldval);
 	  g_value_unset (&newval);
 	  g_value_unset (&oldval);
 	}
@@ -826,7 +826,7 @@ ipatch_sf2_gen_item_iface_set_property (IpatchSF2GenItem *item,
       if (oldcoarseset != newcoarseset)	/* "set" state of property changed? */
 	{
 	  pspec = iface->setspecs[coarse];
-	  ipatch_item_prop_notify (item, pspec,
+	  ipatch_item_prop_notify (IPATCH_ITEM (item), pspec,
 				   IPATCH_UTIL_VALUE_BOOL (newcoarseset),
 				   IPATCH_UTIL_VALUE_BOOL (oldcoarseset));
 	}
@@ -859,7 +859,7 @@ ipatch_sf2_gen_item_iface_set_property (IpatchSF2GenItem *item,
       if (oldset != TRUE)	/* "set" state of property changed? */
 	{
 	  pspec = iface->setspecs[genid];
-	  ipatch_item_prop_notify (item, pspec, ipatch_util_value_bool_true,
+	  ipatch_item_prop_notify (IPATCH_ITEM (item), pspec, ipatch_util_value_bool_true,
 				   ipatch_util_value_bool_false);
 	}
     }
@@ -878,7 +878,7 @@ ipatch_sf2_gen_item_iface_set_property (IpatchSF2GenItem *item,
  * Returns: %TRUE if @property_id handled, %FALSE otherwise
  */
 gboolean
-ipatch_sf2_gen_item_iface_get_property (IpatchItem *item, guint property_id,
+ipatch_sf2_gen_item_iface_get_property (IpatchSF2GenItem *item, guint property_id,
 					GValue *value)
 {
   IpatchSF2GenItemIface *iface;

@@ -23,7 +23,6 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#include <libinstpatch/IpatchItem.h>
 #include <libinstpatch/IpatchSF2Gen.h>
 
 /* for generator properties (zones, instruments, and presets) */
@@ -32,7 +31,7 @@
 #define IPATCH_SF2_GEN_ITEM_FIRST_PROP_USER_ID	160	/* first ID usable for other properties */
 
 /* forward type declarations */
-typedef IpatchItem IpatchSF2GenItem;
+typedef struct _IpatchSF2GenItem IpatchSF2GenItem;              // dummy typedef
 typedef struct _IpatchSF2GenItemIface IpatchSF2GenItemIface;
 
 #define IPATCH_TYPE_SF2_GEN_ITEM   (ipatch_sf2_gen_item_get_type ())
