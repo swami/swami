@@ -646,7 +646,7 @@ convert_lookup_map_U (IpatchConverterInfo ***array, GType conv_type,
 		if (((IpatchConverterInfo **)(info_array->data))[i] == info)
 		  break;
 
-	      if (i < info_array->len)	/* only add if not already in array */
+	      if (i == info_array->len)	/* only add if not already in array */
 		g_array_append_val (info_array, info);
 	    }
 	}

@@ -209,6 +209,7 @@ void ipatch_register_converter_map (GType conv_type, guint flags,
 				    gint8 src_count, GType dest_type,
 				    GType dest_match, gint8 dest_count);
 GType ipatch_find_converter (GType src_type, GType dest_type);
+GType *ipatch_find_converters (GType src_type, GType dest_type);
 IpatchConverterInfo *
 ipatch_lookup_converter_info (GType conv_type, GType src_type, GType dest_type);
 
