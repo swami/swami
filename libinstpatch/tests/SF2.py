@@ -12,6 +12,7 @@ import gi
 import ctypes
 import math
 import sys
+import os
 
 from gi.repository import GObject
 
@@ -25,17 +26,10 @@ SAMPLE_FORMAT = Ipatch.SampleWidth.BIT16 | Ipatch.SampleChannel.MONO | Ipatch.Sa
 ACCESS_FORMAT = Ipatch.SampleWidth.FLOAT | Ipatch.SampleChannel.MONO | Ipatch.SampleSign.SIGNED
 SAMPLE_RATE             = 48000         # Sample rate
 SAMPLE_LOOP_PADDING     = 4             # Number of samples before and after the sample loop
+TEST_SF2_FILENAME       = os.path.join (Test.TEST_DATA_PATH, 'test.sf2')
 
 # Set sample access format endian byte order depending on host system
 ACCESS_FORMAT |= Ipatch.SampleEndian.BENDIAN if sys.byteorder == 'big' else Ipatch.SampleEndian.LENDIAN
-
-def midiNoteToFreq (note):
-  """Convert MIDI note number to frequency"""
-  return 2**((note - 69) / 12.0) * 440.0
-
-def freqToMidiNoteCents (freq):
-  """Convert frequency to MIDI note in cents (100th of a semitone)"""
-  return 6900 + 1200 * math.log (freq / 440.0) / math.log (2)
 
 def SineWave (periodPos):
   """Sine waveform generation function"""
@@ -95,7 +89,7 @@ def createSF2Sample (floatData):
   loopEnd = sampleSize - SAMPLE_LOOP_PADDING - 1
 
   # Calculate root note and fine tune based on loop length for a single waveform
-  notecents = freqToMidiNoteCents (float (SAMPLE_RATE) / (loopEnd - loopStart))
+  notecents = Ipatch.unit_hertz_to_cents (float (SAMPLE_RATE) / (loopEnd - loopStart))
   cents = math.fmod (notecents, 100.0)
 
   # Fine tune offset corrects for inaccuracy of a single digital waveform
@@ -152,7 +146,7 @@ def addSF2Preset (sf2, name, midiProgram, sampleMathFunc):
   # Create A note samples for octaves A0 through A6 (7 octaves) and add to instrument zones
   for octave in xrange (0, 7):
     note = 33 + octave * 12     # MIDI note 33 is A0
-    sample = createSF2Sample (sampleDataGen (midiNoteToFreq (note), sampleMathFunc))
+    sample = createSF2Sample (sampleDataGen (Ipatch.unit_cents_to_hertz (note * 100), sampleMathFunc))
     sample.set_name ('%s A%d' % (name, octave))
     sf2.append (sample)         # Add sample to SF2 base object
 
@@ -181,7 +175,7 @@ One should find 3 different presets for Sine, Saw, and Square waves with 7 sampl
 Enjoy!"""
 
   sf2File = Ipatch.SF2File ()
-  sf2File.set_name ('test.sf2')
+  sf2File.set_name (TEST_SF2_FILENAME)
   sf2.set_file (sf2File)
 
   # Add presets for sine, saw, and square waves
@@ -194,22 +188,24 @@ Enjoy!"""
 
 # Main
 
-Test.msg ("Initializing libInstPatch")
+parser = Test.createArgParser ('libInstPatch SoundFont tests')
+parser.add_argument ('-n', '--nodelete', action='store_true', help="Don't delete created test SoundFont (%s)" % TEST_SF2_FILENAME)
+args = Test.parseArgs (parser)
+
 Ipatch.init ()
 
 Test.msg ("Creating SoundFont")
 sf2 = createSF2 ()
 
-Test.msg ("Saving SoundFont file")
+Test.msg ("Saving SoundFont")
 sf2.save ()
 
-Test.msg ("Loading SoundFont file")
+Test.msg ("Loading SoundFont")
 sf2file = Ipatch.SF2File ()
-sf2file.set_property ('file-name', 'test.sf2')
+sf2file.set_property ('file-name', TEST_SF2_FILENAME)
 cmpsf2 = Ipatch.convert_object_to_type (sf2file, Ipatch.SF2)
 
 blacklistProps = {
-  (Ipatch.Base, "flags"),               # Base flags include SAVED and CHANGED flags which will be different
   (Ipatch.SF2, "software"),             # SF2 software will include the loaded software version appended
   (Ipatch.SF2File, "sample-size")       # Sample size is the total sample data in the SoundFont file which will differ
 }
@@ -218,11 +214,11 @@ blacklistProps = {
 sf2.clear_flags (Ipatch.BaseFlags.CHANGED | Ipatch.BaseFlags.SAVED)
 cmpsf2.clear_flags (Ipatch.BaseFlags.CHANGED | Ipatch.BaseFlags.SAVED)
 
-# Make software string the same too, since loaded SoundFont will not match due to software load version being appended
-sf2.props.software = cmpsf2.props.software
-
-Test.msg ("Verifying loaded SoundFont")
+Test.msg ("Verifying SoundFont")
 Test.compareItems (sf2, cmpsf2, blackList=blacklistProps)
+
+if not args.nodelete:
+  os.unlink (TEST_SF2_FILENAME)
 
 Test.exit ()
 
