@@ -93,7 +93,7 @@ _ipatch_unit_generic_init (void)
   info->id = IPATCH_UNIT_TYPE_SEMITONES;
   info->label = _("Notes");
   info->descr = _("Unit of pitch ratio (one note)");
-  info->value_type = G_TYPE_INT;
+  info->value_type = G_TYPE_DOUBLE;
   info->flags = IPATCH_UNIT_USER;
   info->digits = 0;
   ipatch_unit_register (info);
@@ -102,7 +102,7 @@ _ipatch_unit_generic_init (void)
   info->id = IPATCH_UNIT_TYPE_CENTS;
   info->label = _("Cents");
   info->descr = _("Unit of pitch ratio (100th of a semitone)");
-  info->value_type = G_TYPE_INT;
+  info->value_type = G_TYPE_DOUBLE;
   info->flags = IPATCH_UNIT_USER;
   info->digits = 0;
   ipatch_unit_register (info);
@@ -120,7 +120,7 @@ _ipatch_unit_generic_init (void)
   info->id = IPATCH_UNIT_TYPE_SAMPLE_RATE;
   info->label = _("Rate");	/* abbreviation for sample rate */
   info->descr = _("Audio sampling rate");
-  info->value_type = G_TYPE_INT;
+  info->value_type = G_TYPE_DOUBLE;
   info->flags = IPATCH_UNIT_USER;
   info->digits = 0;
   ipatch_unit_register (info);
