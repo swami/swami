@@ -230,7 +230,7 @@ ipatch_item_class_init (IpatchItemClass *klass)
   g_object_class_install_property (obj_class, PROP_FLAGS,
 		    g_param_spec_uint ("flags", _("Flags"), _("Flags"),
 				       0, G_MAXUINT, 0,
-				       G_PARAM_READWRITE | IPATCH_PARAM_HIDE
+				       G_PARAM_READABLE | IPATCH_PARAM_HIDE
 				       | IPATCH_PARAM_NO_SAVE_CHANGE
 				       | IPATCH_PARAM_NO_SAVE));
   g_object_class_install_property (obj_class, PROP_PARENT,
@@ -343,6 +343,68 @@ ipatch_item_item_remove_full (IpatchItem *item, gboolean full)
     ipatch_container_remove (IPATCH_CONTAINER (parent), item);
     g_object_unref (parent);                    // -- unref parent
   }
+}
+
+/**
+ * ipatch_item_get_flags:
+ * @item: (type Ipatch.Item): #IpatchItem to get flag field from
+ *
+ * Get the value of the flags field in a patch item.
+ *
+ * Returns: Value of flags field (some of which is user definable).
+ */
+int
+ipatch_item_get_flags (gpointer item)
+{
+  g_return_val_if_fail (IPATCH_IS_ITEM (item), 0);
+
+  return (item ? g_atomic_int_get (&((IpatchItem *)item)->flags) : 0);
+}
+
+/**
+ * ipatch_item_set_flags:
+ * @item: (type Ipatch.Item): #IpatchItem to set flags in
+ * @flags: Flags to set
+ *
+ * Set flags in a patch item. All bits that are set in @flags are set in
+ * the @item flags field.
+ */
+void
+ipatch_item_set_flags (gpointer item, int flags)
+{
+  int oldval, newval;
+
+  g_return_if_fail (IPATCH_IS_ITEM (item));
+
+  do
+  {
+    oldval = g_atomic_int_get (&((IpatchItem *)item)->flags);
+    newval = oldval | flags;
+  } while (!g_atomic_int_compare_and_exchange (&((IpatchItem *)item)->flags,
+                                               oldval, newval));
+}
+
+/**
+ * ipatch_item_clear_flags:
+ * @item: (type Ipatch.Item): #IpatchItem object to clear flags in
+ * @flags: Flags to clear
+ *
+ * Clear (unset) flags in a patch item. All bits that are set in @flags are
+ * cleared in the @item flags field.
+ */
+void
+ipatch_item_clear_flags (gpointer item, int flags)
+{
+  int oldval, newval;
+
+  g_return_if_fail (IPATCH_IS_ITEM (item));
+
+  do
+  {
+    oldval = g_atomic_int_get (&((IpatchItem *)item)->flags);
+    newval = oldval & ~flags;
+  } while (!g_atomic_int_compare_and_exchange (&((IpatchItem *)item)->flags,
+                                               oldval, newval));
 }
 
 /**

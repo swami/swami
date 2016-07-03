@@ -190,67 +190,9 @@ typedef void (*IpatchItemPropDisconnect)(IpatchItem *item, GParamSpec *pspec,
 extern GParamSpec *ipatch_item_pspec_title;
 
 GType ipatch_item_get_type (void);
-
-/**
- * ipatch_item_get_flags:
- * @item: #IpatchItem to get flag field from
- *
- * Get the value of the flags field in a patch item.
- *
- * Returns: Value of flags field (some of which is user definable).
- */
-static inline int
-ipatch_item_get_flags (gpointer item)
-{
-  return (item ? g_atomic_int_get (&((IpatchItem *)item)->flags) : 0);
-}
-
-/**
- * ipatch_item_set_flags:
- * @item: #IpatchItem to set flags in
- * @flags: Flags to set
- *
- * Set flags in a patch item. All bits that are set in @flags are set in
- * the @item flags field.
- */
-static inline void
-ipatch_item_set_flags (gpointer item, int flags)
-{
-  int oldval, newval;
-
-  if (!item) return;
-
-  do
-  {
-    oldval = g_atomic_int_get (&((IpatchItem *)item)->flags);
-    newval = oldval | flags;
-  } while (!g_atomic_int_compare_and_exchange (&((IpatchItem *)item)->flags,
-                                               oldval, newval));
-}
-
-/**
- * ipatch_item_clear_flags:
- * @item: #IpatchItem object to clear flags in
- * @flags: Flags to clear
- *
- * Clear (unset) flags in a patch item. All bits that are set in @flags are
- * cleared in the @item flags field.
- */
-static inline void
-ipatch_item_clear_flags (gpointer item, int flags)
-{
-  int oldval, newval;
-
-  if (!item) return;
-
-  do
-  {
-    oldval = g_atomic_int_get (&((IpatchItem *)item)->flags);
-    newval = oldval & ~flags;
-  } while (!g_atomic_int_compare_and_exchange (&((IpatchItem *)item)->flags,
-                                               oldval, newval));
-}
-
+int ipatch_item_get_flags (gpointer item);
+void ipatch_item_set_flags (gpointer item, int flags);
+void ipatch_item_clear_flags (gpointer item, int flags);
 void ipatch_item_set_parent (IpatchItem *item, IpatchItem *parent);
 void ipatch_item_unparent (IpatchItem *item);
 IpatchItem *ipatch_item_get_parent (IpatchItem *item);
