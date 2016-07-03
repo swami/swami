@@ -199,10 +199,16 @@ GObject *ipatch_convert_object_to_type (GObject *object, GType type,
 					GError **err);
 IpatchList *ipatch_convert_object_to_type_multi (GObject *object, GType type,
                                                  GError **err);
+GList *ipatch_convert_object_to_type_multi_list (GObject *object, GType type, GError **err);
 IpatchList *ipatch_convert_object_to_type_multi_set (GObject *object, GType type,
                                                      GError **err,
                                                      const char *first_property_name, ...);
+GList *ipatch_convert_object_to_type_multi_set_vlist (GObject *object, GType type, GError **err,
+                                                      const char *first_property_name, va_list args);
+
 IpatchConverter *ipatch_create_converter (GType src_type, GType dest_type);
+IpatchConverter *ipatch_create_converter_for_objects (GObject *input, GObject *output, GError **err);
+IpatchConverter *ipatch_create_converter_for_object_to_type (GObject *object, GType dest_type, GError **err);
 
 void ipatch_register_converter_map (GType conv_type, guint flags,
 				    GType src_type, GType src_match,
@@ -222,7 +228,9 @@ void ipatch_converter_add_outputs (IpatchConverter *converter, GList *objects);
 GObject *ipatch_converter_get_input (IpatchConverter *converter);
 GObject *ipatch_converter_get_output (IpatchConverter *converter);
 IpatchList *ipatch_converter_get_inputs (IpatchConverter *converter);
+GList *ipatch_converter_get_inputs_list (IpatchConverter *converter);
 IpatchList *ipatch_converter_get_outputs (IpatchConverter *converter);
+GList *ipatch_converter_get_outputs_list (IpatchConverter *converter);
 
 gboolean ipatch_converter_verify (IpatchConverter *converter, char **failmsg);
 void ipatch_converter_init (IpatchConverter *converter);

@@ -115,31 +115,16 @@ ipatch_convert_objects (GObject *input, GObject *output, GError **err)
 {
   IpatchConverter *conv;
 
-  g_return_val_if_fail (G_IS_OBJECT (input), FALSE);
-  g_return_val_if_fail (G_IS_OBJECT (output), FALSE);
-  g_return_val_if_fail (!err || !*err, FALSE);
+  conv = ipatch_create_converter_for_objects (input, output, err);      // ++ ref converter
+  if (!conv) return FALSE;
 
-  /* ++ ref new converter */
-  conv = ipatch_create_converter (G_OBJECT_TYPE (input), G_OBJECT_TYPE (output));
+  if (!ipatch_converter_convert (conv, err))                            // -- unref converter
+  {
+    g_object_unref (conv);
+    return (FALSE);
+  }
 
-  if (!conv)
-    {
-      g_set_error (err, IPATCH_ERROR, IPATCH_ERROR_UNHANDLED_CONVERSION,
-		   _("Unsupported conversion of type %s to %s."),
-		   G_OBJECT_TYPE_NAME (input), G_OBJECT_TYPE_NAME (output));
-      return (FALSE);
-    }
-
-  ipatch_converter_add_input (conv, input);
-  ipatch_converter_add_output (conv, output);
-
-  if (!ipatch_converter_convert (conv, err))
-    {
-      g_object_unref (conv);
-      return (FALSE);
-    }
-
-  g_object_unref (conv);
+  g_object_unref (conv);                                                // -- unref converter
 
   return (TRUE);
 }
@@ -212,7 +197,7 @@ ipatch_convert_object_to_type (GObject *object, GType type, GError **err)
 }
 
 /**
- * ipatch_convert_object_to_type_multi:
+ * ipatch_convert_object_to_type_multi: (skip)
  * @object: Object to convert from
  * @type: Type of object to convert to
  * @err: Location to store error info or %NULL to ignore
@@ -231,7 +216,28 @@ ipatch_convert_object_to_type_multi (GObject *object, GType type, GError **err)
 }
 
 /**
- * ipatch_convert_object_to_type_multi_set:
+ * ipatch_convert_object_to_type_multi_list: (rename-to ipatch_convert_object_to_type_multi)
+ * @object: Object to convert from
+ * @type: Type of object to convert to
+ * @err: Location to store error info or %NULL to ignore
+ *
+ * A convenience function to convert an object to one or more objects of a given
+ * @type.  This function will work for converters which require 1
+ * input and any number of outputs.
+ *
+ * Returns: (element-type GObject.Object) (transfer full): List of output objects or %NULL on error (in which
+ * case @err may be set). Free the list with ipatch_glist_unref_free() when finished using it.
+ *
+ * Since: 1.1.0
+ */
+GList *
+ipatch_convert_object_to_type_multi_list (GObject *object, GType type, GError **err)
+{
+  return (ipatch_convert_object_to_type_multi_set_vlist (object, type, err, NULL, NULL));
+}
+
+/**
+ * ipatch_convert_object_to_type_multi_set: (skip)
  * @object: Object to convert from
  * @type: Type of object to convert to
  * @err: Location to store error info or %NULL to ignore
@@ -252,62 +258,66 @@ IpatchList *
 ipatch_convert_object_to_type_multi_set (GObject *object, GType type, GError **err,
                                          const char *first_property_name, ...)
 {
-  IpatchConverterInfo *info;
-  IpatchConverter *conv;
-  GObject *output = NULL;
   IpatchList *list;
-  GType convtype;
+  GList *items;
   va_list args;
-  int i;
 
-  g_return_val_if_fail (G_IS_OBJECT (object), NULL);
-  g_return_val_if_fail (!err || !*err, NULL);
+  va_start (args, first_property_name);
+  items = ipatch_convert_object_to_type_multi_set_vlist (object, type,          // ++ alloc items list
+                                                         err, first_property_name, args);
+  va_end (args);
 
-  convtype = ipatch_find_converter (G_OBJECT_TYPE (object), type);
-  if (!convtype)
-  {
-    g_set_error (err, IPATCH_ERROR, IPATCH_ERROR_UNHANDLED_CONVERSION,
-                 _("Unsupported conversion of type %s to %s"),
-                 G_OBJECT_TYPE_NAME (object), g_type_name (type));
-    return (NULL);
-  }
+  if (!items) return NULL;
 
-  info = ipatch_lookup_converter_info (convtype, G_OBJECT_TYPE (object), type);
-  g_return_val_if_fail (info != NULL, NULL);	/* shouldn't happen */
+  list = ipatch_list_new ();            // ++ ref new list
+  list->items = items;                  // !! Assign items to list
+  return list;                          // !! Caller takes over list
+}
 
-  conv = IPATCH_CONVERTER (g_object_new (convtype, NULL));	/* ++ ref */
+/**
+ * ipatch_convert_object_to_type_multi_set_vlist: (skip)
+ * @object: Object to convert from
+ * @type: Type of object to convert to
+ * @err: Location to store error info or %NULL to ignore
+ * @first_property_name: (nullable): Name of first property to assign or %NULL
+ * @args: First property value followed by property name/value pairs (as per
+ *   g_object_set()) to assign to the resulting converter, terminated with a
+ *   %NULL property name.
+ *
+ * A convenience function to convert an object to one or more objects of a given
+ * @type.  This function will work for converters which require 1
+ * input and any number of outputs.  Like ipatch_convert_object_to_type_multi()
+ * but allows for properties of the converter to be assigned.
+ *
+ * Returns: (element-type GObject.Object) (transfer full): List of output objects or %NULL on error (in which
+ * case @err may be set). Free the list with ipatch_glist_unref_free() when finished using it.
+ *
+ * Since: 1.1.0
+ */
+GList *
+ipatch_convert_object_to_type_multi_set_vlist (GObject *object, GType type, GError **err,
+                                               const char *first_property_name, va_list args)
+{
+  IpatchConverter *conv;
+  GList *items;
 
-  ipatch_converter_add_input (conv, object);
-
-  if (info->dest_count > 0)	/* if outputs are expected, create them */
-  {
-    for (i = 0; i < info->dest_count; i++)
-    {
-      output = g_object_new (type, NULL);	/* ++ ref */
-      ipatch_converter_add_output (conv, output);
-      g_object_unref (output);  /* -- unref */
-    }
-  }
+  conv = ipatch_create_converter_for_object_to_type (object, type, err);        // ++ ref converter
+  if (!conv) return NULL;
 
   if (first_property_name)
-  {
-    va_start (args, first_property_name);
     g_object_set_valist ((GObject *)conv, first_property_name, args);
-    va_end (args);
-  }
 
   if (!ipatch_converter_convert (conv, err))	/* do the conversion */
   {
-    if (output) g_object_unref (output);
-    g_object_unref (conv);
+    g_object_unref (conv);                      // -- unref converter
     return (NULL);
   }
 
-  list = ipatch_converter_get_outputs (conv);     /* ++ ref object list */
+  items = ipatch_converter_get_outputs_list (conv);     /* ++ alloc object list */
 
   g_object_unref (conv);        /* -- unref converter */
 
-  return (list);	/* !! caller takes over reference */
+  return (items);	/* !! caller takes over ownership */
 }
 
 /**
@@ -337,6 +347,101 @@ ipatch_create_converter (GType src_type, GType dest_type)
 
   /* ++ ref new object and let the caller have it */
   return (IPATCH_CONVERTER (g_object_new (conv_type, NULL)));
+}
+
+/**
+ * ipatch_create_converter_for_objects:
+ * @input: Input object
+ * @output: Output object
+ * @err: Location to store error info or %NULL
+ *
+ * A convenience function for creating a converter for converting from one
+ * object to another. This function will only work for converters which take
+ * exactly one input and output object.
+ *
+ * Returns: (transfer full): The new converter or %NULL on error
+ *
+ * Since: 1.1.0
+ */
+IpatchConverter *
+ipatch_create_converter_for_objects (GObject *input, GObject *output, GError **err)
+{
+  IpatchConverter *conv;
+
+  g_return_val_if_fail (G_IS_OBJECT (input), FALSE);
+  g_return_val_if_fail (G_IS_OBJECT (output), FALSE);
+  g_return_val_if_fail (!err || !*err, FALSE);
+
+  /* ++ ref new converter */
+  conv = ipatch_create_converter (G_OBJECT_TYPE (input), G_OBJECT_TYPE (output));
+
+  if (!conv)
+  {
+    g_set_error (err, IPATCH_ERROR, IPATCH_ERROR_UNHANDLED_CONVERSION,
+                 _("Unsupported conversion of type %s to %s."),
+                 G_OBJECT_TYPE_NAME (input), G_OBJECT_TYPE_NAME (output));
+    return (FALSE);
+  }
+
+  ipatch_converter_add_input (conv, input);
+  ipatch_converter_add_output (conv, output);
+
+  return (conv);        // !! Caller takes over reference
+}
+
+/**
+ * ipatch_create_converter_for_object_to_type:
+ * @object: Object to convert from
+ * @dest_type: Type of object to convert to
+ * @err: Location to store error info or %NULL to ignore
+ *
+ * A convenience function to create a converter for converting an object to
+ * another object of a given type.
+ *
+ * Returns: (transfer full): The new converter object with a reference count
+ *   of 1 which the caller owns, or %NULL if there is no matching conversion
+ *   handler type.
+ *
+ * Since: 1.1.0
+ */
+IpatchConverter *
+ipatch_create_converter_for_object_to_type (GObject *object, GType dest_type, GError **err)
+{
+  IpatchConverterInfo *info;
+  IpatchConverter *conv;
+  GObject *output = NULL;
+  GType convtype;
+  int i;
+
+  convtype = ipatch_find_converter (G_OBJECT_TYPE (object), dest_type);
+
+  if (!convtype)
+  {
+    g_set_error (err, IPATCH_ERROR, IPATCH_ERROR_UNHANDLED_CONVERSION,
+                 _("Unsupported conversion of type %s to %s"),
+                 G_OBJECT_TYPE_NAME (object), g_type_name (dest_type));
+    return (NULL);
+  }
+
+  info = ipatch_lookup_converter_info (convtype, G_OBJECT_TYPE (object), dest_type);
+  g_return_val_if_fail (info != NULL, NULL);	/* shouldn't happen */
+
+  conv = IPATCH_CONVERTER (g_object_new (convtype, NULL));	/* ++ ref */
+
+  ipatch_converter_add_input (conv, object);
+
+
+  if (info->dest_count > 0)	/* if outputs are expected, create them */
+  {
+    for (i = 0; i < info->dest_count; i++)
+    {
+      output = g_object_new (dest_type, NULL);	/* ++ ref output */
+      ipatch_converter_add_output (conv, output);
+      g_object_unref (output);  /* -- unref output */
+    }
+  }
+
+  return (conv);                /* !! caller takes over reference */
 }
 
 /* FIXME-GIR: @flags is a combo Flags and priority parameter */
@@ -498,7 +603,7 @@ ipatch_find_converter (GType src_type, GType dest_type)
  *
  * Like ipatch_find_converter() but returns all matching converter types.
  *
- * Returns: 0 terminated array of #IpatchConverter derived GTypes or %NULL
+ * Returns: (array zero-terminated=1) (transfer full): 0 terminated array of #IpatchConverter derived GTypes or %NULL
  * if no matching converters.  Array should be freed when finished using it.
  */
 GType *
@@ -862,7 +967,7 @@ ipatch_converter_add_output (IpatchConverter *converter, GObject *object)
 /**
  * ipatch_converter_add_inputs:
  * @converter: Converter instance
- * @objects: (element-type GObject): List of objects to add
+ * @objects: (element-type GObject.Object) (transfer none): List of objects to add
  *
  * Add a list of input objects to a converter object.
  */
@@ -886,7 +991,7 @@ ipatch_converter_add_inputs (IpatchConverter *converter, GList *objects)
 /**
  * ipatch_converter_add_outputs:
  * @converter: Converter instance
- * @objects: (element-type GObject): List of objects to add
+ * @objects: (element-type GObject.Object) (transfer none): List of objects to add
  *
  * Add a list of output objects to a converter object.
  */
@@ -952,7 +1057,7 @@ ipatch_converter_get_output (IpatchConverter *converter)
 }
 
 /**
- * ipatch_converter_get_inputs:
+ * ipatch_converter_get_inputs: (skip)
  * @converter: Converter instance
  *
  * Get a list of input objects from a converter.
@@ -965,27 +1070,45 @@ IpatchList *
 ipatch_converter_get_inputs (IpatchConverter *converter)
 {
   IpatchList *list;
-  GList *p;
+  GList *items;
+
+  items = ipatch_converter_get_inputs_list (converter);
+  if (!items) return NULL;
+
+  list = ipatch_list_new ();	/* ++ ref new */
+  list->items = items;          // !! list takes over items
+  return (list);		/* !! caller takes over list reference */
+}
+
+/**
+ * ipatch_converter_get_inputs_list: (rename-to ipatch_converter_get_inputs)
+ * @converter: Converter instance
+ *
+ * Get a list of input objects from a converter.
+ *
+ * Returns: (element-type GObject.Object) (transfer full): A newly created input
+ *   object list from a converter or %NULL if no input objects.
+ *   Free the list with ipatch_glist_unref_free() when finished using it.
+ *
+ * Since: 1.1.0
+ */
+GList *
+ipatch_converter_get_inputs_list (IpatchConverter *converter)
+{
+  GList *items = NULL, *p;
 
   g_return_val_if_fail (IPATCH_IS_CONVERTER (converter), NULL);
 
   if (!converter->inputs) return (NULL);
 
-  list = ipatch_list_new ();	/* ++ ref new */
+  for (p = converter->inputs; p; p = g_list_next (p))
+    items = g_list_prepend (items, g_object_ref (p->data));
 
-  p = converter->inputs;
-  while (p)
-    {
-      list->items = g_list_prepend (list->items, g_object_ref (p->data));
-      p = g_list_next (p);
-    }
-
-  list->items = g_list_reverse (list->items);
-  return (list);		/* !! caller takes over list reference */
+  return g_list_reverse (items);        // !! caller takes over list
 }
 
 /**
- * ipatch_converter_get_outputs:
+ * ipatch_converter_get_outputs: (skip)
  * @converter: Converter instance
  *
  * Get a list of output objects from a converter.
@@ -998,23 +1121,41 @@ IpatchList *
 ipatch_converter_get_outputs (IpatchConverter *converter)
 {
   IpatchList *list;
-  GList *p;
+  GList *items;
+
+  items = ipatch_converter_get_outputs_list (converter);
+  if (!items) return NULL;
+
+  list = ipatch_list_new ();	/* ++ ref new */
+  list->items = items;          // !! list takes over items
+  return (list);		/* !! caller takes over list reference */
+}
+
+/**
+ * ipatch_converter_get_outputs_list: (rename-to ipatch_converter_get_outputs)
+ * @converter: Converter instance
+ *
+ * Get a list of output objects from a converter.
+ *
+ * Returns: (element-type GObject.Object) (transfer full): A newly created output
+ *   object list from a converter or %NULL if no output objects.
+ *   Free the list with ipatch_glist_unref_free() when finished using it.
+ *
+ * Since: 1.1.0
+ */
+GList *
+ipatch_converter_get_outputs_list (IpatchConverter *converter)
+{
+  GList *items = NULL, *p;
 
   g_return_val_if_fail (IPATCH_IS_CONVERTER (converter), NULL);
 
   if (!converter->outputs) return (NULL);
 
-  list = ipatch_list_new ();	/* ++ ref new */
+  for (p = converter->outputs; p; p = g_list_next (p))
+    items = g_list_prepend (items, g_object_ref (p->data));
 
-  p = converter->outputs;
-  while (p)
-    {
-      list->items = g_list_prepend (list->items, g_object_ref (p->data));
-      p = g_list_next (p);
-    }
-
-  list->items = g_list_reverse (list->items);
-  return (list);		/* !! caller takes over list reference */
+  return g_list_reverse (items);        // !! caller takes over list
 }
 
 /**
