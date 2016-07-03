@@ -631,7 +631,6 @@ ipatch_sf2_sample_real_set_data (IpatchSF2Sample *sample,
   GValue oldval = { 0 }, newval = { 0 };
   IpatchSampleData *old_sampledata;
 
-  if (data_notify) g_value_init (&oldval, IPATCH_TYPE_SAMPLE_DATA);
   if (sampledata) g_object_ref (sampledata);
 
   IPATCH_ITEM_WLOCK (sample);
