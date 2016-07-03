@@ -30,26 +30,23 @@
 
 typedef GSList IpatchSF2ModList;
 
-/* IpatchSF2ModList has a glib boxed type */
+/* GSList has a glib boxed type */
 #define IPATCH_TYPE_SF2_MOD_LIST   (ipatch_sf2_mod_list_get_type ())
 
 GType ipatch_sf2_mod_list_get_type (void);
 
-IpatchSF2ModList *ipatch_sf2_mod_list_duplicate (const IpatchSF2ModList *list);
-IpatchSF2ModList *ipatch_sf2_mod_list_override (const IpatchSF2ModList *alist,
-                                                const IpatchSF2ModList *blist, gboolean copy);
-IpatchSF2ModList *ipatch_sf2_mod_list_override_copy (const IpatchSF2ModList *alist,
-                                                     const IpatchSF2ModList *blist);
-void ipatch_sf2_mod_list_free (IpatchSF2ModList *list, gboolean free_mods);
-void ipatch_sf2_mod_list_boxed_free (IpatchSF2ModList *list);
-IpatchSF2ModList *ipatch_sf2_mod_list_insert (IpatchSF2ModList *mods,
-                                              const IpatchSF2Mod *modvals, int pos);
-IpatchSF2ModList *ipatch_sf2_mod_list_remove (IpatchSF2ModList *mods,
-                                              const IpatchSF2Mod *modvals, gboolean *changed);
-gboolean ipatch_sf2_mod_list_change (IpatchSF2ModList *mods, const IpatchSF2Mod *oldvals,
+GSList *ipatch_sf2_mod_list_duplicate (const GSList *list);
+GSList *ipatch_sf2_mod_list_override (const GSList *alist,
+                                                const GSList *blist, gboolean copy);
+GSList *ipatch_sf2_mod_list_override_copy (const GSList *alist, const GSList *blist);
+void ipatch_sf2_mod_list_free (GSList *list, gboolean free_mods);
+void ipatch_sf2_mod_list_boxed_free (GSList *list);
+GSList *ipatch_sf2_mod_list_insert (GSList *mods, const IpatchSF2Mod *modvals, int pos);
+GSList *ipatch_sf2_mod_list_remove (GSList *mods, const IpatchSF2Mod *modvals,
+                                              gboolean *changed);
+gboolean ipatch_sf2_mod_list_change (GSList *mods, const IpatchSF2Mod *oldvals,
 				     const IpatchSF2Mod *newvals);
-IpatchSF2ModList *ipatch_sf2_mod_list_offset (const IpatchSF2ModList *alist,
-                                              const IpatchSF2ModList *blist);
-G_CONST_RETURN IpatchSF2ModList *ipatch_sf2_mod_list_get_default (void);
+GSList *ipatch_sf2_mod_list_offset (const GSList *alist, const GSList *blist);
+G_CONST_RETURN GSList *ipatch_sf2_mod_list_get_default (void);
 
 #endif
