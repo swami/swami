@@ -23,12 +23,11 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#include <libinstpatch/IpatchItem.h>
 #include <libinstpatch/IpatchSF2Mod.h>
 
 /* forward type declarations */
 
-typedef IpatchItem IpatchSF2ModItem;
+typedef struct _IpatchSF2ModItem IpatchSF2ModItem;              // dummy typedef
 typedef struct _IpatchSF2ModItemIface IpatchSF2ModItemIface;
 
 #define IPATCH_TYPE_SF2_MOD_ITEM   (ipatch_sf2_mod_item_get_type ())
@@ -53,21 +52,12 @@ struct _IpatchSF2ModItemIface
   GParamSpec *mod_pspec;  /* cached value of modulator pspec for fast notifies */
 };
 
-/**
- * ipatch_sf2_mod_item_add_mod:
- * @item: Item that conforms to #IpatchSF2ModItem interface
- * @mod: Modulator to append to end of @item object's modulator list
- *
- * Just a convenience function which uses ipatch_sf2_mod_item_insert_mod() to
- * append a modulator.
- */
-#define ipatch_sf2_mod_item_add(item, mod) \
-  ipatch_sf2_mod_item_insert (item, mod, -1)
-
 GType ipatch_sf2_mod_item_get_type (void);
 GSList *ipatch_sf2_mod_item_get_mods (IpatchSF2ModItem *item);
 void ipatch_sf2_mod_item_set_mods (IpatchSF2ModItem *item, GSList *mod_list,
 				   int flags);
+void ipatch_sf2_mod_item_set_mods_copy (IpatchSF2ModItem *item, GSList *mod_list);
+void ipatch_sf2_mod_item_add (IpatchSF2ModItem *item, const IpatchSF2Mod *mod);
 void ipatch_sf2_mod_item_insert (IpatchSF2ModItem *item,
 				 const IpatchSF2Mod *mod, int pos);
 void ipatch_sf2_mod_item_remove (IpatchSF2ModItem *item,

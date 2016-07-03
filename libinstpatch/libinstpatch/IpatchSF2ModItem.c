@@ -52,7 +52,7 @@ ipatch_sf2_mod_item_get_type (void)
 	  (GClassFinalizeFunc) NULL
 	};
 
-      itype = g_type_register_static (G_TYPE_INTERFACE, "IpatchSF2ModItemIface",
+      itype = g_type_register_static (G_TYPE_INTERFACE, "IpatchSF2ModItem",
 				      &info, 0);
 
       /* IpatchSF2ModItemIface types must be IpatchItem objects (for locking) */
@@ -65,6 +65,11 @@ ipatch_sf2_mod_item_get_type (void)
 static void
 ipatch_sf2_mod_item_iface_init (IpatchSF2ModItemIface *iface)
 {
+  /**
+   * IpatchSF2ModItem:modulators: (type GSList(Ipatch.SF2Mod))
+   *
+   * GSList of IpatchSF2Mod modulators.
+   */
   g_object_interface_install_property (iface,
     g_param_spec_boxed ("modulators", _("Modulators"),
 			_("Modulators"), IPATCH_TYPE_SF2_MOD_LIST,
@@ -79,9 +84,9 @@ ipatch_sf2_mod_item_iface_init (IpatchSF2ModItemIface *iface)
  * with ipatch_sf2_mod_list_free() (free_mods set to %TRUE) when finished
  * with it.
  *
- * Returns: (element-type IpatchSF2Mod) (transfer full): New list of modulators (#IpatchSF2Mod)
- *   in @item or %NULL if no modulators. Remember to free it with
- *   ipatch_sf2_mod_list_free() when finished.
+ * Returns: (element-type Ipatch.SF2Mod) (transfer full) (nullable):
+ *   New list of modulators (#IpatchSF2Mod) in @item or %NULL if no modulators.
+ *   Remember to free it with ipatch_sf2_mod_list_free() when finished.
  */
 GSList *
 ipatch_sf2_mod_item_get_mods (IpatchSF2ModItem *item)
@@ -116,9 +121,9 @@ ipatch_sf2_mod_item_get_mods (IpatchSF2ModItem *item)
 }
 
 /**
- * ipatch_sf2_mod_item_set_mods:
+ * ipatch_sf2_mod_item_set_mods: (skip)
  * @item: Item with modulators
- * @mod_list: (element-type IpatchSF2Mod): Modulator list to assign to zone.
+ * @mod_list: (element-type Ipatch.SF2Mod): Modulator list to assign to zone.
  * @flags: (type IpatchSF2ModFlags): Flags for controlling list duplication and item property
  *   notification (#IpatchSF2ModFlags).  If #IPATCH_SF2_MOD_NO_DUPLICATE
  *   is set then ownership of @mod_list is taken over (not duplicated).
@@ -143,129 +148,219 @@ ipatch_sf2_mod_item_set_mods (IpatchSF2ModItem *item, GSList *mod_list, int flag
   g_return_if_fail (iface->modlist_ofs != 0);
   pmods = (GSList **)G_STRUCT_MEMBER_P (item, iface->modlist_ofs);
 
-  /* duplicate list if NO_DUPLICATE flag not set */
   if (!(flags & IPATCH_SF2_MOD_NO_DUPLICATE))
-    newlist = ipatch_sf2_mod_list_duplicate (mod_list);
-  else newlist = mod_list;
+    newlist = ipatch_sf2_mod_list_duplicate (mod_list);         // ++ Duplicate mod_list
+  else newlist = mod_list;                                      // !! Just use mod_list directly
 
-  IPATCH_ITEM_RLOCK (item);
+  if (!(flags & IPATCH_SF2_MOD_NO_NOTIFY))
+    mod_list = ipatch_sf2_mod_list_duplicate (mod_list);        // ++ Duplicate mod_list for notify
+
+  IPATCH_ITEM_WLOCK (item);
   oldlist = *pmods;
   *pmods = newlist;
-  IPATCH_ITEM_RUNLOCK (item);
+  IPATCH_ITEM_WUNLOCK (item);
 
   /* do property notify if NO_NOTIFY flag not set */
   if (!(flags & IPATCH_SF2_MOD_NO_NOTIFY))
-    {	/* old notify value takes over old list */
-      g_value_init (&old_value, IPATCH_TYPE_SF2_MOD_LIST);
-      g_value_take_boxed (&old_value, oldlist);
+  {
+    g_value_init (&old_value, IPATCH_TYPE_SF2_MOD_LIST);
+    g_value_take_boxed (&old_value, oldlist);                   // -- Take over oldlist
 
-      g_value_init (&new_value, IPATCH_TYPE_SF2_MOD_LIST);
-      g_value_set_static_boxed (&new_value, mod_list);
+    g_value_init (&new_value, IPATCH_TYPE_SF2_MOD_LIST);
+    g_value_take_boxed (&new_value, mod_list);                  // -- Take over mod_list
 
-      ipatch_item_prop_notify (item, iface->mod_pspec, &new_value, &old_value);
-      g_value_unset (&new_value);
-      g_value_unset (&old_value);
-    }
-  else ipatch_sf2_mod_list_free (oldlist, TRUE);  /* free old list if no notify */
+    ipatch_item_prop_notify (IPATCH_ITEM (item), iface->mod_pspec, &new_value, &old_value);
+    g_value_unset (&new_value);
+    g_value_unset (&old_value);
+  }
+  else ipatch_sf2_mod_list_free (oldlist, TRUE);                // -- free old list if no notify
+}
+
+/**
+ * ipatch_sf2_mod_item_set_mods_copy: (rename-to ipatch_sf2_mod_item_set_mods)
+ * @item: Item with modulators
+ * @mod_list: (element-type Ipatch.SF2Mod) (transfer none) (nullable): Modulator list to assign to zone.
+ *
+ * Sets the modulator list of an item with modulators.
+ */
+void
+ipatch_sf2_mod_item_set_mods_copy (IpatchSF2ModItem *item, GSList *mod_list)
+{
+  ipatch_sf2_mod_item_set_mods (item, mod_list, 0);
+}
+
+/**
+ * ipatch_sf2_mod_item_add_mod:
+ * @item: Item with modulators
+ * @mod: (transfer none): Modulator to append to end of @item object's modulator list
+ *
+ * Append a modulator to an item's modulator list.
+ * NOTE: Does not check for duplicates!
+ */
+void
+ipatch_sf2_mod_item_add (IpatchSF2ModItem *item, const IpatchSF2Mod *mod)
+{
+  ipatch_sf2_mod_item_insert (item, mod, -1);
 }
 
 /**
  * ipatch_sf2_mod_item_insert:
  * @item: Item with modulators
- * @mod: Modulator to insert (a new modulator is created and the
- *   values are copied to it)
+ * @mod: (transfer none): Modulator to insert
  * @pos: Index position in zone's modulator list to insert
  *   (0 = first, < 0 = last)
  *
- * Inserts a modulator into an item's modulator list. Does not check for
- * duplicates! The modulator is not used directly, a new one is created and
- * the values in @mod are copied to it.
- * An #IpatchItem property notify is done. 
+ * Inserts a modulator into an item's modulator list.
+ * NOTE: Does not check for duplicates!
  */
 void
 ipatch_sf2_mod_item_insert (IpatchSF2ModItem *item,
 			    const IpatchSF2Mod *mod, int pos)
 {
+  GValue old_value = { 0 }, new_value = { 0 };
+  GSList **pmods, *oldlist, *newlist;
+  IpatchSF2ModItemIface *iface;
   IpatchSF2Mod *newmod;
-  GSList *newlist;
 
   g_return_if_fail (IPATCH_IS_SF2_MOD_ITEM (item));
   g_return_if_fail (mod != NULL);
 
-  /* get the current MOD list */
-  newlist = ipatch_sf2_mod_item_get_mods (item);
+  /* get pointer to GSList from IpatchSF2ModItemIface->modlist_ofs */
+  iface = IPATCH_SF2_MOD_ITEM_GET_IFACE (item);
+  g_return_if_fail (iface->modlist_ofs != 0);
+  pmods = (GSList **)G_STRUCT_MEMBER_P (item, iface->modlist_ofs);
 
-  newmod = ipatch_sf2_mod_duplicate (mod);	/* duplicate the modulator vals */
-  newlist = g_slist_insert (newlist, newmod, pos);	/* insert mod */
+  newmod = ipatch_sf2_mod_duplicate (mod);                      // ++ duplicate the new modulator
 
-  /* assign the new modulator list (item takes it over, no duplicating) */
-  ipatch_sf2_mod_item_set_mods (item, newlist, IPATCH_SF2_MOD_NO_DUPLICATE);
+  IPATCH_ITEM_WLOCK (item);
+  newlist = ipatch_sf2_mod_list_duplicate (*pmods);             // ++ Duplicate current list
+  newlist = g_slist_insert (newlist, newmod, pos);
+  oldlist = *pmods;
+  *pmods = newlist;                                             // !! Item takes over new modulator list
+  newlist = ipatch_sf2_mod_list_duplicate (newlist);            // ++ Duplicate newlist for notify
+  IPATCH_ITEM_WUNLOCK (item);
+
+  g_value_init (&old_value, IPATCH_TYPE_SF2_MOD_LIST);
+  g_value_take_boxed (&old_value, oldlist);                   // -- Take over oldlist
+
+  g_value_init (&new_value, IPATCH_TYPE_SF2_MOD_LIST);
+  g_value_take_boxed (&new_value, newlist);                   // -- Take over newlist
+
+  ipatch_item_prop_notify (IPATCH_ITEM (item), iface->mod_pspec, &new_value, &old_value);
+  g_value_unset (&new_value);
+  g_value_unset (&old_value);
 }
 
 /**
  * ipatch_sf2_mod_item_remove:
  * @item: Item with modulators
- * @mod: Matching values of modulator to remove
+ * @mod: (transfer none): Matching values of modulator to remove
  *
  * Remove a modulator from an item with modulators. The modulator values in @mod
  * are used to search the modulator list. The first modulator
  * that matches all fields in @mod is removed.
- * An #IpatchItem property notify is done. 
  */
 void
 ipatch_sf2_mod_item_remove (IpatchSF2ModItem *item, const IpatchSF2Mod *mod)
 {
-  GSList *newlist;
+  GValue old_value = { 0 }, new_value = { 0 };
+  GSList **pmods, *oldlist, *newlist;
+  IpatchSF2ModItemIface *iface;
   gboolean changed;
 
   g_return_if_fail (IPATCH_IS_SF2_MOD_ITEM (item));
   g_return_if_fail (mod != NULL);
 
-  /* get the current MOD list */
-  newlist = ipatch_sf2_mod_item_get_mods (item);
+  /* get pointer to GSList from IpatchSF2ModItemIface->modlist_ofs */
+  iface = IPATCH_SF2_MOD_ITEM_GET_IFACE (item);
+  g_return_if_fail (iface->modlist_ofs != 0);
+  pmods = (GSList **)G_STRUCT_MEMBER_P (item, iface->modlist_ofs);
 
-  /* remove the modulator */
-  newlist = ipatch_sf2_mod_list_remove (newlist, mod, &changed);
+  IPATCH_ITEM_WLOCK (item);
+  newlist = ipatch_sf2_mod_list_duplicate (*pmods);                     // ++ Duplicate current list
+  newlist = ipatch_sf2_mod_list_remove (newlist, mod, &changed);        // Remove the modulator
+  oldlist = *pmods;
+  *pmods = newlist;                                             // !! Item takes over new modulator list
 
-  /* assign the new modulator list (item takes it over, no duplicating) */
   if (changed)
-    ipatch_sf2_mod_item_set_mods (item, newlist, IPATCH_SF2_MOD_NO_DUPLICATE);
-  else ipatch_sf2_mod_list_free (newlist, TRUE);	/* not changed, free list */
+    newlist = ipatch_sf2_mod_list_duplicate (newlist);            // ++ Duplicate newlist for notify
+  IPATCH_ITEM_WUNLOCK (item);
+
+  if (changed)
+  {
+    g_value_init (&old_value, IPATCH_TYPE_SF2_MOD_LIST);
+    g_value_take_boxed (&old_value, oldlist);                   // -- Take over oldlist
+
+    g_value_init (&new_value, IPATCH_TYPE_SF2_MOD_LIST);
+    g_value_take_boxed (&new_value, newlist);                   // -- Take over newlist
+
+    ipatch_item_prop_notify (IPATCH_ITEM (item), iface->mod_pspec, &new_value, &old_value);
+    g_value_unset (&new_value);
+    g_value_unset (&old_value);
+  }
+  else
+  {
+    ipatch_sf2_mod_list_free (oldlist, TRUE);                   // -- free oldlist
+    ipatch_sf2_mod_list_free (newlist, TRUE);                   // -- free newlist
+  }
 }
 
 /**
  * ipatch_sf2_mod_item_change:
  * @item: Item with modulators
- * @oldmod: Current values of modulator to set
- * @newmod: New modulator values
+ * @oldmod: (transfer none): Current values of modulator to set
+ * @newmod: (transfer none): New modulator values
  *
  * Sets the values of an existing modulator in an item with modulators. The
  * modulator list in item is searched for a modulator that matches the values in
  * @oldmod. If a modulator is found its values are set to those in @newmod.
  * If it is not found, nothing is done.
- * If change occurs #IpatchItem property notify is done.
  */
 void
-ipatch_sf2_mod_item_change (IpatchItem *item, const IpatchSF2Mod *oldmod,
+ipatch_sf2_mod_item_change (IpatchSF2ModItem *item, const IpatchSF2Mod *oldmod,
 			    const IpatchSF2Mod *newmod)
 {
-  GSList *newlist;
+  GValue old_value = { 0 }, new_value = { 0 };
+  GSList **pmods, *oldlist, *newlist;
+  IpatchSF2ModItemIface *iface;
   gboolean changed;
 
   g_return_if_fail (IPATCH_IS_SF2_MOD_ITEM (item));
   g_return_if_fail (oldmod != NULL);
   g_return_if_fail (newmod != NULL);
 
-  /* get the current MOD list */
-  newlist = ipatch_sf2_mod_item_get_mods (item);
+  /* get pointer to GSList from IpatchSF2ModItemIface->modlist_ofs */
+  iface = IPATCH_SF2_MOD_ITEM_GET_IFACE (item);
+  g_return_if_fail (iface->modlist_ofs != 0);
+  pmods = (GSList **)G_STRUCT_MEMBER_P (item, iface->modlist_ofs);
 
-  /* change the modulator */
-  changed = ipatch_sf2_mod_list_change (newlist, oldmod, newmod);
+  IPATCH_ITEM_WLOCK (item);
+  newlist = ipatch_sf2_mod_list_duplicate (*pmods);                     // ++ Duplicate current list
+  changed = ipatch_sf2_mod_list_change (newlist, oldmod, newmod);       // Change the modulator
+  oldlist = *pmods;
+  *pmods = newlist;                                             // !! Item takes over new modulator list
 
-  /* if changed - assign the new modulator list (item takes it over) */
   if (changed)
-    ipatch_sf2_mod_item_set_mods (item, newlist, IPATCH_SF2_MOD_NO_DUPLICATE);
-  else ipatch_sf2_mod_list_free (newlist, TRUE);  /* not changed, free list */
+    newlist = ipatch_sf2_mod_list_duplicate (newlist);            // ++ Duplicate newlist for notify
+  IPATCH_ITEM_WUNLOCK (item);
+
+  if (changed)
+  {
+    g_value_init (&old_value, IPATCH_TYPE_SF2_MOD_LIST);
+    g_value_take_boxed (&old_value, oldlist);                   // -- Take over oldlist
+
+    g_value_init (&new_value, IPATCH_TYPE_SF2_MOD_LIST);
+    g_value_take_boxed (&new_value, newlist);                   // -- Take over newlist
+
+    ipatch_item_prop_notify (IPATCH_ITEM (item), iface->mod_pspec, &new_value, &old_value);
+    g_value_unset (&new_value);
+    g_value_unset (&old_value);
+  }
+  else
+  {
+    ipatch_sf2_mod_list_free (oldlist, TRUE);                   // -- free oldlist
+    ipatch_sf2_mod_list_free (newlist, TRUE);                   // -- free newlist
+  }
 }
 
 /**
