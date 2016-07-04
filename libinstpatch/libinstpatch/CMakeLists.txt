@@ -107,11 +107,18 @@ set ( instpatch_public_HEADERS
     IpatchVirtualContainer_types.h
     IpatchXml.h
     IpatchXmlObject.h
-    compat.h
     misc.h
     sample.h
     util.h
 ) 
+
+set ( instpatch_private_HEADERS
+    IpatchDLSFile_priv.h
+    IpatchGigFile_priv.h
+    IpatchSF2File_priv.h
+    IpatchSLIFile_priv.h
+    compat.h
+)
 
 set ( instpatch_SOURCES
     IpatchBase.c

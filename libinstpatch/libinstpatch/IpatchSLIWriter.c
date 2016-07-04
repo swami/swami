@@ -34,6 +34,7 @@
 #include <libinstpatch/IpatchRiff.h>
 #include <libinstpatch/IpatchSF2GenItem.h>
 #include <libinstpatch/IpatchSampleStoreFile.h>
+#include "IpatchSLIFile_priv.h"
 #include "compat.h"
 #include "ipatch_priv.h"
 #include "i18n.h"

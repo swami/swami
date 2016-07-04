@@ -31,6 +31,8 @@
 #include <glib-object.h>
 
 #include "IpatchGigFile.h"
+#include "IpatchGigFile_priv.h"
+#include "IpatchDLSFile_priv.h"
 #include "i18n.h"
 #include "misc.h"
 

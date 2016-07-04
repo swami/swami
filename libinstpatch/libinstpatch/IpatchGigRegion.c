@@ -29,6 +29,7 @@
 #include <glib-object.h>
 #include "IpatchGigRegion.h"
 #include "IpatchGigFile.h"
+#include "IpatchGigFile_priv.h"
 #include "IpatchGigSample.h"
 #include "IpatchRange.h"
 #include "IpatchTypeProp.h"

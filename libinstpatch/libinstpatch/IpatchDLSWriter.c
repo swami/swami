@@ -30,10 +30,12 @@
 
 #include "IpatchDLSWriter.h"
 #include "IpatchDLSFile.h"
+#include "IpatchDLSFile_priv.h"
 #include "IpatchDLS2Region.h"
 #include "IpatchDLS2Sample.h"
 #include "IpatchGig.h"
 #include "IpatchGigFile.h"
+#include "IpatchGigFile_priv.h"
 #include "IpatchGigRegion.h"
 #include "IpatchGigInst.h"
 #include "IpatchGigSample.h"

@@ -40,6 +40,7 @@
 #include "IpatchSampleStore.h"
 #include "IpatchSampleStoreRam.h"
 #include "IpatchSampleStoreFile.h"
+#include "IpatchSLIFile_priv.h"
 #include "IpatchUnit.h"
 #include "ipatch_priv.h"
 #include "i18n.h"

@@ -33,6 +33,7 @@
 #include "IpatchDLS2Sample.h"
 #include "IpatchDLS2.h"
 #include "IpatchDLSFile.h"
+#include "IpatchDLSFile_priv.h"
 #include "IpatchSample.h"
 #include "IpatchSampleStoreRam.h"
 #include "IpatchTypeProp.h"

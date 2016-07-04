@@ -31,6 +31,7 @@
 #include <glib.h>
 #include <glib-object.h>
 #include "IpatchSLIFile.h"
+#include "IpatchSLIFile_priv.h"
 #include "ipatch_priv.h"
 
 static gboolean ipatch_sli_file_identify (IpatchFile *file,

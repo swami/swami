@@ -32,6 +32,7 @@
 #include <glib-object.h>
 
 #include "IpatchDLSFile.h"
+#include "IpatchDLSFile_priv.h"
 #include "ipatch_priv.h"
 #include "i18n.h"
 #include "misc.h"

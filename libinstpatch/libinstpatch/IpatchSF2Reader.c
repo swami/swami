@@ -35,6 +35,7 @@
 
 #include "IpatchSF2Reader.h"
 #include "IpatchSF2File.h"
+#include "IpatchSF2File_priv.h"
 #include "IpatchSF2ModItem.h"
 #include "IpatchGig.h"
 #include "IpatchGigEffects.h"
@@ -59,6 +60,14 @@
 static void ipatch_sf2_reader_class_init (IpatchSF2ReaderClass *klass);
 static void ipatch_sf2_reader_init (IpatchSF2Reader *reader);
 static void ipatch_sf2_reader_finalize (GObject *object);
+
+static void ipatch_sf2_load_phdr (IpatchFileHandle *handle, IpatchSF2Phdr *phdr);
+static void ipatch_sf2_load_ihdr (IpatchFileHandle *handle, IpatchSF2Ihdr *ihdr);
+static void ipatch_sf2_load_shdr (IpatchFileHandle *handle, IpatchSF2Shdr *shdr);
+static void ipatch_sf2_load_mod (IpatchFileHandle *handle, IpatchSF2Mod *mod);
+static void ipatch_sf2_load_gen (IpatchFileHandle *handle, int *genid,
+                                 IpatchSF2GenAmount *amount);
+
 static gboolean ipatch_sf2_load_level_0 (IpatchSF2Reader *reader,
 					 GError **err);
 
@@ -239,7 +248,7 @@ ipatch_sf2_reader_load (IpatchSF2Reader *reader, GError **err)
  *
  * Parses a raw preset header in file @handle with buffered data.
  */
-void
+static void
 ipatch_sf2_load_phdr (IpatchFileHandle *handle, IpatchSF2Phdr *phdr)
 {
   g_return_if_fail (handle != NULL);
@@ -261,7 +270,7 @@ ipatch_sf2_load_phdr (IpatchFileHandle *handle, IpatchSF2Phdr *phdr)
  *
  * Parses a raw instrument header in file @handle with buffered data.
  */
-void
+static void
 ipatch_sf2_load_ihdr (IpatchFileHandle *handle, IpatchSF2Ihdr *ihdr)
 {
   g_return_if_fail (handle != NULL);
@@ -278,7 +287,7 @@ ipatch_sf2_load_ihdr (IpatchFileHandle *handle, IpatchSF2Ihdr *ihdr)
  *
  * Parses a raw sample header in file @handle with buffered data.
  */
-void
+static void
 ipatch_sf2_load_shdr (IpatchFileHandle *handle, IpatchSF2Shdr *shdr)
 {
   g_return_if_fail (handle != NULL);
@@ -297,30 +306,13 @@ ipatch_sf2_load_shdr (IpatchFileHandle *handle, IpatchSF2Shdr *shdr)
 }
 
 /**
- * ipatch_sf2_load_bag: (skip)
- * @handle: File handle containing buffered data
- * @bag: Pointer to a user supplied bag structure
- *
- * Parses a raw preset or instrument bag in file @handle with buffered data.
- */
-void
-ipatch_sf2_load_bag (IpatchFileHandle *handle, IpatchSF2Bag *bag)
-{
-  g_return_if_fail (handle != NULL);
-  g_return_if_fail (bag != NULL);
-
-  bag->gen_index = ipatch_file_buf_read_u16 (handle);
-  bag->mod_index = ipatch_file_buf_read_u16 (handle);
-}
-
-/**
  * ipatch_sf2_load_mod: (skip)
  * @handle: File handle containing buffered data
  * @mod: Pointer to a user supplied modulator structure
  *
  * Parses a raw modulator in file @handle with buffered data.
  */
-void
+static void
 ipatch_sf2_load_mod (IpatchFileHandle *handle, IpatchSF2Mod *mod)
 {
   g_return_if_fail (handle != NULL);
@@ -341,7 +333,7 @@ ipatch_sf2_load_mod (IpatchFileHandle *handle, IpatchSF2Mod *mod)
  *
  * Parses a raw generator in file @handle with buffered data.
  */
-void
+static void
 ipatch_sf2_load_gen (IpatchFileHandle *handle, int *genid,
 		     IpatchSF2GenAmount *amount)
 {

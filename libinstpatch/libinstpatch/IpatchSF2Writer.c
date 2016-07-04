@@ -31,6 +31,7 @@
 #include <string.h>
 
 #include "IpatchSF2Writer.h"
+#include "IpatchSF2File_priv.h"
 #include "IpatchBase.h"
 #include "IpatchFile.h"
 #include "IpatchSampleStore.h"

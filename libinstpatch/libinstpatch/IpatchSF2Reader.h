@@ -70,11 +70,5 @@ IpatchSF2Reader *ipatch_sf2_reader_new (IpatchFileHandle *handle);
 void ipatch_sf2_reader_set_file_handle (IpatchSF2Reader *reader,
                                         IpatchFileHandle *handle);
 IpatchSF2 *ipatch_sf2_reader_load (IpatchSF2Reader *reader, GError **err);
-void ipatch_sf2_load_phdr (IpatchFileHandle *handle, IpatchSF2Phdr *phdr);
-void ipatch_sf2_load_ihdr (IpatchFileHandle *handle, IpatchSF2Ihdr *ihdr);
-void ipatch_sf2_load_shdr (IpatchFileHandle *handle, IpatchSF2Shdr *shdr);
-void ipatch_sf2_load_bag (IpatchFileHandle *handle, IpatchSF2Bag *bag);
-void ipatch_sf2_load_mod (IpatchFileHandle *handle, IpatchSF2Mod *mod);
-void ipatch_sf2_load_gen (IpatchFileHandle *handle, int *genid,
-			  IpatchSF2GenAmount *amount);
+
 #endif

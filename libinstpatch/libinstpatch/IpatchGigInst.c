@@ -33,6 +33,7 @@
 #include "IpatchGigInst.h"
 #include "IpatchGigRegion.h"
 #include "IpatchGigFile.h"
+#include "IpatchGigFile_priv.h"
 #include "i18n.h"
 
 enum

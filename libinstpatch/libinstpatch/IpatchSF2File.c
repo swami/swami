@@ -29,6 +29,7 @@
 #include <glib.h>
 #include <glib-object.h>
 #include "IpatchSF2File.h"
+#include "IpatchSF2File_priv.h"
 #include "ipatch_priv.h"
 
 /* IpatchSF2File properties */

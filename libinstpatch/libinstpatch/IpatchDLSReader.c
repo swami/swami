@@ -30,11 +30,13 @@
 
 #include "IpatchDLSReader.h"
 #include "IpatchDLSFile.h"
+#include "IpatchDLSFile_priv.h"
 #include "IpatchDLS2Region.h"
 #include "IpatchDLS2Sample.h"
 #include "IpatchGig.h"
 #include "IpatchGigEffects.h"
 #include "IpatchGigFile.h"
+#include "IpatchGigFile_priv.h"
 #include "IpatchGigInst.h"
 #include "IpatchGigRegion.h"
 #include "IpatchGigSample.h"
@@ -73,8 +75,63 @@
 static void ipatch_dls_reader_class_init (IpatchDLSReaderClass *klass);
 static void ipatch_dls_reader_init (IpatchDLSReader *reader);
 static void ipatch_dls_reader_finalize (GObject *object);
+
+static gboolean ipatch_dls_reader_start (IpatchDLSReader *reader, GError **err);
+static gboolean ipatch_dls_reader_fixup (IpatchDLSReader *reader, GError **err);
 static void ipatch_dls_nullify_fixups (IpatchDLSReader *reader);
 static gboolean assert_loading_gig (IpatchDLSReader *reader, GError **err);
+
+static gboolean ipatch_dls_reader_load_level_0 (IpatchDLSReader *reader,
+					 GError **err);
+static gboolean ipatch_dls_reader_load_inst_list (IpatchDLSReader *reader,
+					   GError **err);
+static gboolean ipatch_dls_reader_load_region_list (IpatchDLSReader *reader,
+				      IpatchDLS2Inst *inst, GError **err);
+static gboolean ipatch_gig_reader_load_region_list (IpatchDLSReader *reader,
+					     IpatchGigInst *giginst,
+					     GError **err);
+static gboolean ipatch_dls_reader_load_art_list (IpatchDLSReader *reader,
+					  GSList **conn_list, GError **err);
+static gboolean ipatch_dls_reader_load_wave_pool (IpatchDLSReader *reader,
+					   GError **err);
+static gboolean ipatch_gig_reader_load_sub_regions (IpatchDLSReader *reader,
+					     IpatchGigRegion *region,
+					     GError **err);
+static gboolean ipatch_gig_reader_load_inst_lart (IpatchDLSReader *reader,
+					   IpatchGigInst *inst, GError **err);
+
+static gboolean ipatch_dls_load_info (IpatchRiff *riff, IpatchDLS2Info **info,
+			       GError **err);
+static gboolean ipatch_dls_load_region_header (IpatchRiff *riff,
+					IpatchDLS2Region *region, GError **err);
+static gboolean ipatch_gig_load_region_header (IpatchRiff *riff,
+				        IpatchGigRegion *region, GError **err);
+static gboolean ipatch_dls_load_wave_link (IpatchRiff *riff, IpatchDLS2Region *region,
+				    GError **err);
+static gboolean ipatch_dls_load_sample_info (IpatchRiff *riff,
+                                      IpatchDLS2SampleInfo *info,
+				      GError **err);
+static gboolean ipatch_dls_load_connection (IpatchRiff *riff,
+				     GSList **conn_list,
+				     GError **err);
+static gboolean ipatch_dls_load_sample_format (IpatchRiff *riff,
+					IpatchDLS2Sample *sample,
+					int *bitwidth, int *channels,
+					GError **err);
+static guint32 *ipatch_dls_load_pool_table (IpatchRiff *riff, guint *size, GError **err);
+static gboolean ipatch_dls_load_dlid (IpatchRiff *riff, guint8 *dlid, GError **err);
+
+static gboolean ipatch_gig_load_sample_info (IpatchRiff *riff,
+				      IpatchDLS2SampleInfo *info,
+				      GError **err);
+static gboolean ipatch_gig_load_dimension_info (IpatchRiff *riff,
+					 IpatchGigRegion *region,
+					 GError **err);
+static gboolean ipatch_gig_load_dimension_names (IpatchRiff *riff,
+					  IpatchGigRegion *region,
+					  GError **err);
+static gboolean ipatch_gig_load_group_names (IpatchRiff *riff,
+				      GSList **name_list, GError **err);
 
 /* global variables */
 
@@ -242,7 +299,7 @@ ipatch_dls_reader_load (IpatchDLSReader *reader, GError **err)
  *
  * Returns: %TRUE on success, %FALSE otherwise
  */
-gboolean
+static gboolean
 ipatch_dls_reader_start (IpatchDLSReader *reader, GError **err)
 {
   IpatchRiff *riff;
@@ -278,35 +335,6 @@ ipatch_dls_reader_start (IpatchDLSReader *reader, GError **err)
 }
 
 /**
- * ipatch_dls_reader_set_pool_table:
- * @reader: DLS/Gig reader
- * @pool_table: (array length=size) (nullable): An array of unsigned 32 bit integers which
- *   are file offsets to samples in a DLS file, can be %NULL if @size is 0
- * @size: Number of entries in @pool_table
- *
- * Set the pool table of a DLS/Gig reader. This function is only used when
- * doing manual DLS loading (not using ipatch_dls_load()). The pool table is
- * used to fixup region sample references which are indexes into the pool
- * table.
- */
-void
-ipatch_dls_reader_set_pool_table (IpatchDLSReader *reader,
-				  const guint32 pool_table[], guint size)
-{
-  g_return_if_fail (IPATCH_IS_DLS_READER (reader));
-  g_return_if_fail (pool_table != NULL || size == 0);
-
-  g_free (reader->pool_table);
-  reader->pool_table = NULL;
-
-  if (pool_table && size > 0)
-    {
-      reader->pool_table = g_malloc (size * sizeof (guint32));
-      memcpy (reader->pool_table, pool_table, size * sizeof (guint32));
-    }
-}
-
-/**
  * ipatch_dls_reader_fixup:
  * @reader: DLS/Gig reader
  * @err: Location to store error info or %NULL
@@ -319,7 +347,7 @@ ipatch_dls_reader_set_pool_table (IpatchDLSReader *reader,
  *
  * Returns: %TRUE on success, %FALSE otherwise
  */
-gboolean
+static gboolean
 ipatch_dls_reader_fixup (IpatchDLSReader *reader, GError **err)
 {
   GHashTable *fixup_hash;
@@ -496,7 +524,7 @@ assert_loading_gig (IpatchDLSReader *reader, GError **err)
  *
  * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set).
  */
-gboolean
+static gboolean
 ipatch_dls_reader_load_level_0 (IpatchDLSReader *reader, GError **err)
 {
   IpatchRiff *riff = IPATCH_RIFF (reader);
@@ -600,7 +628,7 @@ ipatch_dls_reader_load_level_0 (IpatchDLSReader *reader, GError **err)
  *
  * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set).
  */
-gboolean
+static gboolean
 ipatch_dls_reader_load_inst_list (IpatchDLSReader *reader, GError **err)
 {
   IpatchRiff *riff = IPATCH_RIFF (reader);
@@ -731,7 +759,7 @@ ipatch_dls_reader_load_inst_list (IpatchDLSReader *reader, GError **err)
  *
  * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set).
  */
-gboolean
+static gboolean
 ipatch_dls_reader_load_region_list (IpatchDLSReader *reader,
 				    IpatchDLS2Inst *inst, GError **err)
 {
@@ -843,7 +871,7 @@ ipatch_dls_reader_load_region_list (IpatchDLSReader *reader,
  *
  * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set).
  */
-gboolean
+static gboolean
 ipatch_gig_reader_load_region_list (IpatchDLSReader *reader,
 				    IpatchGigInst *giginst, GError **err)
 {
@@ -955,7 +983,7 @@ ipatch_gig_reader_load_region_list (IpatchDLSReader *reader,
  *
  * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set).
  */
-gboolean
+static gboolean
 ipatch_dls_reader_load_art_list (IpatchDLSReader *reader, GSList **conn_list,
 				 GError **err)
 {
@@ -1003,7 +1031,7 @@ ipatch_dls_reader_load_art_list (IpatchDLSReader *reader, GSList **conn_list,
  *
  * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set).
  */
-gboolean
+static gboolean
 ipatch_dls_reader_load_wave_pool (IpatchDLSReader *reader, GError **err)
 {
   IpatchRiff *riff = IPATCH_RIFF (reader);
@@ -1164,7 +1192,7 @@ ipatch_dls_reader_load_wave_pool (IpatchDLSReader *reader, GError **err)
  *
  * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set).
  */
-gboolean
+static gboolean
 ipatch_gig_reader_load_sub_regions (IpatchDLSReader *reader,
 				    IpatchGigRegion *region, GError **err)
 {
@@ -1260,7 +1288,7 @@ ipatch_gig_reader_load_sub_regions (IpatchDLSReader *reader,
  *
  * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set).
  */
-gboolean
+static gboolean
 ipatch_gig_reader_load_inst_lart (IpatchDLSReader *reader,
 				  IpatchGigInst *inst, GError **err)
 {
@@ -1305,7 +1333,7 @@ ipatch_gig_reader_load_inst_lart (IpatchDLSReader *reader,
  *
  * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set).
  */
-gboolean
+static gboolean
 ipatch_dls_load_info (IpatchRiff *riff, IpatchDLS2Info **info,
 		      GError **err)
 {
@@ -1355,7 +1383,7 @@ ipatch_dls_load_info (IpatchRiff *riff, IpatchDLS2Info **info,
  *
  * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set).
  */
-gboolean
+static gboolean
 ipatch_dls_load_region_header (IpatchRiff *riff,
 			       IpatchDLS2Region *region, GError **err)
 {
@@ -1406,7 +1434,7 @@ ipatch_dls_load_region_header (IpatchRiff *riff,
  *
  * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set).
  */
-gboolean
+static gboolean
 ipatch_gig_load_region_header (IpatchRiff *riff,
 			       IpatchGigRegion *region, GError **err)
 {
@@ -1461,7 +1489,7 @@ ipatch_gig_load_region_header (IpatchRiff *riff,
  *
  * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set).
  */
-gboolean
+static gboolean
 ipatch_dls_load_wave_link (IpatchRiff *riff, IpatchDLS2Region *region,
 			   GError **err)
 {
@@ -1509,7 +1537,7 @@ ipatch_dls_load_wave_link (IpatchRiff *riff, IpatchDLS2Region *region,
  *
  * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set).
  */
-gboolean
+static gboolean
 ipatch_dls_load_sample_info (IpatchRiff *riff,
 			     IpatchDLS2SampleInfo *info, GError **err)
 {
@@ -1585,7 +1613,7 @@ ipatch_dls_load_sample_info (IpatchRiff *riff,
  *
  * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set).
  */
-gboolean
+static gboolean
 ipatch_dls_load_connection (IpatchRiff *riff, GSList **conn_list,
 			    GError **err)
 {
@@ -1669,7 +1697,7 @@ ipatch_dls_load_connection (IpatchRiff *riff, GSList **conn_list,
  *
  * Returns: %TRUE on success, %FALSE on error (in which case @err may be set).
  */
-gboolean
+static gboolean
 ipatch_dls_load_sample_format (IpatchRiff *riff,
 			       IpatchDLS2Sample *sample,
 			       int *bitwidth, int *channels,
@@ -1744,7 +1772,7 @@ ipatch_dls_load_sample_format (IpatchRiff *riff,
  * for each entry in the pool table, or %NULL if empty pool table or on
  * error (in which case @err may be set). Free the table when finished with it.
  */
-guint32 *
+static guint32 *
 ipatch_dls_load_pool_table (IpatchRiff *riff, guint *size,
 			    GError **err)
 {
@@ -1835,7 +1863,7 @@ ipatch_dls_load_pool_table (IpatchRiff *riff, guint *size,
  * 
  * Returns: %TRUE on success, %FALSE otherwise
  */
-gboolean
+static gboolean
 ipatch_dls_load_dlid (IpatchRiff *riff, guint8 *dlid, GError **err)
 {
   IpatchRiffChunk *chunk;
@@ -1867,7 +1895,7 @@ ipatch_dls_load_dlid (IpatchRiff *riff, guint8 *dlid, GError **err)
  *
  * Returns: %TRUE on success, %FALSE on error (in which case @err may be set).
  */
-gboolean
+static gboolean
 ipatch_gig_load_sample_info (IpatchRiff *riff,
 			     IpatchDLS2SampleInfo *info, GError **err)
 {
@@ -1933,7 +1961,7 @@ ipatch_gig_load_sample_info (IpatchRiff *riff,
  *
  * Returns: %TRUE on success, %FALSE on error (in which case @err may be set).
  */
-gboolean
+static gboolean
 ipatch_gig_load_dimension_info (IpatchRiff *riff,
 				IpatchGigRegion *region, GError **err)
 {
@@ -2021,7 +2049,7 @@ ipatch_gig_load_dimension_info (IpatchRiff *riff,
  *
  * Returns: %TRUE on success, %FALSE otherwise (in which case @err may be set).
  */
-gboolean
+static gboolean
 ipatch_gig_load_dimension_names (IpatchRiff *riff,
 				 IpatchGigRegion *region, GError **err)
 {
@@ -2072,7 +2100,7 @@ ipatch_gig_load_dimension_names (IpatchRiff *riff,
  * 
  * Returns: %TRUE on success, %FALSE otherwise
  */
-gboolean
+static gboolean
 ipatch_gig_load_group_names (IpatchRiff *riff, GSList **name_list,
 			     GError **err)
 {

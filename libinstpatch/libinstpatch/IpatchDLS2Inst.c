@@ -33,6 +33,7 @@
 #include "IpatchDLS2Conn.h"
 #include "IpatchDLS2Region.h"
 #include "IpatchDLSFile.h"
+#include "IpatchDLSFile_priv.h"
 #include "IpatchParamProp.h"
 #include "IpatchTypeProp.h"
 #include "ipatch_priv.h"
