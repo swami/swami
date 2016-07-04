@@ -50,7 +50,6 @@ void _ipatch_unit_init (void);	/* unit.c */
 void _ipatch_xml_object_init (void);	/* IpatchXmlObject.c */
 void _ipatch_range_init (void);	/* IpatchRange.c */
 
-void _ipatch_converter_init (void);	/* IpatchConverter.c */
 void _ipatch_convert_SF2_init (void);
 void _ipatch_convert_gig_init (void);
 void _ipatch_convert_DLS2_init (void);
@@ -155,7 +154,6 @@ ipatch_init (void)
   _ipatch_unit_init ();
   _ipatch_xml_object_init ();
   _ipatch_util_init ();
-  _ipatch_converter_init ();	/* init converter system */
   _ipatch_sf2_gen_init ();
 
   /* initialize interfaces before objects */

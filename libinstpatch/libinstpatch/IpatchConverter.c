@@ -52,12 +52,8 @@ typedef struct _LogEntry
 
 
 static gint priority_GCompareFunc (gconstpointer a, gconstpointer b);
-static IpatchConverterInfo *convert_lookup_map_U (IpatchConverterInfo ***array,
-						  GType conv_type,
-						  GType src_type,
-						  GType dest_type);
-static IpatchConverterInfo *
-find_match_from_lists (GSList *src_list, GSList *dest_list, GType conv_type);
+static const IpatchConverterInfo *convert_lookup_map_U (GType **array, GType conv_type,
+                                                        GType src_type, GType dest_type);
 static void ipatch_converter_class_init (IpatchConverterClass *klass);
 static void ipatch_converter_finalize (GObject *gobject);
 static void ipatch_converter_set_property (GObject *object, guint property_id,
@@ -65,38 +61,12 @@ static void ipatch_converter_set_property (GObject *object, guint property_id,
 					   GParamSpec *pspec);
 static void ipatch_converter_get_property (GObject *object, guint property_id,
 					   GValue *value, GParamSpec *pspec);
-static gboolean ipatch_converter_test_object_list (GList *list, GType type,
-						   int count);
 
 /* lock used for list and hash tables */
 G_LOCK_DEFINE_STATIC (conv_maps);
 static GList *conv_maps = NULL;	/* list of all registered IpatchConverterInfo */
-
-/* hash of source and destination type to info lists.
- * type -> GSList (IpatchConverterInfo) */
-static GHashTable *conv_src_types = NULL;	/* source type matching lists */
-static GHashTable *conv_derived_types = NULL; /* derived src type match lists */
-static GHashTable *conv_dest_types = NULL;	/* dest type matching lists */
-
-/* conv_type -> GSList (IpatchConverterInfo) */
-static GHashTable *conv_types = NULL;
-
 static gpointer parent_class = NULL;
 
-
-/**
- * _ipatch_converter_init: (skip)
- *
- * Converter system init function
- */
-void
-_ipatch_converter_init (void)
-{
-  conv_src_types = g_hash_table_new (NULL, NULL);
-  conv_derived_types = g_hash_table_new (NULL, NULL);
-  conv_dest_types = g_hash_table_new (NULL, NULL);
-  conv_types = g_hash_table_new (NULL, NULL);
-}
 
 /**
  * ipatch_convert_objects:
@@ -146,7 +116,7 @@ ipatch_convert_objects (GObject *input, GObject *output, GError **err)
 GObject *
 ipatch_convert_object_to_type (GObject *object, GType type, GError **err)
 {
-  IpatchConverterInfo *info;
+  const IpatchConverterInfo *info;
   IpatchConverter *conv;
   GObject *output = NULL;
   GType convtype;
@@ -407,7 +377,7 @@ ipatch_create_converter_for_objects (GObject *input, GObject *output, GError **e
 IpatchConverter *
 ipatch_create_converter_for_object_to_type (GObject *object, GType dest_type, GError **err)
 {
-  IpatchConverterInfo *info;
+  const IpatchConverterInfo *info;
   IpatchConverter *conv;
   GObject *output = NULL;
   GType convtype;
@@ -456,12 +426,11 @@ ipatch_create_converter_for_object_to_type (GObject *object, GType dest_type, GE
  *    derived (children) of @src_type will also match.
  * @src_type: Type for source object (GObject derived type or interface type).
  * @src_match: The furthest parent type of @src_type to match (all types in
- *   between are also matched, 0 to match only @src_type).
- * @src_count: Required number of source items (can also be
- *   an #IpatchConverterCount value)
+ *   between are also matched, 0, or G_TYPE_NONE since 1.1.0, to match only @src_type).
+ * @src_count: Required number of source items (can also be an #IpatchConverterCount value)
  * @dest_type: Type for destination object (GObject derived type or interface type).
  * @dest_match: The furthest parent type of @dest_type to match (all types in
- *   between are also matched, 0 to match only @dest_type).
+ *   between are also matched, 0, or G_TYPE_NONE since 1.1.0, to match only @dest_type).
  * @dest_count: Required number of destination items (can also be
  *   an #IpatchConverterCount value).  This value can be 0 in the case where
  *   no objects should be supplied, but will be instead assigned after
@@ -475,9 +444,8 @@ ipatch_register_converter_map (GType conv_type, guint flags,
 			       GType src_type, GType src_match, gint8 src_count,
 			       GType dest_type, GType dest_match, gint8 dest_count)
 {
+  const IpatchConverterInfo *converter_exists;
   IpatchConverterInfo *map;
-  GSList *list, *p;
-  GType type;
   guint8 priority;
 
   g_return_if_fail (g_type_is_a (conv_type, IPATCH_TYPE_CONVERTER));
@@ -486,6 +454,9 @@ ipatch_register_converter_map (GType conv_type, guint flags,
 
   g_return_if_fail (!src_match || g_type_is_a (src_type, src_match));
   g_return_if_fail (!dest_match || g_type_is_a (dest_type, dest_match));
+
+  converter_exists = ipatch_lookup_converter_info (conv_type, 0, 0);
+  g_return_if_fail (!converter_exists);
 
   priority = flags & 0xFF;
   if (priority == 0) priority = IPATCH_CONVERTER_PRIORITY_DEFAULT;
@@ -502,59 +473,7 @@ ipatch_register_converter_map (GType conv_type, guint flags,
   map->dest_count = dest_count;
 
   G_LOCK (conv_maps);
-
   conv_maps = g_list_insert_sorted (conv_maps, map, priority_GCompareFunc);
-
-  /* hash all source matching types to new map */
-  for (type = src_type; type; type = g_type_parent (type))
-    { /* lookup the list of maps for this source type */
-      list = g_hash_table_lookup (conv_src_types, GUINT_TO_POINTER (type));
-
-      /* insert the new map sorted by priority */
-      p = g_slist_insert_sorted (list, map, priority_GCompareFunc);
-
-      if (p != list)	/* update hash list pointer if head item changed */
-	g_hash_table_insert (conv_src_types, GUINT_TO_POINTER (type), p);
-
-      if (!src_match || type == src_match) break;
-    }
-
-  /* hash all dest matching types to new map */
-  for (type = dest_type; type; type = g_type_parent (type))
-    { /* lookup the list of maps for this dest type */
-      list = g_hash_table_lookup (conv_dest_types, GUINT_TO_POINTER (type));
-
-      /* insert the new map sorted by priority */
-      p = g_slist_insert_sorted (list, map, priority_GCompareFunc);
-
-      if (p != list)	/* update hash list pointer if head item changed */
-	g_hash_table_insert (conv_dest_types, GUINT_TO_POINTER (type), p);
-
-      if (!dest_match || type == dest_match) break;
-    }
-
-  /* add to conv_derived_types hash if child derived types flag specified */
-  if (flags & IPATCH_CONVERTER_FLAG_SRC_DERIVED)
-    { /* lookup any existing type list for this src_type */
-      list = g_hash_table_lookup (conv_derived_types,
-				  GUINT_TO_POINTER (src_type));
-
-      /* insert the map into the list sorted by priority */
-      p = g_slist_insert_sorted (list, map, priority_GCompareFunc);
-
-      if (p != list)	/* update hash list pointer if head item changed */
-	g_hash_table_insert (conv_derived_types, GUINT_TO_POINTER (src_type), p);
-    }
-
-  /* add info to converter type hash */
-  list = g_hash_table_lookup (conv_types, GUINT_TO_POINTER (conv_type));
-
-  /* insert sorted by priority */
-  p = g_slist_insert_sorted (list, map, priority_GCompareFunc);
-
-  if (p != list)	/* update hash list pointer if head item changed */
-    g_hash_table_insert (conv_types, GUINT_TO_POINTER (conv_type), p);
-
   G_UNLOCK (conv_maps);
 }
 
@@ -570,8 +489,8 @@ priority_GCompareFunc (gconstpointer a, gconstpointer b)
 
 /**
  * ipatch_find_converter:
- * @src_type: #GObject derived source type
- * @dest_type: #GObject derived destination type
+ * @src_type: #GObject derived source type (G_TYPE_NONE for wildcard - Since 1.1.0)
+ * @dest_type: #GObject derived destination type (G_TYPE_NONE for wildcard - Since 1.1.0)
  *
  * Lookup a conversion handler type for a given @src_type to @dest_type
  * conversion.  In some cases there may be multiple conversion handlers for
@@ -584,7 +503,7 @@ priority_GCompareFunc (gconstpointer a, gconstpointer b)
 GType
 ipatch_find_converter (GType src_type, GType dest_type)
 {
-  IpatchConverterInfo *info;
+  const IpatchConverterInfo *info;
 
   g_return_val_if_fail (g_type_is_a (src_type, G_TYPE_OBJECT) || G_TYPE_IS_INTERFACE (src_type), 0);
   g_return_val_if_fail (g_type_is_a (dest_type, G_TYPE_OBJECT) || G_TYPE_IS_INTERFACE (dest_type), 0);
@@ -598,229 +517,139 @@ ipatch_find_converter (GType src_type, GType dest_type)
 
 /**
  * ipatch_find_converters:
- * @src_type: #GObject derived source type
- * @dest_type: #GObject derived destination type
+ * @src_type: #GObject derived source type (G_TYPE_NONE for wildcard)
+ * @dest_type: #GObject derived destination type (G_TYPE_NONE for wildcard)
  *
  * Like ipatch_find_converter() but returns all matching converter types.
  *
- * Returns: (array zero-terminated=1) (transfer full): 0 terminated array of #IpatchConverter derived GTypes or %NULL
+ * Returns: (array zero-terminated=1) (transfer full) (nullable): 0 terminated array of #IpatchConverter derived GTypes or %NULL
  * if no matching converters.  Array should be freed when finished using it.
+ *
+ * Since: 1.1.0
  */
 GType *
 ipatch_find_converters (GType src_type, GType dest_type)
 {
-  IpatchConverterInfo **info_array;
-  GType *type_array;
-  int count, i;
-
-  g_array_new (TRUE, FALSE, sizeof (GType));
+  GType *types_array;
 
   G_LOCK (conv_maps);
-  convert_lookup_map_U (&info_array, 0, src_type, dest_type);
+  convert_lookup_map_U (&types_array, 0, src_type, dest_type);
   G_UNLOCK (conv_maps);
 
-  if (!info_array) return (NULL);	/* no matching converters? */
-
-  for (count = 0; info_array[count]; count++);	/* count them */
-  type_array = g_new (GType, count + 1);	/* alloc type array */
-
-  for (i = 0; i < count; i++)	/* copy converter types */
-    type_array[i] = info_array[i]->conv_type;
-
-  type_array[count] = 0;	/* 0 terminate */
-  g_free (info_array);		/* free info array */
-
-  return (type_array);
+  return types_array;
 }
 
-/* Lookup a IpatchConverterInfo in the conv_maps list (not LOCKED!).
+/* Lookup a IpatchConverterInfo in the conv_maps list (caller responsible for LOCK of conv_maps).
  * Pass a pointer for "array" if all matching info is desired or NULL to ignore.
- * Use 0 for conv_type for wild card. */
-static IpatchConverterInfo *
-convert_lookup_map_U (IpatchConverterInfo ***array, GType conv_type,
-		      GType src_type, GType dest_type)
+ * Use 0 or G_TYPE_NONE for wildcard types.
+ * IpatchConverterInfo structures are considered static (never unregistered and don't change).
+ */
+static const IpatchConverterInfo *
+convert_lookup_map_U (GType **array, GType conv_type, GType src_type, GType dest_type)
 {
-  GArray *info_array = NULL;
+  GArray *types_array = NULL;
   IpatchConverterInfo *info;
-  GSList *src_lists = NULL, *dest_lists = NULL;	/* list of type lists to test */
-  GSList *sp, *dp;
-  GType *ifaces, type;
-  GSList *p;
-  int i;
+  GList *p;
 
   if (array) *array = NULL;
+  if (conv_type == G_TYPE_NONE) conv_type = 0;
+  if (src_type == G_TYPE_NONE) src_type = 0;
+  if (dest_type == G_TYPE_NONE) dest_type = 0;
 
-  g_return_val_if_fail (conv_type != 0 || (src_type && dest_type), NULL);
-
-  /* src_type or dest_type not specified but conv_type is? */
-  if (!src_type || !dest_type)
-    { /* lookup map info list for this converter type */
-      sp = g_hash_table_lookup (conv_types, GUINT_TO_POINTER (conv_type));
-
-      if (!sp) return (NULL);
-
-      /* don't want all info?  - Return highest priority mapping */
-      if (!array) return ((IpatchConverterInfo *)(sp->data));
-
-      /* create array for all mappings for this converter type */
-      info_array = g_array_new (TRUE, FALSE, sizeof (IpatchConverterInfo *));
-
-      /* add all the mappings to the array */
-      for (p = sp; p; p = p->next)
-	{
-	  info = (IpatchConverterInfo *)(p->data);
-	  g_array_append_val (info_array, info);
-	}
-
-      *array = (IpatchConverterInfo **)g_array_free (info_array, FALSE);
-      return ((*array)[0]);
-    }
-
-  /* see if source type conforms to any hashed interface types */
-  ifaces = g_type_interfaces (src_type, NULL);
-  if (ifaces)
+  if (conv_type)
+  {
+    for (p = conv_maps; p; p = p->next)
     {
-      for (i = 0; ifaces[i]; i++)
-	{
-	  type = ifaces[i];
-	  p = g_hash_table_lookup (conv_src_types, GUINT_TO_POINTER (type));
-	  if (p) src_lists = g_slist_prepend (src_lists, p);  /* add list to list */
-	}
-      g_free (ifaces);
+      info = (IpatchConverterInfo *)(p->data);
+
+      if (conv_type == info->conv_type)
+        return info;
     }
 
-  /* check conv_derived_types for any matches in src_type's ancestry */
-  for (type = g_type_parent (src_type); type; type = g_type_parent (type))
+    return NULL;
+  }
+
+  for (p = conv_maps; p; p = p->next)
+  {
+    info = (IpatchConverterInfo *)(p->data);
+
+    if (src_type)
     {
-      p = g_hash_table_lookup (conv_derived_types, GUINT_TO_POINTER (type));
-      if (p)
-	{
-	  src_lists = g_slist_prepend (src_lists, p);
-	  break;
-	}
+      // If converter src_type is not a descendant of src_type,
+      // src_type is not a descendant of converter src_match,
+      // or map not DERIVED and src_type is a descendant of converter src_type, skip
+      if (!g_type_is_a (info->src_type, src_type)
+          || (info->src_match && !g_type_is_a (src_type, info->src_match))
+          || (!(info->flags & IPATCH_CONVERTER_INFO_FLAG_DERIVED)
+              && src_type != info->src_type && g_type_is_a (src_type, info->src_type)))
+        continue;
     }
 
-  /* add the src_type converter info list if any */
-  p = g_hash_table_lookup (conv_src_types, GUINT_TO_POINTER (src_type));
-  if (p) src_lists = g_slist_prepend (src_lists, p);
-
-  /* we prepend and then reverse for added performance */
-  src_lists = g_slist_reverse (src_lists);
-
-  /* see if dest type conforms to any hashed interface types */
-  ifaces = g_type_interfaces (dest_type, NULL);
-  if (ifaces)
+    if (dest_type)
     {
-      for (i = 0; ifaces[i]; i++)
-	{
-	  type = ifaces[i];
-	  p = g_hash_table_lookup (conv_dest_types, GUINT_TO_POINTER (type));
-	  if (p) dest_lists = g_slist_prepend (dest_lists, p);  /* add list to list */
-	}
-      g_free (ifaces);
+      // If converter src_type is not a descendant of src_type,
+      // src_type is not a descendant of converter src_match,
+      // or map not DERIVED and src_type is a descendant of converter src_type, skip
+      if (!g_type_is_a (info->dest_type, dest_type)
+          || (info->dest_match && !g_type_is_a (dest_type, info->dest_match)))
+        continue;
     }
 
-  /* add the dest_type converter info list if any */
-  p = g_hash_table_lookup (conv_dest_types, GUINT_TO_POINTER (dest_type));
-  if (p) dest_lists = g_slist_prepend (dest_lists, p);
+    if (!array)         // Not requesting array? Just return highest priority match
+      return info;
 
-  /* we prepend and then reverse for added performance */
-  dest_lists = g_slist_reverse (dest_lists);
+    // Create types array if not already created
+    if (!types_array)
+      types_array = g_array_new (TRUE, FALSE, sizeof (GType));
 
-  /* look for match amongst all combinations of types */
-  for (sp = src_lists; sp; sp = sp->next)
-    {
-      for (dp = dest_lists; dp; dp = dp->next)
-	{
-	  info = find_match_from_lists ((GSList *)(sp->data),
-					(GSList *)(dp->data), conv_type);
-	  if (info)
-	    {
-	      if (!array)
-		{
-		  g_slist_free (src_lists);
-		  g_slist_free (dest_lists);
-		  return (info);
-		}
-
-	      if (!info_array)
-		info_array = g_array_new (TRUE, FALSE,
-					  sizeof (IpatchConverterInfo *));
-
-	      for (i = 0; i < info_array->len; i++)	/* already in array? */
-		if (((IpatchConverterInfo **)(info_array->data))[i] == info)
-		  break;
-
-	      if (i == info_array->len)	/* only add if not already in array */
-		g_array_append_val (info_array, info);
-	    }
-	}
-    }
-
-  if (src_lists) g_slist_free (src_lists);
-  if (dest_lists) g_slist_free (dest_lists);
+    g_array_append_val (types_array, info->conv_type);          // Append converter type to array
+  }
 
   /* free type array but not the array itself */
-  if (info_array)
-    {
-      *array = (IpatchConverterInfo **)g_array_free (info_array, FALSE);
-      return ((*array)[0]);
-    }
+  if (types_array)
+    *array = (GType *)g_array_free (types_array, FALSE);
 
-  return (NULL);
-}
-
-/* finds the highest priority IpatchConverterInfo that is present in both
- * src_list and dest_list, if conv_type is not 0 then it must also match. */
-static IpatchConverterInfo *
-find_match_from_lists (GSList *src_list, GSList *dest_list, GType conv_type)
-{
-  IpatchConverterInfo *sinfo, *dinfo;
-  GSList *sp, *dp;
-
-  if (!src_list || !dest_list) return (NULL);
-
-  for (sp = src_list; sp; sp = sp->next)	/* loop over source list */
-    {
-      sinfo = (IpatchConverterInfo *)(sp->data);
-      if (conv_type && sinfo->conv_type != conv_type) continue;
-
-      /* loop on dest list until the priority is less than source priority
-	 (lists are sorted by priority) */
-      for (dp = dest_list; dp; dp = dp->next)
-	{
-	  dinfo = (IpatchConverterInfo *)(dp->data);
-
-	  if (dinfo->priority < sinfo->priority) break;
-
-	  if (sinfo == dinfo) return (sinfo);	/* match found? */
-	}
-    }
-
-  return (NULL);
+  return NULL;
 }
 
 /**
  * ipatch_lookup_converter_info:
- * @conv_type: #IpatchConverter derived GType to lookup info on (or 0 for wildcard)
- * @src_type: Source type of conversion map to lookup (or 0 for default map)
- * @dest_type: Destination type of conversion map (0 if @src_type is 0)
+ * @conv_type: #IpatchConverter derived GType to lookup info on (or 0 for wildcard, or G_TYPE_NONE - since 1.1.0)
+ * @src_type: Source type of conversion map to lookup (or 0 for default map, or G_TYPE_NONE - since 1.1.0)
+ * @dest_type: Destination type of conversion map (0 if @src_type is 0, or G_TYPE_NONE - since 1.1.0)
  *
  * Lookup converter map info.
  *
- * Returns: (transfer none): Converter info structure or %NULL if no match.
+ * Returns: (transfer none) (nullable): Converter info structure or %NULL if no match.
  * The returned pointer is internal and should not be modified or freed.
  */
-IpatchConverterInfo *
+const IpatchConverterInfo *
 ipatch_lookup_converter_info (GType conv_type, GType src_type, GType dest_type)
 {
-  IpatchConverterInfo *info;
+  const IpatchConverterInfo *info;
 
   G_LOCK (conv_maps);
   info = convert_lookup_map_U (NULL, conv_type, src_type, dest_type);
   G_UNLOCK (conv_maps);
 
   return (info);
+}
+
+/**
+ * ipatch_get_converter_info:
+ * @conv_type: #IpatchConverter derived GType to lookup info on
+ *
+ * Get converter info structure for a converter type.
+ *
+ * Returns: (transfer none) (nullable): Converter info structure or %NULL if no match.
+ * The returned pointer is internal and should not be modified or freed.
+ *
+ * Since: 1.1.0
+ */
+const IpatchConverterInfo *
+ipatch_get_converter_info (GType conv_type)
+{
+  return ipatch_lookup_converter_info (conv_type, 0, 0);
 }
 
 
@@ -1176,92 +1005,87 @@ gboolean
 ipatch_converter_verify (IpatchConverter *converter, char **failmsg)
 {
   IpatchConverterClass *klass;
-  IpatchConverterInfo *info;
+  const IpatchConverterInfo *info;
   char *msg = NULL;
   gboolean retval;
-  GSList *list, *p;
+  GType type;
+  int count;
+  GList *p;
 
   g_return_val_if_fail (IPATCH_IS_CONVERTER (converter), FALSE);
 
   klass = IPATCH_CONVERTER_GET_CLASS (converter);
 
-  /* if no verify method, check input/output types and counts */
-  if (!klass->verify)
-    {
-      G_LOCK (conv_maps);
-      list = g_hash_table_lookup (conv_types,
-				  GUINT_TO_POINTER (G_OBJECT_TYPE (converter)));
-      list = g_slist_copy (list);  /* duplicate so we can use outside of lock */
-      G_UNLOCK (conv_maps);
+  // Verify method set? - use it
+  if (klass->verify)
+  {
+    retval = (klass->verify)(converter, &msg);
 
-      for (p = list; p; p = p->next)
-	{
-	  info = (IpatchConverterInfo *)(p->data);
+    if (failmsg) *failmsg = msg;
+    else g_free (msg);
 
-	  if (ipatch_converter_test_object_list (converter->inputs,
-					    info->src_type, info->src_count)
-	      && ipatch_converter_test_object_list (converter->outputs,
-					    info->dest_type, info->dest_count))
-	    break;
-	}
+    return (retval);
+  }
 
-      g_slist_free (list);
+  // No verify method, check input/output types and counts
+  info = ipatch_lookup_converter_info (G_OBJECT_TYPE (converter), 0, 0);
 
-      if (!p)	/* found a map which is valid for the converter object lists */
-	{
-	  if (failmsg)
-	    *failmsg = g_strdup ("Converter objects failed verify");
+  if (info->src_count == 0 && converter->inputs)
+    goto input_failed;
 
-	  return (FALSE);
-	}
-      else return (TRUE);
-    }
-  else
-    {
-      retval = (klass->verify)(converter, &msg);
+  for (p = converter->inputs, count = 0; p; p = p->next, count++)
+  {
+    type = G_OBJECT_TYPE (p->data);
 
-      if (failmsg) *failmsg = msg;
-      else g_free (msg);
+    // If type does not conform to map src_type, fail
+    if (!g_type_is_a (type, info->src_type))
+      goto input_failed;
 
-      return (retval);
-    }
+    // If map not DERIVED and object type is a descendant (outside of type range), fail
+    if (!(info->flags & IPATCH_CONVERTER_INFO_FLAG_DERIVED)
+        && type != info->src_type && g_type_is_a (type, info->src_type))
+      goto input_failed;
+  }
 
-  return (TRUE);
-}
+  if (info->src_count == IPATCH_CONVERTER_COUNT_ONE_OR_MORE)
+  {
+    if (count < 1)
+      goto input_failed;
+  }
+  else if (info->src_count != IPATCH_CONVERTER_COUNT_ZERO_OR_MORE && count != info->src_count)
+    goto input_failed;
 
-/* verifies that a GList of objects matches the @type and @count criteria. */
-static gboolean
-ipatch_converter_test_object_list (GList *list, GType type, int count)
-{
-  GList *p;
-  int i;
 
-  switch (count)
-    {
-    case 1:
-      if (!list || list->next || !G_TYPE_CHECK_INSTANCE_TYPE (list->data, type))
-	return (FALSE);
-      break;
-    case 0:
-      if (list) return (FALSE);
-      break;
-    case IPATCH_CONVERTER_COUNT_ONE_OR_MORE:
-      if (!list) return (FALSE);
+  for (p = converter->outputs, count = 0; p; p = p->next, count++)
+  {
+    type = G_OBJECT_TYPE (p->data);
 
-      /* fall through */
-    case IPATCH_CONVERTER_COUNT_ZERO_OR_MORE:
-      for (p = list; p; p = p->next)
-	if (!G_TYPE_CHECK_INSTANCE_TYPE (p->data, type)) return (FALSE);
-      break;
-    default:
-      for (p = list, i = 0; p; p = p->next, i++)
-	if (!G_TYPE_CHECK_INSTANCE_TYPE (p->data, type)) return (FALSE);
+    // If type does not conform to map dest_type, fail
+    if (!g_type_is_a (type, info->dest_type))
+      goto output_failed;
 
-      if (i != count) return (FALSE);
-      break;
-    }
+    // If map type is a descendant of object type (outside of type range), fail
+    if (type != info->dest_type && g_type_is_a (type, info->dest_type))
+      goto output_failed;
+  }
 
-  return (TRUE);
+  if (info->dest_count == IPATCH_CONVERTER_COUNT_ONE_OR_MORE)
+  {
+    if (count < 1)
+      goto output_failed;
+  }
+  else if (info->dest_count != IPATCH_CONVERTER_COUNT_ZERO_OR_MORE && count != info->dest_count)
+    goto output_failed;
+
+  return TRUE;
+
+input_failed:
+  if (failmsg) *failmsg = g_strdup ("Converter inputs failed to verify");
+  return (FALSE);
+
+output_failed:
+  if (failmsg) *failmsg = g_strdup ("Converter outputs failed to verify");
+  return (FALSE);
 }
 
 /**

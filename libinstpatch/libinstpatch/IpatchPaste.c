@@ -1036,7 +1036,7 @@ ipatch_paste_object_add_convert (IpatchPaste *paste, GType conv_type,
                                  IpatchList **item_list, GError **err)
 {
   IpatchConverter *converter;
-  IpatchConverterInfo *convinfo;
+  const IpatchConverterInfo *convinfo;
   IpatchList *list;
   GObject *dest;
   GList *p;
@@ -1270,7 +1270,7 @@ ipatch_paste_default_exec_func (IpatchPaste *paste, IpatchItem *dest,
   GParamSpec *spec;
   GType src_type, link_type, type;
   const GType *child_types = NULL, *ptype;
-  IpatchConverterInfo *convinfo, *matchinfo;
+  const IpatchConverterInfo *convinfo, *matchinfo;
   IpatchVirtualContainerConformFunc conform_func;
   IpatchList *list;
 

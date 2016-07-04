@@ -84,7 +84,7 @@ G_DEFINE_ABSTRACT_TYPE (IpatchBase, ipatch_base, IPATCH_TYPE_CONTAINER);
 char *
 ipatch_base_type_get_mime_type (GType base_type)
 {
-  IpatchConverterInfo *info;
+  const IpatchConverterInfo *info;
   char *mime_type;
 
   info = ipatch_lookup_converter_info (0, base_type, IPATCH_TYPE_FILE);
@@ -515,7 +515,7 @@ ipatch_base_save_a_copy (IpatchBase *base, const char *filename, GError **err)
 static gboolean
 ipatch_base_real_save (IpatchBase *base, const char *filename, gboolean save_a_copy, GError **err)
 {
-  IpatchConverterInfo *info;
+  const IpatchConverterInfo *info;
   IpatchFile *lookup_file, *newfile = NULL, *oldfile = NULL;
   char *tmp_fname = NULL, *abs_fname = NULL, *base_fname = NULL;
   IpatchConverter *converter;

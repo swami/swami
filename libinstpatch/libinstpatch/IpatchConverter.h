@@ -162,10 +162,15 @@ typedef enum
   IPATCH_CONVERTER_COUNT_ZERO_OR_MORE = -2	/* 0 or more objects */
 } IpatchConverterCount;
 
-/* flags for ipatch_register_converter_map() */
+/**
+ * IpatchConverterFlags:
+ * @IPATCH_CONVERTER_FLAG_SRC_DERIVED: Match source derived types also (type descendants of src_type)
+ *
+ * Flags for ipatch_register_converter_map()
+ */
 typedef enum
 {
-  IPATCH_CONVERTER_FLAG_SRC_DERIVED = 1 << 8    /* match source derived types */
+  IPATCH_CONVERTER_FLAG_SRC_DERIVED = 1 << 8
 } IpatchConverterFlags;
 
 /* priority levels for converter mappings */
@@ -180,18 +185,44 @@ typedef enum
   IPATCH_CONVERTER_PRIORITY_HIGHEST = 100
 } IpatchConverterPriority;
 
-/* converter info structure */
+/**
+ * IpatchConverterInfoFlags:
+ * @IPATCH_CONVERTER_INFO_FLAG_DERIVED: Match source derived types also (type descendants of src_type)
+ *
+ * Flags for IpatchConverterInfo <structfield>flags</structfield> field.
+ *
+ * Since: 1.1.0
+ */
+typedef enum
+{
+  IPATCH_CONVERTER_INFO_FLAG_DERIVED = 1
+} IpatchConverterInfoFlags;
+
+/**
+ * IpatchConverterInfo:
+ * @conv_type: Conversion handler type
+ * @src_type: Source type of conversion handler
+ * @src_match: Furthest source parent type to match (0 = exact match)
+ * @dest_type: Destination type of conversion handler
+ * @dest_match: Furthest dest parent type to match (0 = exact match)
+ * @flags: IpatchConverterInfoFlags
+ * @priority: Priority (1-100)
+ * @src_count: Required source item count or IpatchConverterCount
+ * @dest_count: Required destination item count or IpatchConverterCount
+ *
+ * Registered object converter information.
+ */
 typedef struct
 {
-  GType conv_type;	/* conversion handler type */
-  GType src_type;	/* source type of conversion handler */
-  GType src_match;  /* furthest source parent type to match (0 = exact match) */
-  GType dest_type;		/* destination type of conversion handler */
-  GType dest_match; /* furthest dest parent type to match (0 = exact match) */
-  guint8 flags;		/* IpatchConverterFlags */
-  gint8 priority;	/* priority (1-100) */
-  gint8 src_count;  /* required source item count or IpatchConverterCount */
-  gint8 dest_count; /* required destination item count or IpatchConverterCount */
+  GType conv_type;
+  GType src_type;
+  GType src_match;
+  GType dest_type;
+  GType dest_match;
+  guint8 flags;
+  gint8 priority;
+  gint8 src_count;
+  gint8 dest_count;
 } IpatchConverterInfo;
 
 gboolean ipatch_convert_objects (GObject *input, GObject *output, GError **err);
@@ -216,8 +247,9 @@ void ipatch_register_converter_map (GType conv_type, guint flags,
 				    GType dest_match, gint8 dest_count);
 GType ipatch_find_converter (GType src_type, GType dest_type);
 GType *ipatch_find_converters (GType src_type, GType dest_type);
-IpatchConverterInfo *
-ipatch_lookup_converter_info (GType conv_type, GType src_type, GType dest_type);
+const IpatchConverterInfo *ipatch_lookup_converter_info (GType conv_type, GType src_type, GType dest_type);
+const IpatchConverterInfo *ipatch_get_converter_info (GType conv_type);
+
 
 GType ipatch_converter_get_type (void);
 
