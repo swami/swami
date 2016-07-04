@@ -767,3 +767,15 @@ dump_object_info (GObject *object, char *indent, FILE *file)
     }
   g_free (pspecs);
 }
+
+/**
+ * ipatch_glist_unref_free: (skip)
+ * @objlist: List of GObjects
+ *
+ * Unreference each GObject in a GList and free the list.
+ */
+void
+ipatch_glist_unref_free (GList *objlist)
+{
+  g_list_free_full (objlist, g_object_unref);
+}

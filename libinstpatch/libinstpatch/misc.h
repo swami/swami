@@ -71,5 +71,6 @@ void _ipatch_code_errorv (const char *file, guint line, const char *func,
 			  GError **err, const char *format, va_list args);
 void ipatch_strconcat_num (const char *src, int num, char *dest, int size);
 void ipatch_dump_object (GObject *object, gboolean recursive, FILE *file);
+void ipatch_glist_unref_free (GList *objlist);
 
 #endif
