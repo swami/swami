@@ -110,6 +110,9 @@ typedef enum
   IPATCH_ITEM_FREE_MUTEX   = 1 << 1   /* TRUE if item should free its mutex */
 } IpatchItemFlags;
 
+/**
+ * IPATCH_ITEM_UNUSED_FLAG_SHIFT: (skip)
+ */
 /* 2 flags + reserve 2 bits for future expansion */
 #define IPATCH_ITEM_UNUSED_FLAG_SHIFT 4
 

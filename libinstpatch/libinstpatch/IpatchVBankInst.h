@@ -63,7 +63,7 @@ struct _IpatchVBankInstClass
 };
 
 /**
- * IPATCH_VBANK_INST_NAME_SIZE:
+ * IPATCH_VBANK_INST_NAME_SIZE: (skip)
  *
  * Maximum length of a virtual bank instrument name.
  */

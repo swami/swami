@@ -24,7 +24,11 @@
 #include <glib.h>
 #include <glib-object.h>
 
-/* libInstPatch domain for g_set_error */
+/**
+ * IPATCH_ERROR: (skip)
+ *
+ * libInstPatch domain for g_set_error
+ */
 #define IPATCH_ERROR  ipatch_error_quark()
 
 typedef enum

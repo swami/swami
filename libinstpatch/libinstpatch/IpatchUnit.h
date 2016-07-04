@@ -90,9 +90,6 @@ typedef enum
   IPATCH_UNIT_TYPE_TENTH_PERCENT = 166
 } IpatchUnitType;
 
-/* first dynamic unit type ID */
-#define IPATCH_UNIT_TYPE_FIRST_DYNAMIC_ID	1024
-
 /*
  * Unit class types define domains of conversion, an example is the "user"
  * unit class which is used to convert values to units digestable by a human.

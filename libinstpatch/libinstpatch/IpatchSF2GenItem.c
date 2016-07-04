@@ -537,7 +537,7 @@ ipatch_sf2_gen_item_intersect_test (IpatchSF2GenItem *item,
 }
 
 /**
- * ipatch_sf2_gen_item_class_get_pspec:
+ * ipatch_sf2_gen_item_class_get_pspec: (skip)
  * @genid: Generator ID
  * @klass: Class with an #IpatchSF2GenItem interface
  *
@@ -561,7 +561,7 @@ ipatch_sf2_gen_item_class_get_pspec (GObjectClass *klass, guint genid)
 }
 
 /**
- * ipatch_sf2_gen_item_class_get_pspec_set:
+ * ipatch_sf2_gen_item_class_get_pspec_set: (skip)
  * @genid: Generator ID
  * @klass: Class with an #IpatchSF2GenItem interface
  *
@@ -701,7 +701,7 @@ ipatch_sf2_gen_item_iface_install_properties (GObjectClass *klass,
 }
 
 /**
- * ipatch_sf2_gen_item_iface_set_property:
+ * ipatch_sf2_gen_item_iface_set_property: (skip)
  * @item: IpatchItem instance with generator properties
  * @property_id: Property id to set
  * @value: Value to set property to
@@ -868,7 +868,7 @@ ipatch_sf2_gen_item_iface_set_property (IpatchSF2GenItem *item,
 }
 
 /**
- * ipatch_sf2_gen_item_iface_get_property:
+ * ipatch_sf2_gen_item_iface_get_property: (skip)
  * @item: IpatchItem instance with generators
  * @property_id: Property id to set
  * @value: Value to set property to

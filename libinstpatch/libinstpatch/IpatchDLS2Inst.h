@@ -66,15 +66,24 @@ struct _IpatchDLS2InstClass
   IpatchContainerClass parent_class;
 };
 
-/* max value for instrument MIDI bank (14 bits = 2 normalized MIDI bytes) */
+/**
+ * IPATCH_DLS2_INST_BANK_MAX:
+ * Max value for instrument MIDI bank (14 bits = 2 normalized MIDI bytes)
+ */
 #define IPATCH_DLS2_INST_BANK_MAX  0x3FFF
 
-/* Flags crammed into IpatchItem flags */
+/**
+ * IpatchDLS2InstFlags:
+ * @IPATCH_DLS2_INST_PERCUSSION: Set if percussion instrument
+ */
 typedef enum
 {
   IPATCH_DLS2_INST_PERCUSSION = 1 << IPATCH_CONTAINER_UNUSED_FLAG_SHIFT
 } IpatchDLS2InstFlags;
 
+/**
+ * IPATCH_DLS2_INST_UNUSED_FLAG_SHIFT: (skip)
+ */
 /* 1 flag */
 #define IPATCH_DLS2_INST_UNUSED_FLAG_SHIFT \
   (IPATCH_CONTAINER_UNUSED_FLAG_SHIFT + 1)

@@ -48,15 +48,21 @@ typedef struct _IpatchBaseClass IpatchBaseClass;
 #define IPATCH_BASE_GET_CLASS(obj) \
   (G_TYPE_INSTANCE_GET_CLASS ((obj), IPATCH_TYPE_BASE, IpatchBaseClass))
 
+/**
+ * IpatchBaseFlags:
+ * @IPATCH_BASE_CHANGED: Does the base object have any unsaved changes?
+ * @IPATCH_BASE_SAVED: Has the base object ever been saved?
+ */
 typedef enum
 {
-  /* patch changed flag */
   IPATCH_BASE_CHANGED = 1 << IPATCH_ITEM_UNUSED_FLAG_SHIFT,
-  /* patch been saved ever? */
   IPATCH_BASE_SAVED   = 1 << (IPATCH_ITEM_UNUSED_FLAG_SHIFT + 1)
 } IpatchBaseFlags;
 
 /* we reserve a couple flags for backwards compatible expansion */
+/**
+ * IPATCH_BASE_UNUSED_FLAG_SHIFT: (skip)
+ */
 #define IPATCH_BASE_UNUSED_FLAG_SHIFT (IPATCH_ITEM_UNUSED_FLAG_SHIFT + 4)
 
 /* patch base object */
@@ -80,6 +86,9 @@ struct _IpatchBaseClass
   IpatchItem * (*find_item_by_locale)(IpatchBase *base, int bank, int program);
 };
 
+/**
+ * IPATCH_BASE_DEFAULT_NAME: (skip)
+ */
 #define IPATCH_BASE_DEFAULT_NAME "Untitled"
 
 GType ipatch_base_get_type (void);

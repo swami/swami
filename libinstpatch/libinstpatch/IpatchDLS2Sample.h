@@ -85,10 +85,16 @@ struct _IpatchDLS2SampleInfo
 /* default values to initialize static IpatchDLS2SampleInfo with */
 #define IPATCH_DLS2_SAMPLE_INFO_INIT  { 0, 60, 0, 0, 0, 0 }
 
+/**
+ * IPATCH_DLS2_SAMPLE_INFO_FIRST_PROPERTY_ID: (skip)
+ */
 /* since sample info is also used by regions, we define a non-conflicting
    property ID here for the first sample info property */
 #define IPATCH_DLS2_SAMPLE_INFO_FIRST_PROPERTY_ID   256
 
+/**
+ * IPATCH_DLS2_SAMPLE_INFO_PROPERTY_COUNT: (skip)
+ */
 /* count of sample info properties */
 #define IPATCH_DLS2_SAMPLE_INFO_PROPERTY_COUNT      7
 

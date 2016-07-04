@@ -58,6 +58,9 @@ struct _IpatchSampleDataClass
   IpatchItemClass parent_class;
 };
 
+/**
+ * IPATCH_SAMPLE_DATA_UNUSED_FLAG_SHIFT: (skip)
+ */
 /* Reserve 3 item flags for expansion */
 #define IPATCH_SAMPLE_DATA_UNUSED_FLAG_SHIFT \
   (IPATCH_CONTAINER_UNUSED_FLAG_SHIFT + 3)

@@ -96,8 +96,14 @@ struct _IpatchContainerClass
 };
 
 /* container uses no item flags */
+/**
+ * IPATCH_CONTAINER_UNUSED_FLAG_SHIFT: (skip)
+ */
 #define IPATCH_CONTAINER_UNUSED_FLAG_SHIFT  IPATCH_ITEM_UNUSED_FLAG_SHIFT
 
+/**
+ * IPATCH_CONTAINER_ERRMSG_INVALID_CHILD_2: (skip)
+ */
 #define IPATCH_CONTAINER_ERRMSG_INVALID_CHILD_2 \
     "Invalid child type '%s' for parent type '%s'"
 

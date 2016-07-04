@@ -34,6 +34,8 @@
 #include "ipatch_priv.h"
 #include "i18n.h"
 
+/* first dynamic unit type ID */
+#define IPATCH_UNIT_TYPE_FIRST_DYNAMIC_ID	1024
 
 typedef struct
 {

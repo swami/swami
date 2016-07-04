@@ -131,15 +131,32 @@ typedef enum
 #define IPATCH_FOURCC_RIFX IPATCH_FOURCC ('R','I','F','X') /* big endian */
 #define IPATCH_FOURCC_LIST IPATCH_FOURCC ('L','I','S','T')
 
+/**
+ * IPATCH_RIFF_HEADER_SIZE: (skip)
+ */
 #define IPATCH_RIFF_HEADER_SIZE 8 /* size of RIFF chunk headers (ID + size) */
+
+/**
+ * IPATCH_RIFF_FOURCC_SIZE: (skip)
+ */
 #define IPATCH_RIFF_FOURCC_SIZE 4 /* RIFF FOURCC ID size */
 
+/**
+ * IPATCH_RIFF_LIST_HEADER_SIZE: (skip)
+ */
 /* chunk header + 4 character list type */
 #define IPATCH_RIFF_LIST_HEADER_SIZE \
   (IPATCH_RIFF_HEADER_SIZE + IPATCH_RIFF_FOURCC_SIZE)
 
 /* some RIFF WAVE file specific defines */
+/**
+ * IPATCH_RIFF_WAVE_FMT_PCM: (skip)
+ */
 #define IPATCH_RIFF_WAVE_FMT_PCM   0x1
+
+/**
+ * IPATCH_RIFF_WAVE_FMT_FLOAT: (skip)
+ */
 #define IPATCH_RIFF_WAVE_FMT_FLOAT 0x3
 
 GType ipatch_riff_get_type (void);

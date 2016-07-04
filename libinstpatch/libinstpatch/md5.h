@@ -30,6 +30,9 @@
 
 #include <glib.h>
 
+/**
+ * IpatchMD5: (skip)
+ */
 typedef struct
 {
   guint32 buf[4];

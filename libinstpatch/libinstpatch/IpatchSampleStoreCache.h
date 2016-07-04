@@ -85,6 +85,9 @@ struct _IpatchSampleStoreCacheClass
 #define ipatch_sample_store_cache_get_open_count(store) \
   g_atomic_int_get (&((store)->open_count))
 
+/**
+ * IPATCH_SAMPLE_STORE_CACHE_UNUSED_FLAG_SHIFT: (skip)
+ */
 /* we reserve 4 bits for future expansion */
 #define IPATCH_SAMPLE_STORE_CACHE_UNUSED_FLAG_SHIFT \
   (IPATCH_SAMPLE_STORE_UNUSED_FLAG_SHIFT + 4)

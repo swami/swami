@@ -53,7 +53,7 @@ ipatch_dls2_conn_get_type (void)
 }
 
 /**
- * ipatch_dls2_conn_new:
+ * ipatch_dls2_conn_new: (skip)
  *
  * Create a new connection
  *
@@ -66,7 +66,7 @@ ipatch_dls2_conn_new (void)
 }
 
 /**
- * ipatch_dls2_conn_free:
+ * ipatch_dls2_conn_free: (skip)
  * @conn: Connection to free, should not be referenced by any zones.
  *
  * Free an #IpatchDLS2Conn structure
@@ -78,7 +78,7 @@ ipatch_dls2_conn_free (IpatchDLS2Conn *conn)
 }
 
 /**
- * ipatch_dls2_conn_duplicate:
+ * ipatch_dls2_conn_duplicate: (skip)
  * @conn: DLS connection to duplicate
  *
  * Duplicate a connection
@@ -105,7 +105,7 @@ ipatch_dls2_conn_duplicate (const IpatchDLS2Conn *conn)
 
 /**
  * ipatch_dls2_conn_list_set:
- * @list: (element-type IpatchDLS2Conn): Pointer to the root pointer of a
+ * @list: (element-type IpatchDLS2Conn) (transfer none): Pointer to the root pointer of a
  *   connection list
  * @conn: DLS connection to set in @list
  *
@@ -145,7 +145,7 @@ ipatch_dls2_conn_list_set (GSList **list, const IpatchDLS2Conn *conn)
 
 /**
  * ipatch_dls2_conn_list_unset:
- * @list: (element-type IpatchDLS2Conn): Pointer to the root pointer of a
+ * @list: (element-type IpatchDLS2Conn) (transfer none): Pointer to the root pointer of a
  *   connection list
  * @conn: DLS connection to remove from @list
  *
@@ -183,7 +183,7 @@ ipatch_dls2_conn_list_unset (GSList **list, const IpatchDLS2Conn *conn)
 
 /**
  * ipatch_dls2_conn_list_duplicate:
- * @list: (element-type IpatchDLS2Conn): GSList of #IpatchDLS2Conn structures
+ * @list: (element-type IpatchDLS2Conn) (transfer none): GSList of #IpatchDLS2Conn structures
  *   to duplicate
  *
  * Duplicates a connection list (GSList and connection data).
@@ -207,7 +207,7 @@ ipatch_dls2_conn_list_duplicate (const GSList *list)
 }
 
 /**
- * ipatch_dls2_conn_list_duplicate_fast:
+ * ipatch_dls2_conn_list_duplicate_fast: (skip)
  * @list: (element-type IpatchDLS2Conn): GSList of #IpatchDLS2Conn structures
  *   to duplicate
  *
@@ -233,7 +233,7 @@ ipatch_dls2_conn_list_duplicate_fast (const GSList *list)
 }
 
 /**
- * ipatch_dls2_conn_list_free:
+ * ipatch_dls2_conn_list_free: (skip)
  * @list: (element-type IpatchDLS2Conn): GSList of #IpatchDLS2Conn structures
  *   to free
  * @free_conns: If %TRUE then the connections themselves are freed, %FALSE

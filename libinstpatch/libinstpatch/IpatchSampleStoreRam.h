@@ -66,6 +66,9 @@ typedef enum
   IPATCH_SAMPLE_STORE_RAM_ALLOCATED = 1 << IPATCH_SAMPLE_STORE_UNUSED_FLAG_SHIFT
 } IpatchSampleStoreRamFlags;
 
+/**
+ * IPATCH_SAMPLE_STORE_RAM_UNUSED_FLAG_SHIFT: (skip)
+ */
 /* we reserve 1 bits for defined flags above and 3 bits for future expansion */
 #define IPATCH_SAMPLE_STORE_RAM_UNUSED_FLAG_SHIFT \
   (IPATCH_SAMPLE_STORE_UNUSED_FLAG_SHIFT + 4)

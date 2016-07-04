@@ -49,6 +49,8 @@ enum
   PROP_COMMENT		/* Comments */
 };
 
+#define IPATCH_VBANK_PARSER_VERSION	"1.0"           // Current IVBank parser version.
+
 static void ipatch_vbank_finalize (GObject *gobject);
 static void ipatch_vbank_set_property (GObject *object, guint property_id,
 				     const GValue *value, GParamSpec *pspec);

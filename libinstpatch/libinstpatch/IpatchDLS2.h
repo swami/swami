@@ -69,14 +69,19 @@ struct _IpatchDLS2Class
   IpatchBaseClass parent_class;
 };
 
-/* IpatchItem flags */
+/**
+ * IpatchDLS2Flags:
+ * @IPATCH_DLS2_VERSION_SET: Set if the ms_version/ls_version values are valid.
+ */
 typedef enum
 {
-  /* set if the ms_version/ls_version values are valid */
   IPATCH_DLS2_VERSION_SET = 1 << IPATCH_BASE_UNUSED_FLAG_SHIFT
 } IpatchDLS2Flags;
 
 /* reserve a couple flags for expansion */
+/**
+ * IPATCH_DLS2_UNUSED_FLAG_SHIFT: (skip)
+ */
 #define IPATCH_DLS2_UNUSED_FLAG_SHIFT (IPATCH_BASE_UNUSED_FLAG_SHIFT + 4)
 
 GType ipatch_dls2_get_type (void);

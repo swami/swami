@@ -26,8 +26,20 @@
 #include <libinstpatch/IpatchSF2Gen.h>
 
 /* for generator properties (zones, instruments, and presets) */
+
+/**
+ * IPATCH_SF2_GEN_ITEM_FIRST_PROP_ID: (skip)
+ */
 #define IPATCH_SF2_GEN_ITEM_FIRST_PROP_ID	1	/* first gen prop */
+
+/**
+ * IPATCH_SF2_GEN_ITEM_FIRST_PROP_SET_ID: (skip)
+ */
 #define IPATCH_SF2_GEN_ITEM_FIRST_PROP_SET_ID	80	/* first gen-set prop */
+
+/**
+ * IPATCH_SF2_GEN_ITEM_FIRST_PROP_USER_ID: (skip)
+ */
 #define IPATCH_SF2_GEN_ITEM_FIRST_PROP_USER_ID	160	/* first ID usable for other properties */
 
 /* forward type declarations */

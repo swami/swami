@@ -114,6 +114,9 @@ typedef enum
   IPATCH_FILE_IDENTIFY_ORDER_FIRST = 10
 } IpatchFileIdentifyOrder;
 
+/**
+ * IPATCH_FILE_UNUSED_FLAG_SHIFT: (skip)
+ */
 /* reserve 6 flags (3 for expansion) */
 #define IPATCH_FILE_UNUSED_FLAG_SHIFT  (IPATCH_ITEM_UNUSED_FLAG_SHIFT + 6)
 

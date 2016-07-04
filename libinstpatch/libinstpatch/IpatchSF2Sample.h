@@ -89,16 +89,36 @@ typedef enum
 
 /* sample rate and length constraints */
 
+/**
+ * IPATCH_SF2_SAMPLE_RATE_MIN: (skip)
+ */
 #define IPATCH_SF2_SAMPLE_RATE_MIN	400 /* min sample rate (by standard) */
+
+/**
+ * IPATCH_SF2_SAMPLE_RATE_MAX: (skip)
+ */
 #define IPATCH_SF2_SAMPLE_RATE_MAX	50000 /* max rate (by the standard) */
+
+/**
+ * IPATCH_SF2_SAMPLE_LENGTH_MIN: (skip)
+ */
 #define IPATCH_SF2_SAMPLE_LENGTH_MIN	32 /* min length (by the standard) */
 
 
-/* IpatchItem flag for indicating ROM sample */
-#define IPATCH_SF2_SAMPLE_FLAG_ROM  (1 << IPATCH_ITEM_UNUSED_FLAG_SHIFT)
+/**
+ * IpatchSF2SampleFlags:
+ * @IPATCH_SF2_SAMPLE_FLAG_ROM: IpatchItem flag for indicating ROM sample
+ */
+typedef enum
+{
+  IPATCH_SF2_SAMPLE_FLAG_ROM = (1 << IPATCH_ITEM_UNUSED_FLAG_SHIFT)
+} IpatchSF2SampleFlags;
 
+/**
+ * IPATCH_SAMPLE_UNUSED_FLAG_SHIFT: (skip)
+ */
 /* we reserve flags for ROM flag and 3 for expansion */
-#define IPATCH_SAMPLE_UNUSED_FLAG_SHIFT \
+#define IPATCH_SF2_SAMPLE_UNUSED_FLAG_SHIFT \
   (IPATCH_ITEM_UNUSED_FLAG_SHIFT + 4)
 
 GType ipatch_sf2_sample_get_type (void);

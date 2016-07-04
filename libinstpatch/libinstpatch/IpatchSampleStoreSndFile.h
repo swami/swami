@@ -69,6 +69,9 @@ struct _IpatchSampleStoreSndFileClass
   IpatchSampleStoreClass parent_class;
 };
 
+/**
+ * IPATCH_SAMPLE_STORE_SND_FILE_UNUSED_FLAG_SHIFT: (skip)
+ */
 /* we reserve 3 flags for expansion */
 #define IPATCH_SAMPLE_STORE_SND_FILE_UNUSED_FLAG_SHIFT \
   (IPATCH_SAMPLE_STORE_UNUSED_FLAG_SHIFT + 3)

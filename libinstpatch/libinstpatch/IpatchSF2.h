@@ -66,12 +66,18 @@ struct _IpatchSF2Class
   IpatchBaseClass parent_class;
 };
 
+/**
+ * IpatchSF2Flags:
+ * @IPATCH_SF2_SAMPLES_24BIT: SoundFont 24 bit samples enabled flag
+ */
 typedef enum
 {
-  /* SoundFont 24 bit samples enabled flag */
   IPATCH_SF2_SAMPLES_24BIT = 1 << IPATCH_BASE_UNUSED_FLAG_SHIFT
 } IpatchSF2Flags;
 
+/**
+ * IPATCH_SF2_UNUSED_FLAG_SHIFT: (skip)
+ */
 /* we reserve a couple flags for backwards compatible expansion */
 #define IPATCH_SF2_UNUSED_FLAG_SHIFT (IPATCH_BASE_UNUSED_FLAG_SHIFT + 3)
 
@@ -93,8 +99,14 @@ typedef enum
   IPATCH_SF2_SOFTWARE = IPATCH_SFONT_FOURCC_ISFT /* software "create:modify" */
 }IpatchSF2InfoType;
 
+/**
+ * IPATCH_SF2_INFO_COUNT: (skip)
+ */
 #define IPATCH_SF2_INFO_COUNT 11
 
+/**
+ * IPATCH_SF2_DEFAULT_ENGINE: (skip)
+ */
 #define IPATCH_SF2_DEFAULT_ENGINE "EMU8000"
 
 /* structure used for ipatch_sf2_get_info_array */

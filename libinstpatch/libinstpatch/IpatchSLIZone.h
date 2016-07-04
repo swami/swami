@@ -66,6 +66,9 @@ struct _IpatchSLIZoneClass
   IpatchItemClass parent_class;
 };
 
+/**
+ * IPATCH_SLI_ZONE_UNUSED_FLAG_SHIFT: (skip)
+ */
 /* reserve 2 flags */
 #define IPATCH_SLI_ZONE_UNUSED_FLAG_SHIFT  (IPATCH_ITEM_UNUSED_FLAG_SHIFT + 2)
 

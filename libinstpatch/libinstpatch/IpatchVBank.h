@@ -48,7 +48,7 @@ typedef struct _IpatchVBankClass IpatchVBankClass;
   IpatchVBankClass))
 
 /**
- * IPATCH_VBANK_INFO_COUNT:
+ * IPATCH_VBANK_INFO_COUNT: (skip)
  *
  * Count of info strings
  */
@@ -69,13 +69,6 @@ struct _IpatchVBankClass
 {
   IpatchBaseClass parent_class;
 };
-
-/**
- * IPATCH_VBANK_PARSER_VERSION:
- *
- * Current IVBank parser version.
- */
-#define IPATCH_VBANK_PARSER_VERSION	"1.0"
 
 GType ipatch_vbank_get_type (void);
 IpatchVBank *ipatch_vbank_new (void);

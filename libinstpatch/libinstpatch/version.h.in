@@ -22,9 +22,28 @@
 #ifndef __IPATCH_VERSION_H__
 #define __IPATCH_VERSION_H__
 
+/**
+ * IPATCH_VERSION: (skip)
+ * libInstPatch version static string.
+ */
 #define IPATCH_VERSION       @IPATCH_VERSION@
+
+/**
+ * IPATCH_VERSION_MAJOR: (skip)
+ * libInstPatch major version integer.
+ */
 #define IPATCH_VERSION_MAJOR @IPATCH_VERSION_MAJOR@
+
+/**
+ * IPATCH_VERSION_MINOR: (skip)
+ * libInstPatch minor version integer.
+ */
 #define IPATCH_VERSION_MINOR @IPATCH_VERSION_MINOR@
+
+/**
+ * IPATCH_VERSION_MICRO: (skip)
+ * libInstPatch micro version integer.
+ */
 #define IPATCH_VERSION_MICRO @IPATCH_VERSION_MICRO@
 
 void ipatch_version (guint *major, guint *minor, guint *micro);

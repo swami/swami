@@ -173,28 +173,28 @@ typedef enum
                 		       | IPATCH_SAMPLE_LENDIAN | IPATCH_SAMPLE_SIGNED)
 
 /**
- * IPATCH_SAMPLE_RATE_MIN:
+ * IPATCH_SAMPLE_RATE_MIN: (skip)
  *
  * Minimum sample rate.
  */
 #define IPATCH_SAMPLE_RATE_MIN     8000
 
 /**
- * IPATCH_SAMPLE_RATE_MAX:
+ * IPATCH_SAMPLE_RATE_MAX: (skip)
  *
  * Maximum sample rate.
  */
 #define IPATCH_SAMPLE_RATE_MAX     192000
 
 /**
- * IPATCH_SAMPLE_RATE_DEFAULT:
+ * IPATCH_SAMPLE_RATE_DEFAULT: (skip)
  *
  * Default sample rate.
  */
 #define IPATCH_SAMPLE_RATE_DEFAULT 44100
 
 /**
- * IPATCH_SAMPLE_ROOT_NOTE_DEFAULT:
+ * IPATCH_SAMPLE_ROOT_NOTE_DEFAULT: (skip)
  *
  * Default root note.
  */

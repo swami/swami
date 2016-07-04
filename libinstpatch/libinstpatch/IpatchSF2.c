@@ -901,7 +901,7 @@ ipatch_sf2_free_info_array (IpatchSF2Info *array)
 }
 
 /**
- * ipatch_sf2_info_id_is_valid:
+ * ipatch_sf2_info_id_is_valid: (skip)
  * @id: RIFF FOURCC id (see #IpatchSF2InfoType)
  *
  * Check if a given RIFF FOURCC id is a valid SoundFont info id.
@@ -920,7 +920,7 @@ ipatch_sf2_info_id_is_valid (guint32 id)
 }
 
 /**
- * ipatch_sf2_get_info_max_size:
+ * ipatch_sf2_get_info_max_size: (skip)
  * @infotype: An info enumeration
  *
  * Get maximum chunk size for info chunks.

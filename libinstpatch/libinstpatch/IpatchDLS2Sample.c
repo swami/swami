@@ -565,7 +565,7 @@ ipatch_dls2_sample_info_init (IpatchDLS2SampleInfo *sample_info)
 }
 
 /**
- * ipatch_dls2_sample_info_install_class_properties:
+ * ipatch_dls2_sample_info_install_class_properties: (skip)
  * @obj_class: GObjectClass to install properties for
  *
  * Installs sample info properties for the given @obj_class. Useful for
@@ -610,7 +610,7 @@ ipatch_dls2_sample_info_install_class_properties (GObjectClass *obj_class)
 }
 
 /**
- * ipatch_dls2_sample_info_is_property_id_valid:
+ * ipatch_dls2_sample_info_is_property_id_valid: (skip)
  * @property_id: Property ID to test
  *
  * Check if a property ID is a valid sample info property ID.
@@ -627,7 +627,7 @@ ipatch_dls2_sample_info_is_property_id_valid (guint property_id)
 }
 
 /**
- * ipatch_dls2_sample_info_set_property:
+ * ipatch_dls2_sample_info_set_property: (skip)
  * @sample_info: Pointer to pointer to sample info
  * @property_id: Property ID
  * @value: Value for property
@@ -691,7 +691,7 @@ ipatch_dls2_sample_info_set_property (IpatchDLS2SampleInfo **sample_info,
 }
 
 /**
- * ipatch_dls2_sample_info_get_property:
+ * ipatch_dls2_sample_info_get_property: (skip)
  * @sample_info: Pointer to sample info
  * @property_id: Property ID
  * @value: Value to set
@@ -741,7 +741,7 @@ ipatch_dls2_sample_info_get_property (IpatchDLS2SampleInfo *sample_info,
 }
 
 /**
- * ipatch_dls2_sample_info_notify_changes:
+ * ipatch_dls2_sample_info_notify_changes: (skip)
  * @item: Item to send #IpatchItem property notifies on
  * @newinfo: New sample info values
  * @oldinfo: Old sample info values

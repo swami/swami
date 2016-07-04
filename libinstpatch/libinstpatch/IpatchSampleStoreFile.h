@@ -56,6 +56,9 @@ struct _IpatchSampleStoreFileClass
   IpatchSampleStoreClass parent_class;
 };
 
+/**
+ * IPATCH_SAMPLE_STORE_FILE_UNUSED_FLAG_SHIFT: (skip)
+ */
 /* reserve 1 private flag (IpatchSampleStoreFile.c) */
 #define IPATCH_SAMPLE_STORE_FILE_UNUSED_FLAG_SHIFT \
   (IPATCH_SAMPLE_STORE_UNUSED_FLAG_SHIFT + 1)
