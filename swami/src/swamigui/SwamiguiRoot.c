@@ -746,7 +746,6 @@ swamigui_root_finalize (GObject *object)
   }
 
   if (root->solo_item) g_object_unref (root->solo_item);
-  g_free (root->solo_item_icon);
 
   g_object_unref (root->ctrl_queue);
 
@@ -1484,10 +1483,7 @@ swamigui_root_update_solo_item (SwamiguiRoot *root, GObject *solo_item)
     ipatch_type_get (G_OBJECT_TYPE (solo_item), "category", &category, NULL);
 
     if (category != IPATCH_CATEGORY_SAMPLE_REF && category != IPATCH_CATEGORY_INSTRUMENT_REF)
-    {
-      g_object_unref (solo_item);       /* -- unref solo item */
       solo_item = NULL;
-    }
   }
 
   /* If previous solo item, restore its icon */
@@ -1495,18 +1491,18 @@ swamigui_root_update_solo_item (SwamiguiRoot *root, GObject *solo_item)
   {
     swamigui_tree_store_change (root->patch_store, root->solo_item, NULL,
                                 root->solo_item_icon);
-    g_object_unref (root->solo_item);
+    g_object_unref (root->solo_item);   // -- unref solo item
     root->solo_item = NULL;
-    root->solo_item_icon = NULL;
+    root->solo_item_icon = NULL;        // !! solo_item_icon is a static string pointer, do not free
   }
 
   if (solo_item)
   {
     if (swamigui_tree_store_item_get_node (root->patch_store, solo_item, &iter))
     {
-      root->solo_item = g_object_ref (solo_item);
+      root->solo_item = g_object_ref (solo_item);               // ++ ref solo item
 
-      /* !! icon column is a static string - not allocated */
+      /* !! icon column is a static string pointer - not allocated */
       gtk_tree_model_get (GTK_TREE_MODEL (root->patch_store), &iter,
                           SWAMIGUI_TREE_STORE_ICON_COLUMN, &root->solo_item_icon,
                           -1);

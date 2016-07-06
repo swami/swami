@@ -315,9 +315,9 @@ swamigui_tree_store_remove (SwamiguiTreeStore *store, GObject *item)
       if (gtk_tree_model_iter_has_child (GTK_TREE_MODEL (store), &iter))
 	tree_store_recursive_remove (store, &iter);
       else
-	{
-	  gtk_tree_store_remove (GTK_TREE_STORE (store), &iter);
+	{ // !! Remove item from hash before GtkTree to prevent callbacks thinking item still exists
 	  g_hash_table_remove (store->item_hash, item);
+	  gtk_tree_store_remove (GTK_TREE_STORE (store), &iter);
 	}
     }
 }
@@ -340,10 +340,11 @@ tree_store_recursive_remove (SwamiguiTreeStore *store, GtkTreeIter *iter)
       } while (retval);
     }
 
+  // !! Remove item from hash before GtkTree to prevent callbacks thinking item still exists
   item = swamigui_tree_store_node_get_item (store, iter);
-  gtk_tree_store_remove ((GtkTreeStore *)store, iter);
-
   g_hash_table_remove (store->item_hash, item);
+
+  gtk_tree_store_remove ((GtkTreeStore *)store, iter);
 }
 
 /**
