@@ -294,7 +294,7 @@ ipatch_sf2_zone_next (IpatchIter *iter)
 /**
  * ipatch_sf2_zone_set_link_item:
  * @zone: Zone to set zone item of
- * @item: New item for zone to use
+ * @item: (nullable): New item for zone to use
  *
  * Sets the referenced item of a zone (a #IpatchSF2Inst for preset zones,
  * #IpatchSF2Sample for instrument zones). The type specific item set routines
@@ -324,9 +324,9 @@ ipatch_sf2_zone_set_link_item (IpatchSF2Zone *zone, IpatchItem *item)
 /**
  * ipatch_sf2_zone_set_link_item_no_notify:
  * @zone: Zone to set zone item of
- * @item: New item for zone to use
- * @olditem: Pointer to store old item pointer or %NULL to ignore.  Caller owns
- *   reference if specified.
+ * @item: (nullable): New item for zone to use
+ * @olditem: (out) (optional) (transfer full): Pointer to store old item pointer or %NULL to ignore.
+ *   Caller owns reference if specified.
  *
  * Like ipatch_sf2_zone_set_link_item() but performs no property or item
  * change notifications for "link-item" property (shouldn't normally be used outside of derived types),
@@ -344,7 +344,7 @@ ipatch_sf2_zone_set_link_item_no_notify (IpatchSF2Zone *zone, IpatchItem *item,
   if (olditem) *olditem = NULL;		/* in case of failure */
 
   g_return_val_if_fail (IPATCH_IS_SF2_ZONE (zone), FALSE);
-  g_return_val_if_fail (IPATCH_IS_ITEM (item), FALSE);
+  g_return_val_if_fail (!item || IPATCH_IS_ITEM (item), FALSE);
 
   ipatch_item_get_property_fast (IPATCH_ITEM (zone), ipatch_item_pspec_title, &old_title);      // ++ alloc value
 
@@ -361,8 +361,9 @@ ipatch_sf2_zone_set_link_item_no_notify (IpatchSF2Zone *zone, IpatchItem *item,
       ipatch_sf2_zone_link_item_title_notify, zone);
 
   /* add a prop notify on link-item "title" so zone can notify it's title also */
-  ipatch_item_prop_connect (item, ipatch_item_pspec_title,
-			    ipatch_sf2_zone_link_item_title_notify, NULL, zone);
+  if (item)
+    ipatch_item_prop_connect (item, ipatch_item_pspec_title,
+                              ipatch_sf2_zone_link_item_title_notify, NULL, zone);
 
   /* either caller takes reference to old item or we unref it, unref outside of lock */
   if (olditem) *olditem = oldie;
@@ -422,7 +423,7 @@ ipatch_sf2_zone_get_link_item (IpatchSF2Zone *zone)
  * of the returned item is ensured or only the pointer value is of
  * interest.
  *
- * Returns: Zone's linked item. Remember that the item has NOT been referenced.
+ * Returns: (transfer none): Zone's linked item. Remember that the item has NOT been referenced.
  */
 IpatchItem *
 ipatch_sf2_zone_peek_link_item (IpatchSF2Zone *zone)
