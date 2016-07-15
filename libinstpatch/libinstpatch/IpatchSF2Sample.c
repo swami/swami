@@ -588,8 +588,8 @@ ipatch_sf2_sample_real_set_name (IpatchSF2Sample *sample, const char *name,
  *
  * Gets the name of a SoundFont sample.
  *
- * Returns: Name of sample or %NULL if not set. String value should be freed
- * when finished with it.
+ * Returns: (nullable) (transfer full): Name of sample or %NULL if not set.
+ *   String value should be freed when finished with it.
  */
 char *
 ipatch_sf2_sample_get_name (IpatchSF2Sample *sample)
@@ -608,7 +608,7 @@ ipatch_sf2_sample_get_name (IpatchSF2Sample *sample)
 /**
  * ipatch_sf2_sample_set_data:
  * @sample: Sample to set sample data of
- * @sampledata: Sample data to set sample to
+ * @sampledata: (nullable): Sample data to set sample to
  *
  * Set a sample's sample data object.
  */
@@ -617,7 +617,7 @@ ipatch_sf2_sample_set_data (IpatchSF2Sample *sample,
 			    IpatchSampleData *sampledata)
 {
   g_return_if_fail (IPATCH_IS_SF2_SAMPLE (sample));
-  g_return_if_fail (IPATCH_IS_SAMPLE_DATA (sampledata));
+  g_return_if_fail (!sampledata || IPATCH_IS_SAMPLE_DATA (sampledata));
 
   ipatch_sf2_sample_real_set_data (sample, sampledata, TRUE);
 }
@@ -692,8 +692,8 @@ ipatch_sf2_sample_get_data (IpatchSF2Sample *sample)
  * This function should only be used if a reference of the sample data object
  * is ensured or only the pointer value is of importance.
  *
- * Returns: Sample data object of sample or %NULL if none. Remember that a
- * reference is NOT added.
+ * Returns: (transfer none): Sample data object of sample or %NULL if none.
+ * Remember that a reference is NOT added.
  */
 IpatchSampleData *
 ipatch_sf2_sample_peek_data (IpatchSF2Sample *sample)
@@ -787,8 +787,8 @@ ipatch_sf2_sample_get_linked (IpatchSF2Sample *sample)
  * This function should only be used if a reference of the sample object
  * is ensured or only the pointer value is of importance.
  *
- * Returns: Linked sample object of sample or %NULL if none. Remember that a
- * reference is NOT added.
+ * Returns: (transfer none): Linked sample object of sample or %NULL if none.
+ * Remember that a reference is NOT added.
  */
 IpatchSF2Sample *
 ipatch_sf2_sample_peek_linked (IpatchSF2Sample *sample)
