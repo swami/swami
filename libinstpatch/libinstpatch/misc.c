@@ -771,6 +771,8 @@ dump_object_info (GObject *object, char *indent, FILE *file)
  * @objlist: List of GObjects
  *
  * Unreference each GObject in a GList and free the list.
+ *
+ * Since: 1.1.0
  */
 void
 ipatch_glist_unref_free (GList *objlist)
