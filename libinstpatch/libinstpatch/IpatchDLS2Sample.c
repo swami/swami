@@ -802,8 +802,8 @@ ipatch_dls2_sample_info_notify_changes (IpatchItem *item,
     {
       g_value_init (&newval, G_TYPE_INT);
       g_value_init (&oldval, G_TYPE_INT);
-      g_value_set_flags (&newval, newinfo->root_note);
-      g_value_set_flags (&oldval, oldinfo->root_note);
+      g_value_set_int (&newval, newinfo->root_note);
+      g_value_set_int (&oldval, oldinfo->root_note);
       ipatch_item_prop_notify (item, found_pspec_cache[2], &newval, &oldval);
       g_value_unset (&newval);
       g_value_unset (&oldval);
@@ -813,8 +813,8 @@ ipatch_dls2_sample_info_notify_changes (IpatchItem *item,
     {
       g_value_init (&newval, G_TYPE_INT);
       g_value_init (&oldval, G_TYPE_INT);
-      g_value_set_flags (&newval, newinfo->fine_tune);
-      g_value_set_flags (&oldval, oldinfo->fine_tune);
+      g_value_set_int (&newval, newinfo->fine_tune);
+      g_value_set_int (&oldval, oldinfo->fine_tune);
       ipatch_item_prop_notify (item, found_pspec_cache[3], &newval, &oldval);
       g_value_unset (&newval);
       g_value_unset (&oldval);
@@ -824,8 +824,8 @@ ipatch_dls2_sample_info_notify_changes (IpatchItem *item,
     {
       g_value_init (&newval, G_TYPE_INT);
       g_value_init (&oldval, G_TYPE_INT);
-      g_value_set_flags (&newval, newinfo->gain);
-      g_value_set_flags (&oldval, oldinfo->gain);
+      g_value_set_int (&newval, newinfo->gain);
+      g_value_set_int (&oldval, oldinfo->gain);
       ipatch_item_prop_notify (item, found_pspec_cache[4], &newval, &oldval);
       g_value_unset (&newval);
       g_value_unset (&oldval);
@@ -835,8 +835,8 @@ ipatch_dls2_sample_info_notify_changes (IpatchItem *item,
     {
       g_value_init (&newval, G_TYPE_UINT);
       g_value_init (&oldval, G_TYPE_UINT);
-      g_value_set_flags (&newval, newinfo->loop_start);
-      g_value_set_flags (&oldval, oldinfo->loop_start);
+      g_value_set_uint (&newval, newinfo->loop_start);
+      g_value_set_uint (&oldval, oldinfo->loop_start);
       ipatch_item_prop_notify (item, found_pspec_cache[5], &newval, &oldval);
       g_value_unset (&newval);
       g_value_unset (&oldval);
@@ -846,8 +846,8 @@ ipatch_dls2_sample_info_notify_changes (IpatchItem *item,
     {
       g_value_init (&newval, G_TYPE_UINT);
       g_value_init (&oldval, G_TYPE_UINT);
-      g_value_set_flags (&newval, newinfo->loop_end);
-      g_value_set_flags (&oldval, oldinfo->loop_end);
+      g_value_set_uint (&newval, newinfo->loop_end);
+      g_value_set_uint (&oldval, oldinfo->loop_end);
       ipatch_item_prop_notify (item, found_pspec_cache[6], &newval, &oldval);
       g_value_unset (&newval);
       g_value_unset (&oldval);
