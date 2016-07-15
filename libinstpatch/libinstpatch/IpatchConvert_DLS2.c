@@ -69,14 +69,14 @@ _ipatch_convert_DLS2_init (void)
   g_type_class_ref (IPATCH_TYPE_CONVERTER_FILE_TO_DLS2);
   g_type_class_ref (IPATCH_TYPE_CONVERTER_FILE_TO_DLS2_SAMPLE);
 
-  ipatch_register_converter_map (IPATCH_TYPE_CONVERTER_DLS2_TO_FILE, 0,
+  ipatch_register_converter_map (IPATCH_TYPE_CONVERTER_DLS2_TO_FILE, 0, 0,
 				 IPATCH_TYPE_DLS2, 0, 1,
 				 IPATCH_TYPE_DLS_FILE, IPATCH_TYPE_FILE, 1);
-  ipatch_register_converter_map (IPATCH_TYPE_CONVERTER_FILE_TO_DLS2, 0,
-				 IPATCH_TYPE_DLS_FILE, IPATCH_TYPE_FILE, 1,
+  ipatch_register_converter_map (IPATCH_TYPE_CONVERTER_FILE_TO_DLS2, 0, 0,
+				 IPATCH_TYPE_DLS_FILE, 0, 1,
 				 IPATCH_TYPE_DLS2, IPATCH_TYPE_BASE, 0);
-  ipatch_register_converter_map (IPATCH_TYPE_CONVERTER_FILE_TO_DLS2_SAMPLE, 0,
-				 IPATCH_TYPE_SND_FILE, IPATCH_TYPE_FILE, 1,
+  ipatch_register_converter_map (IPATCH_TYPE_CONVERTER_FILE_TO_DLS2_SAMPLE, 0, 0,
+				 IPATCH_TYPE_SND_FILE, 0, 1,
 				 IPATCH_TYPE_DLS2_SAMPLE, 0, 1);
 }
 

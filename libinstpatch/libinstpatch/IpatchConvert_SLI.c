@@ -74,14 +74,14 @@ _ipatch_convert_SLI_init (void)
   g_type_class_ref (IPATCH_TYPE_CONVERTER_FILE_TO_SLI);
   g_type_class_ref (IPATCH_TYPE_CONVERTER_FILE_TO_SLI_SAMPLE);
 
-  ipatch_register_converter_map (IPATCH_TYPE_CONVERTER_SLI_TO_FILE, 0,
+  ipatch_register_converter_map (IPATCH_TYPE_CONVERTER_SLI_TO_FILE, 0, 0,
 				 IPATCH_TYPE_SLI, 0, 1,
 				 IPATCH_TYPE_SLI_FILE, IPATCH_TYPE_FILE, 1);
-  ipatch_register_converter_map (IPATCH_TYPE_CONVERTER_FILE_TO_SLI, 0,
-				 IPATCH_TYPE_SLI_FILE, IPATCH_TYPE_FILE, 1,
+  ipatch_register_converter_map (IPATCH_TYPE_CONVERTER_FILE_TO_SLI, 0, 0,
+				 IPATCH_TYPE_SLI_FILE, 0, 1,
 				 IPATCH_TYPE_SLI, IPATCH_TYPE_BASE, 0);
-  ipatch_register_converter_map (IPATCH_TYPE_CONVERTER_FILE_TO_SLI_SAMPLE, 0,
-				 IPATCH_TYPE_SND_FILE, IPATCH_TYPE_FILE, 1,
+  ipatch_register_converter_map (IPATCH_TYPE_CONVERTER_FILE_TO_SLI_SAMPLE, 0, 0,
+				 IPATCH_TYPE_SND_FILE, 0, 1,
 				 IPATCH_TYPE_SLI_SAMPLE, 0, 1);
 }
 

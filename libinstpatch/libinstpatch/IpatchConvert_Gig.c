@@ -64,18 +64,18 @@ void
 _ipatch_convert_gig_init (void)
 {
   g_type_class_ref (IPATCH_TYPE_CONVERTER_GIG_TO_FILE);
-  ipatch_register_converter_map (IPATCH_TYPE_CONVERTER_GIG_TO_FILE, 0,
+  ipatch_register_converter_map (IPATCH_TYPE_CONVERTER_GIG_TO_FILE, 0, 0,
 				 IPATCH_TYPE_GIG, 0, 1,
 				 IPATCH_TYPE_GIG_FILE, IPATCH_TYPE_FILE, 1);
 
   g_type_class_ref (IPATCH_TYPE_CONVERTER_FILE_TO_GIG);
-  ipatch_register_converter_map (IPATCH_TYPE_CONVERTER_FILE_TO_GIG, 0,
-				 IPATCH_TYPE_GIG_FILE, IPATCH_TYPE_FILE, 1,
+  ipatch_register_converter_map (IPATCH_TYPE_CONVERTER_FILE_TO_GIG, 0, 0,
+				 IPATCH_TYPE_GIG_FILE, 0, 1,
 				 IPATCH_TYPE_GIG, IPATCH_TYPE_BASE, 0);
 
   g_type_class_ref (IPATCH_TYPE_CONVERTER_FILE_TO_GIG_SAMPLE);
-  ipatch_register_converter_map (IPATCH_TYPE_CONVERTER_FILE_TO_GIG_SAMPLE, 0,
-				 IPATCH_TYPE_SND_FILE, IPATCH_TYPE_FILE, 1,
+  ipatch_register_converter_map (IPATCH_TYPE_CONVERTER_FILE_TO_GIG_SAMPLE, 0, 0,
+				 IPATCH_TYPE_SND_FILE, 0, 1,
 				 IPATCH_TYPE_GIG_SAMPLE, 0, 1);
 }
 
