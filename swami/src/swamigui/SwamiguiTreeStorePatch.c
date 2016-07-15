@@ -598,7 +598,7 @@ swamigui_tree_store_patch_item_changed (SwamiguiTreeStore *store, GObject *item)
 
   /* get title of item */
   g_object_get (item, "title", &title, NULL);   /* ++ alloc */
-  g_return_if_fail (title != NULL);
+  if (!title) title = g_strdup ("");
 
   found_item_node = swamigui_tree_store_item_get_node (store, item, &item_iter);
   if (swami_log_if_fail (found_item_node)) goto ret;
