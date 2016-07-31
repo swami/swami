@@ -265,8 +265,9 @@ ipatch_container_get_virtual_types (IpatchContainer *container)
  * ipatch_container_get_child_types() but takes a container GType instead of
  * a container object.
  *
- * Returns: (array zero-terminated=1) (transfer none): Pointer to a zero
- * terminated array of types. Array is static and should not be modified or freed.
+ * Returns: (array zero-terminated=1) (transfer none) (nullable): Pointer to a zero
+ * terminated array of types or NULL if none. Array is static and should not be
+ * modified or freed.
  */
 const GType *
 ipatch_container_type_get_child_types (GType container_type)
@@ -278,7 +279,11 @@ ipatch_container_type_get_child_types (GType container_type)
 			NULL);
 
   klass = g_type_class_ref (container_type);
-  types = klass->child_types ();
+
+  if (klass->child_types)
+    types = klass->child_types ();
+  else types = NULL;
+
   g_type_class_unref (klass);
 
   return (types);
