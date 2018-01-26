@@ -198,10 +198,10 @@ static GType interp_mode_register_type (SwamiPlugin *plugin);
 static GType chorus_waveform_register_type (SwamiPlugin *plugin);
 
 static void wavetbl_fluidsynth_class_init (WavetblFluidSynthClass *klass);
-static void settings_foreach_count (void *data, char *name, int type);
-static void settings_foreach_option_count (void *data, char *name, char *option);
-static void settings_foreach_func (void *data, char *name, int type);
-static void settings_foreach_option_func (void *data, char *name, char *option);
+static void settings_foreach_count (void *data, const char *name, int type);
+static void settings_foreach_option_count (void *data, const char *name, const char *option);
+static void settings_foreach_func (void *data, const char *name, int type);
+static void settings_foreach_option_func (void *data, const char *name, const char *option);
 static int cmpstringp (const void *p1, const void *p2);
 static void wavetbl_fluidsynth_init (WavetblFluidSynth *wavetbl);
 static void wavetbl_fluidsynth_finalize (GObject *object);
@@ -242,21 +242,17 @@ static int find_reverb_preset (const char *name);
 static void wavetbl_fluidsynth_update_chorus (WavetblFluidSynth *wavetbl);
 static int find_chorus_preset (const char *name);
 
-static int sfloader_free (fluid_sfloader_t *loader);
 static fluid_sfont_t *sfloader_load_sfont (fluid_sfloader_t *loader,
 					   const char *filename);
 static int sfloader_sfont_free (fluid_sfont_t *sfont);
-static char *sfloader_sfont_get_name (fluid_sfont_t *sfont);
+static const char *sfloader_sfont_get_name (fluid_sfont_t *sfont);
 static fluid_preset_t *sfloader_sfont_get_preset (fluid_sfont_t *sfont,
-						  unsigned int bank,
-						  unsigned int prenum);
-static void sfloader_sfont_iteration_start (fluid_sfont_t *sfont);
-static int sfloader_sfont_iteration_next (fluid_sfont_t *sfont,
-					  fluid_preset_t *preset);
-static int sfloader_preset_free (fluid_preset_t *preset);
-static int sfloader_active_preset_free (fluid_preset_t *preset);
-static char *sfloader_preset_get_name (fluid_preset_t *preset);
-static char *sfloader_active_preset_get_name (fluid_preset_t *preset);
+						  int bank,
+						  int prenum);
+static void sfloader_preset_free (fluid_preset_t *preset);
+static void sfloader_active_preset_free (fluid_preset_t *preset);
+static const char *sfloader_preset_get_name (fluid_preset_t *preset);
+static const char *sfloader_active_preset_get_name (fluid_preset_t *preset);
 static int sfloader_preset_get_banknum (fluid_preset_t *preset);
 static int sfloader_active_preset_get_banknum (fluid_preset_t *preset);
 static int sfloader_preset_get_num (fluid_preset_t *preset);
@@ -332,6 +328,10 @@ SWAMI_PLUGIN_INFO (plugin_fluidsynth_init, NULL);
 static gboolean
 plugin_fluidsynth_init (SwamiPlugin *plugin, GError **err)
 {
+    fluid_settings_t *settings = NULL;
+    int idef;
+    double ddef;
+    
   /* bind the gettext domain */
 #if defined(ENABLE_NLS)
   bindtextdomain ("SwamiPlugin-fluidsynth", LOCALEDIR);
@@ -349,34 +349,68 @@ plugin_fluidsynth_init (SwamiPlugin *plugin, GError **err)
 		"license", "GPL",
 		NULL);
 
+  
   /* initialize voice cache hash */
   voice_cache_hash = g_hash_table_new_full (NULL, NULL, NULL,
 					    (GDestroyNotify)g_object_unref);
-  /* initialize types */
-  wavetbl_type = wavetbl_register_type (plugin);
-  interp_mode_type = interp_mode_register_type (plugin);
-  chorus_waveform_type = chorus_waveform_register_type (plugin);
-
   /* initialize built-in reverb and chorus presets
    * !! Make sure that name field ends in NULLs (strncpy does this).
    * !! If not, then a potential multi-thread string crash could occur.
    */
   reverb_presets = g_new (ReverbParams, REVERB_PRESETS_BUILTIN);
+  chorus_presets = g_new (ChorusParams, CHORUS_PRESETS_BUILTIN);
+  settings = new_fluid_settings();
+  
+  if(voice_cache_hash == NULL || reverb_presets == NULL || chorus_presets == NULL || settings == NULL)
+  {
+      g_hash_table_unref(voice_cache_hash);
+      voice_cache_hash = NULL;
+      g_free(reverb_presets);
+      reverb_presets = NULL;
+      g_free(chorus_presets);
+      chorus_presets = NULL;
+      delete_fluid_settings(settings);
+      return FALSE;
+  }
 
   strncpy (reverb_presets[0].name, N_("Default"), PRESET_NAME_LEN);
-  reverb_presets[0].room_size = FLUID_REVERB_DEFAULT_ROOMSIZE;
-  reverb_presets[0].damp = FLUID_REVERB_DEFAULT_DAMP;
-  reverb_presets[0].width = FLUID_REVERB_DEFAULT_WIDTH;
-  reverb_presets[0].level = FLUID_REVERB_DEFAULT_LEVEL;
+  
+  fluid_settings_getnum_default(settings, "synth.reverb.room-size", &ddef);
+  reverb_presets[0].room_size = ddef;
+  
+  fluid_settings_getnum_default(settings, "synth.reverb.damp", &ddef);
+  reverb_presets[0].damp = ddef;
+  
+  fluid_settings_getnum_default(settings, "synth.reverb.width", &ddef);
+  reverb_presets[0].width = ddef;
+  
+  fluid_settings_getnum_default(settings, "synth.reverb.level", &ddef);
+  reverb_presets[0].level = ddef;
 
-  chorus_presets = g_new (ChorusParams, CHORUS_PRESETS_BUILTIN);
 
   strncpy (chorus_presets[0].name, N_("Default"), PRESET_NAME_LEN);
-  chorus_presets[0].count = FLUID_CHORUS_DEFAULT_N;
-  chorus_presets[0].level = FLUID_CHORUS_DEFAULT_LEVEL;
-  chorus_presets[0].freq = FLUID_CHORUS_DEFAULT_SPEED;
-  chorus_presets[0].depth = FLUID_CHORUS_DEFAULT_DEPTH;
-  chorus_presets[0].waveform = FLUID_CHORUS_DEFAULT_TYPE;
+  
+  fluid_settings_getint_default(settings, "synth.chorus.nr", &idef);
+  chorus_presets[0].count = idef;
+  
+  fluid_settings_getnum_default(settings, "synth.chorus.level", &ddef);
+  chorus_presets[0].level = ddef;
+  
+  fluid_settings_getnum_default(settings, "synth.chorus.speed", &ddef);
+  chorus_presets[0].freq = ddef;
+  
+  fluid_settings_getnum_default(settings, "synth.chorus.depth", &ddef);
+  chorus_presets[0].depth = ddef;
+  
+  chorus_presets[0].waveform = FLUID_CHORUS_MOD_SINE;
+
+  delete_fluid_settings(settings);
+  
+  
+  /* initialize types */
+  wavetbl_type = wavetbl_register_type (plugin);
+  interp_mode_type = interp_mode_register_type (plugin);
+  chorus_waveform_type = chorus_waveform_register_type (plugin);
 
   return (TRUE);
 }
@@ -532,8 +566,8 @@ wavetbl_fluidsynth_class_init (WavetblFluidSynthClass *klass)
   fluid_settings_foreach (bag.settings, &bag, settings_foreach_func);
 
   delete_fluid_settings (bag.settings);		/* not needed anymore */
-
-
+  
+  
   g_object_class_install_property (obj_class, WTBL_PROP_INTERP,
 			g_param_spec_enum ("interp", _("Interpolation"),
 					   _("Interpolation type"),
@@ -547,22 +581,22 @@ wavetbl_fluidsynth_class_init (WavetblFluidSynthClass *klass)
   g_object_class_install_property (obj_class, WTBL_PROP_REVERB_ROOM_SIZE,
 		g_param_spec_double ("reverb-room-size", _("Reverb room size"),
 				     _("Reverb room size"),
-				     0.0, 1.2, FLUID_REVERB_DEFAULT_ROOMSIZE,
+				     0.0, 1.0, reverb_presets[0].room_size,
                                      G_PARAM_READWRITE));
   g_object_class_install_property (obj_class, WTBL_PROP_REVERB_DAMP,
 		g_param_spec_double ("reverb-damp", _("Reverb damp"),
 				     _("Reverb damp"),
-				     0.0, 1.0, FLUID_REVERB_DEFAULT_DAMP,
+				     0.0, 1.0, reverb_presets[0].damp,
                                      G_PARAM_READWRITE));
   g_object_class_install_property (obj_class, WTBL_PROP_REVERB_WIDTH,
 			g_param_spec_double ("reverb-width", _("Reverb width"),
 					     _("Reverb width"),
-					     0.0, 100.0, FLUID_REVERB_DEFAULT_WIDTH,
+					     0.0, 100.0, reverb_presets[0].width,
 					     G_PARAM_READWRITE));
   g_object_class_install_property (obj_class, WTBL_PROP_REVERB_LEVEL,
 			g_param_spec_double ("reverb-level", _("Reverb level"),
 					     _("Reverb level"),
-					     0.0, 1.0, FLUID_REVERB_DEFAULT_LEVEL,
+					     0.0, 1.0, reverb_presets[0].level,
 					     G_PARAM_READWRITE));
 
   g_object_class_install_property (obj_class, WTBL_PROP_CHORUS_PRESET,
@@ -572,28 +606,28 @@ wavetbl_fluidsynth_class_init (WavetblFluidSynthClass *klass)
   g_object_class_install_property (obj_class, WTBL_PROP_CHORUS_COUNT,
 			g_param_spec_int ("chorus-count", _("Chorus count"),
 					  _("Number of chorus delay lines"),
-					  1, 99, FLUID_CHORUS_DEFAULT_N,
+					  1, 99, chorus_presets[0].count,
                                           G_PARAM_READWRITE));
   g_object_class_install_property (obj_class, WTBL_PROP_CHORUS_LEVEL,
 		g_param_spec_double ("chorus-level", _("Chorus level"),
 				     _("Output level of each chorus line"),
-				     0.0, 10.0, FLUID_CHORUS_DEFAULT_LEVEL,
+				     0.0, 10.0, chorus_presets[0].level,
                                      G_PARAM_READWRITE));
   g_object_class_install_property (obj_class, WTBL_PROP_CHORUS_FREQ,
 		g_param_spec_double ("chorus-freq", _("Chorus freq"),
 				     _("Chorus modulation frequency (Hz)"),
-				     0.3, 5.0, FLUID_CHORUS_DEFAULT_SPEED,
+				     0.3, 5.0, chorus_presets[0].freq,
                                      G_PARAM_READWRITE));
   g_object_class_install_property (obj_class, WTBL_PROP_CHORUS_DEPTH,
 			g_param_spec_double ("chorus-depth", _("Chorus depth"),
 					     _("Chorus depth"),
-					     0.0, 20.0, FLUID_CHORUS_DEFAULT_DEPTH,
+					     0.0, 20.0, chorus_presets[0].depth,
 					     G_PARAM_READWRITE));
   g_object_class_install_property (obj_class, WTBL_PROP_CHORUS_WAVEFORM,
 		g_param_spec_enum ("chorus-waveform", _("Chorus waveform"),
 				   _("Chorus waveform type"),
 				   CHORUS_WAVEFORM_TYPE,
-				   FLUID_CHORUS_DEFAULT_TYPE,
+				   FLUID_CHORUS_MOD_SINE,
 				   G_PARAM_READWRITE));
   g_object_class_install_property (obj_class, WTBL_PROP_ACTIVE_ITEM,
 		g_param_spec_object ("active-item", _("Active item"),
@@ -614,7 +648,7 @@ wavetbl_fluidsynth_class_init (WavetblFluidSynthClass *klass)
 
 /* for counting the number of FluidSynth settings properties */
 static void
-settings_foreach_count (void *data, char *name, int type)
+settings_foreach_count (void *data, const char *name, int type)
 {
   ForeachBag *bag = (ForeachBag *)data;
   int optcount = 0;
@@ -632,7 +666,7 @@ settings_foreach_count (void *data, char *name, int type)
 
 /* function to count FluidSynth string options for a parameter */
 static void
-settings_foreach_option_count (void *data, char *name, char *option)
+settings_foreach_option_count (void *data, const char *name, const char *option)
 {
   int *optcount = data;
   *optcount = *optcount + 1;
@@ -640,15 +674,15 @@ settings_foreach_option_count (void *data, char *name, char *option)
 
 /* add each FluidSynth setting as a GObject property */
 static void
-settings_foreach_func (void *data, char *name, int type)
+settings_foreach_func (void *data, const char *name, int type)
 {
   ForeachBag *bag = (ForeachBag *)data;
   GStrv options = NULL, optionp;
   GParamSpec *spec;
   double dmin, dmax, ddef;
-  int imin, imax, idef;
+  int imin, imax, idef, hint;
   gboolean bdef;
-  char *defstr;
+  char *defstr = NULL;
   const char **sp;
   int optcount = 0;
   char *optname;
@@ -671,21 +705,22 @@ settings_foreach_func (void *data, char *name, int type)
     {
     case FLUID_NUM_TYPE:
       fluid_settings_getnum_range (bag->settings, name, &dmin, &dmax);
-      ddef = fluid_settings_getnum_default (bag->settings, name);
+      fluid_settings_getnum_default (bag->settings, name, &ddef);
       spec = g_param_spec_double (name, name, name, dmin, dmax, ddef,
 				  G_PARAM_READWRITE);
       break;
     case FLUID_INT_TYPE:
       fluid_settings_getint_range (bag->settings, name, &imin, &imax);
-      idef = fluid_settings_getint_default (bag->settings, name);
+      fluid_settings_getint_default (bag->settings, name, &idef);
+      fluid_settings_get_hints(bag->settings, name, &hint);
 
-      if (imin == 0 && imax == 1)	/* boolean parameter? */
+      if ((hint | FLUID_HINT_TOGGLED) != 0)	/* boolean parameter? */
 	spec = g_param_spec_boolean (name, name, name, idef != 0, G_PARAM_READWRITE);
       else
 	spec = g_param_spec_int (name, name, name, imin, imax, idef, G_PARAM_READWRITE);
       break;
     case FLUID_STR_TYPE:
-      defstr = fluid_settings_getstr_default (bag->settings, name);
+      fluid_settings_getstr_default (bag->settings, name, &defstr);
       spec = g_param_spec_string (name, name, name, defstr, G_PARAM_READWRITE);
 
       /* count options for this string parameter (if any) */
@@ -742,7 +777,7 @@ settings_foreach_func (void *data, char *name, int type)
 /* function to iterate over FluidSynth string options for string parameters
  * and fill a string array */
 static void
-settings_foreach_option_func (void *data, char *name, char *option)
+settings_foreach_option_func (void *data, const char *name, const char *option)
 {
   GStrv *poptions = data;
 
@@ -838,7 +873,7 @@ wavetbl_fluidsynth_set_property (GObject *object, guint property_id,
 	  return;
 	}
 
-      if (!retval)
+      if (retval == FLUID_FAILED)
 	g_critical ("Failed to set FluidSynth property '%s'", name);
 
       return;
@@ -970,7 +1005,7 @@ wavetbl_fluidsynth_get_property (GObject *object, guint property_id,
 {
   WavetblFluidSynth *wavetbl = WAVETBL_FLUIDSYNTH (object);
   GSList *mods;
-  char *s;
+  char s[256];
   char *name;
   double d;
   int retval;
@@ -986,15 +1021,15 @@ wavetbl_fluidsynth_get_property (GObject *object, guint property_id,
 	{
 	case G_TYPE_INT:
 	  retval = fluid_settings_getint (wavetbl->settings, name, &i);
-	  if (retval) g_value_set_int (value, i);
+	  if (retval != FLUID_FAILED) g_value_set_int (value, i);
 	  break;
 	case G_TYPE_DOUBLE:
 	  retval = fluid_settings_getnum (wavetbl->settings, name, &d);
-	  if (retval) g_value_set_double (value, d);
+	  if (retval != FLUID_FAILED) g_value_set_double (value, d);
 	  break;
 	case G_TYPE_STRING:
-	  retval = fluid_settings_getstr (wavetbl->settings, name, &s);
-	  if (retval) g_value_set_string (value, s);
+	  retval = fluid_settings_copystr (wavetbl->settings, name, s, sizeof(s));
+	  if (retval != FLUID_FAILED) g_value_set_string (value, s);
 	  break;
 	case G_TYPE_BOOLEAN:
 	  /* check if its a string boolean property */
@@ -1002,12 +1037,12 @@ wavetbl_fluidsynth_get_property (GObject *object, guint property_id,
 	  {
 	    i = fluid_settings_str_equal (wavetbl->settings, name, "yes");
 	    g_value_set_boolean (value, i);
-	    retval = TRUE;
+	    retval = FLUID_OK;
 	  }
 	  else
 	  {
 	    retval = fluid_settings_getint (wavetbl->settings, name, &i);
-	    if (retval) g_value_set_boolean (value, i);
+	    if (retval != FLUID_FAILED) g_value_set_boolean (value, i);
 	  }
 	  break;
 	default:
@@ -1016,6 +1051,7 @@ wavetbl_fluidsynth_get_property (GObject *object, guint property_id,
 	  {
 	    strv = g_param_spec_get_qdata (pspec, wavetbl_fluidsynth_options_quark);
 	    g_value_set_boxed (value, strv);
+        retval = FLUID_OK;
           }
 	  else
 	  {
@@ -1024,7 +1060,7 @@ wavetbl_fluidsynth_get_property (GObject *object, guint property_id,
 	  }
 	}
 
-      if (!retval)
+      if (retval == FLUID_FAILED)
 	  g_critical ("Failed to get FluidSynth property '%s'", name);
 
       return;
@@ -1220,10 +1256,15 @@ wavetbl_fluidsynth_open (SwamiWavetbl *swami_wavetbl, GError **err)
     }
 
   /* hook our sfloader */
-  loader = g_malloc0 (sizeof (fluid_sfloader_t));
-  loader->data = wavetbl;
-  loader->free = sfloader_free;
-  loader->load = sfloader_load_sfont;
+  loader = new_fluid_sfloader(sfloader_load_sfont, delete_fluid_sfloader);
+  if(loader == NULL)
+  {
+      g_set_error (err, SWAMI_ERROR, SWAMI_ERROR_FAIL,
+		   _("Failed to create FluidSynth sfloader"));
+      SWAMI_UNLOCK_WRITE (wavetbl);
+      return (FALSE);
+  }
+  fluid_sfloader_set_data(loader, wavetbl);
   fluid_synth_add_sfloader (wavetbl->synth, loader);
 
   wavetbl->audio = new_fluid_audio_driver (wavetbl->settings, wavetbl->synth);
@@ -1238,7 +1279,6 @@ wavetbl_fluidsynth_open (SwamiWavetbl *swami_wavetbl, GError **err)
 			   (void *)wavetbl);
   if (wavetbl->midi_router)
     {
-      fluid_synth_set_midi_router (wavetbl->synth, wavetbl->midi_router);
       wavetbl->midi =
 	new_fluid_midi_driver (wavetbl->settings,
 			       fluid_midi_router_handle_midi_event,
@@ -1562,14 +1602,6 @@ find_chorus_preset (const char *name)
 /* FluidSynth sfloader functions */
 
 
-/** FluidSynth sfloader "free" function */
-static int
-sfloader_free (fluid_sfloader_t *loader)
-{
-  g_free (loader);
-  return (_SYNTH_OK);
-}
-
 /** FluidSynth sfloader "load" function */
 static fluid_sfont_t *
 sfloader_load_sfont (fluid_sfloader_t *loader, const char *filename)
@@ -1592,17 +1624,12 @@ sfloader_load_sfont (fluid_sfloader_t *loader, const char *filename)
     return (NULL);		/* didn't begin with '&' or '!' */
 
   sfont_data = g_malloc0 (sizeof (sfloader_sfont_data_t));
-  sfont_data->wavetbl = (WavetblFluidSynth *)(loader->data);
+  sfont_data->wavetbl = (WavetblFluidSynth *)(fluid_sfloader_get_data(loader));
   sfont_data->base_item = IPATCH_BASE (item);
 
-  sfont = g_malloc0 (sizeof (fluid_sfont_t));
-  sfont->data = sfont_data;
-  sfont->free = sfloader_sfont_free;
-  sfont->get_name = sfloader_sfont_get_name;
-  sfont->get_preset = sfloader_sfont_get_preset;
-  sfont->iteration_start = sfloader_sfont_iteration_start;
-  sfont->iteration_next = sfloader_sfont_iteration_next;
-
+  sfont = new_fluid_sfont(sfloader_sfont_get_name, sfloader_sfont_get_preset, NULL, NULL, sfloader_sfont_free);
+  fluid_sfont_set_data(sfont, sfont_data);
+  
   return (sfont);
 }
 
@@ -1612,7 +1639,7 @@ sfloader_sfont_free (fluid_sfont_t *sfont)
 {
   sfloader_sfont_data_t *sfont_data;
 
-  sfont_data = (sfloader_sfont_data_t *)(sfont->data);
+  sfont_data = (sfloader_sfont_data_t *)(fluid_sfont_get_data(sfont));
 
   if (sfont_data->base_item)	/* -- remove reference */
     g_object_unref (IPATCH_ITEM (sfont_data->base_item));
@@ -1624,14 +1651,14 @@ sfloader_sfont_free (fluid_sfont_t *sfont)
 }
 
 /* sfloader callback to get a patch file name */
-static char *
+static const char *
 sfloader_sfont_get_name (fluid_sfont_t *sfont)
 {
   sfloader_sfont_data_t *sfont_data;
   static char buf[256];	/* using static buffer so info string can be freed */
   char *s;
 
-  sfont_data = (sfloader_sfont_data_t *)(sfont->data);
+  sfont_data = (sfloader_sfont_data_t *)(fluid_sfont_get_data(sfont));
 
   if (sfont_data->base_item)
     {
@@ -1646,15 +1673,15 @@ sfloader_sfont_get_name (fluid_sfont_t *sfont)
 
 /* sfloader callback to get a preset (instrument) by bank and preset number */
 static fluid_preset_t *
-sfloader_sfont_get_preset (fluid_sfont_t *sfont, unsigned int bank,
-			   unsigned int prenum)
+sfloader_sfont_get_preset (fluid_sfont_t *sfont, int bank,
+			   int prenum)
 {
   sfloader_sfont_data_t *sfont_data;
   sfloader_preset_data_t *preset_data;
   fluid_preset_t* preset;
   int b, p;
 
-  sfont_data = (sfloader_sfont_data_t *)(sfont->data);
+  sfont_data = (sfloader_sfont_data_t *)(fluid_sfont_get_data(sfont));
 
   /* active item bank:preset requested? */
   swami_wavetbl_get_active_item_locale (SWAMI_WAVETBL (sfont_data->wavetbl), &b, &p);
@@ -1663,14 +1690,13 @@ sfloader_sfont_get_preset (fluid_sfont_t *sfont, unsigned int bank,
     {
       g_object_ref (G_OBJECT (sfont_data->wavetbl)); /* ++ inc wavetbl ref */
 
-      preset = g_malloc0 (sizeof (fluid_preset_t));
-      preset->sfont = sfont;
-      preset->data = sfont_data->wavetbl;
-      preset->free = sfloader_active_preset_free;
-      preset->get_name = sfloader_active_preset_get_name;
-      preset->get_banknum = sfloader_active_preset_get_banknum;
-      preset->get_num = sfloader_active_preset_get_num;
-      preset->noteon = sfloader_active_preset_noteon;
+      preset = new_fluid_preset(sfont,
+                                sfloader_active_preset_get_name,
+                                sfloader_active_preset_get_banknum,
+                                sfloader_active_preset_get_num,
+                                sfloader_active_preset_noteon,
+                                sfloader_active_preset_free);
+      fluid_preset_set_data(preset, sfont_data->wavetbl);
     }
   else				/* regular preset request */
     {
@@ -1691,30 +1717,16 @@ sfloader_sfont_get_preset (fluid_sfont_t *sfont, unsigned int bank,
 
       preset_data->item = item; /* !! item already referenced by find */
 
-      preset = g_malloc0 (sizeof (fluid_preset_t));
-      preset->sfont = sfont;
-      preset->data = preset_data;
-      preset->free = sfloader_preset_free;
-      preset->get_name = sfloader_preset_get_name;
-      preset->get_banknum = sfloader_preset_get_banknum;
-      preset->get_num = sfloader_preset_get_num;
-      preset->noteon = sfloader_preset_noteon;
+      preset = new_fluid_preset(sfont,
+                                sfloader_preset_get_name,
+                                sfloader_preset_get_banknum,
+                                sfloader_preset_get_num,
+                                sfloader_preset_noteon,
+                                sfloader_preset_free);
+      fluid_preset_set_data(preset, preset_data);
     }
 
   return (preset);
-}
-
-/* sfloader callback to start a SoundFont preset iteration */
-static void
-sfloader_sfont_iteration_start (fluid_sfont_t *sfont)
-{
-}
-
-/* sfloader callback to get next preset in a SoundFont iteration */
-static int
-sfloader_sfont_iteration_next (fluid_sfont_t *sfont, fluid_preset_t *preset)
-{
-  return (0);
 }
 
 /* sfloader callback to clean up an fluid_preset_t structure */
@@ -1723,7 +1735,7 @@ sfloader_preset_free (fluid_preset_t *preset)
 {
   sfloader_preset_data_t *preset_data;
 
-  preset_data = preset->data;
+  preset_data = fluid_preset_get_data(preset);
 
   /* -- remove item reference */
   g_object_unref (IPATCH_ITEM (preset_data->item));
@@ -1741,17 +1753,17 @@ sfloader_preset_free (fluid_preset_t *preset)
 static int
 sfloader_active_preset_free (fluid_preset_t *preset)
 {
-  g_object_unref (G_OBJECT (preset->data)); /* -- remove wavetbl obj ref */
+  g_object_unref (G_OBJECT (fluid_preset_get_data(preset))); /* -- remove wavetbl obj ref */
   g_free (preset);
 
   return (_SYNTH_OK);
 }
 
 /* sfloader callback to get the name of a preset */
-static char *
+static const char *
 sfloader_preset_get_name (fluid_preset_t *preset)
 {
-  sfloader_preset_data_t *preset_data = preset->data;
+  sfloader_preset_data_t *preset_data = fluid_preset_get_data(preset);
   static char buf[256]; /* return string is static */
   char *name;
 
@@ -1763,7 +1775,7 @@ sfloader_preset_get_name (fluid_preset_t *preset)
 }
 
 /* sfloader callback to get name of active preset */
-static char *
+static const char *
 sfloader_active_preset_get_name (fluid_preset_t *preset)
 {
   return (_("<active>"));
@@ -1773,7 +1785,7 @@ sfloader_active_preset_get_name (fluid_preset_t *preset)
 static int
 sfloader_preset_get_banknum (fluid_preset_t *preset)
 {
-  sfloader_preset_data_t *preset_data = preset->data;
+  sfloader_preset_data_t *preset_data = fluid_preset_get_data(preset);
   int bank;
 
   g_object_get (preset_data->item, "bank", &bank, NULL);
@@ -1784,7 +1796,7 @@ sfloader_preset_get_banknum (fluid_preset_t *preset)
 static int
 sfloader_active_preset_get_banknum (fluid_preset_t *preset)
 {
-  sfloader_preset_data_t *preset_data = preset->data;
+  sfloader_preset_data_t *preset_data = fluid_preset_get_data(preset);
   int bank;
 
   g_object_get (preset_data->wavetbl, "active-bank", &bank, NULL);
@@ -1795,7 +1807,7 @@ sfloader_active_preset_get_banknum (fluid_preset_t *preset)
 static int
 sfloader_preset_get_num (fluid_preset_t *preset)
 {
-  sfloader_preset_data_t *preset_data = preset->data;
+  sfloader_preset_data_t *preset_data = fluid_preset_get_data(preset);
   int program;
 
   g_object_get (preset_data->item, "program", &program, NULL);
@@ -1806,7 +1818,7 @@ sfloader_preset_get_num (fluid_preset_t *preset)
 static int
 sfloader_active_preset_get_num (fluid_preset_t *preset)
 {
-  sfloader_preset_data_t *preset_data = preset->data;
+  sfloader_preset_data_t *preset_data = fluid_preset_get_data(preset);
   int psetnum;
 
   g_object_get (preset_data->wavetbl, "active-program", &psetnum, NULL);
@@ -1818,8 +1830,8 @@ static int
 sfloader_preset_noteon (fluid_preset_t *preset, fluid_synth_t *synth,
 			int chan, int key, int vel)
 {
-  sfloader_preset_data_t *preset_data = preset->data;
-  WavetblFluidSynth *wavetbl = preset->data;
+  sfloader_preset_data_t *preset_data = fluid_preset_get_data(preset);
+  WavetblFluidSynth *wavetbl = fluid_preset_get_data(preset);
 
   /* No item matches the bank:program? */
   if (!preset_data->item) return (_SYNTH_OK);
@@ -1836,7 +1848,7 @@ static int
 sfloader_active_preset_noteon (fluid_preset_t *preset, fluid_synth_t *synth,
 			       int chan, int key, int vel)
 {
-  WavetblFluidSynth *wavetbl = preset->data;
+  WavetblFluidSynth *wavetbl = fluid_preset_get_data(preset);
 
   SWAMI_LOCK_WRITE (wavetbl);
   if (!wavetbl->active_item)
@@ -1934,7 +1946,7 @@ cache_instrument_noteon (WavetblFluidSynth *wavetbl, IpatchItem *item,
   IpatchSF2GenArray *gen_array;
   fluid_voice_t *flvoice;
   fluid_sample_t *wusample;
-  fluid_mod_t wumod;
+  fluid_mod_t *wumod;
   IpatchSF2Mod *mod;
   IpatchSF2Voice *voice;
   int i, voice_count, voice_num;
@@ -1973,22 +1985,19 @@ cache_instrument_noteon (WavetblFluidSynth *wavetbl, IpatchItem *item,
       if (!voice->sample_store) continue;	/* For ROM and other non-readable samples */
 
       /* FIXME - pool of wusamples? */
-      wusample = g_malloc0 (sizeof (fluid_sample_t));
+      wusample = new_fluid_sample();
 
-      wusample->name[0] = '\0';
-      wusample->start = 0;
-      wusample->end = voice->sample_size - 1;
-      wusample->loopstart = voice->loop_start;
-      wusample->loopend = voice->loop_end;
-      wusample->samplerate = voice->rate;
-      wusample->origpitch = voice->root_note;
-      wusample->pitchadj = voice->fine_tune;
-      wusample->sampletype = 0;
-      wusample->valid = 1;
-
-      wusample->data = ipatch_sample_store_cache_get_location
-        ((IpatchSampleStoreCache *)(voice->sample_store));
-
+      fluid_sample_set_sound_data(wusample,
+                                  ipatch_sample_store_cache_get_location((IpatchSampleStoreCache *)(voice->sample_store)),
+                                  NULL,
+                                  voice->sample_size,
+                                  voice->rate,
+                                  FALSE
+                                 );
+      
+      fluid_sample_set_loop(wusample, voice->loop_start, voice->loop_end);
+      fluid_sample_set_pitch(wusample, voice->root_note, voice->fine_tune);
+      
       /* allocate the FluidSynth voice */
       flvoice = fluid_synth_alloc_voice (synth, wusample, chan, key, vel);
       if (!flvoice)
@@ -2004,35 +2013,37 @@ cache_instrument_noteon (WavetblFluidSynth *wavetbl, IpatchItem *item,
 	if (IPATCH_SF2_GEN_ARRAY_TEST_FLAG (gen_array, i))
 	  fluid_voice_gen_set (flvoice, i, (float)(gen_array->values[i].sword));
 
+      wumod = new_fluid_mod();
       p = voice->mod_list;
       while (p)
 	{
-	  //  wumod = fluid_mod_new ();
 	  mod = (IpatchSF2Mod *)(p->data);
 
-	  wumod.dest = mod->dest;
-	  wumod.src1 = mod->src & IPATCH_SF2_MOD_MASK_CONTROL;
-
-	  wumod.flags1 = ((mod->src & (IPATCH_SF2_MOD_MASK_DIRECTION
+    fluid_mod_set_dest(wumod, mod->dest);
+    fluid_mod_set_source1(wumod,
+                          mod->src & IPATCH_SF2_MOD_MASK_CONTROL,
+                          ((mod->src & (IPATCH_SF2_MOD_MASK_DIRECTION
 				       | IPATCH_SF2_MOD_MASK_POLARITY
 				       | IPATCH_SF2_MOD_MASK_TYPE))
 			  >> IPATCH_SF2_MOD_SHIFT_DIRECTION)
-	    | ((mod->src & IPATCH_SF2_MOD_MASK_CC) ? FLUID_MOD_CC : 0);
+	    | ((mod->src & IPATCH_SF2_MOD_MASK_CC) ? FLUID_MOD_CC : 0));
 
-	  wumod.src2 = mod->amtsrc & IPATCH_SF2_MOD_MASK_CONTROL;
-
-	  wumod.flags2 = ((mod->amtsrc & (IPATCH_SF2_MOD_MASK_DIRECTION
+	  fluid_mod_set_source2(wumod,
+                          mod->amtsrc & IPATCH_SF2_MOD_MASK_CONTROL,
+                          ((mod->amtsrc & (IPATCH_SF2_MOD_MASK_DIRECTION
 					  | IPATCH_SF2_MOD_MASK_POLARITY
 					  | IPATCH_SF2_MOD_MASK_TYPE))
 			  >> IPATCH_SF2_MOD_SHIFT_DIRECTION)
-	    | ((mod->amtsrc & IPATCH_SF2_MOD_MASK_CC) ? FLUID_MOD_CC : 0);
+	    | ((mod->amtsrc & IPATCH_SF2_MOD_MASK_CC) ? FLUID_MOD_CC : 0));
 
-	  wumod.amount = mod->amount;
+	  fluid_mod_set_amount(wumod, mod->amount);
 
-	  fluid_voice_add_mod (flvoice, &wumod, FLUID_VOICE_OVERWRITE);
+	  fluid_voice_add_mod (flvoice, wumod, FLUID_VOICE_OVERWRITE);
 
 	  p = p->next;
 	}
+	delete_fluid_mod(wumod);
+  wumod = NULL;
 
       fluid_synth_start_voice (synth, flvoice); /* let 'er rip */
 
