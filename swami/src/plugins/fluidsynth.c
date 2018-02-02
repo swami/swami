@@ -1645,7 +1645,7 @@ sfloader_sfont_free (fluid_sfont_t *sfont)
     g_object_unref (IPATCH_ITEM (sfont_data->base_item));
 
   g_free (sfont_data);
-  g_free (sfont);
+  delete_fluid_sfont (sfont);
 
   return (_SYNTH_OK);
 }
@@ -1744,7 +1744,7 @@ sfloader_preset_free (fluid_preset_t *preset)
   g_object_unref (G_OBJECT (preset_data->wavetbl));
 
   g_free (preset_data);
-  g_free (preset);
+  delete_fluid_preset (preset);
 
   return (_SYNTH_OK);
 }
@@ -1754,7 +1754,7 @@ static int
 sfloader_active_preset_free (fluid_preset_t *preset)
 {
   g_object_unref (G_OBJECT (fluid_preset_get_data(preset))); /* -- remove wavetbl obj ref */
-  g_free (preset);
+  delete_fluid_preset (preset);
 
   return (_SYNTH_OK);
 }
@@ -2002,7 +2002,7 @@ cache_instrument_noteon (WavetblFluidSynth *wavetbl, IpatchItem *item,
       flvoice = fluid_synth_alloc_voice (synth, wusample, chan, key, vel);
       if (!flvoice)
 	{
-	  g_free (wusample);
+	  delete_fluid_sample (wusample);
 	  g_object_unref (cache);	/* -- unref cache */
 	  return (TRUE);
 	}
