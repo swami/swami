@@ -1730,7 +1730,7 @@ sfloader_sfont_get_preset (fluid_sfont_t *sfont, int bank,
 }
 
 /* sfloader callback to clean up an fluid_preset_t structure */
-static int
+static void 
 sfloader_preset_free (fluid_preset_t *preset)
 {
   sfloader_preset_data_t *preset_data;
@@ -1745,18 +1745,14 @@ sfloader_preset_free (fluid_preset_t *preset)
 
   g_free (preset_data);
   delete_fluid_preset (preset);
-
-  return (_SYNTH_OK);
 }
 
 /* sfloader callback to clean up a active item preset structure */
-static int
+static void
 sfloader_active_preset_free (fluid_preset_t *preset)
 {
   g_object_unref (G_OBJECT (fluid_preset_get_data(preset))); /* -- remove wavetbl obj ref */
   delete_fluid_preset (preset);
-
-  return (_SYNTH_OK);
 }
 
 /* sfloader callback to get the name of a preset */
