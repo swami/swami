@@ -1998,7 +1998,7 @@ cache_instrument_noteon (WavetblFluidSynth *wavetbl, IpatchItem *item,
       flvoice = fluid_synth_alloc_voice (synth, wusample, chan, key, vel);
       if (!flvoice)
 	{
-	  delete_fluid_sample (wusample);
+        delete_fluid_sample (wusample);
 	  g_object_unref (cache);	/* -- unref cache */
 	  return (TRUE);
 	}
@@ -2009,7 +2009,7 @@ cache_instrument_noteon (WavetblFluidSynth *wavetbl, IpatchItem *item,
 	if (IPATCH_SF2_GEN_ARRAY_TEST_FLAG (gen_array, i))
 	  fluid_voice_gen_set (flvoice, i, (float)(gen_array->values[i].sword));
 
-      wumod = new_fluid_mod();
+      wumod = g_alloca(fluid_mod_sizeof());
       p = voice->mod_list;
       while (p)
 	{
@@ -2038,8 +2038,6 @@ cache_instrument_noteon (WavetblFluidSynth *wavetbl, IpatchItem *item,
 
 	  p = p->next;
 	}
-	delete_fluid_mod(wumod);
-  wumod = NULL;
 
       fluid_synth_start_voice (synth, flvoice); /* let 'er rip */
 
