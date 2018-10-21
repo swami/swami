@@ -15,68 +15,84 @@ from gi.repository import GObject
 gi.require_version ('Ipatch', '1.1')
 from gi.repository import Ipatch
 
-parser = Test.createArgParser ('libInstPatch Converter tests')
-args = Test.parseArgs (parser)
+# Common converter source to destination type mappings
+CONVERTER_TYPES = (
+  ("IpatchFile", "IpatchBase"),
+  ("IpatchBase", "IpatchFile"),
+  ("IpatchItem", "IpatchSF2VoiceCache"),
+  ("IpatchSndFile", "IpatchItem")
+)
 
-Ipatch.init ()
+# Main
+if __name__ == "__main__":
+  parser = Test.createArgParser ('libInstPatch Converter tests')
+  args = Test.parseArgs (parser)
 
-convinfo = [Ipatch.get_converter_info (t) for t in Ipatch.find_converters (GObject.TYPE_NONE, GObject.TYPE_NONE)]
-convinfo.sort (key=lambda info: GObject.type_name (info.conv_type))
+  Ipatch.init ()
 
-Test.info ("Registered converters:\n")
+  convinfo = [Ipatch.get_converter_info (t) for t in Ipatch.find_converters (GObject.TYPE_NONE, GObject.TYPE_NONE, 0)]
+  convinfo.sort (key=lambda info: GObject.type_name (info.conv_type))
 
-srcTypeCountHash = {}
-destTypeCountHash = {}
+  if len (convinfo) == 0:
+    Test.error ("No converters found!")
 
-for conv in convinfo:
-  s = GObject.type_name (conv.conv_type) + "\n"
+  Test.msg ("Found %d converters\n" % len (convinfo))
 
-  if conv.src_count == Ipatch.ConverterCount.ONE_OR_MORE: count = '+'
-  elif conv.src_count == Ipatch.ConverterCount.ZERO_OR_MORE: count = '*'
-  else: count = str (conv.src_count)
+  summaryCounts = [0] * len (CONVERTER_TYPES)
+  summaryOther = 0
 
-  if conv.src_match == GObject.TYPE_INVALID:
-    s += "src[%s]=%s " % (count, GObject.type_name (conv.src_type))
-  else: s += "src[%s]=%s - %s" \
-    % (count, GObject.type_name (conv.src_match), GObject.type_name (conv.src_type))
+  # Show converter details
+  for convindex in xrange (0, len (convinfo)):
+    conv = convinfo[convindex]
 
-  if conv.flags & Ipatch.ConverterInfoFlags.DERIVED:
-    s += "+ DESCENDANTS\n"
-  else: s += "\n"
+    s = GObject.type_name (conv.conv_type) + "\n"
 
-  if conv.dest_count == Ipatch.ConverterCount.ONE_OR_MORE: count = '+'
-  elif conv.dest_count == Ipatch.ConverterCount.ZERO_OR_MORE: count = '*'
-  else: count = str (conv.dest_count)
+    if conv.src_count == Ipatch.ConverterCount.ONE_OR_MORE: count = '+'
+    elif conv.src_count == Ipatch.ConverterCount.ZERO_OR_MORE: count = '*'
+    else: count = str (conv.src_count)
 
-  if conv.dest_match == GObject.TYPE_INVALID:
-    s += "dst[%s]=%s\n" % (count, GObject.type_name (conv.dest_type))
-  else: s += "dst[%s]=%s - %s\n" \
-    % (count, GObject.type_name (conv.dest_match), GObject.type_name (conv.dest_type))
+    if conv.src_match == GObject.TYPE_INVALID:
+      s += "  src[%s]=%s " % (count, GObject.type_name (conv.src_type))
+    else: s += "  src[%s]=%s - %s" \
+      % (count, GObject.type_name (conv.src_match), GObject.type_name (conv.src_type))
 
-  Test.info (s)
+    if conv.flags & Ipatch.ConverterFlags.SRC_DERIVED:
+      s += "+ DESCENDANTS\n"
+    else: s += "\n"
 
-  srctype = conv.src_match if conv.src_match != GObject.TYPE_INVALID else conv.src_type
-  count = srcTypeCountHash.get (srctype, 0) + 1
-  srcTypeCountHash[srctype] = count
+    if conv.dest_count == Ipatch.ConverterCount.ONE_OR_MORE: count = '+'
+    elif conv.dest_count == Ipatch.ConverterCount.ZERO_OR_MORE: count = '*'
+    else: count = str (conv.dest_count)
 
-  desttype = conv.dest_match if conv.dest_match != GObject.TYPE_INVALID else conv.dest_type
-  count = destTypeCountHash.get (desttype, 0) + 1
-  destTypeCountHash[desttype] = count
+    if conv.dest_match == GObject.TYPE_INVALID:
+      s += "  dst[%s]=%s" % (count, GObject.type_name (conv.dest_type))
+    else: s += "  dst[%s]=%s - %s" \
+      % (count, GObject.type_name (conv.dest_match), GObject.type_name (conv.dest_type))
 
+    if conv.flags & Ipatch.ConverterFlags.DEST_DERIVED:
+      s += "+ DESCENDANTS"
 
-if len (convinfo) == 0:
-  Test.error ("No converters found!")
+    Test.info (s)
 
-Test.msg ("Found %d converters\n" % len (convinfo))
+    for i in xrange (0, len (CONVERTER_TYPES)):
+      convTypes = CONVERTER_TYPES[i]
 
-# Display source and destination type count summaries
-Test.msg ("Source type summary:")
-srcTypeCounts = sorted ([GObject.type_name (t) + ":" + str (c) for t, c in srcTypeCountHash.items ()])
-Test.msg ("\n".join (srcTypeCounts))
+      if GObject.type_is_a (conv.src_type, GObject.type_name (convTypes[0])) \
+          and GObject.type_is_a (conv.dest_type, GObject.type_name (convTypes[1])):
+        summaryCounts[i] += 1
+        break
+    else: summaryOther += 1
 
-Test.msg ("\nDestination type summary:")
-destTypeCounts = sorted ([GObject.type_name (t) + ":" + str (c) for t, c in destTypeCountHash.items ()])
-Test.msg ("\n".join (destTypeCounts))
+  Test.info ("")
 
-Test.exit ()
+  Test.msg ("Converter type summary:")
+
+  for i in xrange (0, len (CONVERTER_TYPES)):
+    convTypes = CONVERTER_TYPES[i]
+    Test.msg ("%s -> %s: %d" % (convTypes[0], convTypes[1], summaryCounts[i]))
+
+  if summaryOther > 0:
+    Test.msg ("Other: %d" % (convTypes[0], convTypes[1], summaryCounts[i]))
+
+  Test.exit ()
 

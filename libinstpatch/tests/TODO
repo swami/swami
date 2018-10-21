@@ -7,9 +7,11 @@ Error detection:
  * Hook glib logv messages with non success exit value
 
 
+IpatchConverter
+ * Converter introspection
+
 IpatchSampleTransform
  * Transform tests
-
 
 IpatchSF2
  * Create, Save, Load, Compare
@@ -39,7 +41,6 @@ IpatchContainer
 
 
 IpatchConverter
- * Converter introspection
  * Test conversions
  * Convert link lookup/notify
 
@@ -68,11 +69,6 @@ IpatchPaste
  * Paste handler introspection
  * Paste testing
  * Paste choices
-
-
-IpatchSample
- * read/write/verify
- * transform
 
 
 IpatchSampleData

@@ -187,38 +187,38 @@ Enjoy!"""
 
 
 # Main
+if __name__ == "__main__":
+  parser = Test.createArgParser ('libInstPatch SoundFont tests')
+  parser.add_argument ('-n', '--nodelete', action='store_true', help="Don't delete created test SoundFont (%s)" % TEST_SF2_FILENAME)
+  args = Test.parseArgs (parser)
 
-parser = Test.createArgParser ('libInstPatch SoundFont tests')
-parser.add_argument ('-n', '--nodelete', action='store_true', help="Don't delete created test SoundFont (%s)" % TEST_SF2_FILENAME)
-args = Test.parseArgs (parser)
+  Ipatch.init ()
 
-Ipatch.init ()
+  Test.msg ("Creating SoundFont")
+  sf2 = createSF2 ()
 
-Test.msg ("Creating SoundFont")
-sf2 = createSF2 ()
+  Test.msg ("Saving SoundFont")
+  sf2.save ()
 
-Test.msg ("Saving SoundFont")
-sf2.save ()
+  Test.msg ("Loading SoundFont")
+  sf2file = Ipatch.SF2File ()
+  sf2file.set_property ('file-name', TEST_SF2_FILENAME)
+  cmpsf2 = Ipatch.convert_object_to_type (sf2file, Ipatch.SF2)
 
-Test.msg ("Loading SoundFont")
-sf2file = Ipatch.SF2File ()
-sf2file.set_property ('file-name', TEST_SF2_FILENAME)
-cmpsf2 = Ipatch.convert_object_to_type (sf2file, Ipatch.SF2)
+  blacklistProps = {
+    (Ipatch.SF2, "software"),             # SF2 software will include the loaded software version appended
+    (Ipatch.SF2File, "sample-size")       # Sample size is the total sample data in the SoundFont file which will differ
+  }
 
-blacklistProps = {
-  (Ipatch.SF2, "software"),             # SF2 software will include the loaded software version appended
-  (Ipatch.SF2File, "sample-size")       # Sample size is the total sample data in the SoundFont file which will differ
-}
+  # Clear changed and saved flags so they don't trigger a value mismatch
+  sf2.clear_flags (Ipatch.BaseFlags.CHANGED | Ipatch.BaseFlags.SAVED)
+  cmpsf2.clear_flags (Ipatch.BaseFlags.CHANGED | Ipatch.BaseFlags.SAVED)
 
-# Clear changed and saved flags so they don't trigger a value mismatch
-sf2.clear_flags (Ipatch.BaseFlags.CHANGED | Ipatch.BaseFlags.SAVED)
-cmpsf2.clear_flags (Ipatch.BaseFlags.CHANGED | Ipatch.BaseFlags.SAVED)
+  Test.msg ("Verifying SoundFont")
+  Test.compareItems (sf2, cmpsf2, blackList=blacklistProps)
 
-Test.msg ("Verifying SoundFont")
-Test.compareItems (sf2, cmpsf2, blackList=blacklistProps)
+  if not args.nodelete:
+    os.unlink (TEST_SF2_FILENAME)
 
-if not args.nodelete:
-  os.unlink (TEST_SF2_FILENAME)
-
-Test.exit ()
+  Test.exit ()
 
