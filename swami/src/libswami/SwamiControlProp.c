@@ -724,7 +724,7 @@ swami_control_prop_item_cb_notify_event (IpatchItemPropNotify *notify)
   propevent = swami_event_prop_change_new ();	/* create prop change event */
 
   /* load values of property change structure */
-  propevent->object = g_object_ref (notify->item);
+  propevent->object = (GObject *)g_object_ref (notify->item);
   propevent->pspec = g_param_spec_ref (notify->pspec);
 
   g_value_init (&propevent->value, G_VALUE_TYPE (notify->new_value));

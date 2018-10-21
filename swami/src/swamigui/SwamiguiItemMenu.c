@@ -174,7 +174,7 @@ swamigui_item_menu_set_property (GObject *obj, guint property_id,
       if (menu->selection) g_object_unref (menu->selection);
       object = g_value_get_object (value);
       g_return_if_fail (!object || IPATCH_IS_LIST (object));
-      menu->selection = g_object_ref (object);
+      menu->selection = (IpatchList *)g_object_ref (object);
       break;
     case PROP_RIGHT_CLICK:
       if (menu->rclick) g_object_unref (menu->rclick);

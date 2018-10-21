@@ -171,7 +171,7 @@ ipatch_unit_info_duplicate (const IpatchUnitInfo *info)
 
 /**
  * ipatch_unit_register:
- * @info: (transfer container): Unit info (shallow copied)
+ * @info: (transfer none): Unit info (shallow copied)
  *
  * Add a new unit type to the unit registry. Note that the @info structure
  * is shallow copied, so strings should be constant or guaranteed to not

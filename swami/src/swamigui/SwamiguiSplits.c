@@ -1936,7 +1936,7 @@ swamigui_splits_default_handler (SwamiguiSplits *splits)
   else
     {
       if (ipatch_iter_next (&iter)) return (FALSE);
-      splitsobj = g_object_ref (obj);	/* ++ ref to even things up */
+      splitsobj = (IpatchItem *)g_object_ref (obj);	/* ++ ref to even things up */
     }
 
   /* clear and update splits if init, mode change or update with different obj */

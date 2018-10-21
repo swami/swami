@@ -166,8 +166,7 @@ ipatch_sf2_voice_cache_finalize (GObject *gobject)
  * ipatch_sf2_voice_cache_new: (skip)
  * @info: (nullable): Array of selection info structures (length should be @sel_count), use
  *   %NULL for default selection info (MIDI note and velocity)
- * @sel_count: (nullable): Count of selection ranges for this cache (ignored if @info is
- *   %NULL)
+ * @sel_count: Count of selection ranges for this cache (ignored if @info is %NULL)
  *
  * Create a new SoundFont voice cache object.  The @sel_count parameter
  * defines the number of selection ranges for the cache.  Examples of selection

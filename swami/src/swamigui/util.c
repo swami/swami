@@ -405,7 +405,7 @@ swamigui_util_glade_create (const char *name)
   g_free (object_ids);        /* -- free object IDs */
 
   gtk_builder_connect_signals (builder, NULL);
-  widg = g_object_ref (gtk_builder_get_object (builder, name));  /* ++ ref for caller */
+  widg = (GtkWidget *)g_object_ref (gtk_builder_get_object (builder, name));  /* ++ ref for caller */
   g_object_unref (builder);   /* -- unref builder */
 
   return (widg);

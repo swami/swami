@@ -531,7 +531,7 @@ ipatch_gig_sub_region_get_sample_info (IpatchGigSubRegion *subregion,
   if (ipatch_item_get_flags (subregion) & IPATCH_GIG_SUB_REGION_SAMPLE_INFO_OVERRIDE
       && subregion->sample_info)
     *info = *subregion->sample_info;
-  else if (subregion->sample) sample = g_object_ref (subregion->sample);
+  else if (subregion->sample) sample = (IpatchDLS2Sample *)g_object_ref (subregion->sample);
   else info_set = FALSE;
 
   IPATCH_ITEM_RUNLOCK (subregion);
