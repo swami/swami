@@ -176,8 +176,9 @@ typedef enum
  * IPATCH_SAMPLE_RATE_MIN: (skip)
  *
  * Minimum sample rate.
+ * SoundFont spec says 8000 Hz is minimum guaranteed, seen lots of smaller values though.
  */
-#define IPATCH_SAMPLE_RATE_MIN     8000
+#define IPATCH_SAMPLE_RATE_MIN     100
 
 /**
  * IPATCH_SAMPLE_RATE_MAX: (skip)
