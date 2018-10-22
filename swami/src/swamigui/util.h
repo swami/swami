@@ -22,7 +22,6 @@
 
 #include <stdio.h>
 #include <gtk/gtk.h>
-#include <libgnomecanvas/libgnomecanvas.h>
 
 /* size in bytes of buffers used for converting audio formats */
 #define SWAMIGUI_SAMPLE_TRANSFORM_SIZE  (64 * 1024)
@@ -32,6 +31,12 @@ typedef void (*UtilQuickFunc) (gpointer userdata, GtkWidget *popup);
 /** A guint RGBA color unit type for GParamSpec "unit-type" IpatchParamProp */
 #define SWAMIGUI_UNIT_RGBA_COLOR  swamigui_util_unit_rgba_color_get_type()
 
+/** Macro for specifying a 32 bit color using RGB values (0-255) */
+#define SWAMIGUI_RGB(r, g, b)           ((r) << 24 | (g) << 16 | (b) << 8 | 0xFF)
+
+/** Macro for specifying a 32 bit color using RGBA values (0-255) */
+#define SWAMIGUI_RGBA(r, g, b, a)       ((r) << 24 | (g) << 16 | (b) << 8 | (a))
+
 typedef enum {
   SWAMIGUI_RESOURCE_PATH_ROOT,
   SWAMIGUI_RESOURCE_PATH_UIXML,
@@ -40,8 +45,8 @@ typedef enum {
 
 void swamigui_util_init (void);
 guint swamigui_util_unit_rgba_color_get_type (void);
-void swamigui_util_canvas_line_set (GnomeCanvasItem *item, double x1, double y1,
-				    double x2, double y2);
+void swamigui_util_set_rgba_from_uint32 (GdkRGBA *rgba, guint32 u_rgba);
+guint32 swamigui_util_get_uint32_from_rgba (GdkRGBA *rgba);
 GtkWidget *swamigui_util_quick_popup (gchar * msg, gchar * btn1, ...);
 GtkWidget *swamigui_util_lookup_unique_dialog (gchar *strkey, gint key2);
 gboolean swamigui_util_register_unique_dialog (GtkWidget *dialog, gchar *strkey,

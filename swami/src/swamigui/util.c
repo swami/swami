@@ -113,32 +113,32 @@ swamigui_util_unit_rgba_color_get_type (void)
 }
 
 /**
- * swamigui_util_canvas_line_set:
- * @line: #GnomeCanvasLine object or an item with a "points" property
- * @x1: First X coordinate of line
- * @y1: First Y coordinate of line
- * @x2: Second X coordinate of line
- * @y2: Second Y coordinate of line
+ * swamigui_util_set_rgba_from_uint32:
+ * @rgba: Pointer GDK RGBA structure
+ * @u_rgba: RGBA color in the form 0xRRGGBBAA
  *
- * A convenience function to set a #GnomeCanvasLine to a single line segment.
- * Can also be used on other #GnomeCanvasItem types which have a "points"
- * property.
+ * Assigns an unsigned 32 bit integer RGBA color to a GdkRGBA structure.
  */
 void
-swamigui_util_canvas_line_set (GnomeCanvasItem *item, double x1, double y1,
-			       double x2, double y2)
+swamigui_util_set_rgba_from_uint32 (GdkRGBA *rgba, guint32 u_rgba)
 {
-  GnomeCanvasPoints *points;
+  rgba->red = (u_rgba >> 24) / 255.0;
+  rgba->green = ((u_rgba >> 16) & 0xFF) / 255.0;
+  rgba->blue = ((u_rgba >> 8) & 0xFF) / 255.0;
+  rgba->alpha = (u_rgba & 0xFF) / 255.0;
+}
 
-  points = gnome_canvas_points_new (2);
-
-  points->coords[0] = x1;
-  points->coords[1] = y1;
-  points->coords[2] = x2;
-  points->coords[3] = y2;
-
-  g_object_set (item, "points", points, NULL);
-  gnome_canvas_points_free (points);
+/**
+ * swamigui_util_get_uint32_from_rgba:
+ * @rgba: Pointer GDK RGBA structure
+ *
+ * Calculates an unsigned 32 bit integer RGBA color from a GdkRGBA structure.
+ */
+guint32
+swamigui_util_get_uint32_from_rgba (GdkRGBA *rgba)
+{
+  return ((guint32)(rgba->red * 255.0)) << 24 | ((guint32)(rgba->green * 255.0)) << 16
+    | ((guint32)(rgba->blue * 255.0)) << 8 | (guint32)(rgba->alpha * 255.0);
 }
 
 /* Unique dialog system is for allowing unique non-modal dialogs for
