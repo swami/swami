@@ -35,13 +35,13 @@ typedef struct _SwamiguiPrefClass SwamiguiPrefClass;
 
 #define SWAMIGUI_TYPE_PREF   (swamigui_pref_get_type ())
 #define SWAMIGUI_PREF(obj) \
-  (GTK_CHECK_CAST ((obj), SWAMIGUI_TYPE_PREF, SwamiguiPref))
+  (G_TYPE_CHECK_INSTANCE_CAST ((obj), SWAMIGUI_TYPE_PREF, SwamiguiPref))
 #define SWAMIGUI_PREF_CLASS(klass) \
-  (GTK_CHECK_CLASS_CAST ((klass), SWAMIGUI_TYPE_PREF, SwamiguiPrefClass))
+  (G_TYPE_CHECK_CLASS_CAST ((klass), SWAMIGUI_TYPE_PREF, SwamiguiPrefClass))
 #define SWAMIGUI_IS_PREF(obj) \
-  (GTK_CHECK_TYPE ((obj), SWAMIGUI_TYPE_PREF))
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), SWAMIGUI_TYPE_PREF))
 #define SWAMIGUI_IS_PREF_CLASS(klass) \
-  (GTK_CHECK_CLASS_TYPE ((klass), SWAMIGUI_TYPE_PREF))
+  (G_TYPE_CHECK_CLASS_TYPE ((klass), SWAMIGUI_TYPE_PREF))
 
 /* Swami preferences widget */
 struct _SwamiguiPref

@@ -30,14 +30,14 @@ typedef struct _SwamiguiMultiSaveClass SwamiguiMultiSaveClass;
 
 #define SWAMIGUI_TYPE_MULTI_SAVE   (swamigui_multi_save_get_type ())
 #define SWAMIGUI_MULTI_SAVE(obj) \
-  (GTK_CHECK_CAST ((obj), SWAMIGUI_TYPE_MULTI_SAVE, SwamiguiMultiSave))
+  (G_TYPE_CHECK_INSTANCE_CAST ((obj), SWAMIGUI_TYPE_MULTI_SAVE, SwamiguiMultiSave))
 #define SWAMIGUI_MULTI_SAVE_CLASS(klass) \
-  (GTK_CHECK_CLASS_CAST ((klass), SWAMIGUI_TYPE_MULTI_SAVE, \
+  (G_TYPE_CHECK_CLASS_CAST ((klass), SWAMIGUI_TYPE_MULTI_SAVE, \
    SwamiguiMultiSaveClass))
 #define SWAMIGUI_IS_MULTI_SAVE(obj) \
-  (GTK_CHECK_TYPE ((obj), SWAMIGUI_TYPE_MULTI_SAVE))
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), SWAMIGUI_TYPE_MULTI_SAVE))
 #define SWAMIGUI_IS_MULTI_SAVE_CLASS(klass) \
-  (GTK_CHECK_CLASS_TYPE ((klass), SWAMIGUI_TYPE_MULTI_SAVE))
+  (G_TYPE_CHECK_CLASS_TYPE ((klass), SWAMIGUI_TYPE_MULTI_SAVE))
 
 /* multi item save dialog */
 struct _SwamiguiMultiSave

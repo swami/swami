@@ -30,14 +30,14 @@ typedef struct _SwamiguiPythonViewClass SwamiguiPythonViewClass;
 
 #define SWAMIGUI_TYPE_PYTHON_VIEW   (swamigui_python_view_get_type ())
 #define SWAMIGUI_PYTHON_VIEW(obj) \
-  (GTK_CHECK_CAST ((obj), SWAMIGUI_TYPE_PYTHON_VIEW, SwamiguiPythonView))
+  (G_TYPE_CHECK_INSTANCE_CAST ((obj), SWAMIGUI_TYPE_PYTHON_VIEW, SwamiguiPythonView))
 #define SWAMIGUI_PYTHON_VIEW_CLASS(klass) \
-  (GTK_CHECK_CLASS_CAST ((klass), SWAMIGUI_TYPE_PYTHON_VIEW, \
+  (G_TYPE_CHECK_CLASS_CAST ((klass), SWAMIGUI_TYPE_PYTHON_VIEW, \
    SwamiguiPythonViewClass))
 #define SWAMIGUI_IS_PYTHON_VIEW(obj) \
-  (GTK_CHECK_TYPE ((obj), SWAMIGUI_TYPE_PYTHON_VIEW))
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), SWAMIGUI_TYPE_PYTHON_VIEW))
 #define SWAMIGUI_IS_PYTHON_VIEW_CLASS(klass) \
-  (GTK_CHECK_CLASS_TYPE ((klass), SWAMIGUI_TYPE_PYTHON_VIEW))
+  (G_TYPE_CHECK_CLASS_TYPE ((klass), SWAMIGUI_TYPE_PYTHON_VIEW))
 
 /* Swami Python view/shell object */
 struct _SwamiguiPythonView

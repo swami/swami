@@ -31,14 +31,14 @@ typedef struct _SwamiguiSpinScaleClass SwamiguiSpinScaleClass;
 
 #define SWAMIGUI_TYPE_SPIN_SCALE   (swamigui_spin_scale_get_type ())
 #define SWAMIGUI_SPIN_SCALE(obj) \
-  (GTK_CHECK_CAST ((obj), SWAMIGUI_TYPE_SPIN_SCALE, SwamiguiSpinScale))
+  (G_TYPE_CHECK_INSTANCE_CAST ((obj), SWAMIGUI_TYPE_SPIN_SCALE, SwamiguiSpinScale))
 #define SWAMIGUI_SPIN_SCALE_CLASS(klass) \
-  (GTK_CHECK_CLASS_CAST ((klass), SWAMIGUI_TYPE_SPIN_SCALE, \
+  (G_TYPE_CHECK_CLASS_CAST ((klass), SWAMIGUI_TYPE_SPIN_SCALE, \
    SwamiguiSpinScaleClass))
 #define SWAMIGUI_IS_SPIN_SCALE(obj) \
-  (GTK_CHECK_TYPE ((obj), SWAMIGUI_TYPE_SPIN_SCALE))
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), SWAMIGUI_TYPE_SPIN_SCALE))
 #define SWAMIGUI_IS_SPIN_SCALE_CLASS(klass) \
-  (GTK_CHECK_CLASS_TYPE ((klass), SWAMIGUI_TYPE_SPIN_SCALE))
+  (G_TYPE_CHECK_CLASS_TYPE ((klass), SWAMIGUI_TYPE_SPIN_SCALE))
 
 /* Swami SpinScale widget */
 struct _SwamiguiSpinScale

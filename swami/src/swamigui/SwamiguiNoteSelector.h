@@ -30,14 +30,14 @@ typedef struct _SwamiguiNoteSelectorClass SwamiguiNoteSelectorClass;
 
 #define SWAMIGUI_TYPE_NOTE_SELECTOR   (swamigui_note_selector_get_type ())
 #define SWAMIGUI_NOTE_SELECTOR(obj) \
-  (GTK_CHECK_CAST ((obj), SWAMIGUI_TYPE_NOTE_SELECTOR, SwamiguiNoteSelector))
+  (G_TYPE_CHECK_INSTANCE_CAST ((obj), SWAMIGUI_TYPE_NOTE_SELECTOR, SwamiguiNoteSelector))
 #define SWAMIGUI_NOTE_SELECTOR_CLASS(klass) \
-  (GTK_CHECK_CLASS_CAST ((klass), SWAMIGUI_TYPE_NOTE_SELECTOR, \
+  (G_TYPE_CHECK_CLASS_CAST ((klass), SWAMIGUI_TYPE_NOTE_SELECTOR, \
    SwamiguiNoteSelectorClass))
 #define SWAMIGUI_IS_NOTE_SELECTOR(obj) \
-  (GTK_CHECK_TYPE ((obj), SWAMIGUI_TYPE_NOTE_SELECTOR))
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), SWAMIGUI_TYPE_NOTE_SELECTOR))
 #define SWAMIGUI_IS_NOTE_SELECTOR_CLASS(klass) \
-  (GTK_CHECK_CLASS_TYPE ((klass), SWAMIGUI_TYPE_NOTE_SELECTOR))
+  (G_TYPE_CHECK_CLASS_TYPE ((klass), SWAMIGUI_TYPE_NOTE_SELECTOR))
 
 /* MIDI note selector widget */
 struct _SwamiguiNoteSelector

@@ -32,14 +32,14 @@ typedef struct _SwamiguiStatusbarClass SwamiguiStatusbarClass;
 
 #define SWAMIGUI_TYPE_STATUSBAR   (swamigui_statusbar_get_type ())
 #define SWAMIGUI_STATUSBAR(obj) \
-  (GTK_CHECK_CAST ((obj), SWAMIGUI_TYPE_STATUSBAR, SwamiguiStatusbar))
+  (G_TYPE_CHECK_INSTANCE_CAST ((obj), SWAMIGUI_TYPE_STATUSBAR, SwamiguiStatusbar))
 #define SWAMIGUI_STATUSBAR_CLASS(klass) \
-  (GTK_CHECK_CLASS_CAST ((klass), SWAMIGUI_TYPE_STATUSBAR, \
+  (G_TYPE_CHECK_CLASS_CAST ((klass), SWAMIGUI_TYPE_STATUSBAR, \
    SwamiguiStatusbarClass))
 #define SWAMIGUI_IS_STATUSBAR(obj) \
-  (GTK_CHECK_TYPE ((obj), SWAMIGUI_TYPE_STATUSBAR))
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), SWAMIGUI_TYPE_STATUSBAR))
 #define SWAMIGUI_IS_STATUSBAR_CLASS(klass) \
-  (GTK_CHECK_CLASS_TYPE ((klass), SWAMIGUI_TYPE_STATUSBAR))
+  (G_TYPE_CHECK_CLASS_TYPE ((klass), SWAMIGUI_TYPE_STATUSBAR))
 
 /* Statusbar widget */
 struct _SwamiguiStatusbar

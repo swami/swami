@@ -28,14 +28,14 @@ typedef struct _SwamiguiComboEntryClass SwamiguiComboEntryClass;
 
 #define SWAMIGUI_TYPE_COMBO_ENTRY   (swamigui_combo_entry_get_type ())
 #define SWAMIGUI_COMBO_ENTRY(obj) \
-  (GTK_CHECK_CAST ((obj), SWAMIGUI_TYPE_COMBO_ENTRY, SwamiguiComboEntry))
+  (G_TYPE_CHECK_INSTANCE_CAST ((obj), SWAMIGUI_TYPE_COMBO_ENTRY, SwamiguiComboEntry))
 #define SWAMIGUI_COMBO_ENTRY_CLASS(klass) \
-  (GTK_CHECK_CLASS_CAST ((klass), SWAMIGUI_TYPE_COMBO_ENTRY, \
+  (G_TYPE_CHECK_CLASS_CAST ((klass), SWAMIGUI_TYPE_COMBO_ENTRY, \
    SwamiguiComboEntryClass))
 #define SWAMIGUI_IS_COMBO_ENTRY(obj) \
-  (GTK_CHECK_TYPE ((obj), SWAMIGUI_TYPE_COMBO_ENTRY))
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), SWAMIGUI_TYPE_COMBO_ENTRY))
 #define SWAMIGUI_IS_COMBO_ENTRY_CLASS(klass) \
-  (GTK_CHECK_CLASS_TYPE ((klass), SWAMIGUI_TYPE_COMBO_ENTRY))
+  (G_TYPE_CHECK_CLASS_TYPE ((klass), SWAMIGUI_TYPE_COMBO_ENTRY))
 
 // Check if Gtk is 2.24.0 or greater (where "has entry" support and GtkComboBoxText was added)
 #define GTK_COMBO_HAS_ENTRY     GTK_CHECK_VERSION(2, 24, 0)

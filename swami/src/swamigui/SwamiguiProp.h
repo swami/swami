@@ -30,13 +30,13 @@ typedef struct _SwamiguiPropClass SwamiguiPropClass;
 
 #define SWAMIGUI_TYPE_PROP   (swamigui_prop_get_type ())
 #define SWAMIGUI_PROP(obj) \
-  (GTK_CHECK_CAST ((obj), SWAMIGUI_TYPE_PROP, SwamiguiProp))
+  (G_TYPE_CHECK_INSTANCE_CAST ((obj), SWAMIGUI_TYPE_PROP, SwamiguiProp))
 #define SWAMIGUI_PROP_CLASS(klass) \
-  (GTK_CHECK_CLASS_CAST ((klass), SWAMIGUI_TYPE_PROP, SwamiguiPropClass))
+  (G_TYPE_CHECK_CLASS_CAST ((klass), SWAMIGUI_TYPE_PROP, SwamiguiPropClass))
 #define SWAMIGUI_IS_PROP(obj) \
-  (GTK_CHECK_TYPE ((obj), SWAMIGUI_TYPE_PROP))
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), SWAMIGUI_TYPE_PROP))
 #define SWAMIGUI_IS_PROP_CLASS(klass) \
-  (GTK_CHECK_CLASS_TYPE ((klass), SWAMIGUI_TYPE_PROP))
+  (G_TYPE_CHECK_CLASS_TYPE ((klass), SWAMIGUI_TYPE_PROP))
 
 /* Swami Properties Object (all fields private) */
 struct _SwamiguiProp
