@@ -779,8 +779,8 @@ ipatch_dls2_sample_info_notify_changes (IpatchItem *item,
     {
       g_value_init (&newval, IPATCH_TYPE_SAMPLE_LOOP_TYPE);
       g_value_init (&oldval, IPATCH_TYPE_SAMPLE_LOOP_TYPE);
-      g_value_set_flags (&newval, newinfo->options & IPATCH_DLS2_SAMPLE_LOOP_MASK);
-      g_value_set_flags (&oldval, oldinfo->options & IPATCH_DLS2_SAMPLE_LOOP_MASK);
+      g_value_set_enum (&newval, newinfo->options & IPATCH_DLS2_SAMPLE_LOOP_MASK);
+      g_value_set_enum (&oldval, oldinfo->options & IPATCH_DLS2_SAMPLE_LOOP_MASK);
       ipatch_item_prop_notify (item, found_pspec_cache[0], &newval, &oldval);
       g_value_unset (&newval);
       g_value_unset (&oldval);
