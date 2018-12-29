@@ -407,6 +407,7 @@ ipatch_dls2_container_make_unique (IpatchContainer *container,
     {
       g_critical ("Invalid child type '%s' for IpatchDLS2 object",
 		  g_type_name (G_TYPE_FROM_INSTANCE (item)));
+    IPATCH_ITEM_WUNLOCK (dls);
       return;
     }
 

@@ -293,7 +293,7 @@ ipatch_base_get_file (IpatchBase *base)
   IPATCH_ITEM_RLOCK (base);
   file = base->file;
   if (file) g_object_ref (file);
-  IPATCH_ITEM_RLOCK (base);
+  IPATCH_ITEM_RUNLOCK (base);
 
   return (file);
 }
@@ -337,7 +337,7 @@ ipatch_base_real_set_file_name (IpatchBase *base, const char *file_name)
       return;
     }
   ipatch_file_set_name (base->file, file_name);
-  IPATCH_ITEM_WUNLOCK (base);
+  IPATCH_ITEM_RUNLOCK (base);
 }
 
 /**
