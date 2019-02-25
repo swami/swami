@@ -62,7 +62,6 @@ typedef struct
 } PrefInfo;
 
 static gint sort_pref_info_by_order_and_name (gconstpointer a, gconstpointer b);
-static void swamigui_pref_cb_close_clicked (GtkWidget *button, gpointer user_data);
 static void swamigui_pref_section_list_change (GtkTreeSelection *selection,
 					       gpointer user_data);
 static GtkWidget *general_prefs_handler (void);
@@ -184,13 +183,10 @@ swamigui_pref_init (SwamiguiPref *pref)
   prefwidg = swamigui_util_glade_create ("Preferences");
   gtk_widget_show (prefwidg);
 
-  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (pref)->vbox), prefwidg, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (pref))), prefwidg, TRUE, TRUE, 0);
 
   /* Add close button to button box */
-  btn = gtk_button_new_from_stock (GTK_STOCK_CLOSE);
-  gtk_widget_show (btn);
-  gtk_container_add (GTK_CONTAINER (GTK_DIALOG (pref)->action_area), btn);
-  g_signal_connect (btn, "clicked", G_CALLBACK (swamigui_pref_cb_close_clicked), pref);
+  gtk_dialog_add_button (GTK_DIALOG (pref), _("Close"), GTK_RESPONSE_CLOSE);
 
   treeview = swamigui_util_glade_lookup (prefwidg, "TreeViewSections");
   selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
@@ -238,13 +234,6 @@ swamigui_pref_init (SwamiguiPref *pref)
   /* Select the first item in the list */
   if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (store), &iter))
     gtk_tree_selection_select_iter (GTK_TREE_SELECTION (selection), &iter);
-}
-
-static void
-swamigui_pref_cb_close_clicked (GtkWidget *button, gpointer user_data)
-{
-  SwamiguiPref *pref = SWAMIGUI_PREF (user_data);
-  gtk_widget_destroy (GTK_WIDGET (pref));	/* destroy dialog */
 }
 
 /* callback for when preference section list selection changes */
@@ -624,7 +613,7 @@ keybindings_key_press_event (GtkWidget *eventwidg, GdkEventKey *event, gpointer 
   char notename[16];
   int count;
 
-  if (event->keyval == GDK_Escape)	/* If escape, stop key binding mode */
+  if (event->keyval == GDK_KEY_Escape)  /* If escape, stop key binding mode */
   {
     keybindings_set_bind_mode (prefwidg, BIND_MODE_INACTIVE);
     return (TRUE);	/* Stop key propagation */

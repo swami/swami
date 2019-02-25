@@ -53,10 +53,8 @@ typedef struct
 {
   IpatchSampleData *sample;
   gboolean right_chan;	/* set to TRUE for stereo to use right channel */
-  GnomeCanvasItem *sample_view;
-  GnomeCanvasItem *loop_view;
-  GnomeCanvasItem *sample_center_line; /* sample view horizonal center line */
-  GnomeCanvasItem *loop_center_line; /* loop view horizontal center line */
+  GtkWidget *sample_canvas;
+  GtkWidget *loop_canvas;
 } TrackInfo;
 
 typedef struct
@@ -65,9 +63,6 @@ typedef struct
   gboolean visible;		/* TRUE if visible, FALSE otherwise */
   SwamiControl *start_ctrl;	/* marker start control */
   SwamiControl *end_ctrl;	/* marker end control (range only) */
-  GnomeCanvasItem *start_line;	/* marker start line canvas item */
-  GnomeCanvasItem *end_line;	/* marker end line canvas item (range only) */
-  GnomeCanvasItem *range_box;	/* marker range box (range only) */
   guint start_pos;		/* sample start position of marker */
   guint end_pos;		/* sample end position of marker (range only) */
   SwamiguiSampleEditor *editor;	/* so we can pass MarkerInfo to callbacks */
@@ -80,32 +75,28 @@ typedef struct
 #define LOOP_CANVAS_DEF_ZOOM	0.2	/* default zoom for loop canvas */
 
 /* default colors */
-#define DEFAULT_CENTER_LINE_COLOR	0x7F00FFFF
-#define DEFAULT_MARKER_BORDER_COLOR	0xBBBBBBFF
-#define DEFAULT_SNAP_LINE_COLOR		0xFF0000FF
-#define DEFAULT_LOOP_LINE_COLOR		0x777777FF
+#define DEFAULT_CENTER_LINE_COLOR	SWAMIGUI_RGB (0x7F, 0x00, 0xFF)
+#define DEFAULT_MARKER_BORDER_COLOR	SWAMIGUI_RGB (0xBB, 0xBB, 0xBB)
+#define DEFAULT_SNAP_LINE_COLOR		SWAMIGUI_RGB (0xFF, 0x00, 0x00)
+#define DEFAULT_LOOP_LINE_COLOR		SWAMIGUI_RGB (0x77, 0x77, 0x77)
+#define DEFAULT_MARKER_COLOR            SWAMIGUI_RGB (0x00, 0xFF, 0x00)         /* interactive marker color */
+#define DEFAULT_MARKER_NONIACTV_COLOR   SWAMIGUI_RGB (0x66, 0x66, 0x66)         /* non-interactive marker color */
 
 /* default marker colors */
 guint default_marker_colors[] = {
-  GNOME_CANVAS_COLOR (0xC2, 0xFF, 0xB6),	/* selection marker */
-  GNOME_CANVAS_COLOR (0xB5, 0x10, 0xFF),	/* loop finder start marker */
-  GNOME_CANVAS_COLOR (0xFF, 0x10, 0x70),	/* loop finder end marker */
-  GNOME_CANVAS_COLOR (0x21, 0xED, 0x3D),	/* loop (handler defined) */
-  GNOME_CANVAS_COLOR (0xFF, 0xEE, 0x10),
-  GNOME_CANVAS_COLOR (0xFF, 0x30, 0x10),
-  GNOME_CANVAS_COLOR (0x10, 0xC4, 0xFF),
-  GNOME_CANVAS_COLOR (0x10, 0xFF, 0x7B)
+  SWAMIGUI_RGB (0xC2, 0xFF, 0xB6),	/* selection marker */
+  SWAMIGUI_RGB (0xB5, 0x10, 0xFF),	/* loop finder start marker */
+  SWAMIGUI_RGB (0xFF, 0x10, 0x70),	/* loop finder end marker */
+  SWAMIGUI_RGB (0x21, 0xED, 0x3D),	/* loop (handler defined) */
+  SWAMIGUI_RGB (0xFF, 0xEE, 0x10),
+  SWAMIGUI_RGB (0xFF, 0x30, 0x10),
+  SWAMIGUI_RGB (0x10, 0xC4, 0xFF),
+  SWAMIGUI_RGB (0x10, 0xFF, 0x7B)
 };
 
-/* default height of marker bar */
-#define DEFAULT_MARKER_BAR_HEIGHT	24
-
-/* colors are in RRGGBBAA */
-#define MARKER_DEFAULT_COLOR  0x00FF00FF /* interactive marker color */
-#define MARKER_NONIACTV_COLOR 0x666666FF /* non-interactive marker color */
-
-#define MARKER_DEFAULT_WIDTH  1	/* width of markers (in pixels) */
-#define MARKER_CLICK_DISTANCE 3	/* click area surrounding markers (in pixels) */
+#define DEFAULT_MARKER_BAR_HEIGHT	24      /* default height of marker bar */
+#define DEFAULT_MARKER_WIDTH            1       /* width of markers (in pixels) */
+#define MARKER_CLICK_DISTANCE           3       /* click area surrounding markers (in pixels) */
 
 enum
 {
@@ -146,20 +137,23 @@ static void editor_cb_pane_size_allocate (GtkWidget *pane,
 					  GtkAllocation *allocation,
 					  gpointer user_data);
 static void
-swamigui_sample_editor_cb_canvas_size_allocate (GtkWidget *widget,
-						GtkAllocation *allocation,
-						gpointer user_data);
+swamigui_sample_editor_layout_size_allocate (GtkWidget *layout, GdkRectangle *allocation,
+                                             gpointer user_data);
+static void
+swamigui_sample_editor_cb_sample_layout_draw (GtkWidget *widget,
+					      cairo_t *cr, gpointer user_data);
+static void
+swamigui_sample_editor_cb_loop_layout_draw (GtkWidget *widget,
+					    cairo_t *cr, gpointer user_data);
 static void swamigui_sample_editor_update_sizes (SwamiguiSampleEditor *editor);
 static void
-swamigui_sample_editor_update_canvas_size (SwamiguiSampleEditor *editor,
-					   GnomeCanvas *canvas);
-static void swamigui_sample_editor_cb_scroll (GtkAdjustment *adj,
-					      gpointer user_data);
+swamigui_sample_editor_update_layout_size (SwamiguiSampleEditor *editor,
+					   GtkWidget *layout);
 static gboolean
-swamigui_sample_editor_cb_sample_canvas_event (GnomeCanvas *canvas,
+swamigui_sample_editor_cb_sample_layout_event (GtkWidget *layout,
 					       GdkEvent *event, gpointer data);
 static gboolean
-swamigui_sample_editor_cb_loop_canvas_event (GnomeCanvas *canvas,
+swamigui_sample_editor_cb_loop_layout_event (GtkWidget *layout,
 					     GdkEvent *event, gpointer data);
 static MarkerInfo *
 pos_is_marker (SwamiguiSampleEditor *editor, int xpos, int ypos,
@@ -261,7 +255,6 @@ enum
   LOOPSEL_COL_COUNT
 };
 
-
 GType
 swamigui_sample_editor_get_type (void)
 {
@@ -280,7 +273,7 @@ swamigui_sample_editor_get_type (void)
       static const GInterfaceInfo panel_info =
 	{ (GInterfaceInitFunc)swamigui_sample_editor_panel_iface_init, NULL, NULL };
 
-      obj_type = g_type_register_static (GTK_TYPE_HBOX,
+      obj_type = g_type_register_static (GTK_TYPE_BOX,
 					 "SwamiguiSampleEditor", &obj_info, 0);
       g_type_add_interface_static (obj_type, SWAMIGUI_TYPE_PANEL, &panel_info);
 
@@ -391,7 +384,7 @@ swamigui_sample_editor_finalize (GObject *object)
   SwamiguiSampleEditor *editor = SWAMIGUI_SAMPLE_EDITOR (object);
   GList *p, *temp;
 
-  /* remove all markers (don't destroy GtkObjects though) */
+  /* remove all markers (don't destroy widgets though) */
   p = editor->markers;
   while (p)
     {
@@ -400,7 +393,7 @@ swamigui_sample_editor_finalize (GObject *object)
       swamigui_sample_editor_remove_marker_item (editor, temp, FALSE);
     }
 
-  /* remove all tracks (don't destroy GtkObjects though) */
+  /* remove all tracks (don't destroy widgets though) */
   p = editor->tracks;
   while (p)
     {
@@ -439,7 +432,6 @@ swamigui_sample_editor_init (SwamiguiSampleEditor *editor)
   GtkToolItem *item;
   GtkStyle *style;
   GtkCellRenderer *renderer;
-  GtkTooltips *tips;
   SwamiLoopFinder *loop_finder;
   SwamiControl *marker_start, *marker_end;
   int id;
@@ -484,8 +476,6 @@ swamigui_sample_editor_init (SwamiguiSampleEditor *editor)
 
   editor->loop_end_hub = SWAMI_CONTROL (swami_control_hub_new ()); /* ++ ref */
   swamigui_control_set_queue (editor->loop_end_hub);
-
-  tips = gtk_tooltips_new ();
 
   /* create loop finder widget and pane, only gets packed when active */
   editor->loop_finder_gui = SWAMIGUI_LOOP_FINDER (swamigui_loop_finder_new ());
@@ -544,8 +534,8 @@ swamigui_sample_editor_init (SwamiguiSampleEditor *editor)
   editor->spinbtn_start = gtk_spin_button_new (NULL, 1.0, 0);
   gtk_spin_button_set_range (GTK_SPIN_BUTTON (editor->spinbtn_start),
 			     0.0, (gdouble)G_MAXINT);
-  gtk_tooltips_set_tip (tips, editor->spinbtn_start,
-			_("Set loop start position"), NULL);
+  gtk_widget_set_tooltip_text (editor->spinbtn_start,
+			       _("Set loop start position"));
   editor->spinbtn_start_ctrl = swamigui_control_new_for_widget_full
     (G_OBJECT (editor->spinbtn_start), G_TYPE_UINT, NULL, 0);
 
@@ -557,8 +547,8 @@ swamigui_sample_editor_init (SwamiguiSampleEditor *editor)
   editor->spinbtn_end = gtk_spin_button_new (NULL, 1.0, 0);
   gtk_spin_button_set_range (GTK_SPIN_BUTTON (editor->spinbtn_end),
 			     0.0, (gdouble)G_MAXINT);
-  gtk_tooltips_set_tip (tips, editor->spinbtn_end,
-			_("Set loop end position"), NULL);
+  gtk_widget_set_tooltip_text (editor->spinbtn_end,
+			       _("Set loop end position"));
   editor->spinbtn_end_ctrl = swamigui_control_new_for_widget_full
     (G_OBJECT (editor->spinbtn_end), G_TYPE_UINT, NULL, 0);
 
@@ -577,8 +567,8 @@ swamigui_sample_editor_init (SwamiguiSampleEditor *editor)
   /* create cut button */
   image = gtk_image_new_from_stock (GTK_STOCK_CUT, GTK_ICON_SIZE_SMALL_TOOLBAR);
   editor->cut_button = GTK_WIDGET (gtk_tool_button_new (image, _("Cut")));
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (editor->cut_button), tips,
-			     _("Cut selected sample data"), NULL);
+  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (editor->cut_button),
+				  _("Cut selected sample data"));
   gtk_toolbar_insert (GTK_TOOLBAR (editor->toolbar),
 		      GTK_TOOL_ITEM (editor->cut_button), -1);
   g_signal_connect (editor->cut_button, "clicked",
@@ -587,8 +577,8 @@ swamigui_sample_editor_init (SwamiguiSampleEditor *editor)
   /* create crop button */
   image = gtk_image_new_from_stock (GTK_STOCK_GO_DOWN, GTK_ICON_SIZE_SMALL_TOOLBAR);
   editor->crop_button = GTK_WIDGET (gtk_tool_button_new (image, _("Crop")));
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (editor->crop_button), tips,
-			     _("Crop to current selection"), NULL);
+  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (editor->crop_button),
+				  _("Crop to current selection"));
   gtk_toolbar_insert (GTK_TOOLBAR (editor->toolbar),
 		      GTK_TOOL_ITEM (editor->crop_button), -1);
   g_signal_connect (editor->crop_button, "clicked",
@@ -598,8 +588,8 @@ swamigui_sample_editor_init (SwamiguiSampleEditor *editor)
   image = gtk_image_new_from_stock (GTK_STOCK_NEW, GTK_ICON_SIZE_SMALL_TOOLBAR);
   editor->copy_new_button = GTK_WIDGET (gtk_tool_button_new (image,
 							     _("Copy to new")));
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (editor->copy_new_button), tips,
-			     _("Copy selection to new sample"), NULL);
+  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (editor->copy_new_button),
+				  _("Copy selection to new sample"));
   gtk_toolbar_insert (GTK_TOOLBAR (editor->toolbar),
 		      GTK_TOOL_ITEM (editor->copy_new_button), -1);
   g_signal_connect (editor->copy_new_button, "clicked",
@@ -613,8 +603,8 @@ swamigui_sample_editor_init (SwamiguiSampleEditor *editor)
   image = gtk_image_new_from_stock (GTK_STOCK_INDEX, GTK_ICON_SIZE_SMALL_TOOLBAR);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (editor->samplesel_button),
 				   image);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (editor->samplesel_button), tips,
-			     _("Make selection the entire sample"), NULL);
+  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (editor->samplesel_button),
+				  _("Make selection the entire sample"));
   gtk_toolbar_insert (GTK_TOOLBAR (editor->toolbar),
 		      GTK_TOOL_ITEM (editor->samplesel_button), -1);
 #endif
@@ -631,8 +621,8 @@ swamigui_sample_editor_init (SwamiguiSampleEditor *editor)
   image = gtk_image_new_from_stock (GTK_STOCK_FIND, GTK_ICON_SIZE_SMALL_TOOLBAR);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (editor->finder_button),
 				   image);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (editor->finder_button), tips,
-			     _("Loop point finder"), NULL);
+  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (editor->finder_button),
+				  _("Loop point finder"));
   gtk_toolbar_insert (GTK_TOOLBAR (editor->toolbar),
 		      GTK_TOOL_ITEM (editor->finder_button), -1);
   g_signal_connect (editor->finder_button, "toggled",
@@ -662,106 +652,57 @@ swamigui_sample_editor_init (SwamiguiSampleEditor *editor)
 			  G_CALLBACK (editor_cb_pane_size_allocate), NULL);
 
 
-  /* create sample editor canvas */
+  /* create sample editor layout */
 
-  editor->sample_canvas = GNOME_CANVAS (gnome_canvas_new ());
-  gnome_canvas_set_center_scroll_region (GNOME_CANVAS (editor->sample_canvas),
-					 FALSE);
-  gtk_paned_pack1 (GTK_PANED (pane), GTK_WIDGET (editor->sample_canvas),
+  editor->sample_layout = gtk_layout_new (NULL, NULL);
+  gtk_paned_pack1 (GTK_PANED (pane), GTK_WIDGET (editor->sample_layout),
 		   TRUE, TRUE);
-  g_signal_connect (editor->sample_canvas, "event",
-		    G_CALLBACK (swamigui_sample_editor_cb_sample_canvas_event),
-		    editor);
-  g_signal_connect (editor->sample_canvas, "size-allocate",
-		    G_CALLBACK (swamigui_sample_editor_cb_canvas_size_allocate),
+
+  gtk_widget_set_events (editor->sample_layout, GDK_EXPOSURE_MASK);
+  g_signal_connect (editor->sample_layout, "size-allocate",
+                    G_CALLBACK (swamigui_sample_editor_layout_size_allocate),
+                    editor);
+  g_signal_connect_after (editor->sample_layout, "draw",
+                          G_CALLBACK (swamigui_sample_editor_cb_sample_layout_draw),
+                          editor);
+  g_signal_connect (editor->sample_layout, "event",
+		    G_CALLBACK (swamigui_sample_editor_cb_sample_layout_event),
 		    editor);
 
   /* change background color of canvas to black */
   style = gtk_style_copy (gtk_widget_get_style (GTK_WIDGET
-						(editor->sample_canvas)));
+						(editor->sample_layout)));
   style->bg[GTK_STATE_NORMAL] = style->black;
-  gtk_widget_set_style (GTK_WIDGET (editor->sample_canvas), style);
+  gtk_widget_set_style (GTK_WIDGET (editor->sample_layout), style);
 
-  /* create sample view marker bar border horizontal line */
-  editor->sample_border_line
-    = gnome_canvas_item_new (gnome_canvas_root (editor->sample_canvas),
-			     GNOME_TYPE_CANVAS_LINE,
-			     "fill-color-rgba", editor->marker_border_color,
-			     "width-pixels", 1,
-			     NULL);
 
-  /* create snap lines */
-  editor->xsnap_line
-    = gnome_canvas_item_new (gnome_canvas_root (editor->sample_canvas),
-			     GNOME_TYPE_CANVAS_LINE,
-     			     "fill-color-rgba", editor->snap_line_color,
-			     "width-pixels", 2,
-			     NULL);
-  gnome_canvas_item_hide (editor->xsnap_line);
+  /* create sample loop layout */
 
-  editor->ysnap_line
-    = gnome_canvas_item_new (gnome_canvas_root (editor->sample_canvas),
-			     GNOME_TYPE_CANVAS_LINE,
-     			     "fill-color-rgba", editor->snap_line_color,
-			     "width-pixels", 2,
-			     NULL);
-  gnome_canvas_item_hide (editor->ysnap_line);
-
-  /* create sample loop canvas */
-
-  editor->loop_canvas = GNOME_CANVAS (gnome_canvas_new ());
-  gnome_canvas_set_center_scroll_region (GNOME_CANVAS (editor->loop_canvas),
-					 FALSE);
-  gtk_paned_pack2 (GTK_PANED (pane), GTK_WIDGET (editor->loop_canvas),
+  editor->loop_layout = gtk_layout_new (NULL, NULL);
+  gtk_paned_pack2 (GTK_PANED (pane), GTK_WIDGET (editor->loop_layout),
 		   FALSE, TRUE);
 
-  g_signal_connect (editor->loop_canvas, "event",
-		    G_CALLBACK (swamigui_sample_editor_cb_loop_canvas_event),
+  gtk_widget_set_events (editor->loop_layout, GDK_EXPOSURE_MASK);
+  g_signal_connect (editor->loop_layout, "size-allocate",
+                    G_CALLBACK (swamigui_sample_editor_layout_size_allocate),
+                    editor);
+  g_signal_connect_after (editor->loop_layout, "draw",                          // Connect after so drawing is done over other widgets
+                          G_CALLBACK (swamigui_sample_editor_cb_loop_layout_draw),
+                          editor);
+  g_signal_connect (editor->loop_layout, "event",
+		    G_CALLBACK (swamigui_sample_editor_cb_loop_layout_event),
 		    editor);
-  g_signal_connect (editor->loop_canvas, "size-allocate",
-  		    G_CALLBACK (swamigui_sample_editor_cb_canvas_size_allocate),
-  		    editor);
 
   /* change background color of canvas to black */
   style = gtk_style_copy (gtk_widget_get_style (GTK_WIDGET
-						(editor->loop_canvas)));
+						(editor->loop_layout)));
   style->bg[GTK_STATE_NORMAL] = style->black;
-  gtk_widget_set_style (GTK_WIDGET (editor->loop_canvas), style);
-
-  /* create vertical center line for loop view */
-  editor->loop_line
-    = gnome_canvas_item_new (gnome_canvas_root (editor->loop_canvas),
-			     GNOME_TYPE_CANVAS_LINE,
-     			     "fill-color-rgba", editor->loop_line_color,
-			     "width-pixels", 1,
-			     NULL);
-
-  /* create loop view marker bar border horizontal line */
-  editor->loop_border_line
-    = gnome_canvas_item_new (gnome_canvas_root (editor->loop_canvas),
-			     GNOME_TYPE_CANVAS_LINE,
-			     "fill-color-rgba", editor->marker_border_color,
-			     "width-pixels", 1,
-			     NULL);
-
-  /* create zoom snap line for loop view */
-  editor->loop_snap_line
-    = gnome_canvas_item_new (gnome_canvas_root (editor->loop_canvas),
-			     GNOME_TYPE_CANVAS_LINE,
-     			     "fill-color-rgba", editor->snap_line_color,
-			     "width-pixels", 2,
-			     NULL);
-  gnome_canvas_item_hide (editor->loop_snap_line);
+  gtk_widget_set_style (GTK_WIDGET (editor->loop_layout), style);
 
   /* attach a horizontal scrollbar to the sample viewer */
   editor->hscrollbar = gtk_hscrollbar_new (NULL);
   gtk_box_pack_start (GTK_BOX (editor->mainvbox), editor->hscrollbar,
 		      FALSE, FALSE, 0);
-
-  g_signal_connect_after (gtk_range_get_adjustment
-			  (GTK_RANGE (editor->hscrollbar)), "value-changed",
-			  G_CALLBACK (swamigui_sample_editor_cb_scroll),
-			  editor);
 
   gtk_widget_show_all (editor->mainvbox);
 
@@ -926,119 +867,173 @@ editor_cb_pane_size_allocate (GtkWidget *pane, GtkAllocation *allocation,
   gtk_paned_set_position (GTK_PANED (pane), allocation->width - width);
 }
 
+/* size-allocate callback for sample and loop layouts */
 static void
-swamigui_sample_editor_cb_canvas_size_allocate (GtkWidget *widget,
-						GtkAllocation *allocation,
-						gpointer user_data)
+swamigui_sample_editor_layout_size_allocate (GtkWidget *layout, GdkRectangle *allocation,
+                                             gpointer user_data)
 {
   SwamiguiSampleEditor *editor = SWAMIGUI_SAMPLE_EDITOR (user_data);
-  GnomeCanvas *canvas = GNOME_CANVAS (widget);
-
-  swamigui_sample_editor_update_canvas_size (editor, canvas);
-}
-
-static void
-swamigui_sample_editor_update_sizes (SwamiguiSampleEditor *editor)
-{
-  swamigui_sample_editor_update_canvas_size (editor, editor->sample_canvas);
-  swamigui_sample_editor_update_canvas_size (editor, editor->loop_canvas);
-}
-
-static void
-swamigui_sample_editor_update_canvas_size (SwamiguiSampleEditor *editor,
-					   GnomeCanvas *canvas)
-{
-  TrackInfo *track_info;
-  GnomeCanvasItem *item;
   int width, height, sample_height, count, y, y2, i;
   double zoom, fullzoom = 0.0;
+  TrackInfo *track_info;
+  GtkWidget *canvas;
   GList *p;
 
-  width = GTK_WIDGET (canvas)->allocation.width;
-  height = GTK_WIDGET (canvas)->allocation.height;
+  width = gtk_widget_get_allocated_width (layout);
+  height = gtk_widget_get_allocated_height (layout);
   sample_height = height - editor->marker_bar_height;
 
-  if (width <= 0) width = 1;
-  if (height <= 0) height = 1;
-  if (sample_height <= 0) sample_height = 1;
-
-
-  /* update marker bar border line */
-  item = canvas == editor->sample_canvas ? editor->sample_border_line
-    : editor->loop_border_line;
-
-  swamigui_util_canvas_line_set (item, 0, editor->marker_bar_height - 1,
-				 width, editor->marker_bar_height - 1);
+  if (sample_height <= 0) sample_height = 0;
 
   p = editor->tracks;
   if (!p) return;
 
   /* get count and last track in list */
-  count = 1;
-  while (p->next)
-    {
-      p = g_list_next (p);
-      count++;
-    }
+  for (count = 1; p->next; p = g_list_next (p), count++);
 
-  /* if sample canvas, calculate full sample zoom and use it if current zoom
-   * would cause complete sample view to be less than the canvas width */
-  if (canvas == editor->sample_canvas)
-    {
-      fullzoom = (double)(editor->sample_size) / width;
-      track_info = (TrackInfo *)(p->data);
-      g_object_get (track_info->sample_view, "zoom", &zoom, NULL);
-    }
+  /* if sample layout, calculate full sample zoom and use it if current zoom
+   * would cause complete sample view to be less than the layout width */
+  if (layout == editor->sample_layout)
+  {
+    fullzoom = (double)(editor->sample_size) / width;
+    track_info = (TrackInfo *)(p->data);
+    g_object_get (track_info->sample_canvas, "zoom", &zoom, NULL);
+  }
 
   /* loop in reverse over list (top sample down) */
   for (i = 1, y = editor->marker_bar_height; p; p = g_list_previous (p), i++)
-    {
-      y2 = i * sample_height / count + editor->marker_bar_height;
+  {
+    y2 = i * sample_height / count + editor->marker_bar_height;
 
-      track_info = (TrackInfo *)(p->data);
+    track_info = (TrackInfo *)(p->data);
 
-      /* update data view */
-      item = (canvas == editor->sample_canvas) ? track_info->sample_view
-	: track_info->loop_view;
-      g_object_set (item,
-		    "y", y,
-		    "width", width,
-		    "height", y2 - y,
-		    NULL);
+    /* update canvas Y position and size */
+    canvas = (layout == editor->sample_layout) ? track_info->sample_canvas : track_info->loop_canvas;
 
-      /* set zoom value if current sample zoom would be less than canvas width,
-       * or zoom_all is currently set */
-      if (canvas == editor->sample_canvas
-	  && (editor->zoom_all || fullzoom < zoom))
-	g_object_set (item, "zoom", fullzoom, NULL);
+    gtk_container_child_set (GTK_CONTAINER (layout), canvas, "y", y, NULL);
+    gtk_widget_set_size_request (canvas, width, y2 - y);
 
-      /* update horizontal center line */
-      item = (canvas == editor->sample_canvas)
-	? track_info->sample_center_line : track_info->loop_center_line;
+    /* set zoom value if current sample zoom would be less than canvas width,
+     * or zoom_all is currently set */
+    if (layout == editor->sample_layout && (editor->zoom_all || fullzoom < zoom))
+      g_object_set (track_info->sample_canvas, "zoom", fullzoom, NULL);
 
-      swamigui_util_canvas_line_set (item, 0, y + (y2 - y) / 2, width - 1,
-				     y + (y2 - y) / 2);
-      y = y2 + 1;
-    }
-
-  if (canvas == editor->sample_canvas)
-    marker_control_update_all (editor); /* update all markers */
-  else if (canvas == editor->loop_canvas)
-    swamigui_util_canvas_line_set (editor->loop_line, width / 2, 0,
-				   width / 2, height);
+    y = y2 + 1;
+  }
 }
 
-/* horizontal scroll bar value changed callback */
+/* draw callback for sample and loop layouts */
 static void
-swamigui_sample_editor_cb_scroll (GtkAdjustment *adj, gpointer user_data)
+swamigui_sample_editor_cb_layout_draw (GtkWidget *layout, cairo_t *cr, gpointer user_data)
 {
   SwamiguiSampleEditor *editor = SWAMIGUI_SAMPLE_EDITOR (user_data);
-  marker_control_update_all (editor); /* update all markers */
+  int width, height, sample_height, count, y, y2, i;
+  double zoom, fullzoom = 0.0;
+  TrackInfo *track_info;
+  MarkerInfo *marker_info;
+  SwamiguiSampleCanvas *sample_view;
+  int visible_count, visible_pos, pos;
+  int startx, endx, sview = -1, eview = -1;
+  GList *p;
+
+  width = gtk_widget_get_allocated_width (layout);
+  height = gtk_widget_get_allocated_height (layout);
+  sample_height = height - editor->marker_bar_height;
+
+  if (sample_height <= 0) sample_height = 1;
+
+  cairo_set_line_width (cr, 1.0);
+
+  // Draw marker border line
+  cairo_move_to (cr, 0.0, editor->marker_bar_height - 0.5);
+  cairo_line_to (cr, width, editor->marker_bar_height - 0.5);
+  swamigui_util_set_cairo_rgba (cr, editor->marker_border_color);
+  cairo_stroke (cr);
+
+  p = editor->tracks;
+  if (!p) return;
+
+  track_info = (TrackInfo *)(editor->tracks->data);
+  sample_view = SWAMIGUI_SAMPLE_CANVAS (track_info->sample_view);
+
+  /* get count and last track in list */
+  for (count = 1; p->next; p = g_list_next (p), count++);
+
+  /* draw sample horizontal axis lines */
+  for (i = 1, y = editor->marker_bar_height; p; p = g_list_previous (p), i++)
+  {
+    y2 = i * sample_height / count + editor->marker_bar_height;
+
+    /* draw horizontal center line */
+    cairo_move_to (cr, 0.0, y + (y2 - y) / 2 - 0.5);
+    cairo_line_to (cr, width - 1, y + (y2 - y) / 2 - 0.5);
+
+    y = y2 + 1;
+  }
+
+  swamigui_util_set_cairo_rgba (cr, editor->center_line_color);
+  cairo_stroke (cr);
+
+  // If sample layout, draw markers
+  if (layout == editor->sample_layout)
+  {
+    // Count number of visible markers
+    for (p = editor->markers, visible_count = 0; p; p = g_list_next (p))
+      if (((MarkerInfo *)(p->data))->visible) visible_count++;
+
+    // Draw markers
+    for (p = editor->markers, i = 0, visible_pos = 0; p; p = g_list_next (p), i++)
+    {
+      marker_info = (MarkerInfo *)(p->data);
+      if (!marker_info->visible) continue;
+
+      pos = visible_count - visible_pos - 1;    // adjust for Y-coord order
+      y = (pos * (editor->marker_bar_height - 1)) / visible_count;
+      y2 = ((pos + 1) * (editor->marker_bar_height - 1)) / visible_count - 1;
+
+      startx = swamigui_sample_canvas_sample_to_xpos (sample_view, marker_info->start_pos, &sview);
+
+      if (sview == 0)
+      {
+        cairo_move_to (cr, startx, y2);
+        cairo_line_to (cr, startx, height);
+      }
+      else startx = 0;
+
+      endx = swamigui_sample_canvas_sample_to_xpos (sample_view, marker_info->end_pos, &eview);
+
+      if (eview == 0)
+      {
+        cairo_move_to (cr, endx, y2);
+        cairo_line_to (cr, endx, height);
+      }
+      else endx = 0;
+
+      if (sview == 0 || eview == 0 || (sview == -1 && eview == 1))
+      {
+        swamigui_util_set_cairo_rgba (cr, default_marker_colors[i % G_N_ELEMENTS (default_marker_colors)]);
+
+        if (sview == 0 || eview == 0)
+          cairo_stroke (cr);
+
+        cairo_rectangle (cr, startx, y, endx - startx, y2 - y);
+        cairo_fill (cr);
+      }
+
+      visible_pos++;
+    }
+  }
+  else if (layout == editor->loop_layout)       // If loop layout, draw vertical loop point line
+  {
+    cairo_move_to (cr, width / 2 - 0.5, 0.0);
+    cairo_line_to (cr, width / 2 - 0.5, height);
+    swamigui_util_set_cairo_rgba (cr, editor->loop_line_color);
+    cairo_stroke (cr);
+  }
 }
 
 static gboolean
-swamigui_sample_editor_cb_sample_canvas_event (GnomeCanvas *canvas,
-					       GdkEvent *event, gpointer data)
+swamigui_sample_editor_cb_sample_layout_event (GtkWidget *layout, GdkEvent *event, gpointer data)
 {
   SwamiguiSampleEditor *editor = SWAMIGUI_SAMPLE_EDITOR (data);
   SwamiguiSampleCanvas *sample_view;
@@ -1156,7 +1151,7 @@ swamigui_sample_editor_cb_sample_canvas_event (GnomeCanvas *canvas,
 	  cursor = gdk_cursor_new (GDK_SB_H_DOUBLE_ARROW); /* ++ ref */
 	else cursor = gdk_cursor_new (GDK_LEFT_PTR);
 
-	gdk_window_set_cursor (GTK_WIDGET (editor->sample_canvas)->window,
+	gdk_window_set_cursor (GTK_WIDGET (editor->sample_layout)->window,
 			       cursor);
 	gdk_cursor_unref (cursor);
 	editor->marker_cursor = marker_info != NULL;
@@ -1224,8 +1219,7 @@ swamigui_sample_editor_cb_sample_canvas_event (GnomeCanvas *canvas,
 }
 
 static gboolean
-swamigui_sample_editor_cb_loop_canvas_event (GnomeCanvas *canvas,
-					     GdkEvent *event, gpointer data)
+swamigui_sample_editor_cb_loop_layout_event (GtkWidget *layout, GdkEvent *event, gpointer data)
 {
   SwamiguiSampleEditor *editor = SWAMIGUI_SAMPLE_EDITOR (data);
 
@@ -1235,7 +1229,7 @@ swamigui_sample_editor_cb_loop_canvas_event (GnomeCanvas *canvas,
   return (FALSE);	/* was zoom/scroll event - return */
 }
 
-/* check if a given xpos is on a marker */
+/* check if a given x/y coordinate is on a marker */
 static MarkerInfo *
 pos_is_marker (SwamiguiSampleEditor *editor, int xpos, int ypos,
 	       int *marker_edge, gboolean *is_onbox)
@@ -1243,9 +1237,10 @@ pos_is_marker (SwamiguiSampleEditor *editor, int xpos, int ypos,
   MarkerInfo *marker_info, *match = NULL;
   gboolean match_marker_edge = -1;
   SwamiguiSampleCanvas *sample_view;
-  GnomeCanvasItem *item;
-  int x, ofs = -1;
-  int inview, onsample, pos;
+  int startx, endx, sview = -1, eview = -1;
+  int visible_count, visible_pos, pos;
+  int x, y, y2, i, ofs = -1;
+  int inview, pos, visible_pos;
   int startdiff, enddiff;
   GList *p;
 
@@ -1259,32 +1254,47 @@ pos_is_marker (SwamiguiSampleEditor *editor, int xpos, int ypos,
 
   /* click in marker bar area? */
   if (ypos <= editor->marker_bar_height)
-  {	/* retrieve canvas item at the given coordinates */
-    item = gnome_canvas_get_item_at (editor->sample_canvas, xpos, ypos);
-    if (!item) return (NULL);
+  {
+    // Count number of visible markers
+    for (p = editor->markers, visible_count = 0; p; p = g_list_next (p))
+      if (((MarkerInfo *)(p->data))->visible) visible_count++;
 
-    for (p = editor->markers; p; p = p->next)
+    for (p = editor->markers, i = 0, visible_pos = 0; p; p = g_list_next (p), i++)
     {
       marker_info = (MarkerInfo *)(p->data);
+      if (!marker_info->visible) continue;
 
-      if (marker_info->range_box == item)	/* range box matches? */
+      pos = visible_count - visible_pos - 1;    // adjust for Y-coord order
+      y = (pos * (editor->marker_bar_height - 1)) / visible_count;
+      y2 = ((pos + 1) * (editor->marker_bar_height - 1)) / visible_count - 1;
+
+      startx = swamigui_sample_canvas_sample_to_xpos (sample_view, marker_info->start_pos, &sview);
+      if (sview != 0) startx = 0;
+
+      endx = swamigui_sample_canvas_sample_to_xpos (sample_view, marker_info->end_pos, &eview);
+      if (eview != 0) endx = 0;
+
+      // Check if position is within marker rectangle
+      if ((sview == 0 || eview == 0 || (sview == -1 && eview == 1))
+          && (ypos >= y && y < y2 && xpos >= startx && xpos < endx))
       {
-	if (marker_edge)
-	{
-	  pos = swamigui_sample_canvas_xpos_to_sample (sample_view, xpos,
-						       &onsample);
-	  startdiff = marker_info->start_pos - pos;
-	  enddiff = marker_info->end_pos - pos;
+        if (marker_edge)
+        {
+          pos = swamigui_sample_canvas_xpos_to_sample (sample_view, xpos, NULL);
+          startdiff = marker_info->start_pos - pos;
+          enddiff = marker_info->end_pos - pos;
 
-	  if (ABS (startdiff) <= ABS (enddiff))
-	    *marker_edge = -1;
-	  else *marker_edge = 1;
-	}
+          if (ABS (startdiff) <= ABS (enddiff))
+            *marker_edge = -1;
+          else *marker_edge = 1;
+        }
 
 	if (is_onbox) *is_onbox = TRUE;
 
 	return (marker_info);
       }
+
+      visible_pos++;
     }
 
     return (NULL);
@@ -1296,8 +1306,7 @@ pos_is_marker (SwamiguiSampleEditor *editor, int xpos, int ypos,
   {
     marker_info = (MarkerInfo *)(p->data);
 
-    x = swamigui_sample_canvas_sample_to_xpos (sample_view, 
-					       marker_info->start_pos, &inview);
+    x = swamigui_sample_canvas_sample_to_xpos (sample_view, marker_info->start_pos, &inview);
     if (inview == 0)
     {
       x = ABS (xpos - x);
@@ -1309,8 +1318,7 @@ pos_is_marker (SwamiguiSampleEditor *editor, int xpos, int ypos,
 	}
     }
 
-    x = swamigui_sample_canvas_sample_to_xpos (sample_view,
-					       marker_info->end_pos, &inview);
+    x = swamigui_sample_canvas_sample_to_xpos (sample_view, marker_info->end_pos, &inview);
     if (inview == 0)
     {
       x = ABS (xpos - x);
@@ -1337,7 +1345,7 @@ swamigui_sample_editor_sample_mod_update (SwamiguiCanvasMod *mod, double xzoom,
 					  double ypos, gpointer user_data)
 {
   SwamiguiSampleEditor *editor = SWAMIGUI_SAMPLE_EDITOR (user_data);
-  GnomeCanvasItem *sample_view;
+  SwamiguiSampleCanvas *sample_view;
   double zoom;
   int val;
 
@@ -1349,7 +1357,7 @@ swamigui_sample_editor_sample_mod_update (SwamiguiCanvasMod *mod, double xzoom,
   if (xscroll != 0.0)
   {
     /* get first sample view item */
-    sample_view = ((TrackInfo *)(editor->tracks->data))->sample_view;
+    sample_view = SWAMIGUI_SAMPLE_CANVAS (((TrackInfo *)(editor->tracks->data))->sample_view);
 
     /* get zoom from first sample canvas (samples/pixel) */
     g_object_get (sample_view, "zoom", &zoom, NULL);
@@ -1380,26 +1388,31 @@ swamigui_sample_editor_sample_mod_snap (SwamiguiCanvasMod *mod, guint actions,
 					gpointer user_data)
 {
   SwamiguiSampleEditor *editor = SWAMIGUI_SAMPLE_EDITOR (user_data);
-  int height, width;
+  gboolean active, changed = FALSE;
 
-  width = GTK_WIDGET (editor->sample_canvas)->allocation.width;
-  height = GTK_WIDGET (editor->sample_canvas)->allocation.height;
+  active = (actions & (SWAMIGUI_CANVAS_MOD_ZOOM_X | SWAMIGUI_CANVAS_MOD_SCROLL_X)) != 0;
 
-  if (actions & (SWAMIGUI_CANVAS_MOD_ZOOM_X | SWAMIGUI_CANVAS_MOD_SCROLL_X))
+  if (active != editor->xsnap_active)
   {
-    swamigui_util_canvas_line_set (editor->xsnap_line, xsnap,
-				   editor->marker_bar_height, xsnap, height);
-    gnome_canvas_item_show (editor->xsnap_line);
-    editor->scroll_acc = 0.0;
-  }
-  else gnome_canvas_item_hide (editor->xsnap_line);
+    editor->xsnap_active = active;
 
-  if (actions & (SWAMIGUI_CANVAS_MOD_ZOOM_Y | SWAMIGUI_CANVAS_MOD_SCROLL_Y))
-  {
-    swamigui_util_canvas_line_set (editor->ysnap_line, 0, ysnap, width, ysnap);
-    gnome_canvas_item_show (editor->ysnap_line);
+    if (active)
+    {
+      editor->xsnap = xsnap;
+      editor->scroll_acc = 0.0;
+    }
   }
-  else gnome_canvas_item_hide (editor->ysnap_line);
+
+  active = (actions & (SWAMIGUI_CANVAS_MOD_ZOOM_Y | SWAMIGUI_CANVAS_MOD_SCROLL_Y)) != 0;
+
+  if (active != editor->ysnap_active)
+  {
+    editor->ysnap_active = active;
+    editor->ysnap = ysnap;
+  }
+
+  if (changed)
+    gtk_widget_queue_draw (editor->sample_layout);      // OPTME
 }
 
 /* loop canvas zoom modulator update signal handler (scrolling does not apply) */
@@ -1424,17 +1437,16 @@ swamigui_sample_editor_loop_mod_snap (SwamiguiCanvasMod *mod, guint actions,
 				      gpointer user_data)
 {
   SwamiguiSampleEditor *editor = SWAMIGUI_SAMPLE_EDITOR (user_data);
-  int height;
+  gboolean active;
 
-  height = GTK_WIDGET (editor->sample_canvas)->allocation.height;
+  active = (actions & SWAMIGUI_CANVAS_MOD_ZOOM_X) != 0;
 
-  if (actions & SWAMIGUI_CANVAS_MOD_ZOOM_X)
+  if (active != editor->loop_xsnap_active)
   {
-    swamigui_util_canvas_line_set (editor->loop_snap_line, xsnap,
-				   editor->marker_bar_height, xsnap, height);
-    gnome_canvas_item_show (editor->loop_snap_line);
+    editor->loop_xsnap_active = active;
+    editor->loop_xsnap = xsnap;
+    gtk_widget_queue_draw (editor->loop_layout);        // OPTME
   }
-  else gnome_canvas_item_hide (editor->loop_snap_line);
 }
 
 /**
@@ -1833,7 +1845,7 @@ swamigui_sample_editor_add_track (SwamiguiSampleEditor *editor,
 
   /* calculate zoom to view entire sample */
   g_object_get (sample, "sample-size", &sample_size, NULL);
-  width = GTK_WIDGET (editor->sample_canvas)->allocation.width;
+  width = GTK_WIDGET (editor->sample_layout)->allocation.width;
   zoom = (double)sample_size / width;
 
   if (!editor->tracks)    /* if no samples have been added yet */
@@ -1845,13 +1857,13 @@ swamigui_sample_editor_add_track (SwamiguiSampleEditor *editor,
 
   /* create sample view horizontal center line */
   track_info->sample_center_line
-    = gnome_canvas_item_new (gnome_canvas_root (editor->sample_canvas),
+    = gnome_canvas_item_new (gnome_canvas_root (editor->sample_layout),
 			     GNOME_TYPE_CANVAS_LINE,
 			     "fill-color-rgba", editor->center_line_color,
 			     "width-pixels", 1,
 			     NULL);
   track_info->sample_view =  /* create the sample view canvas item */
-    gnome_canvas_item_new (gnome_canvas_root (editor->sample_canvas),
+    gnome_canvas_item_new (gnome_canvas_root (editor->sample_layout),
 			   SWAMIGUI_TYPE_SAMPLE_CANVAS,
 			   "sample", sample,
 			   "right-chan", right_chan,
@@ -1865,13 +1877,13 @@ swamigui_sample_editor_add_track (SwamiguiSampleEditor *editor,
 
   /* create loop view horizontal center line */
   track_info->loop_center_line
-    = gnome_canvas_item_new (gnome_canvas_root (editor->loop_canvas),
+    = gnome_canvas_item_new (gnome_canvas_root (editor->loop_layout),
 			     GNOME_TYPE_CANVAS_LINE,
      			     "fill-color-rgba", editor->center_line_color,
 			     "width-pixels", 1,
 			     NULL);
   track_info->loop_view =	/* create the loop view canvas item */
-    gnome_canvas_item_new (gnome_canvas_root (editor->loop_canvas),
+    gnome_canvas_item_new (gnome_canvas_root (editor->loop_layout),
 			   SWAMIGUI_TYPE_SAMPLE_CANVAS,
 			   "sample", sample,
 			   "right-chan", right_chan,
@@ -2071,10 +2083,10 @@ swamigui_sample_editor_add_marker (SwamiguiSampleEditor *editor,
   color = default_marker_colors [id % G_N_ELEMENTS (default_marker_colors)];
 
   mark_info->start_line
-    = gnome_canvas_item_new (gnome_canvas_root (editor->sample_canvas),
+    = gnome_canvas_item_new (gnome_canvas_root (editor->sample_layout),
 			     GNOME_TYPE_CANVAS_LINE,
 			     "fill-color-rgba", color,
-			     "width-pixels", MARKER_DEFAULT_WIDTH,
+			     "width-pixels", DEFAULT_MARKER_WIDTH,
 			     NULL);
   gnome_canvas_item_hide (mark_info->start_line);
 
@@ -2090,15 +2102,15 @@ swamigui_sample_editor_add_marker (SwamiguiSampleEditor *editor,
   if (!(flags & SWAMIGUI_SAMPLE_EDITOR_MARKER_SINGLE))
     {
       mark_info->end_line
-	= gnome_canvas_item_new (gnome_canvas_root (editor->sample_canvas),
+	= gnome_canvas_item_new (gnome_canvas_root (editor->sample_layout),
 				 GNOME_TYPE_CANVAS_LINE,
 				 "fill-color-rgba", color,
-				 "width-pixels", MARKER_DEFAULT_WIDTH,
+				 "width-pixels", DEFAULT_MARKER_WIDTH,
 				 NULL);
       gnome_canvas_item_hide (mark_info->end_line);
 
       mark_info->range_box
-	= gnome_canvas_item_new (gnome_canvas_root (editor->sample_canvas),
+	= gnome_canvas_item_new (gnome_canvas_root (editor->sample_layout),
 				 GNOME_TYPE_CANVAS_RECT,
 				 "fill-color-rgba", color,
 				 NULL);
@@ -2121,49 +2133,6 @@ swamigui_sample_editor_add_marker (SwamiguiSampleEditor *editor,
   if (end) *end = mark_info->end_ctrl;
 
   return (id);
-}
-
-/**
- * swamigui_sample_editor_get_marker_info:
- * @editor: Sample editor object
- * @marker: Marker index to get info on (starts at 0 - the selection marker)
- * @flags: #SwamiguiSampleEditorMarkerFlags
- * @start_line: Output - Gnome canvas line for the start marker (%NULL to ignore)
- * @end_line: Output - Gnome canvas line for the end marker (%NULL to ignore),
- *   will be %NULL for single markers (non ranges)
- * @start_ctrl: Output - Control for the start marker (%NULL to ignore)
- * @end_ctrl: Output - Control for the end/size marker (%NULL to ignore), will be
- *   %NULL for single markers (non ranges)
- * 
- * Get info for the given @marker index. No reference counting is
- * done, since marker will not get removed unless the sample editor
- * handler does so. Returned object pointers should only be used
- * within editor callback or references should be added.
- * 
- * Returns: %TRUE if a marker with the given index exists, %FALSE otherwise.
- */
-gboolean
-swamigui_sample_editor_get_marker_info (SwamiguiSampleEditor *editor,
-					guint marker, guint *flags,
-					GnomeCanvasItem **start_line,
-					GnomeCanvasItem **end_line,
-					SwamiControl **start_ctrl,
-					SwamiControl **end_ctrl)
-{
-  MarkerInfo *marker_info;
-
-  g_return_val_if_fail (SWAMIGUI_IS_SAMPLE_EDITOR (editor), FALSE);
-
-  marker_info = (MarkerInfo *)g_list_nth_data (editor->markers, marker);
-  if (!marker_info) return (FALSE);
-
-  if (flags) *flags = marker_info->flags;
-  if (start_line) *start_line = marker_info->start_line;
-  if (end_line) *end_line = marker_info->end_line;
-  if (start_ctrl) *start_ctrl = marker_info->start_ctrl;
-  if (end_ctrl) *end_ctrl = marker_info->end_ctrl;
-
-  return (TRUE);
 }
 
 /**
@@ -2418,8 +2387,8 @@ marker_control_update (MarkerInfo *marker_info)
     sample_view = SWAMIGUI_SAMPLE_CANVAS (track_info->sample_view);
   }
 
-  width = GTK_WIDGET (editor->sample_canvas)->allocation.width;
-  height = GTK_WIDGET (editor->sample_canvas)->allocation.height;
+  width = GTK_WIDGET (editor->sample_layout)->allocation.width;
+  height = GTK_WIDGET (editor->sample_layout)->allocation.height;
 
   /* calculate Y positions of range bar */
   if (visible_count > 0)

@@ -25,16 +25,13 @@
 #ifndef __ICON_COMBO_H__
 #define __ICON_COMBO_H__
 
-#include <gtk/gtkwidget.h>
-#include <gtk/gtkentry.h>
-#include <gtk/gtkpixmap.h>
-#include <gtk/gtktooltips.h>
+#include <gtk/gtk.h>
 #include "combo-box.h"
 
 #define ICON_COMBO_TYPE     (icon_combo_get_type ())
-#define ICON_COMBO(obj)     (GTK_CHECK_CAST((obj), ICON_COMBO_TYPE, IconCombo))
-#define ICON_COMBO_CLASS(k) (GTK_CHECK_CLASS_CAST(k), ICON_COMBO_TYPE)
-#define IS_ICON_COMBO(obj)  (GTK_CHECK_TYPE((obj), ICON_COMBO_TYPE))
+#define ICON_COMBO(obj)     (G_TYPE_CHECK_INSTANCE_CAST((obj), ICON_COMBO_TYPE, IconCombo))
+#define ICON_COMBO_CLASS(k) (G_TYPE_CHECK_CLASS_CAST(k), ICON_COMBO_TYPE)
+#define IS_ICON_COMBO(obj)  (G_TYPE_CHECK_INSTANCE_TYPE((obj), ICON_COMBO_TYPE))
 
 typedef struct
 {
@@ -58,7 +55,7 @@ typedef struct
   /* Interface elements */
   GtkWidget    *combo_table, *preview_button;
   GtkWidget    *preview_icon;
-  GtkTooltips  *tool_tip;
+//  GtkTooltips  *tool_tip;
   GtkWidget **icons;		/* icon widgets */
 } IconCombo;
 

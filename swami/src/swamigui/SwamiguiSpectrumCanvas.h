@@ -24,7 +24,6 @@
 #define __SWAMIGUI_SPECTRUM_CANVAS_H__
 
 #include <gtk/gtk.h>
-#include <libgnomecanvas/libgnomecanvas.h>
 #include <libinstpatch/libinstpatch.h>
 
 typedef struct _SwamiguiSpectrumCanvas SwamiguiSpectrumCanvas;
@@ -56,7 +55,7 @@ typedef void (*SwamiguiSpectrumDestroyNotify)(double *spectrum, guint size);
 /* Spectrum canvas item */
 struct _SwamiguiSpectrumCanvas
 {
-  GnomeCanvasItem parent_instance;
+  GtkDrawingArea parent_instance;
 
   /*< private >*/
 
@@ -74,15 +73,12 @@ struct _SwamiguiSpectrumCanvas
   double zoom_ampl;		/* amplitude zoom factor */
   int x, y;			/* x, y coordinates of spectrum item */
   int width, height;		/* width and height in pixels */
-  GdkGC *min_gc;		/* GC for drawing minimum lines */
-  GdkGC *max_gc;		/* GC for drawing maximum lines */
-  GdkGC *bar_gc;		/* GC for spectrum bars (zoom < 1.0) */
   guint need_bbox_update : 1;	/* set if bbox needs to be updated */
 };
 
 struct _SwamiguiSpectrumCanvasClass
 {
-  GnomeCanvasItemClass parent_class;
+  GtkDrawingAreaClass parent_class;
 };
 
 

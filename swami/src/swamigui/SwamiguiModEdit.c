@@ -464,7 +464,7 @@ swamigui_mod_edit_init (SwamiguiModEdit *modedit)
   gtk_scrolled_window_set_hadjustment (GTK_SCROLLED_WINDOW (modedit), NULL);
   gtk_scrolled_window_set_vadjustment (GTK_SCROLLED_WINDOW (modedit), NULL);
 
-  gtk_container_border_width (GTK_CONTAINER (modedit), 0);
+  gtk_container_set_border_width (GTK_CONTAINER (modedit), 0);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (modedit),
 				  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
   modedit->mod_selected = FALSE;
@@ -491,8 +491,8 @@ swamigui_mod_edit_init (SwamiguiModEdit *modedit)
 		    G_CALLBACK (swamigui_mod_edit_cb_delete_clicked), modedit);
 
   /* nice modulator junction icon */
-  icon = gtk_image_new_from_stock (SWAMIGUI_STOCK_MODULATOR_JUNCT,
-				   SWAMIGUI_ICON_SIZE_CUSTOM_LARGE1);
+  icon = gtk_image_new_from_icon_name (SWAMIGUI_STOCK_MODULATOR_JUNCT,
+                                       SWAMIGUI_ICON_SIZE_CUSTOM_LARGE1);
   gtk_widget_show (icon);
   widg = swamigui_util_glade_lookup (glade_widg, "HBXIcon");
   gtk_box_pack_start (GTK_BOX (widg), icon, FALSE, 0, 0);
@@ -582,8 +582,7 @@ swamigui_mod_edit_init (SwamiguiModEdit *modedit)
   swamigui_mod_edit_set_active_mod (modedit, NULL, TRUE); /* disable editor */
   
   gtk_widget_show (glade_widg);
-  gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (modedit),
-					 glade_widg);
+  gtk_container_add (GTK_CONTAINER (modedit), glade_widg);
 }
 
 static GtkWidget *
@@ -717,7 +716,7 @@ swamigui_mod_edit_init_dest_combo_box (GtkWidget *combo_dest)
 GtkWidget *
 swamigui_mod_edit_new (void)
 {
-  return (GTK_WIDGET (gtk_type_new (swamigui_mod_edit_get_type ())));
+  return (GTK_WIDGET (g_type_new (swamigui_mod_edit_get_type ())));
 }
 
 /**
@@ -1094,7 +1093,7 @@ swamigui_mod_edit_cb_amtsrc_changed (GtkAdjustment *adj,
 		      MOD_PTR, &oldmod, -1);
   newmod = *oldmod;		/* duplicate modulator values */
 
-  newmod.amount = (gint16)(adj->value);
+  newmod.amount = (gint16)(gtk_adjustment_get_value (adj));
 
   /* set the modulator values in the modulator list and notify property */
   if (ipatch_sf2_mod_list_change (modedit->mods, oldmod, &newmod))

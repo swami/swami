@@ -2,7 +2,7 @@
  * SwamiguiBarPtr.h - Pointer object added to SwamiguiBar canvas items
  *
  * Swami
- * Copyright (C) 1999-2014 Element Green <element@elementsofsound.org>
+ * Copyright (C) 1999-2018 Element Green <element@elementsofsound.org>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,7 +23,6 @@
 #define __SWAMIGUI_BAR_PTR_H__
 
 #include <gtk/gtk.h>
-#include <libgnomecanvas/libgnomecanvas.h>
 
 typedef struct _SwamiguiBarPtr SwamiguiBarPtr;
 typedef struct _SwamiguiBarPtrClass SwamiguiBarPtrClass;
@@ -48,31 +47,26 @@ typedef enum
 /* Bar pointer object */
 struct _SwamiguiBarPtr
 {
-  GnomeCanvasGroup parent_instance;
+  GObject parent_instance;
 
   /*< private >*/
 
-  GnomeCanvasItem *rect;	/* pointer rectangle */
-  GnomeCanvasItem *ptr;		/* triangle pointer (if SWAMIGUI_BAR_POINTER) */
-  GnomeCanvasItem *icon;	/* icon for this pointer */
-
-  int width;			/* width in pixels */
-  int height;			/* height in pixels */
+  int pointer_width;            /* width of pointer in pixels */
   int pointer_height;		/* height of pointer in pixels */
   SwamiguiBarPtrType type;	/* pointer interface type */
   gboolean interactive;		/* TRUE if user can change this pointer */
-  guint32 color;
+  GdkRGBA color;
   char *label;
   char *tooltip;
 };
 
 struct _SwamiguiBarPtrClass
 {
-  GnomeCanvasGroupClass parent_class;
+  GObjectClass parent_class;
 };
 
 
 GType swamigui_bar_ptr_get_type (void);
-GnomeCanvasItem *swamigui_bar_ptr_new (void);
+SwamiguiBarPtr *swamigui_bar_ptr_new (void);
 
 #endif

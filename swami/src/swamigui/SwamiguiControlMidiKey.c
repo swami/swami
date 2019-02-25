@@ -77,16 +77,16 @@ static void swamigui_control_midi_key_finalize (GObject *object);
 /* default lower keys */
 static guint default_lower_keys[] =
 {
-  GDK_z, GDK_s, GDK_x, GDK_d, GDK_c, GDK_v, GDK_g, GDK_b, GDK_h, GDK_n, GDK_j,
-  GDK_m, GDK_comma, GDK_l, GDK_period, GDK_semicolon, GDK_slash
+  GDK_KEY_z, GDK_KEY_s, GDK_KEY_x, GDK_KEY_d, GDK_KEY_c, GDK_KEY_v, GDK_KEY_g, GDK_KEY_b, GDK_KEY_h, GDK_KEY_n, GDK_KEY_j,
+  GDK_KEY_m, GDK_KEY_comma, GDK_KEY_l, GDK_KEY_period, GDK_KEY_semicolon, GDK_KEY_slash
 };
  
 /* default upper keys */
 static guint default_upper_keys[] =
 {
-  GDK_q, GDK_2, GDK_w, GDK_3, GDK_e, GDK_r, GDK_5, GDK_t, GDK_6, GDK_y, GDK_7,
-  GDK_u, GDK_i, GDK_9, GDK_o, GDK_0, GDK_p, GDK_bracketleft, GDK_equal,
-  GDK_bracketright
+  GDK_KEY_q, GDK_KEY_2, GDK_KEY_w, GDK_KEY_3, GDK_KEY_e, GDK_KEY_r, GDK_KEY_5, GDK_KEY_t, GDK_KEY_6, GDK_KEY_y, GDK_KEY_7,
+  GDK_KEY_u, GDK_KEY_i, GDK_KEY_9, GDK_KEY_o, GDK_KEY_0, GDK_KEY_p, GDK_KEY_bracketleft, GDK_KEY_equal,
+  GDK_KEY_bracketright
 };
 
 /* Widget types to ignore key presses from (text entries, etc) */

@@ -61,7 +61,7 @@ static void swamigui_loop_finder_get_property (GObject *object,
 					       GParamSpec *pspec);
 static void swamigui_loop_finder_init (SwamiguiLoopFinder *editor);
 static void swamigui_loop_finder_finalize (GObject *object);
-static void swamigui_loop_finder_destroy (GtkObject *object);
+static void swamigui_loop_finder_destroy (GtkWidget *widget);
 static void
 swamigui_loop_finder_cb_selection_changed (GtkTreeSelection *selection,
 					   gpointer user_data);
@@ -73,20 +73,20 @@ static void swamigui_loop_finder_update_find_button (SwamiguiLoopFinder *finder,
 static gboolean swamigui_loop_finder_thread_monitor (gpointer user_data);
 static gpointer find_loop_thread (gpointer data);
 
-G_DEFINE_TYPE (SwamiguiLoopFinder, swamigui_loop_finder, GTK_TYPE_VBOX);
+G_DEFINE_TYPE (SwamiguiLoopFinder, swamigui_loop_finder, GTK_TYPE_GRID);
 
 
 static void
 swamigui_loop_finder_class_init (SwamiguiLoopFinderClass *klass)
 {
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
-  GtkObjectClass *gtkobj_class = GTK_OBJECT_CLASS (klass);
+  GtkWidgetClass *widg_class = GTK_WIDGET_CLASS (klass);
 
   obj_class->set_property = swamigui_loop_finder_set_property;
   obj_class->get_property = swamigui_loop_finder_get_property;
   obj_class->finalize = swamigui_loop_finder_finalize;
 
-  gtkobj_class->destroy = swamigui_loop_finder_destroy;
+  widg_class->destroy = swamigui_loop_finder_destroy;
 
   g_object_class_install_property (obj_class, PROP_FINDER,
 		g_param_spec_object ("finder", _("Finder"),
@@ -132,12 +132,14 @@ swamigui_loop_finder_init (SwamiguiLoopFinder *finder)
   GtkWidget *treeview;
   GtkWidget *widg;
 
+  gtk_orientable_set_orientation (GTK_ORIENTABLE (finder), GTK_ORIENTATION_VERTICAL);
+
   /* create the loop finder object (!! takes over ref) */
   finder->loop_finder = swami_loop_finder_new ();
 
   /* create result list store */
-  finder->store = gtk_list_store_new (4, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT,
-				      G_TYPE_FLOAT);
+  finder->store = gtk_list_store_new (4, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_FLOAT);
+
   /* create Glade GTK loop finder interface */
   finder->glade_widg = swamigui_util_glade_create ("LoopFinder");
   gtk_container_add (GTK_CONTAINER (finder), finder->glade_widg);
@@ -181,8 +183,7 @@ swamigui_loop_finder_init (SwamiguiLoopFinder *finder)
   gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), column);
 
   /* assign the tree store */
-  gtk_tree_view_set_model (GTK_TREE_VIEW (treeview),
-			   GTK_TREE_MODEL (finder->store));
+  gtk_tree_view_set_model (GTK_TREE_VIEW (treeview), GTK_TREE_MODEL (finder->store));
 
   /* connect to list view selection changed signal */
   selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
@@ -240,9 +241,9 @@ swamigui_loop_finder_finalize (GObject *object)
 
 /* loop finder widget destroy */
 static void
-swamigui_loop_finder_destroy (GtkObject *object)
+swamigui_loop_finder_destroy (GtkWidget *widget)
 {
-  SwamiguiLoopFinder *finder = SWAMIGUI_LOOP_FINDER (object);
+  SwamiguiLoopFinder *finder = SWAMIGUI_LOOP_FINDER (widget);
 
   /* signal loop finder object to stop (does nothing if not active) */
   g_object_set (finder->loop_finder, "cancel", TRUE, NULL);
@@ -396,7 +397,7 @@ swamigui_loop_finder_update_find_button (SwamiguiLoopFinder *finder,
 					 gboolean find)
 {
   GtkWidget *btn;
-  GtkWidget *hbox;
+  GtkWidget *grid;
   GtkWidget *image;
   GtkWidget *label;
   GList *children, *p;
@@ -409,17 +410,15 @@ swamigui_loop_finder_update_find_button (SwamiguiLoopFinder *finder,
     gtk_container_remove (GTK_CONTAINER (btn), GTK_WIDGET (p->data));
   g_list_free (children);
 
-  hbox = gtk_hbox_new (FALSE, 2);
-  gtk_container_add (GTK_CONTAINER (btn), hbox);
+  grid = gtk_grid_new ();
+  gtk_container_add (GTK_CONTAINER (btn), grid);
 
-  image = gtk_image_new_from_stock (find ? GTK_STOCK_EXECUTE : GTK_STOCK_STOP,
-				    GTK_ICON_SIZE_BUTTON);
+  image = gtk_image_new_from_icon_name (find ? GTK_STOCK_EXECUTE : GTK_STOCK_STOP, GTK_ICON_SIZE_BUTTON);
   label = gtk_label_new (find ? _("Find Loops") : _("Stop"));
 
-  gtk_box_pack_start (GTK_BOX (hbox), image, 0, 0, 0);
-  gtk_box_pack_start (GTK_BOX (hbox), label, 0, 0, 0);
-
-  gtk_widget_show_all (hbox);
+  gtk_container_add (GTK_CONTAINER (grid), image);
+  gtk_container_add (GTK_CONTAINER (grid), label);
+  gtk_widget_show_all (grid);
 }
 
 /* monitors worker thread activity and updates GUI */
@@ -513,7 +512,7 @@ swamigui_loop_finder_thread_monitor (gpointer user_data)
 GtkWidget *
 swamigui_loop_finder_new (void)
 {
-  return (GTK_WIDGET (gtk_type_new (SWAMIGUI_TYPE_LOOP_FINDER)));
+  return (GTK_WIDGET (g_type_new (SWAMIGUI_TYPE_LOOP_FINDER)));
 }
 
 static gpointer

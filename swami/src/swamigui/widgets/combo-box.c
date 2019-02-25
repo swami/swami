@@ -26,16 +26,7 @@
  * 02111-1307, USA.
  */
 
-#include <gtk/gtkhbox.h>
-#include <gtk/gtktogglebutton.h>
-#include <gtk/gtkarrow.h>
-#include <gtk/gtkeventbox.h>
-#include <gtk/gtkmain.h>
-#include <gtk/gtksignal.h>
-#include <gtk/gtkwindow.h>
-#include <gtk/gtkframe.h>
-#include <gtk/gtkvbox.h>
-#include <gtk/gtktearoffmenuitem.h>
+#include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 #include "combo-box.h"
 

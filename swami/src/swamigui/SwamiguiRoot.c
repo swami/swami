@@ -175,7 +175,6 @@ swamigui_init (int *argc, char **argv[])
   /* initialize glib thread support (if it hasn't been already!) */
   if (!g_thread_supported ()) g_thread_init (NULL);
 
-  gtk_set_locale ();
   gtk_init_check (argc, argv);	/* initialize GTK */
 
   /* set the application/program name, so things work right with recent file chooser
@@ -737,7 +736,7 @@ swamigui_root_finalize (GObject *object)
 
   if (root->selection) g_object_unref (root->selection);
 
-  gtk_object_destroy (GTK_OBJECT (root->main_window));
+  gtk_widget_destroy (root->main_window);
 
   if (root->wavetbl)
   {
@@ -1574,7 +1573,7 @@ swamigui_root_parse_piano_keys (const char *str)
   while (keynames[n])
     {
       keyvals[v] = gdk_keyval_from_name (keynames[n]);
-      if (keyvals[v] != GDK_VoidSymbol) v++; /* ignore invalid key names */
+      if (keyvals[v] != GDK_KEY_VoidSymbol) v++; /* ignore invalid key names */
       n++;
     }
   keyvals[v] = 0;		/* zero terminated */

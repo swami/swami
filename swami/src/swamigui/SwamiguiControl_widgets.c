@@ -35,7 +35,7 @@
 #include "i18n.h"
 
 
-static void func_control_cb_widget_destroy (GtkObject *object,
+static void func_control_cb_widget_destroy (GtkWidget *widget,
 					    gpointer user_data);
 
 static SwamiControl *adjustment_control_handler (GObject *widget,
@@ -146,15 +146,9 @@ _swamigui_control_widgets_init (void)
 			     SWAMIGUI_CONTROL_RANK_HIGH);
   swamigui_control_register (SWAMIGUI_TYPE_SPIN_SCALE, G_TYPE_DOUBLE,
 			     adjustment_control_handler, 0);
-  swamigui_control_register (GTK_TYPE_HSCALE, G_TYPE_DOUBLE,
+  swamigui_control_register (GTK_TYPE_SCALE, G_TYPE_DOUBLE,
 			     adjustment_control_handler, 0);
-  swamigui_control_register (GTK_TYPE_VSCALE, G_TYPE_DOUBLE,
-			     adjustment_control_handler,
-			     SWAMIGUI_CONTROL_RANK_LOW);
-  swamigui_control_register (GTK_TYPE_HSCROLLBAR, G_TYPE_DOUBLE,
-			     adjustment_control_handler,
-			     SWAMIGUI_CONTROL_RANK_LOW);
-  swamigui_control_register (GTK_TYPE_VSCROLLBAR, G_TYPE_DOUBLE,
+  swamigui_control_register (GTK_TYPE_SCROLLBAR, G_TYPE_DOUBLE,
 			     adjustment_control_handler,
 			     SWAMIGUI_CONTROL_RANK_LOW);
   swamigui_control_register (SWAMIGUI_TYPE_NOTE_SELECTOR, G_TYPE_DOUBLE,
@@ -208,7 +202,7 @@ _swamigui_control_widgets_init (void)
 /* function used by function control handlers to catch widget "destroy"
    signal and remove widget reference */
 static void
-func_control_cb_widget_destroy (GtkObject *object, gpointer user_data)
+func_control_cb_widget_destroy (GtkWidget *widget, gpointer user_data)
 {
   SwamiControlFunc *control = SWAMI_CONTROL_FUNC (user_data);
   gpointer data;
@@ -218,7 +212,7 @@ func_control_cb_widget_destroy (GtkObject *object, gpointer user_data)
     {
       SWAMI_LOCK_WRITE (control);
       SWAMI_CONTROL_FUNC_DATA (control) = NULL;
-      g_object_unref (object);
+      g_object_unref (widget);
       SWAMI_UNLOCK_WRITE (control);
     }
 }
@@ -261,23 +255,15 @@ adjustment_control_handler (GObject *widget, GType value_type,
 
 	  g_object_set (widget, "digits", digits, NULL);
 	}
-
-      adj->lower = min;
-      adj->upper = max;
-      adj->value = def;
     }
   else
     {
-      adj->lower = 0.0;
-      adj->upper = G_MAXINT;
-      adj->value = 0.0;
+      min = 0.0;
+      max = G_MAXINT;
+      def = 0.0;
     }
 
-  adj->step_increment = 1.0;
-  adj->page_increment = 10.0;	// FIXME - Smarter?
-
-  gtk_adjustment_changed (adj);
-  gtk_adjustment_value_changed (adj);
+  gtk_adjustment_configure (adj, def, min, max, 1.0, 10.0, 0.0);        // FIXME - Should page_increment be smarter?
 
   if (!(flags & SWAMIGUI_CONTROL_NO_CREATE))
   {

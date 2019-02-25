@@ -45,8 +45,7 @@ typedef enum {
 
 void swamigui_util_init (void);
 guint swamigui_util_unit_rgba_color_get_type (void);
-void swamigui_util_set_rgba_from_uint32 (GdkRGBA *rgba, guint32 u_rgba);
-guint32 swamigui_util_get_uint32_from_rgba (GdkRGBA *rgba);
+void swamigui_util_set_cairo_rgba (cairo_t *cr, guint32 rgba);
 GtkWidget *swamigui_util_quick_popup (gchar * msg, gchar * btn1, ...);
 GtkWidget *swamigui_util_lookup_unique_dialog (gchar *strkey, gint key2);
 gboolean swamigui_util_register_unique_dialog (GtkWidget *dialog, gchar *strkey,

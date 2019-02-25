@@ -119,11 +119,11 @@ struct _SwamiguiSplits
 
   gboolean width_set;	/* TRUE when width set, FALSE to resize to window */
 
-  GnomeCanvasGroup *vline_group; /* vertical line group */
+//  GnomeCanvasGroup *vline_group; /* vertical line group */
 
   SwamiguiPiano *piano;		/* piano canvas item */
-  GnomeCanvasItem *velgrad;	/* velocity gradient canvas item */
-  GnomeCanvasItem *bgrect;	/* lower canvas background rectangle */
+//  GnomeCanvasItem *velgrad;	/* velocity gradient canvas item */
+//  GnomeCanvasItem *bgrect;	/* lower canvas background rectangle */
 
   int flags;			/* some flags for optimized updating */
 

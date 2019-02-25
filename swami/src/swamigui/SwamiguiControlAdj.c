@@ -38,7 +38,7 @@ static void control_adj_set_value_method (SwamiControl *control,
 					  const GValue *value);
 static void swamigui_control_adj_cb_value_changed (GtkAdjustment *adj,
 						  SwamiguiControlAdj *ctrladj);
-static void swamigui_adj_cb_destroy (GtkObject *object, gpointer user_data);
+static void swamigui_adj_cb_destroy (GtkWidget *widget, gpointer user_data);
 
 static GObjectClass *parent_class = NULL;
 
@@ -138,9 +138,7 @@ control_adj_set_spec_method (SwamiControl *control, GParamSpec *pspec)
   if (ctrladj->adj)
     {
       pspec_dbl = G_PARAM_SPEC_DOUBLE (pspec);
-      ctrladj->adj->lower = pspec_dbl->minimum;
-      ctrladj->adj->upper = pspec_dbl->maximum;
-      gtk_adjustment_changed (ctrladj->adj);
+      g_object_set (ctrladj->adj, "lower", pspec_dbl->minimum, "upper", pspec_dbl->maximum, NULL);
     }
 
   return (TRUE);
@@ -160,7 +158,7 @@ control_adj_get_value_method (SwamiControl *control, GValue *value)
       return;
     }
 
-  g_value_set_double (value, ctrladj->adj->value);
+  g_value_set_double (value, gtk_adjustment_get_value (ctrladj->adj));
 
   SWAMI_UNLOCK_READ (ctrladj);
 }
@@ -190,12 +188,11 @@ control_adj_set_value_method (SwamiControl *control, SwamiControlEvent *event,
 
   d = g_value_get_double (value);
 
-  if (adj->value != d)		/* value is different? */
+  if (gtk_adjustment_get_value (adj) != d)		/* value is different? */
     {
       /* block handler to avoid value set/notify loop */
       g_signal_handler_block (adj, value_change_id);
-      adj->value = g_value_get_double (value);
-      gtk_adjustment_value_changed (adj);
+      gtk_adjustment_set_value (adj, g_value_get_double (value));
       g_signal_handler_unblock (adj, value_change_id);
     }
 
@@ -233,13 +230,15 @@ void
 swamigui_control_adj_set (SwamiguiControlAdj *ctrladj, GtkAdjustment *adj)
 {
   GParamSpec *pspec;
+  double lower, upper, value;
 
   g_return_if_fail (SWAMIGUI_IS_CONTROL_ADJ (ctrladj));
   g_return_if_fail (GTK_IS_ADJUSTMENT (adj));
 
+  g_object_get (adj, "lower", &lower, "upper", &upper, "value", &value, NULL);
+
   /* ++ ref new spec */
-  pspec = g_param_spec_double ("value", NULL, NULL, adj->lower, adj->upper,
-			       adj->value, G_PARAM_READWRITE);
+  pspec = g_param_spec_double ("value", NULL, NULL, lower, upper, value, G_PARAM_READWRITE);
 
   SWAMI_LOCK_WRITE (ctrladj);
 
@@ -315,14 +314,14 @@ swamigui_control_adj_cb_value_changed (GtkAdjustment *adj,
   GValue value = { 0 };
 
   g_value_init (&value, G_TYPE_DOUBLE);
-  g_value_set_double (&value, adj->value);
+  g_value_set_double (&value, gtk_adjustment_get_value (adj));
   swami_control_transmit_value ((SwamiControl *)ctrladj, &value);
   g_value_unset (&value);
 }
 
 /* GtkAdjustment destroy callback - releases reference */
 static void
-swamigui_adj_cb_destroy (GtkObject *object, gpointer user_data)
+swamigui_adj_cb_destroy (GtkWidget *widget, gpointer user_data)
 {
   SwamiguiControlAdj *ctrladj = SWAMIGUI_CONTROL_ADJ (user_data);
 

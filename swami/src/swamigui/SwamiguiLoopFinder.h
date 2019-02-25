@@ -38,7 +38,7 @@ typedef struct _SwamiguiLoopFinderClass SwamiguiLoopFinderClass;
 /* Loop finder object */
 struct _SwamiguiLoopFinder
 {
-  GtkVBox parent_instance;		/* derived from GtkVBox */
+  GtkGrid parent_instance;	/* derived from GtkGrid */
 
   GtkListStore *store;		/* list store for results */
   GtkWidget *glade_widg;	/* the embedded glade widget */
@@ -53,7 +53,7 @@ struct _SwamiguiLoopFinder
 /* Loop finder widget class */
 struct _SwamiguiLoopFinderClass
 {
-  GtkVBoxClass parent_class;
+  GtkGridClass parent_class;
 };
 
 GType swamigui_loop_finder_get_type (void);

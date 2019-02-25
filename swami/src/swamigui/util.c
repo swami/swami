@@ -113,32 +113,17 @@ swamigui_util_unit_rgba_color_get_type (void)
 }
 
 /**
- * swamigui_util_set_rgba_from_uint32:
- * @rgba: Pointer GDK RGBA structure
- * @u_rgba: RGBA color in the form 0xRRGGBBAA
+ * swamigui_util_set_cairo_rgba:
+ * @cr: Cairo context
+ * @rgba: RGBA color in the form of an unsigned 32 bit integer 0xRRGGBBAA.
  *
- * Assigns an unsigned 32 bit integer RGBA color to a GdkRGBA structure.
+ * Set cairo color from an unsigned 32 bit RGBA integer.
  */
 void
-swamigui_util_set_rgba_from_uint32 (GdkRGBA *rgba, guint32 u_rgba)
+swamigui_util_set_cairo_rgba (cairo_t *cr, guint32 rgba)
 {
-  rgba->red = (u_rgba >> 24) / 255.0;
-  rgba->green = ((u_rgba >> 16) & 0xFF) / 255.0;
-  rgba->blue = ((u_rgba >> 8) & 0xFF) / 255.0;
-  rgba->alpha = (u_rgba & 0xFF) / 255.0;
-}
-
-/**
- * swamigui_util_get_uint32_from_rgba:
- * @rgba: Pointer GDK RGBA structure
- *
- * Calculates an unsigned 32 bit integer RGBA color from a GdkRGBA structure.
- */
-guint32
-swamigui_util_get_uint32_from_rgba (GdkRGBA *rgba)
-{
-  return ((guint32)(rgba->red * 255.0)) << 24 | ((guint32)(rgba->green * 255.0)) << 16
-    | ((guint32)(rgba->blue * 255.0)) << 8 | (guint32)(rgba->alpha * 255.0);
+  cairo_set_source_rgb (cr, (u_rgba >> 24) / 255.0, ((u_rgba >> 16) & 0xFF) / 255.0,
+                        ((u_rgba >> 8) & 0xFF) / 255.0, (u_rgba & 0xFF) / 255.0);
 }
 
 /* Unique dialog system is for allowing unique non-modal dialogs for

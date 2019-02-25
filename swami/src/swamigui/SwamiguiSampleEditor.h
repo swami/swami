@@ -24,7 +24,6 @@
 
 #include <gtk/gtk.h>
 #include <libinstpatch/libinstpatch.h>
-#include <libgnomecanvas/libgnomecanvas.h>
 #include <swamigui/SwamiguiSampleCanvas.h>
 #include <swamigui/SwamiguiLoopFinder.h>
 #include <swamigui/SwamiguiCanvasMod.h>
@@ -81,7 +80,7 @@ typedef gboolean (*SwamiguiSampleEditorHandler)(SwamiguiSampleEditor *editor);
 /* Sample editor object */
 struct _SwamiguiSampleEditor
 {
-  GtkHBox parent;		/* derived from GtkVBox */
+  GtkBox parent;		/* derived from GtkBox */
 
   SwamiguiSampleEditorStatus status; /* current status */
   IpatchList *selection;	/* item selection */
@@ -112,6 +111,13 @@ struct _SwamiguiSampleEditor
   SwamiguiCanvasMod *loop_mod;	/* zoom/scroll loop view canvas modulator */
   double loop_zoom;		/* remember last loop zoom between sample loads */
 
+  gboolean xsnap_active;        /* TRUE if X snap line is active (zoom/scroll) */
+  double xsnap;                 /* X snap coordinate */
+  gboolean ysnap_active;        /* TRUE if Y snap line is active (zoom/scroll) */
+  double ysnap;                 /* Y snap coordinate */
+  gboolean loop_xsnap_active;   /* TRUE if X snap line is active on loop viewer (zoom/scroll) */
+  double loop_xsnap;            /* X snap coordinate */
+
   gboolean zoom_all;	/* TRUE if entire sample zoomed (remains on resize) */
 
   GtkWidget *mainvbox;		/* vbox for toolbar and sample canvases */
@@ -119,14 +125,8 @@ struct _SwamiguiSampleEditor
   SwamiguiLoopFinder *loop_finder_gui;	/* loop finder GUI widget */
   gboolean loop_finder_active;	/* TRUE if loop finder is currently shown */
 
-  GnomeCanvas *sample_canvas;	/* sample canvas */
-  GnomeCanvas *loop_canvas;	/* sample loop canvas */
-  GnomeCanvasItem *sample_border_line; /* sample marker bar horizontal line */
-  GnomeCanvasItem *loop_border_line;	  /* loop marker bar horizontal line */
-  GnomeCanvasItem *xsnap_line;	/* X zoom/scroll snap line (vertical) */
-  GnomeCanvasItem *ysnap_line;	/* Y zoom/scroll snap line (horizontal) */
-  GnomeCanvasItem *loop_line;	/* loop view center line */
-  GnomeCanvasItem *loop_snap_line;	/* loop zoom snap line */
+  GtkWidget *sample_layout;	/* sample layout */
+  GtkWidget *loop_layout;	/* sample loop layout */
 
   GtkWidget *loopsel;		/* loop selector GtkComboBox */
   SwamiControl *loopsel_ctrl;	/* control for loop selector */
@@ -158,7 +158,7 @@ struct _SwamiguiSampleEditor
 /* Sample editor object class */
 struct _SwamiguiSampleEditorClass
 {
-  GtkHBoxClass parent_class;
+  GtkBoxClass parent_class;
 };
 
 /* Flags for swamigui_sample_editor_add_marker() */
@@ -217,13 +217,6 @@ void swamigui_sample_editor_remove_all_tracks (SwamiguiSampleEditor *editor);
 guint swamigui_sample_editor_add_marker (SwamiguiSampleEditor *editor,
 					 guint flags, SwamiControl **start,
 					 SwamiControl **end);
-gboolean
-swamigui_sample_editor_get_marker_info (SwamiguiSampleEditor *editor,
-					guint marker, guint *flags,
-					GnomeCanvasItem **start_line,
-					GnomeCanvasItem **end_line,
-					SwamiControl **start_ctrl,
-					SwamiControl **end_ctrl);
 void swamigui_sample_editor_set_marker (SwamiguiSampleEditor *editor,
 					guint marker, guint start, guint end);
 void swamigui_sample_editor_remove_marker (SwamiguiSampleEditor *editor,

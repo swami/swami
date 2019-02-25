@@ -24,7 +24,6 @@
 #define __SWAMIGUI_SAMPLE_CANVAS_H__
 
 #include <gtk/gtk.h>
-#include <libgnomecanvas/libgnomecanvas.h>
 #include <libinstpatch/libinstpatch.h>
 
 typedef struct _SwamiguiSampleCanvas SwamiguiSampleCanvas;
@@ -45,7 +44,7 @@ typedef struct _SwamiguiSampleCanvasClass SwamiguiSampleCanvasClass;
 /* Swami Sample Object */
 struct _SwamiguiSampleCanvas
 {
-  GnomeCanvasItem parent_instance;
+  GtkDrawingArea parent_instance;
 
   /*< private >*/
 
@@ -58,32 +57,21 @@ struct _SwamiguiSampleCanvas
   gboolean loop_mode;		/* display loop mode? */
   guint loop_start, loop_end;	/* cached loop start and end in samples */
 
-  GtkAdjustment *adj;		/* adjustment for view */
-  gboolean update_adj;		/* adjustment values should be updated? */
-  guint need_bbox_update : 1;	/* set if bbox need to be updated */
-
   guint start;			/* start sample (not used in LOOP mode) */
   double zoom;			/* zoom factor samples/pixel */
   double zoom_ampl;		/* amplitude zoom factor */
-  int x, y;			/* x, y coordinates of sample item */
-  int width, height;		/* width and height in pixels */
 
-  GdkGC *peak_line_gc;		/* GC for drawing vertical average lines */
-  GdkGC *line_gc;		/* GC for drawing lines */
-  GdkGC *point_gc;		/* GC for drawing sample points */
-  GdkGC *loop_start_gc;		/* GC for looop start sample points */
-  GdkGC *loop_end_gc;		/* GC for loop end sample points */
-
-  guint peak_line_color;	/* color of peak sample lines */
-  guint line_color;		/* color of connecting sample lines */
-  guint point_color;		/* color of sample points */
-  guint loop_start_color;	/* color of sample points for start of loop */
-  guint loop_end_color;		/* color of sample points for end of loop */
+  guint32 peak_line_color;	/* color of peak sample lines */
+  guint32 line_color;		/* color of connecting sample lines */
+  guint32 point_color;		/* color of sample points */
+  guint32 loop_start_color;	/* color of sample points for start of loop */
+  guint32 loop_end_color;	/* color of sample points for end of loop */
+  guint32 bg_color;             /* color of background */
 };
 
 struct _SwamiguiSampleCanvasClass
 {
-  GnomeCanvasItemClass parent_class;
+  GtkDrawingAreaClass parent_class;
 };
 
 GType swamigui_sample_canvas_get_type (void);

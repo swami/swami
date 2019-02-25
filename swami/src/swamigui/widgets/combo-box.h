@@ -25,17 +25,17 @@
 #ifndef _COMBO_BOX_H_
 #define _COMBO_BOX_H_
 
-#include <gtk/gtkhbox.h>
+#include <gtk/gtk.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 #define COMBO_BOX_TYPE  (combo_box_get_type ())
-#define COMBO_BOX(obj)	GTK_CHECK_CAST (obj, combo_box_get_type (), ComboBox)
+#define COMBO_BOX(obj)	G_TYPE_CHECK_INSTANCE_CAST (obj, combo_box_get_type (), ComboBox)
 #define COMBO_BOX_CLASS(klass)  \
-    GTK_CHECK_CLASS_CAST (klass, combo_box_get_type (), ComboBoxClass)
-#define IS_COMBO_BOX(obj)  GTK_CHECK_TYPE (obj, combo_box_get_type ())
+    G_TYPE_CHECK_CLASS_CAST (klass, combo_box_get_type (), ComboBoxClass)
+#define IS_COMBO_BOX(obj)  G_TYPE_CHECK_INSTANCE_TYPE (obj, combo_box_get_type ())
 
 typedef struct _ComboBox	ComboBox;
 typedef struct _ComboBoxPrivate ComboBoxPrivate;
@@ -64,7 +64,7 @@ struct _ComboBoxClass {
   void      (*post_pop_hide)    (ComboBox *cbox);
 };
 
-GtkType combo_box_get_type (void);
+GType combo_box_get_type (void);
 void combo_box_construct (ComboBox *combo_box, GtkWidget *display_widget,
 			  GtkWidget *optional_pop_down_widget);
 void combo_box_get_pos (ComboBox *combo_box, int *x, int *y);

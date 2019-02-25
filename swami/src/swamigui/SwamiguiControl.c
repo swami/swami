@@ -497,7 +497,7 @@ swamigui_control_unregister (GType widg_type, GType value_type)
   HandlerInfo cmp;
   GList *p;
 
-  g_return_if_fail (g_type_is_a (widg_type, GTK_TYPE_OBJECT));
+  g_return_if_fail (g_type_is_a (widg_type, G_TYPE_OBJECT));
   g_return_if_fail (G_TYPE_IS_VALUE (value_type));
 
   cmp.widg_type = widg_type;

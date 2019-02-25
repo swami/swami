@@ -247,7 +247,7 @@ swamigui_prop_finalize (GObject *object)
 static void
 swamigui_prop_init (SwamiguiProp *prop)
 {
-  GtkObject *hadj, *vadj;
+  GtkAdjustment *hadj, *vadj;
 
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (prop),
 				  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
@@ -259,7 +259,7 @@ swamigui_prop_init (SwamiguiProp *prop)
 		"vadjustment", vadj,
 		NULL);
 
-  prop->viewport = gtk_viewport_new (GTK_ADJUSTMENT (hadj), GTK_ADJUSTMENT (vadj));
+  prop->viewport = gtk_viewport_new (hadj, vadj);
   gtk_widget_show (prop->viewport);
   gtk_container_add (GTK_CONTAINER (prop), prop->viewport);
 
@@ -338,7 +338,7 @@ swamigui_prop_real_set_selection (SwamiguiProp *prop, IpatchList *selection)
   /* destroy the old interface (if any) if not of the same type as the new item */
   if (!same_type)
     gtk_container_foreach (GTK_CONTAINER (prop->viewport),
-			   (GtkCallback)gtk_object_destroy, NULL);
+			   (GtkCallback)gtk_widget_destroy, NULL);
 
   if (item)	/* setting item? */
   {

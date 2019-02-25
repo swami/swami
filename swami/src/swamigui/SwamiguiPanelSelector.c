@@ -53,8 +53,7 @@ static void swamigui_panel_selector_finalize (GObject *object);
 static gboolean swamigui_panel_selector_button_press (GtkWidget *widget,
                                                       GdkEventButton *event);
 static void swamigui_panel_selector_switch_page (GtkNotebook *notebook,
-						 GtkNotebookPage *page,
-						 guint page_num);
+						 GtkWidget *page, guint page_num);
 static gboolean swamigui_panel_selector_real_set_selection (SwamiguiPanelSelector *selector,
 							    IpatchList *items);
 static gint sort_panel_info_by_order (gconstpointer a, gconstpointer b);
@@ -221,7 +220,7 @@ swamigui_panel_selector_button_press (GtkWidget *widget, GdkEventButton *event)
  * Sets the item selection of the panel for the new page. */
 static void
 swamigui_panel_selector_switch_page (GtkNotebook *notebook,
-				     GtkNotebookPage *page, guint page_num)
+				     GtkWidget *page, guint page_num)
 {
   SwamiguiPanelSelector *selector = SWAMIGUI_PANEL_SELECTOR (notebook);
   SwamiguiPanel *panel;

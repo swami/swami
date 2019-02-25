@@ -37,12 +37,6 @@ enum
   PROP_LOOP_MODE,		/* set loop mode */
   PROP_LOOP_START,		/* start of loop */
   PROP_LOOP_END,		/* end of loop */
-  PROP_ADJUSTMENT,		/* adjustment control */
-  PROP_UPDATE_ADJ,		/* update adjustment values? */
-  PROP_X,			/* x position in pixels */
-  PROP_Y,			/* y position in pixels */
-  PROP_WIDTH,			/* width of view in pixels */
-  PROP_HEIGHT,			/* height of view in pixels */
   PROP_START,			/* sample start position */
   PROP_ZOOM,			/* zoom value */
   PROP_ZOOM_AMPL,		/* amplitude zoom */
@@ -53,12 +47,11 @@ enum
   PROP_LOOP_END_COLOR		/* color of sample points for end of loop */
 };
 
-#define DEFAULT_PEAK_LINE_COLOR		GNOME_CANVAS_COLOR (63, 69, 255)
-#define DEFAULT_LINE_COLOR		GNOME_CANVAS_COLOR (63, 69, 255)
-#define DEFAULT_POINT_COLOR		GNOME_CANVAS_COLOR (170, 170, 255)
-#define DEFAULT_LOOP_START_COLOR	GNOME_CANVAS_COLOR (0, 255, 0)
-#define DEFAULT_LOOP_END_COLOR		GNOME_CANVAS_COLOR (255, 0, 0)
-
+#define DEFAULT_PEAK_LINE_COLOR		SWAMIGUI_RGB (63, 69, 255)
+#define DEFAULT_LINE_COLOR		SWAMIGUI_RGB (63, 69, 255)
+#define DEFAULT_POINT_COLOR		SWAMIGUI_RGB (170, 170, 255)
+#define DEFAULT_LOOP_START_COLOR	SWAMIGUI_RGB (0, 255, 0)
+#define DEFAULT_LOOP_END_COLOR		SWAMIGUI_RGB (255, 0, 0)
 
 static void swamigui_sample_canvas_finalize (GObject *object);
 static void swamigui_sample_canvas_set_property (GObject *object,
@@ -68,60 +61,29 @@ static void swamigui_sample_canvas_set_property (GObject *object,
 static void swamigui_sample_canvas_get_property (GObject *object,
 						guint property_id,
 					 GValue *value, GParamSpec *pspec);
-static void swamigui_sample_canvas_update (GnomeCanvasItem *item,
-					  double *affine,
-					  ArtSVP *clip_path, int flags);
-static void swamigui_sample_canvas_realize (GnomeCanvasItem *item);
-static void set_gc_rgb (GdkGC *gc, guint color);
-static void swamigui_sample_canvas_draw (GnomeCanvasItem *item,
-					GdkDrawable *drawable,
-					int x, int y, int width, int height);
-static inline void
-swamigui_sample_canvas_draw_loop (SwamiguiSampleCanvas *canvas,
-				 GdkDrawable *drawable,
-				 int x, int y, int width, int height);
-static inline void
-swamigui_sample_canvas_draw_points (SwamiguiSampleCanvas *canvas,
-				   GdkDrawable *drawable,
-				   int x, int y, int width, int height);
-static inline void
-swamigui_sample_canvas_draw_segments (SwamiguiSampleCanvas *canvas,
-				     GdkDrawable *drawable,
-				     int x, int y, int width, int height);
 
-static double swamigui_sample_canvas_point (GnomeCanvasItem *item,
-					   double x, double y,
-					   int cx, int cy,
-					   GnomeCanvasItem **actual_item);
-static void swamigui_sample_canvas_bounds (GnomeCanvasItem *item,
-					  double *x1, double *y1,
-					  double *x2, double *y2);
-static void
-swamigui_sample_canvas_cb_adjustment_value_changed (GtkAdjustment *adj,
-						   gpointer user_data);
+static gboolean swamigui_sample_canvas_draw (GtkWidget *widget, cairo_t *cr);
+static void swamigui_sample_canvas_draw_loop (SwamiguiSampleCanvas *canvas, cairo_t *cr);
+static void swamigui_sample_canvas_draw_points (SwamiguiSampleCanvas *canvas, cairo_t *cr);
+static void swamigui_sample_canvas_draw_segments (SwamiguiSampleCanvas *canvas, cairo_t *cr);
+
 static gboolean
 swamigui_sample_canvas_real_set_sample (SwamiguiSampleCanvas *canvas,
 					IpatchSampleData *sample);
-static void
-swamigui_sample_canvas_update_adjustment (SwamiguiSampleCanvas *canvas);
 
-G_DEFINE_TYPE (SwamiguiSampleCanvas, swamigui_sample_canvas, GNOME_TYPE_CANVAS_ITEM)
+G_DEFINE_TYPE (SwamiguiSampleCanvas, swamigui_sample_canvas, GTK_TYPE_DRAWING_AREA)
 
 static void
 swamigui_sample_canvas_class_init (SwamiguiSampleCanvasClass *klass)
 {
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
-  GnomeCanvasItemClass *item_class = GNOME_CANVAS_ITEM_CLASS (klass);
+  GtkWidgetClass *widg_class = GTK_WIDGET_CLASS (klass);
 
   obj_class->set_property = swamigui_sample_canvas_set_property;
   obj_class->get_property = swamigui_sample_canvas_get_property;
   obj_class->finalize = swamigui_sample_canvas_finalize;
 
-  item_class->update = swamigui_sample_canvas_update;
-  item_class->realize = swamigui_sample_canvas_realize;
-  item_class->draw = swamigui_sample_canvas_draw;
-  item_class->point = swamigui_sample_canvas_point;
-  item_class->bounds = swamigui_sample_canvas_bounds;
+  widg_class->draw = swamigui_sample_canvas_draw;
 
   /* FIXME - Is there a better way to define an interface object property? */
   g_object_class_install_property (obj_class, PROP_SAMPLE,
@@ -145,38 +107,6 @@ swamigui_sample_canvas_class_init (SwamiguiSampleCanvasClass *klass)
 				   _("End of loop in samples"),
 				   0, G_MAXUINT, 0,
 				   G_PARAM_READWRITE));
-  g_object_class_install_property (obj_class, PROP_ADJUSTMENT,
-		g_param_spec_object ("adjustment", _("Adjustment"),
-				     _("Adjustment control for scrolling"),
-				     GTK_TYPE_ADJUSTMENT,
-				     G_PARAM_READWRITE));
-
-  /* FIXME - better way to handle this?? Problems with recursive updates when
-     multiple SwamiguiSampleCanvas items are on a canvas. */
-  g_object_class_install_property (obj_class, PROP_UPDATE_ADJ,
-		g_param_spec_boolean ("update-adj", _("Update adjustment"),
-				      _("Update adjustment object"),
-				      FALSE, G_PARAM_READWRITE));
-  g_object_class_install_property (obj_class, PROP_X,
-		g_param_spec_int ("x", "X",
-				  _("X position in pixels"),
-				  0, G_MAXINT, 0,
-				  G_PARAM_READWRITE));
-  g_object_class_install_property (obj_class, PROP_Y,
-		g_param_spec_int ("y", "Y",
-				  _("Y position in pixels"),
-				  0, G_MAXINT, 0,
-				  G_PARAM_READWRITE));
-  g_object_class_install_property (obj_class, PROP_WIDTH,
-		g_param_spec_int ("width", _("Width"),
-				  _("Width in pixels"),
-				  0, G_MAXINT, 1,
-				  G_PARAM_READWRITE));
-  g_object_class_install_property (obj_class, PROP_HEIGHT,
-		g_param_spec_int ("height", _("Height"),
-				  _("Height in pixels"),
-				  0, G_MAXINT, 1,
-				  G_PARAM_READWRITE));
   g_object_class_install_property (obj_class, PROP_START,
 		g_param_spec_uint ("start", _("View Start"),
 				   _("Start of view in samples"),
@@ -227,17 +157,6 @@ swamigui_sample_canvas_class_init (SwamiguiSampleCanvasClass *klass)
 static void
 swamigui_sample_canvas_init (SwamiguiSampleCanvas *canvas)
 {
-  canvas->adj =
-    (GtkAdjustment *)gtk_adjustment_new (0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  g_object_ref (canvas->adj);
-
-  canvas->update_adj = FALSE;
-
-  g_signal_connect (canvas->adj, "value-changed",
-		    G_CALLBACK
-		    (swamigui_sample_canvas_cb_adjustment_value_changed),
-		    canvas);
-
   canvas->sample = NULL;
   canvas->sample_size = 0;
   canvas->right_chan = FALSE;
@@ -248,10 +167,6 @@ swamigui_sample_canvas_init (SwamiguiSampleCanvas *canvas)
   canvas->start = 0;
   canvas->zoom = 1.0;
   canvas->zoom_ampl = 1.0;
-  canvas->x = 0;
-  canvas->y = 0;
-  canvas->width = 0;
-  canvas->height = 0;
 
   canvas->peak_line_color = DEFAULT_PEAK_LINE_COLOR;
   canvas->line_color = DEFAULT_LINE_COLOR;
@@ -271,20 +186,6 @@ swamigui_sample_canvas_finalize (GObject *object)
       g_object_unref (canvas->sample);
     }
 
-  if (canvas->adj)
-    {
-      g_signal_handlers_disconnect_by_func
-	(canvas->adj, G_CALLBACK
-	 (swamigui_sample_canvas_cb_adjustment_value_changed), canvas);
-      g_object_unref (canvas->adj);
-    }
-
-  if (canvas->peak_line_gc) g_object_unref (canvas->peak_line_gc);
-  if (canvas->line_gc) g_object_unref (canvas->line_gc);
-  if (canvas->point_gc) g_object_unref (canvas->point_gc);
-  if (canvas->loop_start_gc) g_object_unref (canvas->loop_start_gc);
-  if (canvas->loop_end_gc) g_object_unref (canvas->loop_end_gc);
-
   if (G_OBJECT_CLASS (swamigui_sample_canvas_parent_class)->finalize)
     (*G_OBJECT_CLASS (swamigui_sample_canvas_parent_class)->finalize) (object);
 }
@@ -293,10 +194,8 @@ static void
 swamigui_sample_canvas_set_property (GObject *object, guint property_id,
 				     const GValue *value, GParamSpec *pspec)
 {
-  GnomeCanvasItem *item = GNOME_CANVAS_ITEM (object);
   SwamiguiSampleCanvas *canvas = SWAMIGUI_SAMPLE_CANVAS (object);
   IpatchSampleData *sample;
-  GtkAdjustment *gtkadj;
   gboolean b;
 
   switch (property_id)
@@ -323,121 +222,47 @@ swamigui_sample_canvas_set_property (GObject *object, guint property_id,
       break;
     case PROP_LOOP_MODE:
       canvas->loop_mode = g_value_get_boolean (value);
-      gnome_canvas_item_request_update (item);
+      gtk_widget_queue_draw (GTK_WIDGET (canvas));
       break;
     case PROP_LOOP_START:
       canvas->loop_start = g_value_get_uint (value);
-      gnome_canvas_item_request_update (item);
+      gtk_widget_queue_draw (GTK_WIDGET (canvas));
       break;
     case PROP_LOOP_END:
       canvas->loop_end = g_value_get_uint (value);
-      gnome_canvas_item_request_update (item);
-      break;
-    case PROP_ADJUSTMENT:
-      gtkadj = g_value_get_object (value);
-      g_return_if_fail (GTK_IS_ADJUSTMENT (gtkadj));
-
-      g_signal_handlers_disconnect_by_func
-	(canvas->adj, G_CALLBACK
-	 (swamigui_sample_canvas_cb_adjustment_value_changed), canvas);
-      g_object_unref (canvas->adj);
-
-      canvas->adj = GTK_ADJUSTMENT (g_object_ref (gtkadj));
-      g_signal_connect (canvas->adj, "value-changed",
-			G_CALLBACK
-			(swamigui_sample_canvas_cb_adjustment_value_changed),
-			canvas);
-
-      /* only initialize adjustment if updates enabled */
-      if (canvas->update_adj)
-	swamigui_sample_canvas_update_adjustment (canvas);
-      break;
-    case PROP_UPDATE_ADJ:
-      canvas->update_adj = g_value_get_boolean (value);
-      break;
-    case PROP_X:
-      canvas->x = g_value_get_int (value);
-      canvas->need_bbox_update = TRUE;
-      gnome_canvas_item_request_update (item);
-      break;
-    case PROP_Y:
-      canvas->y = g_value_get_int (value);
-      canvas->need_bbox_update = TRUE;
-      gnome_canvas_item_request_update (item);
-      break;
-    case PROP_WIDTH:
-      canvas->width = g_value_get_int (value);
-      canvas->need_bbox_update = TRUE;
-      gnome_canvas_item_request_update (item);
-
-      /* only update adjustment if updates enabled */
-      if (canvas->update_adj)
-	{
-	  canvas->adj->page_size = canvas->width * canvas->zoom;
-	  gtk_adjustment_changed (canvas->adj);
-	}
-      break;
-    case PROP_HEIGHT:
-      canvas->height = g_value_get_int (value);
-      canvas->need_bbox_update = TRUE;
-      gnome_canvas_item_request_update (item);
+      gtk_widget_queue_draw (GTK_WIDGET (canvas));
       break;
     case PROP_START:
       canvas->start = g_value_get_uint (value);
-      gnome_canvas_item_request_update (item);
-
-      /* only update adjustment if updates enabled */
-      if (canvas->update_adj)
-	{
-	  canvas->adj->value = canvas->start;
-	  g_signal_handlers_block_by_func (canvas->adj,
-			swamigui_sample_canvas_cb_adjustment_value_changed,
-					   canvas);
-	  gtk_adjustment_value_changed (canvas->adj);
-	  g_signal_handlers_unblock_by_func (canvas->adj,
-			swamigui_sample_canvas_cb_adjustment_value_changed,
-					     canvas);
-	}
+      gtk_widget_queue_draw (GTK_WIDGET (canvas));
       break;
     case PROP_ZOOM:
       canvas->zoom = g_value_get_double (value);
-      gnome_canvas_item_request_update (item);
-
-      /* only update adjustment if updates enabled */
-      if (canvas->update_adj)
-	{
-	  canvas->adj->page_size = canvas->width * canvas->zoom;
-	  gtk_adjustment_changed (canvas->adj);
-	}
+      gtk_widget_queue_draw (GTK_WIDGET (canvas));
       break;
     case PROP_ZOOM_AMPL:
       canvas->zoom_ampl = g_value_get_double (value);
-      gnome_canvas_item_request_update (item);
+      gtk_widget_queue_draw (GTK_WIDGET (canvas));
       break;
     case PROP_PEAK_LINE_COLOR:
       canvas->peak_line_color = g_value_get_uint (value);
-      set_gc_rgb (canvas->peak_line_gc, canvas->peak_line_color);
-      gnome_canvas_item_request_update (item);
+      gtk_widget_queue_draw (GTK_WIDGET (canvas));
       break;
     case PROP_LINE_COLOR:
       canvas->line_color = g_value_get_uint (value);
-      set_gc_rgb (canvas->line_gc, canvas->line_color);
-      gnome_canvas_item_request_update (item);
+      gtk_widget_queue_draw (GTK_WIDGET (canvas));
       break;
     case PROP_POINT_COLOR:
       canvas->point_color = g_value_get_uint (value);
-      set_gc_rgb (canvas->point_gc, canvas->point_color);
-      gnome_canvas_item_request_update (item);
+      gtk_widget_queue_draw (GTK_WIDGET (canvas));
       break;
     case PROP_LOOP_START_COLOR:
       canvas->loop_start_color = g_value_get_uint (value);
-      set_gc_rgb (canvas->loop_start_gc, canvas->loop_start_color);
-      gnome_canvas_item_request_update (item);
+      gtk_widget_queue_draw (GTK_WIDGET (canvas));
       break;
     case PROP_LOOP_END_COLOR:
       canvas->loop_end_color = g_value_get_uint (value);
-      set_gc_rgb (canvas->loop_end_gc, canvas->loop_end_color);
-      gnome_canvas_item_request_update (item);
+      gtk_widget_queue_draw (GTK_WIDGET (canvas));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -467,24 +292,6 @@ swamigui_sample_canvas_get_property (GObject *object, guint property_id,
       break;
     case PROP_LOOP_END:
       g_value_set_uint (value, canvas->loop_end);
-      break;
-    case PROP_ADJUSTMENT:
-      g_value_set_object (value, canvas->adj);
-      break;
-    case PROP_UPDATE_ADJ:
-      g_value_set_boolean (value, canvas->update_adj);
-      break;
-    case PROP_X:
-      g_value_set_int (value, canvas->x);
-      break;
-    case PROP_Y:
-      g_value_set_int (value, canvas->y);
-      break;
-    case PROP_WIDTH:
-      g_value_set_int (value, canvas->width);
-      break;
-    case PROP_HEIGHT:
-      g_value_set_int (value, canvas->height);
       break;
     case PROP_START:
       g_value_set_uint (value, canvas->start);
@@ -516,147 +323,62 @@ swamigui_sample_canvas_get_property (GObject *object, guint property_id,
     }
 }
 
-/* Gnome canvas item update handler */
-static void
-swamigui_sample_canvas_update (GnomeCanvasItem *item, double *affine,
-			       ArtSVP *clip_path, int flags)
+static gboolean
+swamigui_sample_canvas_draw (GtkWidget *widget, cairo_t *cr)
 {
-  SwamiguiSampleCanvas *canvas = SWAMIGUI_SAMPLE_CANVAS (item);
+  SwamiguiSampleCanvas *canvas = SWAMIGUI_SAMPLE_CANVAS (widget);
 
-  if (((flags & GNOME_CANVAS_UPDATE_VISIBILITY)
-       && !(GTK_OBJECT_FLAGS (item) & GNOME_CANVAS_ITEM_VISIBLE))
-      || (flags & GNOME_CANVAS_UPDATE_AFFINE)
-      || canvas->need_bbox_update)
-    {
-      canvas->need_bbox_update = FALSE;
-      gnome_canvas_update_bbox (item, canvas->x, canvas->y,
-				canvas->x + canvas->width,
-				canvas->y + canvas->height);
-    }
-  else gnome_canvas_request_redraw (item->canvas, canvas->x, canvas->y,
-				    canvas->x + canvas->width,
-				    canvas->y + canvas->height);
-
-  if (GNOME_CANVAS_ITEM_CLASS (swamigui_sample_canvas_parent_class)->update)
-    GNOME_CANVAS_ITEM_CLASS (swamigui_sample_canvas_parent_class)->update
-      (item, affine, clip_path, flags);
-}
-
-static void
-swamigui_sample_canvas_realize (GnomeCanvasItem *item)
-{
-  SwamiguiSampleCanvas *canvas = SWAMIGUI_SAMPLE_CANVAS (item);
-  GdkDrawable *drawable;
-
-  if (GNOME_CANVAS_ITEM_CLASS (swamigui_sample_canvas_parent_class)->realize)
-    GNOME_CANVAS_ITEM_CLASS (swamigui_sample_canvas_parent_class)->realize (item);
-
-  if (canvas->peak_line_gc) return;	/* return if GCs already created */
-
-  drawable = item->canvas->layout.bin_window;
-
-  canvas->peak_line_gc = gdk_gc_new (drawable); /* ++ ref */
-  set_gc_rgb (canvas->peak_line_gc, canvas->peak_line_color);
-
-  canvas->line_gc = gdk_gc_new (drawable); /* ++ ref */
-  set_gc_rgb (canvas->line_gc, canvas->line_color);
-
-  canvas->point_gc = gdk_gc_new (drawable);/* ++ ref */
-  set_gc_rgb (canvas->point_gc, canvas->point_color);
-
-  canvas->loop_start_gc = gdk_gc_new (drawable); /* ++ ref */
-  set_gc_rgb (canvas->loop_start_gc, canvas->loop_start_color);
-
-  canvas->loop_end_gc = gdk_gc_new (drawable); /* ++ ref */
-  set_gc_rgb (canvas->loop_end_gc, canvas->loop_end_color);
-  gdk_gc_set_function (canvas->loop_end_gc, GDK_XOR);
-}
-
-/* sets fg color of a Graphics Context to 32 bit GnomeCanvas style RGB value */
-static void
-set_gc_rgb (GdkGC *gc, guint color)
-{
-  GdkColor gdkcolor;
-
-  gdkcolor.pixel = 0;
-  gdkcolor.red = (((color >> 24) & 0xFF) * 65535) / 255;
-  gdkcolor.green = (((color >> 16) & 0xFF) * 65535) / 255;
-  gdkcolor.blue = (((color >> 8) & 0xFF) * 65535) / 255;
-
-  gdk_gc_set_rgb_fg_color (gc, &gdkcolor);
-}
-
-/* GnomeCanvas draws in 512 pixel squares, allocate some extra for overlap */
-#define STATIC_POINTS 544
-
-static void
-swamigui_sample_canvas_draw (GnomeCanvasItem *item, GdkDrawable *drawable,
-			    int x, int y, int width, int height)
-{
-  SwamiguiSampleCanvas *canvas = SWAMIGUI_SAMPLE_CANVAS (item);
-  GdkRectangle rect;
-
-  if (!canvas->sample) return;
-
-  /* set GC clipping rectangle */
-  rect.x = 0;
-  rect.y = 0;
-  rect.width = width;
-  rect.height = height;
-
-  gdk_gc_set_clip_rectangle (canvas->peak_line_gc, &rect);
-  gdk_gc_set_clip_rectangle (canvas->line_gc, &rect);
-  gdk_gc_set_clip_rectangle (canvas->point_gc, &rect);
-  gdk_gc_set_clip_rectangle (canvas->loop_start_gc, &rect);
-  gdk_gc_set_clip_rectangle (canvas->loop_end_gc, &rect);
+  if (!canvas->sample) return FALSE;
 
   if (canvas->loop_mode)
-    swamigui_sample_canvas_draw_loop (canvas, drawable, x, y, width, height);
+    swamigui_sample_canvas_draw_loop (canvas, cr);
   else if (canvas->zoom <= 1.0)
-    swamigui_sample_canvas_draw_points (canvas, drawable, x, y, width, height);
+    swamigui_sample_canvas_draw_points (canvas, cr);
   else
-    swamigui_sample_canvas_draw_segments(canvas, drawable, x, y, width, height);
+    swamigui_sample_canvas_draw_segments(canvas, cr);
+
+  return FALSE;
 }
 
 /* loop mode display "connect the dots", zoom clamped <= 1.0.
    Overlaps display of start and end points of a loop */
-static inline void
-swamigui_sample_canvas_draw_loop (SwamiguiSampleCanvas *canvas,
-				  GdkDrawable *drawable,
-				  int x, int y, int width, int height)
+static void
+swamigui_sample_canvas_draw_loop (SwamiguiSampleCanvas *canvas, cairo_t *cr)
 {
   gint16 *i16buf;
   int sample_ofs, sample_count, this_size;
-  int hcenter, height_1, point_width = 0, h_point_width;
+  int hcenter, height_1;
   int loop_index, start_index, end_index, start_ofs, end_ofs;
+  double xpos, ypos, sample_mul, point_width, point_ofs;
+  int width, height;
   int sample_size;
-  double sample_mul;
-  int xpos, ypos, i;
-  GdkGC *gc;
+  int i;
   gboolean do_loopend_bool = TRUE;
 
-  if (canvas->width < 6) return; /* hackish? */
+  width = gtk_widget_get_allocated_width ((GtkWidget *)canvas);
+  height = gtk_widget_get_allocated_height ((GtkWidget *)canvas);
 
   sample_size = (int)canvas->sample_size;
 
-  hcenter = canvas->width / 2 + canvas->x; /* horizontal center */
-  height_1 = canvas->height - 1; /* height - 1 */
+  hcenter = width / 2;                  /* horizontal center */
+  height_1 = height - 1;                /* height - 1 */
   sample_mul = height_1 / (double)65535.0; /* sample amplitude multiplier */
 
-  /* use larger squares for sample points? */
-  if (canvas->zoom < 1.0/6.0) point_width = 5;
-  else if (canvas->zoom < 1.0/4.0) point_width = 3;
-  h_point_width = point_width >> 1;
+  /* Set size of sample points based on zoom level */
+  if (canvas->zoom < 1.0 / 6.0) point_width = 5.0;
+  else if (canvas->zoom < 1.0 / 4.0) point_width = 3.0;
+  else point_width = 1.0;
+
+  point_ofs = point_width / 2.0 - 0.5;
 
   /* calculate start and end offset, in sample points, from center to the
      left and right edges of the rectangular drawing area (-/+ 1 for tiling) */
-  start_ofs = (x - hcenter) * canvas->zoom - 1;
-  end_ofs = (x + width - hcenter) * canvas->zoom + 1;
+  start_ofs = hcenter * canvas->zoom - 1;
+  end_ofs = (width - hcenter) * canvas->zoom + 1;
 
   /* do loop start point first, jump to 'do_loopend' label will occur for
      loop end point */
   loop_index = canvas->loop_start;
-  gc = canvas->loop_start_gc;
 
  do_loopend:		       /* jump label for end loop point run */
 
@@ -678,25 +400,14 @@ swamigui_sample_canvas_draw_loop (SwamiguiSampleCanvas *canvas,
 	{
 	  if (sample_count < this_size) this_size = sample_count;
 
-	  if (!(i16buf = ipatch_sample_handle_read (&canvas->handle, sample_ofs,
-                                                    this_size, NULL, NULL)))
+	  if (!(i16buf = ipatch_sample_handle_read (&canvas->handle, sample_ofs, this_size, NULL, NULL)))
 	    return;		/* FIXME - Error reporting?? */
 
 	  for (i = 0; i < this_size; i++, sample_ofs++)
 	    {
-	      /* calculate pixel offset from center */
-	      xpos = (sample_ofs - loop_index) / canvas->zoom + 0.5;
-	      xpos += hcenter - x; /* adjust to drawable coordinates */
-
-	      /* calculate amplitude ypos */
-	      ypos = height_1 - (((int)i16buf[i]) + 32768) * sample_mul - y
-		+ canvas->y;
-
-	      if (point_width)
-		gdk_draw_rectangle (drawable, gc, TRUE,
-				    xpos - h_point_width, ypos - h_point_width,
-				    point_width, point_width);
-	      else gdk_draw_point (drawable, gc, xpos, ypos);
+	      xpos = (sample_ofs - loop_index) / canvas->zoom + hcenter - point_ofs;    /* calculate pixel offset from center */
+	      ypos = height_1 - (((int)i16buf[i]) + 32768) * sample_mul - point_ofs;    /* calculate amplitude ypos */
+              cairo_rectangle (cr, xpos, ypos, point_width, point_width);
 	    }
 
 	  sample_count -= this_size;
@@ -705,33 +416,38 @@ swamigui_sample_canvas_draw_loop (SwamiguiSampleCanvas *canvas,
 
   if (do_loopend_bool)
     {
+      swamigui_util_set_cairo_rgba (cr, canvas->loop_start_color);
+      cairo_fill (cr);
+
       loop_index = canvas->loop_end;
-      gc = canvas->loop_end_gc;
       do_loopend_bool = FALSE;
+
       goto do_loopend;
+    }
+  else
+    {
+      swamigui_util_set_cairo_rgba (cr, canvas->loop_end_color);
+      cairo_fill (cr);
     }
 }
 
 /* "connect the dots" drawing for zooms <= 1.0 */
-static inline void
-swamigui_sample_canvas_draw_points (SwamiguiSampleCanvas *canvas,
-				    GdkDrawable *drawable,
-				    int x, int y, int width, int height)
+static void
+swamigui_sample_canvas_draw_points (SwamiguiSampleCanvas *canvas, cairo_t *cr)
 {
-  GdkPoint static_points[STATIC_POINTS];
-  GdkPoint *points;
   int sample_start, sample_end, sample_count, point_index;
-  int height_1;
   guint sample_ofs, size_left, this_size;
-  double sample_mul;
+  double xpos, ypos, sample_mul, point_width, point_ofs;
+  cairo_path_t *path;
   gint16 *i16buf;
+  int height_1;
   int i;
 
-  /* calculate start sample (-1 for tiling) */
-  sample_start = canvas->start + x * canvas->zoom;
+  sample_start = canvas->start;
 
   /* calculate end sample (+1 for tiling) */
-  sample_end = canvas->start + ((x + width) * canvas->zoom) + 1;
+  sample_end = canvas->start
+    + gtk_widget_get_allocated_width ((GtkWidget *)canvas) * canvas->zoom + 1;
 
   /* no samples in area? */
   if (sample_start >= canvas->sample_size || sample_end < 0) return;
@@ -740,90 +456,71 @@ swamigui_sample_canvas_draw_points (SwamiguiSampleCanvas *canvas,
   sample_end = CLAMP (sample_end, 0, canvas->sample_size - 1);
   sample_count = sample_end - sample_start + 1;
 
-  height_1 = canvas->height - 1; /* height - 1 */
-  sample_mul = height_1 / (double)65535.0; /* sample amplitude multiplier */
+  height_1 = gtk_widget_get_allocated_height ((GtkWidget *)canvas) - 1;
+  sample_mul = height_1 / (double)65535.0;      /* sample amplitude multiplier */
 
-  /* use static point array if there is enough, otherwise fall back on
-     malloc (shouldn't get used, but just in case) */
-  if (sample_count > STATIC_POINTS)
-    points = g_new (GdkPoint, sample_count);
-  else points = static_points;
+  /* Set size of sample points based on zoom level */
+  if (canvas->zoom < 1.0 / 6.0) point_width = 5.0;
+  else if (canvas->zoom < 1.0 / 4.0) point_width = 3.0;
+  else point_width = 1.0;
+
+  point_ofs = point_width / 2.0 - 0.5;
 
   sample_ofs = sample_start;
-  size_left = sample_count;
   this_size = canvas->max_frames;
   point_index = 0;
 
-  while (size_left > 0)
+  // Create the sample lines between points
+  for (size_left = sample_count; size_left > 0; size_left -= this_size)
+  {
+    if (size_left < this_size) this_size = size_left;
+
+    if (!(i16buf = ipatch_sample_handle_read (&canvas->handle, sample_ofs, this_size, NULL, NULL)))
+      return;		/* FIXME - Error reporting?? */
+
+    /* loop over each sample */
+    for (i = 0; i < this_size; i++, sample_ofs++, point_index++)
     {
-      if (size_left < this_size) this_size = size_left;
-
-      if (!(i16buf = ipatch_sample_handle_read (&canvas->handle, sample_ofs,
-                                                this_size, NULL, NULL)))
-	{
-	  if (points != static_points) g_free (points);
-	  return;		/* FIXME - Error reporting?? */
-	}
-
-      /* loop over each sample */
-      for (i = 0; i < this_size; i++, sample_ofs++, point_index++)
-	{
-	  /* calculate xpos */
-	  points[point_index].x
-	    = (int)((sample_ofs - canvas->start) / canvas->zoom + 0.5) - x
-	    + canvas->x;
-
-	  /* calculate amplitude ypos */
-	  points[point_index].y = height_1 - (((int)i16buf[i]) + 32768)
-	    * sample_mul - y + canvas->y;
-	}
-
-      size_left -= this_size;
+      xpos = (sample_ofs - canvas->start) / canvas->zoom;
+      ypos = height_1 - (((int)i16buf[i]) + 32768) * sample_mul;
+      cairo_line_to (cr, xpos, ypos);
     }
+  }
 
-  /* draw the connected lines between points */
-  gdk_draw_lines (drawable, canvas->line_gc, points, sample_count);
+  path = cairo_copy_path (cr);  // ++ Copy current line path to use for points drawing
 
-  if (canvas->zoom < 1.0/4.0) /* use larger squares for points? */
-    {
-      int w, half_w;
+  // Draw the sample lines
+  swamigui_util_set_cairo_rgba (cr, canvas->line_color);
+  cairo_stroke (cr);
 
-      if (canvas->zoom < 1.0/6.0) w = 5;
-      else w = 3;
-      half_w = w >> 1;
+  swamigui_util_set_cairo_rgba (cr, canvas->point_color);
 
-      for (i = 0; i < sample_count; i++)
-	gdk_draw_rectangle (drawable, canvas->point_gc, TRUE,
-			    points[i].x - half_w, points[i].y - half_w,
-			    w, w);
-    } /* just use pixels for dots */
-  else gdk_draw_points (drawable, canvas->point_gc, points, sample_count);
+  // Draw the sample points
+  for (i = 0; i < path->num_data; i += path->data[i].header.length)
+    cairo_rectangle (cr, path->data[i + 1].point.x - point_ofs, path->data[i + 1].point.y - point_ofs,
+                     point_width, point_width);
 
-  if (points != static_points) g_free (points);
+  cairo_fill (cr);
+
+  cairo_path_destroy (path);    // -- Destroy the allocated path
 }
 
 /* peak line segment drawing for zooms > 1.0 */
-static inline void
-swamigui_sample_canvas_draw_segments (SwamiguiSampleCanvas *canvas,
-				      GdkDrawable *drawable,
-				      int x, int y, int width, int height)
+static void
+swamigui_sample_canvas_draw_segments (SwamiguiSampleCanvas *canvas, cairo_t *cr)
 {
-  GdkSegment static_segments[STATIC_POINTS];
-  GdkSegment *segments;
   int sample_start, sample_end, sample_count, sample_ofs;
   int segment_index, next_index;
-  int height_1;
   guint size_left, this_size;
   double sample_mul;
   gint16 *i16buf;
   gint16 min, max;
+  int height_1;
   int i;
 
-  /* calculate start sample */
-  sample_start = canvas->start + x * canvas->zoom + 0.5;
-
-  /* calculate end sample */
-  sample_end = canvas->start + (x + width) * canvas->zoom + 0.5;
+  sample_start = canvas->start * canvas->zoom + 0.5;
+  sample_end = canvas->start
+    + gtk_widget_get_allocated_width ((GtkWidget *)canvas) * canvas->zoom + 0.5;
 
   /* no samples in area? */
   if (sample_start >= canvas->sample_size || sample_end < 0) return;
@@ -832,110 +529,47 @@ swamigui_sample_canvas_draw_segments (SwamiguiSampleCanvas *canvas,
   sample_end = CLAMP (sample_end, 0, canvas->sample_size - 1);
   sample_count = sample_end - sample_start + 1;
 
-  height_1 = canvas->height - 1; /* height - 1 */
+  height_1 = gtk_widget_get_allocated_height ((GtkWidget *)canvas) - 1;
   sample_mul = height_1 / (double)65535.0; /* sample amplitude multiplier */
 
-  /* use static point array if there is enough, otherwise fall back on
-     malloc (shouldn't get used, but just in case) */
-  if (width > STATIC_POINTS) segments = g_new (GdkSegment, width);
-  else segments = static_segments;
-
   sample_ofs = sample_start;
-  size_left = sample_count;
   this_size = canvas->max_frames;
   segment_index = 0;
   min = max = 0;
-  next_index = canvas->start + (x + 1) * canvas->zoom + 0.5;
+  next_index = canvas->start + canvas->zoom + 0.5;
 
-  while (size_left > 0)
+  // Create the sample vertical line segments
+  for (size_left = sample_count; size_left > 0; size_left -= this_size)
+  {
+    if (size_left < this_size) this_size = size_left;
+
+    if (!(i16buf = ipatch_sample_handle_read (&canvas->handle, sample_ofs,
+                                              this_size, NULL, NULL)))
+      return;           /* FIXME - Error reporting?? */
+
+    /* look for min/max sample values */
+    for (i = 0; i < this_size; i++, sample_ofs++)
     {
-      if (size_left < this_size) this_size = size_left;
+      if (sample_ofs >= next_index)
+      {
+        cairo_move_to (cr, segment_index,
+                       height_1 - (((int)max) + 32768) * sample_mul);
+        cairo_line_to (cr, segment_index,
+                       height_1 - (((int)min) + 32768) * sample_mul);
 
-      if (!(i16buf = ipatch_sample_handle_read (&canvas->handle, sample_ofs,
-                                                this_size, NULL, NULL)))
-	{
-	  if (segments != static_segments) g_free (segments);
-	  return;		/* FIXME - Error reporting?? */
-	}
+        min = max = 0;
+        segment_index++;
+        next_index = canvas->start + (segment_index + 1) * canvas->zoom + 0.5;
+      }
 
-      /* look for min/max sample values */
-      for (i = 0; i < this_size; i++, sample_ofs++)
-	{
-	  if (sample_ofs >= next_index)
-	    {
-	      segments[segment_index].x1 = segment_index + canvas->x;
-	      segments[segment_index].x2 = segments[segment_index].x1;
-	      segments[segment_index].y1
-		= height_1 - (((int)max) + 32768) * sample_mul - y + canvas->y;
-	      segments[segment_index].y2
-		= height_1 - (((int)min) + 32768) * sample_mul - y + canvas->y;
-
-	      min = max = 0;
-	      segment_index++;
-	      next_index = canvas->start
-		+ (x + segment_index + 1) * canvas->zoom + 0.5;
-	    }
-
-	  if (i16buf[i] < min) min = i16buf[i];
-	  if (i16buf[i] > max) max = i16buf[i];
-	}
-
-      size_left -= this_size;
+      if (i16buf[i] < min) min = i16buf[i];
+      if (i16buf[i] > max) max = i16buf[i];
     }
+  }
 
-  gdk_draw_segments (drawable, canvas->peak_line_gc, segments, segment_index);
-  if (segments != static_segments) g_free (segments);
-}
-
-static double
-swamigui_sample_canvas_point (GnomeCanvasItem *item, double x, double y,
-			      int cx, int cy, GnomeCanvasItem **actual_item)
-{
-  SwamiguiSampleCanvas *canvas = SWAMIGUI_SAMPLE_CANVAS (item);
-  double points[2*4];
-
-  points[0] = canvas->x;
-  points[1] = canvas->y;
-  points[2] = canvas->x + canvas->width;
-  points[3] = points[1];
-  points[4] = points[0];
-  points[5] = canvas->y + canvas->height;
-  points[6] = points[2];
-  points[7] = points[5];
-
-  *actual_item = item;
-
-  return (gnome_canvas_polygon_to_point (points, 4, cx, cy));
-}
-
-static void
-swamigui_sample_canvas_bounds (GnomeCanvasItem *item, double *x1, double *y1,
-			       double *x2, double *y2)
-{
-  SwamiguiSampleCanvas *canvas = SWAMIGUI_SAMPLE_CANVAS (item);
-
-  *x1 = canvas->x;
-  *y1 = canvas->y;
-  *x2 = canvas->x + canvas->width;
-  *y2 = canvas->y + canvas->height;
-}
-
-static void
-swamigui_sample_canvas_cb_adjustment_value_changed (GtkAdjustment *adj,
-						    gpointer user_data)
-{
-  SwamiguiSampleCanvas *canvas = SWAMIGUI_SAMPLE_CANVAS (user_data);
-  guint start;
-  gboolean update_adj;
-
-  update_adj = canvas->update_adj; /* store old value of update adjustment */
-
-  canvas->update_adj = FALSE;	/* disable adjustment updates to stop
-				   adjustment loop */
-  start = adj->value;
-  g_object_set (canvas, "start", start, NULL);
-
-  canvas->update_adj = update_adj; /* restore update adjustment setting */
+  // Draw the line segments
+  swamigui_util_set_cairo_rgba (cr, canvas->peak_line_color);
+  cairo_stroke (cr);
 }
 
 /**
@@ -1000,29 +634,9 @@ swamigui_sample_canvas_real_set_sample (SwamiguiSampleCanvas *canvas,
     }
   else canvas->sample_size = 0;
 
-  gnome_canvas_item_request_update (GNOME_CANVAS_ITEM (canvas));
+  gtk_widget_queue_draw (GTK_WIDGET (canvas));
 
   return (TRUE);
-}
-
-static void
-swamigui_sample_canvas_update_adjustment (SwamiguiSampleCanvas *canvas)
-{
-  canvas->adj->lower = 0.0;
-  canvas->adj->upper = canvas->sample_size;
-  canvas->adj->value = 0.0;
-  canvas->adj->step_increment = canvas->sample_size / 400.0;
-  canvas->adj->page_increment = canvas->sample_size / 50.0;
-  canvas->adj->page_size = canvas->sample_size;
-
-  gtk_adjustment_changed (canvas->adj);
-  g_signal_handlers_block_by_func (canvas->adj,
-			swamigui_sample_canvas_cb_adjustment_value_changed,
-				   canvas);
-  gtk_adjustment_value_changed (canvas->adj);
-  g_signal_handlers_unblock_by_func (canvas->adj,
-			swamigui_sample_canvas_cb_adjustment_value_changed,
-				     canvas);
 }
 
 /**
@@ -1079,17 +693,18 @@ int
 swamigui_sample_canvas_sample_to_xpos (SwamiguiSampleCanvas *canvas, int index,
 				       int *inview)
 {
-  int xpos;
+  int xpos, width;
 
   g_return_val_if_fail (SWAMIGUI_IS_SAMPLE_CANVAS (canvas), 0);
 
   xpos = (index - canvas->start) / canvas->zoom + 0.5;
+  width = gtk_widget_get_allocated_width (GTK_WIDGET (canvas));
 
   if (inview)
   {
     /* set inview output parameter as appropriate */
     if (index < canvas->start) *inview = -1;
-    else if (xpos >= canvas->width) *inview = 1;
+    else if (xpos >= width) *inview = 1;
     else *inview = 0;
   }
 

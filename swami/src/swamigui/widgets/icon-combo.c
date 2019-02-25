@@ -22,10 +22,7 @@
  * 02111-1307, USA.
  */
 
-#include <gtk/gtkbutton.h>
-#include <gtk/gtksignal.h>
-#include <gtk/gtktable.h>
-#include <gtk/gtkimage.h>
+#include <gtk/gtk.h>
 #include "combo-box.h"
 #include "icon-combo.h"
 
