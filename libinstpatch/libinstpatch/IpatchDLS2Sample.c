@@ -160,9 +160,13 @@ ipatch_dls2_sample_finalize (GObject *gobject)
      sample is required since in reality all its children do
      still hold references */
 
-  ipatch_dls2_sample_real_set_data (sample, NULL);
-
   IPATCH_ITEM_WLOCK (sample);
+  
+  if (sample->sample_data)
+  {
+    ipatch_sample_data_unused (sample->sample_data);  // -- dec use count
+    g_object_unref (sample->sample_data);             // -- dec reference count
+  }
 
   if (sample->sample_info) ipatch_dls2_sample_info_free (sample->sample_info);
   ipatch_dls2_info_free (sample->info);
@@ -384,8 +388,8 @@ ipatch_dls2_sample_real_set_data (IpatchDLS2Sample *sample,
   g_return_val_if_fail (IPATCH_IS_DLS2_SAMPLE (sample), FALSE);
   g_return_val_if_fail (IPATCH_IS_SAMPLE_DATA (sampledata), FALSE);
 
-  ipatch_sample_data_used (sampledata);   /* ++ inc use count */
   g_object_ref (sampledata);	/* ++ ref for sample */
+  ipatch_sample_data_used (sampledata);   /* ++ inc use count */
 
   IPATCH_ITEM_WLOCK (sample);
   old_sampledata = sample->sample_data;
