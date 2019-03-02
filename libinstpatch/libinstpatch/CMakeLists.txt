@@ -135,7 +135,6 @@ set ( instpatch_SOURCES
     IpatchDLS2Conn.c
     IpatchDLS2Info.c
     IpatchDLS2Inst.c
-    IpatchDLS2Param_tables.c
     IpatchDLS2Region.c
     IpatchDLS2Sample.c
     IpatchDLSFile.c

@@ -206,16 +206,6 @@ typedef enum
 /* 4 flags + 2 for expansion */
 #define IPATCH_DLS2_REGION_UNUSED_FLAG_SHIFT (IPATCH_ITEM_UNUSED_FLAG_SHIFT + 6)
 
-/* parameter info structure for IpatchDLS2Param_tables.c */
-typedef struct
-{
-  gint32 min;	/* minimum value for this parameter (soft limit) */
-  gint32 max;	/* maximum value for this parameter (soft limit) */
-  gint32 def;	/* default value for this parameter */
-  guint unit;	/* #IpatchUnitType */
-  char *label;	/* text label for this parameter */
-} IpatchDLS2ParamInfo;
-
 
 GType ipatch_dls2_region_get_type (void);
 IpatchDLS2Region *ipatch_dls2_region_new (void);
