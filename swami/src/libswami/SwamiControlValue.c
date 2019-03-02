@@ -168,7 +168,7 @@ swami_control_value_assign_value (SwamiControlValue *ctrlvalue,
 				  GValue *value, GDestroyNotify destroy)
 {
   GValue *destroy_value = NULL;
-  GDestroyNotify destroy_func;
+  GDestroyNotify destroy_func = NULL;
 
   g_return_if_fail (SWAMI_IS_CONTROL_VALUE (ctrlvalue));
   g_return_if_fail (value != NULL);
@@ -202,7 +202,7 @@ swami_control_value_assign_value (SwamiControlValue *ctrlvalue,
   SWAMI_UNLOCK_WRITE (ctrlvalue);
 
   /* destroy value outside of lock (if any) */
-  if (destroy_value) (*destroy_func)(destroy_value);
+  if (destroy_value && destroy_func) (*destroy_func)(destroy_value);
 }
 
 /**
