@@ -282,7 +282,7 @@ ipatch_unit_decibels_to_dls_gain (double db)
  * Returns: Value converted to seconds
  */
 double
-ipatch_unit_dls_abs_time_to_seconds (int dls_abs_time)
+ipatch_unit_dls_abs_time_to_seconds (gint32 dls_abs_time)
 {
   if (dls_abs_time == IPATCH_UNIT_DLS_ABS_TIME_0SECS)
     return (0.0);
@@ -299,7 +299,7 @@ ipatch_unit_dls_abs_time_to_seconds (int dls_abs_time)
  *
  * Returns: Value converted to DLS relative time
  */
-int
+gint32
 ipatch_unit_seconds_to_dls_abs_time (double seconds)
 {
   if (seconds == 0.0) return (IPATCH_UNIT_DLS_ABS_TIME_0SECS);

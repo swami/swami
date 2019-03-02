@@ -24,7 +24,7 @@
 #include <glib-object.h>
 
 /* Value for 0 seconds in DLS absolute time (a degenerate case) */
-#define IPATCH_UNIT_DLS_ABS_TIME_0SECS 0x80000000L
+#define IPATCH_UNIT_DLS_ABS_TIME_0SECS ((gint32)0x80000000L)
 
 int ipatch_unit_dls_class_convert (guint16 src_units, const GValue *src_val);
 
