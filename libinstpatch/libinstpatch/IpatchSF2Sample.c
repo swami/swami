@@ -631,7 +631,11 @@ ipatch_sf2_sample_real_set_data (IpatchSF2Sample *sample,
   GValue oldval = { 0 }, newval = { 0 };
   IpatchSampleData *old_sampledata;
 
-  if (sampledata) g_object_ref (sampledata);
+  if (sampledata)
+  {
+      g_object_ref (sampledata);
+      ipatch_sample_data_used (sampledata);   /* ++ inc use count */
+  }
 
   IPATCH_ITEM_WLOCK (sample);
   old_sampledata = sample->sample_data;

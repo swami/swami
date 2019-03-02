@@ -398,8 +398,8 @@ ipatch_dls2_sample_real_set_data (IpatchDLS2Sample *sample,
 
   if (old_sampledata)
   {
-    ipatch_sample_data_unused (sample->sample_data);  // -- dec use count
-    g_object_unref (sample->sample_data);             // -- dec reference count
+    ipatch_sample_data_unused (old_sampledata);  // -- dec use count
+    g_object_unref (old_sampledata);             // -- dec reference count
   }
 
   return (TRUE);

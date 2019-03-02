@@ -562,8 +562,11 @@ ipatch_sli_sample_real_set_data (IpatchSLISample *sample,
   GValue oldval = { 0 }, newval = { 0 };
   IpatchSampleData *old_sampledata;
 
-  if (data_notify) g_value_init (&oldval, IPATCH_TYPE_SAMPLE_DATA);
-  if (sampledata) g_object_ref (sampledata);
+  if (sampledata)
+  {
+      g_object_ref (sampledata);
+      ipatch_sample_data_used (sampledata);   /* ++ inc use count */
+  }
 
   IPATCH_ITEM_WLOCK (sample);
   old_sampledata = sample->sample_data;
@@ -578,6 +581,7 @@ ipatch_sli_sample_real_set_data (IpatchSLISample *sample,
     g_value_init (&newval, IPATCH_TYPE_SAMPLE_DATA);
     g_value_set_object (&newval, sampledata);
 
+    g_value_init (&oldval, IPATCH_TYPE_SAMPLE_DATA);
     g_value_take_object (&oldval, old_sampledata);
 
     ipatch_item_prop_notify ((IpatchItem *)sample, sample_data_pspec, &newval, &oldval);
