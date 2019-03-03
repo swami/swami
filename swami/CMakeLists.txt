@@ -251,3 +251,31 @@ set ( CPACK_STRIP_FILES ON )
 
 include ( CPack )
 
+file(GLOB_RECURSE
+     ALL_SOURCE_FILES
+     LIST_DIRECTORIES false
+     ${CMAKE_SOURCE_DIR}/*.[chi]
+     ${CMAKE_SOURCE_DIR}/*.[chi]pp
+     ${CMAKE_SOURCE_DIR}/*.[chi]xx
+     ${CMAKE_SOURCE_DIR}/*.cc
+     ${CMAKE_SOURCE_DIR}/*.hh
+     ${CMAKE_SOURCE_DIR}/*.ii
+     ${CMAKE_SOURCE_DIR}/*.[CHI]
+     )
+     
+find_program ( ASTYLE "astyle" )
+if ( ASTYLE )
+  add_custom_target(
+    format
+    COMMAND ${ASTYLE}
+    -A1
+    -xb
+    -j
+    -k3
+    -p
+    -f
+    -n
+    -U
+    ${ALL_SOURCE_FILES}
+    )
+endif(ASTYLE)
