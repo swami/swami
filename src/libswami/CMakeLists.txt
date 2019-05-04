@@ -21,6 +21,7 @@ include_directories (
 # ************ library ************
 
 set ( libswami_public_HEADERS
+    builtin_enums.h
     SwamiContainer.h
     SwamiControl.h
     SwamiControlEvent.h
@@ -48,6 +49,7 @@ set ( libswami_public_HEADERS
 ) 
 
 set ( libswami_SOURCES
+    builtin_enums.c
     SwamiContainer.c
     SwamiControl.c
     SwamiControlEvent.c
@@ -91,7 +93,6 @@ add_definitions (
 )
 
 add_library ( libswami
-    ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.c
     ${CMAKE_CURRENT_BINARY_DIR}/marshals.c
     ${libswami_SOURCES} 
 )
@@ -106,12 +107,9 @@ install ( FILES
           DESTINATION include/swami/libswami )
 
 find_program (GLIB2_MKENUMS glib-mkenums)
-find_program (SED sed)
 
-add_custom_command (
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.h
+add_custom_target (libswami-enums
   COMMAND ${GLIB2_MKENUMS}
-  ARGS
     --fhead \"\#ifndef __SWAMI_BUILTIN_ENUMS_H__\\n\"
     --fhead \"\#define __SWAMI_BUILTIN_ENUMS_H__\\n\\n\"
     --fhead \"\#include <glib-object.h>\\n\\n\"
@@ -123,14 +121,8 @@ add_custom_command (
     --ftail \"\#endif /* __SWAMI_BUILTIN_ENUMS_H__ */\"
     ${libswami_public_HEADERS}
     > ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.h
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  DEPENDS ${libswami_public_HEADERS}
-)
 
-add_custom_command (
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.c
   COMMAND ${GLIB2_MKENUMS}
-  ARGS
     --fhead \"\#include \\"libswami.h\\"\\n\"
     --fhead \"\#include \\"swami_priv.h\\"\\n\"
     --fprod \"/* enumerations from \\"@filename@\\" */\"
@@ -145,7 +137,7 @@ add_custom_command (
     ${libswami_public_HEADERS}
     > ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.c
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  DEPENDS ${libswami_public_HEADERS} ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.h
+  DEPENDS ${libswami_public_HEADERS}
 )
 
 
