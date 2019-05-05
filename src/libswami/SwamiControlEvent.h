@@ -23,7 +23,11 @@
 #ifndef __SWAMI_CONTROL_EVENT_H__
 #define __SWAMI_CONTROL_EVENT_H__
 
+#ifdef _WIN32
+#include<Windows.h>
+#else
 #include <sys/time.h>
+#endif
 #include <glib.h>
 
 #include <libinstpatch/IpatchUnit.h>
