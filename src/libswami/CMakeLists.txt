@@ -18,6 +18,14 @@ include_directories (
     ${LIBINSTPATCH_INCLUDE_DIRS} 
 )
 
+#adding installed dirent support for Windows
+if (WIN32)
+    pkg_check_modules ( DIRENT REQUIRED  dirent)
+    if(DIRENT_FOUND)
+	    include_directories ( ${DIRENT_INCLUDEDIR} )
+    endif(DIRENT_FOUND)
+endif(WIN32)
+
 # ************ library ************
 
 set ( libswami_public_HEADERS
