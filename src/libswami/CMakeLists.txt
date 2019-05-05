@@ -100,6 +100,12 @@ add_definitions (
     -DG_LOG_DOMAIN=\"libswami\"
 )
 
+# Options for Windows only
+if( WIN32 )
+    # disable deprecation warnings 
+    add_definitions ( -D_CRT_SECURE_NO_WARNINGS )
+endif( WIN32 )
+
 add_library ( libswami
     ${CMAKE_CURRENT_BINARY_DIR}/marshals.c
     ${libswami_SOURCES} 
