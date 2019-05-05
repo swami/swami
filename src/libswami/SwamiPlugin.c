@@ -26,7 +26,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
-#include <unistd.h>
+//#include <unistd.h>
 #include "config.h"
 
 #include <libinstpatch/misc.h>	/* ipatch_gerror_message() */
