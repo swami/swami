@@ -111,17 +111,17 @@ swami_param_get_limits (GParamSpec *pspec, gdouble *min, gdouble *max,
   else if (type == G_TYPE_PARAM_INT64)
     {
       GParamSpecInt64 *sp = (GParamSpecInt64 *)pspec;
-      rmin = sp->minimum;
-      rmax = sp->maximum;
-      rdef = sp->default_value;
+      rmin = (gdouble)sp->minimum;
+      rmax = (gdouble)sp->maximum;
+      rdef = (gdouble)sp->default_value;
       isint = TRUE;
     }
   else if (type == G_TYPE_PARAM_UINT64)
     {
       GParamSpecUInt64 *sp = (GParamSpecUInt64 *)pspec;
-      rmin = sp->minimum;
-      rmax = sp->maximum;
-      rdef = sp->default_value;
+      rmin = (gdouble)sp->minimum;
+      rmax = (gdouble)sp->maximum;
+      rdef = (gdouble)sp->default_value;
       isint = TRUE;
     }
   else if (type == G_TYPE_PARAM_FLOAT)
@@ -179,65 +179,65 @@ swami_param_set_limits (GParamSpec *pspec, gdouble min, gdouble max,
   else if (type == G_TYPE_PARAM_CHAR)
     {
       GParamSpecChar *sp = (GParamSpecChar *)pspec;
-      sp->minimum = min;
-      sp->maximum = max;
-      sp->default_value = def;
+      sp->minimum = (gint8)min;
+      sp->maximum = (gint8)max;
+      sp->default_value = (gint8)def;
     }
   else if (type == G_TYPE_PARAM_UCHAR)
     {
       GParamSpecUChar *sp = (GParamSpecUChar *)pspec;
-      sp->minimum = min;
-      sp->maximum = max;
-      sp->default_value = def;
+      sp->minimum = (guint8)min;
+      sp->maximum = (guint8)max;
+      sp->default_value = (guint8)def;
     }
   else if (type == G_TYPE_PARAM_INT)
     {
       GParamSpecInt *sp = (GParamSpecInt *)pspec;
-      sp->minimum = min;
-      sp->maximum = max;
-      sp->default_value = def;
+      sp->minimum = (gint)min;
+      sp->maximum = (gint)max;
+      sp->default_value = (gint)def;
     }
   else if (type == G_TYPE_PARAM_UINT)
     {
       GParamSpecUInt *sp = (GParamSpecUInt *)pspec;
-      sp->minimum = min;
-      sp->maximum = max;
-      sp->default_value = def;
+      sp->minimum = (guint)min;
+      sp->maximum = (guint)max;
+      sp->default_value = (guint)def;
     }
   else if (type == G_TYPE_PARAM_LONG)
     {
       GParamSpecLong *sp = (GParamSpecLong *)pspec;
-      sp->minimum = min;
-      sp->maximum = max;
-      sp->default_value = def;
+      sp->minimum = (glong)min;
+      sp->maximum = (glong)max;
+      sp->default_value = (glong)def;
     }
   else if (type == G_TYPE_PARAM_ULONG)
     {
       GParamSpecULong *sp = (GParamSpecULong *)pspec;
-      sp->minimum = min;
-      sp->maximum = max;
-      sp->default_value = def;
+      sp->minimum = (gulong)min;
+      sp->maximum = (gulong)max;
+      sp->default_value = (gulong)def;
     }
   else if (type == G_TYPE_PARAM_INT64)
     {
       GParamSpecInt64 *sp = (GParamSpecInt64 *)pspec;
-      sp->minimum = min;
-      sp->maximum = max;
-      sp->default_value = def;
+      sp->minimum = (gint64)min;
+      sp->maximum = (gint64)max;
+      sp->default_value = (gint64)def;
     }
   else if (type == G_TYPE_PARAM_UINT64)
     {
       GParamSpecUInt64 *sp = (GParamSpecUInt64 *)pspec;
-      sp->minimum = min;
-      sp->maximum = max;
-      sp->default_value = def;
+      sp->minimum = (guint64)min;
+      sp->maximum = (guint64)max;
+      sp->default_value = (guint64)def;
     }
   else if (type == G_TYPE_PARAM_FLOAT)
     {
       GParamSpecFloat *sp = (GParamSpecFloat *)pspec;
-      sp->minimum = min;
-      sp->maximum = max;
-      sp->default_value = def;
+      sp->minimum = (gfloat)min;
+      sp->maximum = (gfloat)max;
+      sp->default_value = (gfloat)def;
     }
   else if (type == G_TYPE_PARAM_DOUBLE)
     {
