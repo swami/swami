@@ -71,10 +71,10 @@ extern void _swami_pretty_log_handler (GLogLevelFlags flags,
 	 	 	     __FILE__, __PRETTY_FUNCTION__, __LINE__, \
 	 	 	     format, ## args);
 #else
-#define SWAMI_DEBUG(format, args)
+#define SWAMI_DEBUG(format, args...)
 #endif
 
-#define SWAMI_INFO(format, args) \
+#define SWAMI_INFO(format, args...) \
   _swami_pretty_log_handler (G_LOG_LEVEL_INFO, \
 	 	 	     __FILE__, __PRETTY_FUNCTION__, __LINE__, \
 	 	 	     format, ## args);
@@ -85,7 +85,7 @@ extern void _swami_pretty_log_handler (GLogLevelFlags flags,
 	 	 	     "Invalid function parameter value for '%s'.", \
 	 	 	     param);
 
-#define SWAMI_CRITICAL(format, args) \
+#define SWAMI_CRITICAL(format, args...) \
   _swami_pretty_log_handler (G_LOG_LEVEL_CRITICAL, \
 	 	 	     __FILE__, __PRETTY_FUNCTION__, __LINE__, \
 	 	 	     format, ## args);
