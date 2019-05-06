@@ -100,15 +100,20 @@ add_definitions (
     -DG_LOG_DOMAIN=\"libswami\"
 )
 
+set (DEFINITION_FILE "")
 # Options for Windows only
 if( WIN32 )
     # disable deprecation warnings 
     add_definitions ( -D_CRT_SECURE_NO_WARNINGS )
+	if (BUILD_SHARED_LIBS)
+        # adding a module definition file for shared libs will export symbols and produce import library
+        set (DEFINITION_FILE libswami.def)
+    endif(BUILD_SHARED_LIBS)
 endif( WIN32 )
 
 add_library ( libswami
     ${CMAKE_CURRENT_BINARY_DIR}/marshals.c
-    ${libswami_SOURCES} 
+    ${libswami_SOURCES} ${DEFINITION_FILE} 
 )
 
 # Version file
@@ -204,7 +209,14 @@ if ( MACOSX_FRAMEWORK )
         VERSION ${LIB_VERSION_INFO}
         SOVERSION ${LIB_VERSION_CURRENT}
     )
-else ( MACOSX_FRAMEWORK )
+elseif( MINGW OR WIN32 )
+  set_target_properties ( libswami
+    PROPERTIES
+      PREFIX ""
+      OUTPUT_NAME "libswami"
+      VERSION ${LIB_VERSION_INFO}
+  )
+else ( MINGW OR WIN32 )
   set_target_properties ( libswami
     PROPERTIES
       PREFIX "lib"
