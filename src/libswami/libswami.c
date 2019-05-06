@@ -104,7 +104,7 @@ swami_init (void)
 
   /* create IpatchItem title property control */
   swami_patch_prop_title_control	 /* ++ ref forever */
-    = SWAMI_CONTROL (swami_control_prop_new (NULL, ipatch_item_pspec_title));
+    = SWAMI_CONTROL (swami_control_prop_new (NULL, ipatch_item_get_pspec_title()));
 
   /* create ipatch container event controls */
   swami_patch_add_control = swami_control_new (); /* ++ ref forever */
