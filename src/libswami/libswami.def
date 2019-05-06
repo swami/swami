@@ -171,7 +171,6 @@ swami_param_type_from_value_type
 
 ;swami_patch_add_control DATA
 
-; jjc: remplacer par fonction d'accès
 ;swami_patch_add_control DATA
 ;Getter function returning swami_patch_add_control.
 swami_patch_get_add_control
@@ -180,13 +179,11 @@ swami_patch_get_add_control
 
 ;swami_patch_prop_control DATA
 
-; jjc - remplacer par fonction d'accès
 ;swami_patch_prop_title_control
 ;Getter function returning swami_patch_prop_title_control.
 swami_patch_get_prop_title_control
 
 
-; jjc - remplacer par fonction d'accès
 ;swami_patch_remove_control DATA
 ;Getter function returning swami_patch_remove_control.
 swami_patch_get_remove_control
