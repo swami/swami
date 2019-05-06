@@ -60,6 +60,7 @@ GQuark swami_error_quark (void);
 int _swami_ret_g_log (const gchar *log_domain, GLogLevelFlags log_level,
 		      const gchar *format, ...);
 
+#ifndef _WIN32
 extern void _swami_pretty_log_handler (GLogLevelFlags flags,
 				       char *file, char *function, int line,
 				       char *format, ...);
@@ -89,4 +90,5 @@ extern void _swami_pretty_log_handler (GLogLevelFlags flags,
 	 	 	     __FILE__, __PRETTY_FUNCTION__, __LINE__, \
 	 	 	     format, ## args);
 
+#endif
 #endif /* __SWAMI_LOG_H__ */
