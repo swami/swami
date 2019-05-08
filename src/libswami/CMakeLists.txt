@@ -19,12 +19,17 @@ include_directories (
 )
 
 #adding installed dirent support for Windows
-if (WIN32)
-    pkg_check_modules ( DIRENT REQUIRED  dirent)
-    if(DIRENT_FOUND)
-	    include_directories ( ${DIRENT_INCLUDEDIR} )
-    endif(DIRENT_FOUND)
-endif(WIN32)
+if ( WIN32 )
+    set (DIRENT_INCLUDE_PATH "d:\\freesw\\include\\dirent" 
+           CACHE FILEPATH "Path of dirent.h"
+        )
+    set (CMAKE_REQUIRED_INCLUDES ${DIRENT_INCLUDE_PATH})
+    unset (HAVE_DIRENT_H CACHE)
+    check_include_file ( dirent.h HAVE_DIRENT_H )
+#    if ( HAVE_DIRENT_H )
+        include_directories ( ${CMAKE_REQUIRED_INCLUDES} )
+#    endif( HAVE_DIRENT_H )
+endif( WIN32 )
 
 # ************ library ************
 
