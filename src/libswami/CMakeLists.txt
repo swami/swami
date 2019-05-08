@@ -26,9 +26,9 @@ if ( WIN32 )
     set (CMAKE_REQUIRED_INCLUDES ${DIRENT_INCLUDE_PATH})
     unset (HAVE_DIRENT_H CACHE)
     check_include_file ( dirent.h HAVE_DIRENT_H )
-#    if ( HAVE_DIRENT_H )
+    if ( HAVE_DIRENT_H )
         include_directories ( ${CMAKE_REQUIRED_INCLUDES} )
-#    endif( HAVE_DIRENT_H )
+    endif( HAVE_DIRENT_H )
 endif( WIN32 )
 
 # ************ library ************
