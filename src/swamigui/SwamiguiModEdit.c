@@ -672,6 +672,8 @@ swamigui_mod_edit_init_dest_combo_box (GtkWidget *combo_dest)
   GtkTreeIter group_iter, gen_iter;
   int group, gen;
   char *name;
+  /* get ipatch_sf2_gen_info from libinstpatch library */
+  const IpatchSF2GenInfo * ipatch_sf2_gen_info = ipatch_sf2_get_gen_info();
 
   store = gtk_tree_store_new (DEST_COLUMN_COUNT, G_TYPE_STRING, G_TYPE_INT);
 
@@ -1141,6 +1143,8 @@ swamigui_mod_edit_update_store_row (SwamiguiModEdit *modedit,
   int group;
   IpatchSF2Mod *mod;
   char *s;
+  /* get ipatch_sf2_gen_info from libinstpatch library */
+  const IpatchSF2GenInfo * ipatch_sf2_gen_info = ipatch_sf2_get_gen_info();
 
   /* `mod' will be newly allocated */
   gtk_tree_model_get (GTK_TREE_MODEL (modedit->list_store), iter,
