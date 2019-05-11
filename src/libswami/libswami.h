@@ -35,6 +35,14 @@ void swami_init (void);
 extern SwamiControl *swami_patch_prop_title_control;
 extern SwamiControl *swami_patch_add_control;
 extern SwamiControl *swami_patch_remove_control;
+/* getter useful when libswami library is used as a shared library linked at load time.*/
+
+/* Getter function returning swami_patch_prop_title_control.*/
+SwamiControl *swami_patch_get_prop_title_control(void);
+/* Getter function returning swami_patch_add_control.*/
+SwamiControl *swami_patch_get_add_control(void);
+/* Getter function returning swami_patch_remove_control.*/
+SwamiControl *swami_patch_get_remove_control(void);
 
 #include <libswami/SwamiControlEvent.h>
 #include <libswami/SwamiControlFunc.h>

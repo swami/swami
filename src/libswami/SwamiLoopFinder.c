@@ -387,14 +387,16 @@ void
 swami_loop_finder_full_search (SwamiLoopFinder *finder)
 {
   int max_loop_size;
+  guint analysis_window;
 
   g_return_if_fail (SWAMI_IS_LOOP_FINDER (finder));
   g_return_if_fail (finder->sample != NULL);
 
-  max_loop_size = finder->sample_size - finder->analysis_window;
+  analysis_window = finder->analysis_window;
+  max_loop_size = finder->sample_size - analysis_window;
 
   /* silently fail if analysis window or loop size is out of wack */
-  if (finder->analysis_window > finder->sample_size
+  if (analysis_window > finder->sample_size
       || max_loop_size < finder->min_loop_size)
     return;
 
@@ -431,6 +433,7 @@ gboolean
 swami_loop_finder_verify_params (SwamiLoopFinder *finder, gboolean nudge,
 				 GError **err)
 {
+  int sample_size;
   int halfwin, ohalfwin;
   int win1start, win1end;	/* stores window1 start/end */
   int win2start, win2end;	/* stores window2 start/end */
@@ -458,11 +461,12 @@ swami_loop_finder_verify_params (SwamiLoopFinder *finder, gboolean nudge,
   }
 
   /* calculate first and second half of analysis window */
+  sample_size = finder->sample_size;
   halfwin = finder->analysis_window / 2;
   ohalfwin = finder->analysis_window - halfwin;	/* other half */
 
   /* analysis window is sane? */
-  if (finder->analysis_window > finder->sample_size)
+  if (finder->analysis_window > sample_size)
   {
     g_set_error (err, SWAMI_ERROR, SWAMI_ERROR_INVALID,
 		 _("Analysis window is too large for sample"));
@@ -473,17 +477,17 @@ swami_loop_finder_verify_params (SwamiLoopFinder *finder, gboolean nudge,
   if (nudge)
   {
     if (win1start < halfwin) win1start = halfwin;
-    if (win1end > (finder->sample_size - ohalfwin))
-      win1end = finder->sample_size - ohalfwin;
+    if (win1end > (sample_size - ohalfwin))
+      win1end = sample_size - ohalfwin;
 
     if (win2start < halfwin) win2start = halfwin;
-    if (win2end > (finder->sample_size - ohalfwin))
-      win2end = finder->sample_size - ohalfwin;
+    if (win2end > (sample_size - ohalfwin))
+      win2end = sample_size - ohalfwin;
   }
   else
   {
     /* window1 is valid? */
-    if (win1start < halfwin || win1end > (finder->sample_size - ohalfwin))
+    if (win1start < halfwin || win1end > (sample_size - ohalfwin))
     {
       g_set_error (err, SWAMI_ERROR, SWAMI_ERROR_INVALID,
 		   _("Loop start search window is invalid"));
@@ -491,7 +495,7 @@ swami_loop_finder_verify_params (SwamiLoopFinder *finder, gboolean nudge,
     }
 
     /* loop end search window is valid? */
-    if (win2start < halfwin || win2end > (finder->sample_size - ohalfwin))
+    if (win2start < halfwin || win2end > (sample_size - ohalfwin))
     {
       g_set_error (err, SWAMI_ERROR, SWAMI_ERROR_INVALID,
 		   _("Loop end search window is invalid"));
@@ -729,7 +733,7 @@ find_loop (SwamiLoopFinder *finder, SwamiLoopMatch *matches)
   win2size = win2end - win2start + 1;
 
   /* Control of progress update */
-  progress_step = ((float)win1size * (float)win2size) / 1000.0;      /* Max. 1000 progress callbacks */
+  progress_step = (guint64)(((float)win1size * (float)win2size) / 1000.0);      /* Max. 1000 progress callbacks */
   progress_count = progress_step;
 
   finder->progress = 0.0;
@@ -754,7 +758,7 @@ find_loop (SwamiLoopFinder *finder, SwamiLoopMatch *matches)
 
   /* Calculate values for 1st half of window and center of window */
   for (i = 0, pow2 = 1; i <= half_window; i++, pow2 *= 2)
-    anwin_factors[i] = pow2 * 0.5 / fract;
+    anwin_factors[i] = (float)(pow2 * 0.5 / fract);
 
   /* Copy values for 2nd half of window */
   for (i = 0; half_window + i + 1 < analysis_window; i++)

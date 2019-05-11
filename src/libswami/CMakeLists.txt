@@ -18,9 +18,24 @@ include_directories (
     ${LIBINSTPATCH_INCLUDE_DIRS} 
 )
 
+#adding installed dirent support for Windows
+if ( WIN32 )
+    #let the user choosing additionnal search path
+    set (DIRENT_INCLUDE_PATH ""
+           CACHE FILEPATH "Path of dirent.h"
+        )
+    set (CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${DIRENT_INCLUDE_PATH})
+    unset (HAVE_DIRENT_H CACHE)
+    check_include_file ( dirent.h HAVE_DIRENT_H )
+    if ( HAVE_DIRENT_H )
+        include_directories ( ${CMAKE_REQUIRED_INCLUDES} )
+    endif( HAVE_DIRENT_H )
+endif( WIN32 )
+
 # ************ library ************
 
 set ( libswami_public_HEADERS
+    builtin_enums.h
     SwamiContainer.h
     SwamiControl.h
     SwamiControlEvent.h
@@ -48,6 +63,7 @@ set ( libswami_public_HEADERS
 ) 
 
 set ( libswami_SOURCES
+    builtin_enums.c
     SwamiContainer.c
     SwamiControl.c
     SwamiControlEvent.c
@@ -90,10 +106,20 @@ add_definitions (
     -DG_LOG_DOMAIN=\"libswami\"
 )
 
+set (DEFINITION_FILE "")
+# Options for Windows only
+if( WIN32 )
+    # disable deprecation warnings 
+    add_definitions ( -D_CRT_SECURE_NO_WARNINGS )
+	if (BUILD_SHARED_LIBS)
+        # adding a module definition file for shared libs will export symbols and produce import library
+        set (DEFINITION_FILE libswami.def)
+    endif(BUILD_SHARED_LIBS)
+endif( WIN32 )
+
 add_library ( libswami
-    ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.c
     ${CMAKE_CURRENT_BINARY_DIR}/marshals.c
-    ${libswami_SOURCES} 
+    ${libswami_SOURCES} ${DEFINITION_FILE} 
 )
 
 # Version file
@@ -106,12 +132,9 @@ install ( FILES
           DESTINATION include/swami/libswami )
 
 find_program (GLIB2_MKENUMS glib-mkenums)
-find_program (SED sed)
 
-add_custom_command (
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.h
+add_custom_target (libswami-enums
   COMMAND ${GLIB2_MKENUMS}
-  ARGS
     --fhead \"\#ifndef __SWAMI_BUILTIN_ENUMS_H__\\n\"
     --fhead \"\#define __SWAMI_BUILTIN_ENUMS_H__\\n\\n\"
     --fhead \"\#include <glib-object.h>\\n\\n\"
@@ -123,14 +146,8 @@ add_custom_command (
     --ftail \"\#endif /* __SWAMI_BUILTIN_ENUMS_H__ */\"
     ${libswami_public_HEADERS}
     > ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.h
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  DEPENDS ${libswami_public_HEADERS}
-)
 
-add_custom_command (
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.c
   COMMAND ${GLIB2_MKENUMS}
-  ARGS
     --fhead \"\#include \\"libswami.h\\"\\n\"
     --fhead \"\#include \\"swami_priv.h\\"\\n\"
     --fprod \"/* enumerations from \\"@filename@\\" */\"
@@ -145,7 +162,7 @@ add_custom_command (
     ${libswami_public_HEADERS}
     > ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.c
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  DEPENDS ${libswami_public_HEADERS} ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.h
+  DEPENDS ${libswami_public_HEADERS}
 )
 
 
@@ -198,7 +215,14 @@ if ( MACOSX_FRAMEWORK )
         VERSION ${LIB_VERSION_INFO}
         SOVERSION ${LIB_VERSION_CURRENT}
     )
-else ( MACOSX_FRAMEWORK )
+elseif( MINGW OR WIN32 )
+  set_target_properties ( libswami
+    PROPERTIES
+      PREFIX ""
+      OUTPUT_NAME "libswami"
+      VERSION ${LIB_VERSION_INFO}
+  )
+else ( MINGW OR WIN32 )
   set_target_properties ( libswami
     PROPERTIES
       PREFIX "lib"

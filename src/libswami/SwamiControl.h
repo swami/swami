@@ -25,7 +25,7 @@
 typedef struct _SwamiControl SwamiControl;
 typedef struct _SwamiControlClass SwamiControlClass;
 
-#include <sys/time.h>
+//#include <sys/time.h>
 #include <glib.h>
 #include <glib-object.h>
 #include <libswami/SwamiLock.h>

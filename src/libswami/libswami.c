@@ -51,10 +51,41 @@ void _swami_plugin_initialize (void); /* SwamiPlugin.c */
 void _swami_value_transform_init (void); /* value_transform.c */
 
 /* Ipatch property and container add/remove event controls */
+/* public variables */
+/* useful when libswami is used as a static library */
 SwamiControl *swami_patch_prop_title_control;
 SwamiControl *swami_patch_add_control;
 SwamiControl *swami_patch_remove_control;
 
+/*
+ Getter function returning swami_patch_prop_title_control.
+ Useful when libswami library is used as a shared library linked at load time.
+*/
+SwamiControl *
+swami_patch_get_prop_title_control(void)
+{
+    return swami_patch_prop_title_control;
+}
+
+/*
+ Getter function returning swami_patch_add_control.
+ Useful when libswami library is used as a shared library linked at load time.
+*/
+SwamiControl *
+swami_patch_get_add_control(void)
+{
+    return swami_patch_add_control;
+}
+
+/*
+ Getter function returning swami_patch_remove_control.
+ Useful when libswami library is used as a shared library linked at load time.
+*/
+SwamiControl *
+swami_patch_get_remove_control(void)
+{
+    return swami_patch_remove_control;
+}
 
 /**
  * swami_init:
@@ -104,7 +135,7 @@ swami_init (void)
 
   /* create IpatchItem title property control */
   swami_patch_prop_title_control	 /* ++ ref forever */
-    = SWAMI_CONTROL (swami_control_prop_new (NULL, ipatch_item_pspec_title));
+    = SWAMI_CONTROL (swami_control_prop_new (NULL, ipatch_item_get_pspec_title()));
 
   /* create ipatch container event controls */
   swami_patch_add_control = swami_control_new (); /* ++ ref forever */
