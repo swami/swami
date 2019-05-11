@@ -616,10 +616,10 @@ swamigui_spectrum_canvas_set_data (SwamiguiSpectrumCanvas *canvas,
 				   double *spectrum, guint size,
 				   SwamiguiSpectrumDestroyNotify notify)
 {
-  g_return_if_fail (SWAMIGUI_IS_SPECTRUM_CANVAS (canvas));
-  g_return_if_fail (!spectrum || size > 0);
   double max = 0.0;
   int i;
+  g_return_if_fail (SWAMIGUI_IS_SPECTRUM_CANVAS (canvas));
+  g_return_if_fail (!spectrum || size > 0);
 
   if (spectrum == canvas->spectrum)
     return;
