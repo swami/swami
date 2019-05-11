@@ -23,6 +23,7 @@ include_directories (
 # ************ swamigui Library ************
 
 set ( libswamigui_public_HEADERS
+    builtin_enums.h
     SwamiguiBar.h
     SwamiguiBarPtr.h
     SwamiguiCanvasMod.h
@@ -67,6 +68,7 @@ set ( libswamigui_public_HEADERS
 ) 
 
 set ( libswamigui_SOURCES
+    builtin_enums.c
     SwamiguiBar.c
     SwamiguiBarPtr.c
     SwamiguiCanvasMod.c
@@ -130,7 +132,6 @@ add_definitions (
 )
 
 add_library ( libswamigui
-    ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.c
     ${CMAKE_CURRENT_BINARY_DIR}/marshals.c
     ${libswamigui_SOURCES}
 )
@@ -184,10 +185,8 @@ add_subdirectory ( images )
 find_program (GLIB2_MKENUMS glib-mkenums)
 find_program (SED sed)
 
-add_custom_command (
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.h
+add_custom_target (libswamigui-enums
   COMMAND ${GLIB2_MKENUMS}
-  ARGS
     --fhead \"\#ifndef __SWAMIGUI_BUILTIN_ENUMS_H__\\n\"
     --fhead \"\#define __SWAMIGUI_BUILTIN_ENUMS_H__\\n\\n\"
     --fhead \"\#include <glib-object.h>\\n\\n\"
@@ -199,14 +198,8 @@ add_custom_command (
     --ftail \"\#endif /* __SWAMIGUI_BUILTIN_ENUMS_H__ */\"
     ${libswamigui_public_HEADERS}
     > ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.h
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  DEPENDS ${libswamigui_public_HEADERS}
-)
 
-add_custom_command (
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.c
   COMMAND ${GLIB2_MKENUMS}
-  ARGS
     --fhead \"\#include \\"swamigui.h\\"\\n\"
     --fprod \"/* enumerations from \\"@filename@\\" */\"
     --vhead \"static const G@Type@Value _@enum_name@_values[] = {\"
@@ -220,7 +213,7 @@ add_custom_command (
     ${libswamigui_public_HEADERS}
     > ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.c
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  DEPENDS ${libswamigui_public_HEADERS} ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.h
+  DEPENDS ${libswamigui_public_HEADERS}
 )
 
 
