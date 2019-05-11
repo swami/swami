@@ -20,10 +20,11 @@ include_directories (
 
 #adding installed dirent support for Windows
 if ( WIN32 )
-    set (DIRENT_INCLUDE_PATH "d:\\freesw\\include\\dirent" 
+    #let the user choosing additionnal search path
+    set (DIRENT_INCLUDE_PATH ""
            CACHE FILEPATH "Path of dirent.h"
         )
-    set (CMAKE_REQUIRED_INCLUDES ${DIRENT_INCLUDE_PATH})
+    set (CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${DIRENT_INCLUDE_PATH})
     unset (HAVE_DIRENT_H CACHE)
     check_include_file ( dirent.h HAVE_DIRENT_H )
     if ( HAVE_DIRENT_H )
