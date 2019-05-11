@@ -183,7 +183,6 @@ add_subdirectory ( images )
 
 
 find_program (GLIB2_MKENUMS glib-mkenums)
-find_program (SED sed)
 
 add_custom_target (libswamigui-enums
   COMMAND ${GLIB2_MKENUMS}
