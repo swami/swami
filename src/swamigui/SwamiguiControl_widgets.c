@@ -1004,7 +1004,7 @@ combo_box_enum_control_handler (GObject *widget, GType value_type, GParamSpec *p
   GtkListStore *store;
   GtkTreeIter iter;
   char *s;
-  int i;
+  guint i;
 
   g_return_val_if_fail (G_TYPE_FUNDAMENTAL (value_type) == G_TYPE_ENUM, NULL);
 
@@ -1069,7 +1069,7 @@ combo_box_enum_control_get_func (SwamiControl *control, GValue *value)
   GEnumClass *enumklass;
   GParamSpec *pspec;
   gpointer data;
-  int active;
+  int active,n_values;
 
   SWAMI_LOCK_READ (control);
   data = SWAMI_CONTROL_FUNC_DATA (control);
@@ -1081,8 +1081,8 @@ combo_box_enum_control_get_func (SwamiControl *control, GValue *value)
   {
     enumklass = g_type_class_ref (G_PARAM_SPEC_TYPE (pspec));	/* ++ ref enum class */
     active = gtk_combo_box_get_active (combo);
-
-    if (active != -1 && active < enumklass->n_values)
+	n_values = enumklass->n_values;
+    if (active != -1 && active < n_values)
       g_value_set_enum (value, enumklass->values[active].value);
 
     g_type_class_unref (enumklass);		/* -- unref enum class */
@@ -1101,7 +1101,8 @@ combo_box_enum_control_set_func (SwamiControl *control, SwamiControlEvent *event
   GEnumClass *enumklass;
   GParamSpec *pspec;
   gpointer data;
-  int pos, val;
+  int val;
+  guint pos;
   GType type;
 
   /* minimize lock time - ref the combo box */
@@ -1145,7 +1146,7 @@ combo_box_enum_control_changed (GtkComboBox *combo, gpointer user_data)
   GParamSpec *pspec;
   GValue value = { 0 };
   GType type;
-  int active;
+  guint active;
 
   pspec = swami_control_get_spec (control);	/* ++ ref param spec */
 
@@ -1154,7 +1155,6 @@ combo_box_enum_control_changed (GtkComboBox *combo, gpointer user_data)
 
   enumklass = g_type_class_ref (type);	/* ++ ref enum class */
   active = gtk_combo_box_get_active (combo);
-
   /* transmit the combo box change */
   if (active < enumklass->n_values)
   {

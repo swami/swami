@@ -274,10 +274,11 @@ swamigui_item_menu_add (SwamiguiItemMenu *menu,
 			const SwamiguiItemMenuInfo *info, const char *action_id)
 {
   GtkWidget *mitem;
-  guint key, mods;
+  guint key;
+  GdkModifierType mods;
   char *accel_path;
   GList *list, *p;
-  int order;
+  guint order;
   int index;
 
   g_return_val_if_fail (SWAMIGUI_IS_ITEM_MENU (menu), NULL);

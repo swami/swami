@@ -283,7 +283,7 @@ swamigui_panel_selector_real_set_selection (SwamiguiPanelSelector *selector,
   PanelInfo *info;
   GList *children;
   GList *p;
-  int i;
+  guint i;
 
   g_return_val_if_fail (SWAMIGUI_IS_PANEL_SELECTOR (selector), FALSE);
 

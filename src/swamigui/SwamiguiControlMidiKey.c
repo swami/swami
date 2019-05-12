@@ -504,7 +504,7 @@ swamigui_control_midi_key_set_lower (SwamiguiControlMidiKey *keyctrl,
 				    const guint *keys, guint count)
 {
   MidiKey midikey;
-  int i;
+  guint i;
 
   g_return_if_fail (SWAMIGUI_IS_CONTROL_MIDI_KEY (keyctrl));
   g_return_if_fail (keys != NULL || count == 0);
@@ -534,7 +534,7 @@ swamigui_control_midi_key_set_upper (SwamiguiControlMidiKey *keyctrl,
 				    const guint *keys, guint count)
 {
   MidiKey midikey;
-  int i;
+  guint i;
 
   g_return_if_fail (SWAMIGUI_IS_CONTROL_MIDI_KEY (keyctrl));
   g_return_if_fail (keys != NULL || count == 0);

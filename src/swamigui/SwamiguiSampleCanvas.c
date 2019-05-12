@@ -650,8 +650,8 @@ swamigui_sample_canvas_draw_loop (SwamiguiSampleCanvas *canvas,
 
   /* calculate start and end offset, in sample points, from center to the
      left and right edges of the rectangular drawing area (-/+ 1 for tiling) */
-  start_ofs = (x - hcenter) * canvas->zoom - 1;
-  end_ofs = (x + width - hcenter) * canvas->zoom + 1;
+  start_ofs = (int)((x - hcenter) * canvas->zoom - 1);
+  end_ofs = (int)((x + width - hcenter) * canvas->zoom + 1);
 
   /* do loop start point first, jump to 'do_loopend' label will occur for
      loop end point */
@@ -685,12 +685,12 @@ swamigui_sample_canvas_draw_loop (SwamiguiSampleCanvas *canvas,
 	  for (i = 0; i < this_size; i++, sample_ofs++)
 	    {
 	      /* calculate pixel offset from center */
-	      xpos = (sample_ofs - loop_index) / canvas->zoom + 0.5;
+	      xpos = (int)((sample_ofs - loop_index) / canvas->zoom + 0.5);
 	      xpos += hcenter - x; /* adjust to drawable coordinates */
 
 	      /* calculate amplitude ypos */
-	      ypos = height_1 - (((int)i16buf[i]) + 32768) * sample_mul - y
-		+ canvas->y;
+	      ypos = (int)(height_1 - (((int)i16buf[i]) + 32768) * sample_mul - y
+		+ canvas->y);
 
 	      if (point_width)
 		gdk_draw_rectangle (drawable, gc, TRUE,
@@ -720,24 +720,26 @@ swamigui_sample_canvas_draw_points (SwamiguiSampleCanvas *canvas,
 {
   GdkPoint static_points[STATIC_POINTS];
   GdkPoint *points;
-  int sample_start, sample_end, sample_count, point_index;
+  int sample_start, sample_end,  point_index;
+  guint sample_count;
   int height_1;
   guint sample_ofs, size_left, this_size;
   double sample_mul;
   gint16 *i16buf;
-  int i;
+  guint i;
+  int sample_size = canvas->sample_size;
 
   /* calculate start sample (-1 for tiling) */
-  sample_start = canvas->start + x * canvas->zoom;
+  sample_start = (int)(canvas->start + x * canvas->zoom);
 
   /* calculate end sample (+1 for tiling) */
-  sample_end = canvas->start + ((x + width) * canvas->zoom) + 1;
+  sample_end = (int)(canvas->start + ((x + width) * canvas->zoom) + 1);
 
   /* no samples in area? */
-  if (sample_start >= canvas->sample_size || sample_end < 0) return;
+  if (sample_start >= sample_size || sample_end < 0) return;
 
-  sample_start = CLAMP (sample_start, 0, canvas->sample_size - 1);
-  sample_end = CLAMP (sample_end, 0, canvas->sample_size - 1);
+  sample_start = CLAMP (sample_start, 0, sample_size - 1);
+  sample_end = CLAMP (sample_end, 0, sample_size - 1);
   sample_count = sample_end - sample_start + 1;
 
   height_1 = canvas->height - 1; /* height - 1 */
@@ -774,8 +776,8 @@ swamigui_sample_canvas_draw_points (SwamiguiSampleCanvas *canvas,
 	    + canvas->x;
 
 	  /* calculate amplitude ypos */
-	  points[point_index].y = height_1 - (((int)i16buf[i]) + 32768)
-	    * sample_mul - y + canvas->y;
+	  points[point_index].y = (gint)(height_1 - (((int)i16buf[i]) + 32768)
+	    * sample_mul - y + canvas->y);
 	}
 
       size_left -= this_size;
@@ -817,19 +819,20 @@ swamigui_sample_canvas_draw_segments (SwamiguiSampleCanvas *canvas,
   double sample_mul;
   gint16 *i16buf;
   gint16 min, max;
-  int i;
+  guint i;
+  int sample_size = canvas->sample_size;
 
   /* calculate start sample */
-  sample_start = canvas->start + x * canvas->zoom + 0.5;
+  sample_start = (int)(canvas->start + x * canvas->zoom + 0.5);
 
   /* calculate end sample */
-  sample_end = canvas->start + (x + width) * canvas->zoom + 0.5;
+  sample_end = (int)(canvas->start + (x + width) * canvas->zoom + 0.5);
 
   /* no samples in area? */
-  if (sample_start >= canvas->sample_size || sample_end < 0) return;
+  if (sample_start >= sample_size || sample_end < 0) return;
 
-  sample_start = CLAMP (sample_start, 0, canvas->sample_size - 1);
-  sample_end = CLAMP (sample_end, 0, canvas->sample_size - 1);
+  sample_start = CLAMP (sample_start, 0, sample_size - 1);
+  sample_end = CLAMP (sample_end, 0, sample_size - 1);
   sample_count = sample_end - sample_start + 1;
 
   height_1 = canvas->height - 1; /* height - 1 */
@@ -845,7 +848,7 @@ swamigui_sample_canvas_draw_segments (SwamiguiSampleCanvas *canvas,
   this_size = canvas->max_frames;
   segment_index = 0;
   min = max = 0;
-  next_index = canvas->start + (x + 1) * canvas->zoom + 0.5;
+  next_index = (int)(canvas->start + (x + 1) * canvas->zoom + 0.5);
 
   while (size_left > 0)
     {
@@ -866,14 +869,14 @@ swamigui_sample_canvas_draw_segments (SwamiguiSampleCanvas *canvas,
 	      segments[segment_index].x1 = segment_index + canvas->x;
 	      segments[segment_index].x2 = segments[segment_index].x1;
 	      segments[segment_index].y1
-		= height_1 - (((int)max) + 32768) * sample_mul - y + canvas->y;
+		= (gint)(height_1 - (((int)max) + 32768) * sample_mul - y + canvas->y);
 	      segments[segment_index].y2
-		= height_1 - (((int)min) + 32768) * sample_mul - y + canvas->y;
+		= (gint)(height_1 - (((int)min) + 32768) * sample_mul - y + canvas->y);
 
 	      min = max = 0;
 	      segment_index++;
-	      next_index = canvas->start
-		+ (x + segment_index + 1) * canvas->zoom + 0.5;
+	      next_index = (int)(canvas->start
+		+ (x + segment_index + 1) * canvas->zoom + 0.5);
 	    }
 
 	  if (i16buf[i] < min) min = i16buf[i];
@@ -932,7 +935,7 @@ swamigui_sample_canvas_cb_adjustment_value_changed (GtkAdjustment *adj,
 
   canvas->update_adj = FALSE;	/* disable adjustment updates to stop
 				   adjustment loop */
-  start = adj->value;
+  start = (guint)adj->value;
   g_object_set (canvas, "start", start, NULL);
 
   canvas->update_adj = update_adj; /* restore update adjustment setting */
@@ -1043,19 +1046,20 @@ int
 swamigui_sample_canvas_xpos_to_sample (SwamiguiSampleCanvas *canvas, int xpos,
 				       int *onsample)
 {
-  int index;
+  int index,sample_size;
 
   if (onsample) *onsample = -1;
 
   g_return_val_if_fail (SWAMIGUI_IS_SAMPLE_CANVAS (canvas), 0);
 
-  index = canvas->start + canvas->zoom * xpos;
+  index = (int)(canvas->start + canvas->zoom * xpos);
+  sample_size = canvas->sample_size;
 
   if (onsample && canvas->sample)
   {
     if (index < 0) *onsample = -1;
-    else if (index > canvas->sample_size) *onsample = 1;
-    else if (index == canvas->sample_size) *onsample = 2;
+    else if (index > sample_size) *onsample = 1;
+    else if (index == sample_size) *onsample = 2;
     else *onsample = 0;
   }
 
@@ -1079,16 +1083,16 @@ int
 swamigui_sample_canvas_sample_to_xpos (SwamiguiSampleCanvas *canvas, int index,
 				       int *inview)
 {
-  int xpos;
+  int xpos, start;
 
   g_return_val_if_fail (SWAMIGUI_IS_SAMPLE_CANVAS (canvas), 0);
-
-  xpos = (index - canvas->start) / canvas->zoom + 0.5;
+  start = canvas->start;
+  xpos = (int)((index - start) / canvas->zoom + 0.5);
 
   if (inview)
   {
     /* set inview output parameter as appropriate */
-    if (index < canvas->start) *inview = -1;
+    if (index < start) *inview = -1;
     else if (xpos >= canvas->width) *inview = 1;
     else *inview = 0;
   }

@@ -1050,6 +1050,7 @@ swamigui_sample_editor_cb_sample_canvas_event (GnomeCanvas *canvas,
   int val;
   guint newstart, newend;
   gboolean onbox;
+  int sample_size = editor->sample_size;
 
   if (!editor->tracks) return (FALSE);
   track_info = (TrackInfo *)(editor->tracks->data);
@@ -1078,19 +1079,19 @@ swamigui_sample_editor_cb_sample_canvas_event (GnomeCanvas *canvas,
       marker_info = g_list_nth_data (editor->markers, editor->sel_marker);
       if (!marker_info) break;
 
-      val = swamigui_sample_canvas_xpos_to_sample (sample_view, motion_event->x,
+      val = swamigui_sample_canvas_xpos_to_sample (sample_view, (int)motion_event->x,
 						   NULL);
       newstart = marker_info->start_pos;
       newend = marker_info->end_pos;
 
       if (editor->sel_marker_edge == -1)	/* start edge selected? */
-	newstart = CLAMP (val, 0, (int)editor->sample_size);
+	newstart = CLAMP (val, 0, sample_size);
       else if (editor->sel_marker_edge == 1)	/* end edge selected? */
-	newend = CLAMP (val, 0, (int)editor->sample_size);
+	newend = CLAMP (val, 0, sample_size);
       else		/* range move (both edges selected) */
       {
 	val -= editor->move_range_ofs;
-	newstart = CLAMP (val, 0, (int)(editor->sample_size - (newend - newstart)));
+	newstart = CLAMP (val, 0, (int)(sample_size - (newend - newstart)));
 	newend += newstart - marker_info->start_pos;
       }
 
@@ -1105,9 +1106,9 @@ swamigui_sample_editor_cb_sample_canvas_event (GnomeCanvas *canvas,
     }
     else if (editor->sel_state != SEL_INACTIVE)	/* if drag sel not inactive.. */
     {
-      val = swamigui_sample_canvas_xpos_to_sample (sample_view, motion_event->x,
+      val = swamigui_sample_canvas_xpos_to_sample (sample_view, (int)motion_event->x,
 						   NULL);
-      val = CLAMP (val, 0, editor->sample_size);
+      val = CLAMP (val, 0, sample_size);
 
       /* get selection marker info */
       marker_info = g_list_nth_data (editor->markers, 0);
@@ -1146,7 +1147,7 @@ swamigui_sample_editor_cb_sample_canvas_event (GnomeCanvas *canvas,
     else  /* no marker sel or range sel active - mouse cursor over marker? */
     {
       /* see if mouse is over a marker */
-      marker_info = pos_is_marker (editor, motion_event->x, motion_event->y,
+      marker_info = pos_is_marker (editor, (int)motion_event->x, (int)motion_event->y,
 				   NULL, &onbox);
 
       /* see if cursor should be changed */
@@ -1168,7 +1169,7 @@ swamigui_sample_editor_cb_sample_canvas_event (GnomeCanvas *canvas,
 
     if (swamigui_root_is_middle_click (NULL, btn_event))        /* middle click moves marker ranges */
     {
-      marker_info = pos_is_marker (editor, btn_event->x, btn_event->y,
+      marker_info = pos_is_marker (editor, (int)btn_event->x, (int)btn_event->y,
 				   NULL, &onbox);
       if (marker_info && onbox)	/* if click on a range box.. */
       {
@@ -1176,7 +1177,7 @@ swamigui_sample_editor_cb_sample_canvas_event (GnomeCanvas *canvas,
 	editor->sel_marker_edge = 0;
 
 	/* calculate offset in samples from range start to click pos */
-	val = swamigui_sample_canvas_xpos_to_sample (sample_view, btn_event->x,
+	val = swamigui_sample_canvas_xpos_to_sample (sample_view, (int)btn_event->x,
 						     NULL);
 	editor->move_range_ofs = val - marker_info->start_pos;
       }
@@ -1188,7 +1189,7 @@ swamigui_sample_editor_cb_sample_canvas_event (GnomeCanvas *canvas,
     if (btn_event->button != 1) break;
 
     /* is it a marker click? */
-    marker_info = pos_is_marker (editor, btn_event->x, btn_event->y,
+    marker_info = pos_is_marker (editor, (int)btn_event->x, (int)btn_event->y,
 				 &editor->sel_marker_edge, NULL);
     if (marker_info)
     {
@@ -1198,10 +1199,10 @@ swamigui_sample_editor_cb_sample_canvas_event (GnomeCanvas *canvas,
 
     /* get sample position of click and assign to sel_temp */
     editor->sel_temp
-      = swamigui_sample_canvas_xpos_to_sample (sample_view, btn_event->x, NULL);
+      = swamigui_sample_canvas_xpos_to_sample (sample_view, (int)btn_event->x, NULL);
 
     /* if click is within the sample, we have a potential selection */
-    if (editor->sel_temp >= 0 && editor->sel_temp < editor->sample_size)
+    if (editor->sel_temp >= 0 && editor->sel_temp < sample_size)
       editor->sel_state = SEL_MAYBE;
 
     break;
@@ -1359,7 +1360,7 @@ swamigui_sample_editor_sample_mod_update (SwamiguiCanvasMod *mod, double xzoom,
     /* do accumulation of scroll value, since we can only scroll by samples */
     editor->scroll_acc += xscroll;
 
-    if (editor->scroll_acc >= 1.0) val = editor->scroll_acc;
+    if (editor->scroll_acc >= 1.0) val = (int)editor->scroll_acc;
     else if (editor->scroll_acc <= -1.0) val = -(int)(-editor->scroll_acc);
     else val = 0;
 
@@ -1503,11 +1504,11 @@ swamigui_sample_editor_zoom_ofs (SwamiguiSampleEditor *editor, double zoom_amt,
     {
       sample_ofs -= zoom_xpos * newzoom; /* subtract new zoom offset */
       if (sample_ofs < 0.0 && -sample_ofs > newstart) newstart = 0;
-      else newstart += (sample_ofs + 0.5);
+      else newstart += (guint)(sample_ofs + 0.5);
 
       /* make sure sample doesn't end in the middle of the display */
       if (newstart + width * newzoom > editor->sample_size)
-	newstart = editor->sample_size - width * newzoom;
+	newstart = (guint)(editor->sample_size - width * newzoom);
     }
 
   if (newzoom == zoom && newstart == start) return;
@@ -1553,7 +1554,7 @@ swamigui_sample_editor_scroll_ofs (SwamiguiSampleEditor *editor,
 		"width", &width,
 		NULL);
 
-  last_sample = editor->sample_size - zoom * width;
+  last_sample = (int)(editor->sample_size - zoom * width);
   if (last_sample < 0) return;	/* sample too small for current zoom? */
 
   newstart = (int)start_sample + sample_ofs;

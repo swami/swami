@@ -212,7 +212,7 @@ swamigui_tree_store_patch_real_item_add (
   GArray *title_sort_array = NULL;
   GHashTable *prev_child_hash = NULL;
   GList *p;
-  int i;
+  guint i;
 
   /* ++ ref parent */
   parent = (GObject *)ipatch_item_get_parent (IPATCH_ITEM (item));
