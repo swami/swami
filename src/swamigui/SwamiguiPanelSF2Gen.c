@@ -209,6 +209,9 @@ swamigui_panel_sf2_gen_set_controls (SwamiguiPanelSF2Gen *genpanel,
   GenWidgets *genwidgets;
   int i, ctrlndx, genid, row;
   SwamiguiPanelSF2GenCtrlInfo *ctrlp;
+  /* get ipatch_sf2_gen_info from libinstpatch library */
+  const IpatchSF2GenInfo * ipatch_sf2_gen_info = ipatch_sf2_get_gen_info();
+
 
   g_return_if_fail (SWAMIGUI_IS_PANEL_SF2_GEN (genpanel));
   g_return_if_fail (ctrlinfo != NULL);

@@ -23,6 +23,7 @@ include_directories (
 # ************ swamigui Library ************
 
 set ( libswamigui_public_HEADERS
+    builtin_enums.h
     SwamiguiBar.h
     SwamiguiBarPtr.h
     SwamiguiCanvasMod.h
@@ -67,6 +68,7 @@ set ( libswamigui_public_HEADERS
 ) 
 
 set ( libswamigui_SOURCES
+    builtin_enums.c
     SwamiguiBar.c
     SwamiguiBarPtr.c
     SwamiguiCanvasMod.c
@@ -129,10 +131,20 @@ add_definitions (
     -DG_LOG_DOMAIN=\"libswamigui\"
 )
 
+set (DEFINITION_FILE "")
+# Options for WINDOWS only
+if( WIN32 )
+    # disable deprecation warnings 
+    add_definitions ( -D_CRT_SECURE_NO_WARNINGS )
+    if (BUILD_SHARED_LIBS)
+        # adding a module definition file for shared libs will export symbols and produce import library
+        set (DEFINITION_FILE libswamigui.def)
+    endif(BUILD_SHARED_LIBS)
+endif( WIN32 )
+
 add_library ( libswamigui
-    ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.c
     ${CMAKE_CURRENT_BINARY_DIR}/marshals.c
-    ${libswamigui_SOURCES}
+    ${libswamigui_SOURCES} ${DEFINITION_FILE}
 )
 
 if (UNIX)
@@ -182,12 +194,9 @@ add_subdirectory ( images )
 
 
 find_program (GLIB2_MKENUMS glib-mkenums)
-find_program (SED sed)
 
-add_custom_command (
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.h
+add_custom_target (libswamigui-enums
   COMMAND ${GLIB2_MKENUMS}
-  ARGS
     --fhead \"\#ifndef __SWAMIGUI_BUILTIN_ENUMS_H__\\n\"
     --fhead \"\#define __SWAMIGUI_BUILTIN_ENUMS_H__\\n\\n\"
     --fhead \"\#include <glib-object.h>\\n\\n\"
@@ -199,14 +208,8 @@ add_custom_command (
     --ftail \"\#endif /* __SWAMIGUI_BUILTIN_ENUMS_H__ */\"
     ${libswamigui_public_HEADERS}
     > ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.h
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  DEPENDS ${libswamigui_public_HEADERS}
-)
 
-add_custom_command (
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.c
   COMMAND ${GLIB2_MKENUMS}
-  ARGS
     --fhead \"\#include \\"swamigui.h\\"\\n\"
     --fprod \"/* enumerations from \\"@filename@\\" */\"
     --vhead \"static const G@Type@Value _@enum_name@_values[] = {\"
@@ -220,7 +223,7 @@ add_custom_command (
     ${libswamigui_public_HEADERS}
     > ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.c
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  DEPENDS ${libswamigui_public_HEADERS} ${CMAKE_CURRENT_BINARY_DIR}/builtin_enums.h
+  DEPENDS ${libswamigui_public_HEADERS}
 )
 
 
@@ -260,7 +263,14 @@ if ( MACOSX_FRAMEWORK )
         VERSION ${LIB_VERSION_INFO}
         SOVERSION ${LIB_VERSION_CURRENT}
     )
-else ( MACOSX_FRAMEWORK )
+elseif( MINGW OR WIN32 )
+  set_target_properties ( libswamigui
+    PROPERTIES
+      PREFIX ""
+      OUTPUT_NAME "libswamigui"
+      VERSION ${LIB_VERSION_INFO}
+  )
+else ( MINGW OR WIN32 )
   set_target_properties ( libswamigui
     PROPERTIES
       PREFIX "lib"

@@ -699,11 +699,11 @@ swamigui_root_init (SwamiguiRoot *root)
 			   root->ctrl_queue);
 
   /* connect controls to ipatch event senders */
-  swami_control_connect (swami_patch_prop_title_control,
+  swami_control_connect (swami_patch_get_prop_title_control(),
 			 SWAMI_CONTROL (root->ctrl_prop), 0);
-  swami_control_connect (swami_patch_add_control,
+  swami_control_connect (swami_patch_get_add_control(),
 			 SWAMI_CONTROL (root->ctrl_add), 0);
-  swami_control_connect (swami_patch_remove_control,
+  swami_control_connect (swami_patch_get_remove_control(),
 			 SWAMI_CONTROL (root->ctrl_remove), 0);
 
   /* add patch store to tree store list */
@@ -1229,6 +1229,17 @@ swamigui_get_root (gpointer gobject)
   if (!root) return (swamigui_root);
 
   return (root);
+}
+
+/*
+ * Getter returning swamigui_root.
+ * Useful when libswamigui is used as a shared library
+   For example, plugins fluidsynth_gui and fluidsynth_plugin need swamigui_root.
+ */
+SwamiguiRoot *
+swamigui_get_swamigui_root (void)
+{
+	return (swamigui_root);
 }
 
 /* Create main window and controls */
