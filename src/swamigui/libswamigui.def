@@ -1,7 +1,5 @@
 LIBRARY
 EXPORTS
-; fonctions appellées par ffttune_gui
-; fonctions appellées par fluidsynth_gui
 
 swamigui_control_glade_prop_connect
 swamigui_spectrum_canvas_get_type
@@ -11,9 +9,8 @@ swamigui_spectrum_canvas_set_data
 swamigui_panel_get_type
 swamigui_register_panel_selector_type
 
-; la variable globale swamigui_root doit être accessible
-; depuis une autre dll via la fonction d'accès swamigui_get_swamigui_root()
 ; swamigui_root DATA
+; getter function to access swamigui_root
 swamigui_get_swamigui_root
 
 swamigui_root_activate
