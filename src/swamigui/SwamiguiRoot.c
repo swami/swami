@@ -1231,6 +1231,17 @@ swamigui_get_root (gpointer gobject)
   return (root);
 }
 
+/*
+ * Getter returning swamigui_root.
+ * Useful when libswamigui is used as a shared library
+   For example, plugins fluidsynth_gui and fluidsynth_plugin need swamigui_root.
+ */
+SwamiguiRoot *
+swamigui_get_swamigui_root (void)
+{
+	return (swamigui_root);
+}
+
 /* Create main window and controls */
 static void
 swamigui_root_create_main_window (SwamiguiRoot *root)

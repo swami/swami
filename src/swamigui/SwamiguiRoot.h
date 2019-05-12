@@ -110,6 +110,10 @@ struct _SwamiguiRootClass
 extern SwamiguiRoot *swamigui_root;
 extern SwamiRoot *swami_root;	/* just for convenience */
 
+/* Getter returning swamigui_root. */
+/* Useful when libswamigui is used as a shared library */
+SwamiguiRoot *swamigui_get_swamigui_root (void);
+
 void swamigui_init (int *argc, char **argv[]);
 GType swamigui_root_get_type (void);
 SwamiguiRoot *swamigui_root_new (void);
