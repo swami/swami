@@ -134,6 +134,8 @@ add_definitions (
 set (DEFINITION_FILE "")
 # Options for WINDOWS only
 if( WIN32 )
+    # disable deprecation warnings 
+    add_definitions ( -D_CRT_SECURE_NO_WARNINGS )
     if (BUILD_SHARED_LIBS)
         # adding a module definition file for shared libs will export symbols and produce import library
         set (DEFINITION_FILE libswamigui.def)
@@ -261,7 +263,14 @@ if ( MACOSX_FRAMEWORK )
         VERSION ${LIB_VERSION_INFO}
         SOVERSION ${LIB_VERSION_CURRENT}
     )
-else ( MACOSX_FRAMEWORK )
+elseif( MINGW OR WIN32 )
+  set_target_properties ( libswamigui
+    PROPERTIES
+      PREFIX ""
+      OUTPUT_NAME "libswamigui"
+      VERSION ${LIB_VERSION_INFO}
+  )
+else ( MINGW OR WIN32 )
   set_target_properties ( libswamigui
     PROPERTIES
       PREFIX "lib"
