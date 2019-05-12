@@ -131,9 +131,18 @@ add_definitions (
     -DG_LOG_DOMAIN=\"libswamigui\"
 )
 
+set (DEFINITION_FILE "")
+# Options for WINDOWS only
+if( WIN32 )
+    if (BUILD_SHARED_LIBS)
+        # adding a module definition file for shared libs will export symbols and produce import library
+        set (DEFINITION_FILE libswamigui.def)
+    endif(BUILD_SHARED_LIBS)
+endif( WIN32 )
+
 add_library ( libswamigui
     ${CMAKE_CURRENT_BINARY_DIR}/marshals.c
-    ${libswamigui_SOURCES}
+    ${libswamigui_SOURCES} ${DEFINITION_FILE}
 )
 
 if (UNIX)

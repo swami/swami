@@ -1,0 +1,37 @@
+LIBRARY
+EXPORTS
+; fonctions appellées par ffttune_gui
+; fonctions appellées par fluidsynth_gui
+
+swamigui_control_glade_prop_connect
+swamigui_spectrum_canvas_get_type
+swamigui_control_adj_new
+swamigui_note_selector_new
+swamigui_spectrum_canvas_set_data
+swamigui_panel_get_type
+swamigui_register_panel_selector_type
+
+; la variable globale swamigui_root doit être accessible
+; depuis une autre dll via la fonction d'accès swamigui_get_swamigui_root()
+; swamigui_root DATA
+swamigui_get_swamigui_root
+
+swamigui_root_activate
+swamigui_root_load_prefs
+swamigui_root_new
+
+swamigui_knob_get_adjustment
+swamigui_knob_get_type
+swamigui_control_new_for_widget
+swamigui_control_new_for_widget_full
+swamigui_control_prop_connect_widget
+
+swamigui_util_glade_create
+swamigui_util_glade_lookup
+
+swamigui_register_pref_handler
+
+swamigui_disable_plugins
+swamigui_disable_python
+
+swamigui_init
