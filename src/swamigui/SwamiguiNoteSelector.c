@@ -76,7 +76,7 @@ swamigui_note_selector_output (GtkSpinButton *spinbutton)
   int note;
 
   adj = gtk_spin_button_get_adjustment (spinbutton);
-  note = adj->value;
+  note = (int)adj->value;
 
   if (note >= 0 && note <= 127)
   {

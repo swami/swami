@@ -730,8 +730,8 @@ swamigui_tree_cb_button_press (GtkWidget *widg, GdkEventButton *event,
   if (!tree->seltree) return (FALSE);	/* Shouldn't happen, but.. */
   if (event->button != 3) return (FALSE);
 
-  x = event->x;		/* x and y coordinates are of type double */
-  y = event->y;		/* convert to integer */
+  x = (int)event->x;		/* x and y coordinates are of type double */
+  y = (int)event->y;		/* convert to integer */
 
   /* get the tree path at the given mouse cursor position
    * ++ alloc path */

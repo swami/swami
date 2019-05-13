@@ -510,7 +510,7 @@ swamigui_splits_cb_low_canvas_event (GnomeCanvasItem *item, GdkEvent *event,
       if (!(bevent->button >= 1 && bevent->button <= 3) || bevent->y < 0.0)
 	break;
 
-      p = swamigui_splits_get_split_at_pos (splits, bevent->x, bevent->y, &index);
+      p = swamigui_splits_get_split_at_pos (splits, (int)bevent->x, (int)bevent->y, &index);
       if (!p) return (FALSE);	/* no split found? */
 
       selsplit = (SwamiguiSplitsEntry *)(p->data);
@@ -675,7 +675,7 @@ swamigui_splits_cb_low_canvas_event (GnomeCanvasItem *item, GdkEvent *event,
       mevent = (GdkEventMotion *)event;
       if (splits->active_drag == ACTIVE_NONE)
 	{
-	  p = swamigui_splits_get_split_at_pos (splits, mevent->x, mevent->y, NULL);
+	  p = swamigui_splits_get_split_at_pos (splits, (int)mevent->x, (int)mevent->y, NULL);
 	  if (p)
 	    {
 	      entry = (SwamiguiSplitsEntry *)(p->data);
@@ -743,7 +743,7 @@ swamigui_splits_cb_low_canvas_event (GnomeCanvasItem *item, GdkEvent *event,
 
 	  if (splits->active_drag != ACTIVE_MOVE_RANGES && entry->rootnote)
 	  {
-	    if ((int)(entry->rootnote_val) + noteofs < 0) noteofs = -entry->rootnote_val;
+	    if ((int)(entry->rootnote_val) + noteofs < 0) noteofs = -(int)entry->rootnote_val;
 	    if ((int)(entry->rootnote_val) + noteofs > 127) noteofs = 127 - entry->rootnote_val;
 	  }
 	}
@@ -1402,15 +1402,17 @@ swamigui_splits_insert (SwamiguiSplits *splits, GObject *item, int index)
 {
   SwamiguiSplitsEntry *entry;
   GList *p;
+  int entry_count;
 
   g_return_val_if_fail (SWAMIGUI_IS_SPLITS (splits), NULL);
   g_return_val_if_fail (IPATCH_IS_ITEM (item), NULL);
 
   entry = swamigui_splits_create_entry (splits, item);
+  entry_count = splits->entry_count;
 
-  if (index < 0 || index >= splits->entry_count)	/* Append? */
+  if (index < 0 || index >= entry_count)	/* Append? */
   {
-    index = splits->entry_count;
+    index = entry_count;
     splits->entry_list = g_list_append (splits->entry_list, entry);
     p = NULL;
   }
@@ -2055,9 +2057,9 @@ swamigui_splits_create_velocity_gradient (void)
 
   for (i = 0; i < 128 * 3;)
     {
-      linebuf[i++] = rval + 0.5;
-      linebuf[i++] = gval + 0.5;
-      linebuf[i++] = bval + 0.5;
+      linebuf[i++] = (guchar)(rval + 0.5);
+      linebuf[i++] = (guchar)(gval + 0.5);
+      linebuf[i++] = (guchar)(bval + 0.5);
 
       rval += rinc;
       gval += ginc;

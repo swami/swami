@@ -438,7 +438,7 @@ swamigui_loop_finder_thread_monitor (gpointer user_data)
   guint match_count;
   guint exectime;
   char *s;
-  int i;
+  guint i;
 
   /* read progress float */
   g_object_get (finder->loop_finder,
@@ -483,7 +483,7 @@ swamigui_loop_finder_thread_monitor (gpointer user_data)
     {
       gtk_list_store_append (finder->store, &iter);
 
-      quality = 100.0 - (matches[i].quality - maxq) / diffq * 100.0;
+      quality = (float)(100.0 - (matches[i].quality - maxq) / diffq * 100.0);
 
       gtk_list_store_set (finder->store, &iter,
 		  SIZE_COLUMN, matches[i].end - matches[i].start,

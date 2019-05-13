@@ -696,7 +696,8 @@ swamigui_export_samples (IpatchList *samples)
   gboolean multi;
   GtkTreeIter iter;
   IpatchSample *sample = NULL;
-  int i, sel, def_index = 0;
+  int sel, def_index = 0;
+  guint i;
   GList *p;
 
   g_return_if_fail (IPATCH_IS_LIST (samples));

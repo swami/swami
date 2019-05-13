@@ -277,12 +277,12 @@ swamigui_canvas_mod_handle_event (SwamiguiCanvasMod *mod, GdkEvent *event)
 
     mod->snap_active = TRUE;
 
-    mod->xsnap = btn_event->x;
-    mod->cur_xsnap = btn_event->x;
+    mod->xsnap = (int)btn_event->x;
+    mod->cur_xsnap = (int)btn_event->x;
     mod->cur_xchange = TRUE;
 
-    mod->ysnap = btn_event->y;
-    mod->cur_ysnap = btn_event->y;
+    mod->ysnap = (int)btn_event->y;
+    mod->cur_ysnap = (int)btn_event->y;
     mod->cur_ychange = TRUE;
 
     /* add a timeout callback for zoom/scroll if not already added */
@@ -307,13 +307,13 @@ swamigui_canvas_mod_handle_event (SwamiguiCanvasMod *mod, GdkEvent *event)
 
     if (mod->cur_xsnap != motion_event->x)
     {
-      mod->cur_xsnap = motion_event->x;
+      mod->cur_xsnap = (int)motion_event->x;
       mod->cur_xchange = TRUE;
     }
 
     if (mod->cur_ysnap != motion_event->y)
     {
-      mod->cur_ysnap = motion_event->y;
+      mod->cur_ysnap = (int)motion_event->y;
       mod->cur_ychange = TRUE;
     }
     break;
@@ -362,8 +362,8 @@ swamigui_canvas_mod_handle_event (SwamiguiCanvasMod *mod, GdkEvent *event)
     {
       mod->last_wheel_dir = scroll_event->direction;
       mod->wheel_time = mod->one_wheel_time;
-      mod->xwheel = scroll_event->x;
-      mod->ywheel = scroll_event->y;
+      mod->xwheel = (int)scroll_event->x;
+      mod->ywheel = (int)scroll_event->y;
 
       if (!mod->timeout_handler)
       {
@@ -440,6 +440,7 @@ swamigui_canvas_mod_timeout (gpointer data)
   double val, inp, inpy;
   double xpos, ypos;
   guint actions;
+  int wheel_timeout = mod->wheel_timeout;
 
   /* get current keyboard modifier state and resulting actions */
   gdk_display_get_pointer (gdk_display_get_default (), NULL, NULL, NULL, &state);
@@ -453,8 +454,8 @@ swamigui_canvas_mod_timeout (gpointer data)
   /* mouse wheel operation is active */
   if (mod->last_wheel_dir != WHEEL_INACTIVE)
   {
-    inp = mod->wheel_timeout - mod->wheel_time;
-    inp = CLAMP (inp, 0.0, mod->wheel_timeout);
+    inp = wheel_timeout - mod->wheel_time;
+    inp = CLAMP (inp, 0.0, wheel_timeout);
 
     /* calculate the last wheel event time in milliseconds, unfortunately I
      * don't think we can get the current GDK event time, so we have to use
@@ -470,7 +471,7 @@ swamigui_canvas_mod_timeout (gpointer data)
 		       - curtime.tv_usec + 500) / 1000;
 
     /* At end of wheel activity timeout? */
-    if (lastwheel >= mod->wheel_timeout)
+    if (lastwheel >= wheel_timeout)
     {
       mod->last_wheel_dir = WHEEL_INACTIVE;
 
@@ -481,8 +482,8 @@ swamigui_canvas_mod_timeout (gpointer data)
     }
 
     /* wheel timeout taper multiplier (1.0 to 0.0) */
-    wheeltaper = 1.0 - (mod->wheel_timeout - lastwheel)
-      / (double)(mod->wheel_timeout);
+    wheeltaper = 1.0 - (wheel_timeout - lastwheel)
+      / (double)(wheel_timeout);
 
     if (actions & SWAMIGUI_CANVAS_MOD_ZOOM_X)
     {

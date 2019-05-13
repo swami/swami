@@ -448,10 +448,10 @@ swamigui_spectrum_canvas_draw (GnomeCanvasItem *item, GdkDrawable *drawable,
   yofs = y - canvas->y;		/* y co-ordinate relative to spectrum pos */
 
   /* calculate start index */
-  start = canvas->start + xofs * canvas->zoom + 0.5;
+  start = (int)(canvas->start + xofs * canvas->zoom + 0.5);
 
   /* calculate end index */
-  end = canvas->start + (xofs + width) * canvas->zoom + 0.5;
+  end = (int)(canvas->start + (xofs + width) * canvas->zoom + 0.5);
 
   /* no spectrum in area? */
   if (start >= size || end < 0) return;
@@ -479,7 +479,7 @@ swamigui_spectrum_canvas_draw (GnomeCanvasItem *item, GdkDrawable *drawable,
       else segments = static_segments;
 
       max = -G_MAXDOUBLE;
-      next_index = canvas->start + (xofs + 1) * canvas->zoom + 0.5;
+      next_index = (int)(canvas->start + (xofs + 1) * canvas->zoom + 0.5);
 
       /* draw maximum lines */
       for (xpos = 0, index = start; xpos < width; xpos++)
@@ -492,19 +492,19 @@ swamigui_spectrum_canvas_draw (GnomeCanvasItem *item, GdkDrawable *drawable,
 
 	  segments[xpos].x1 = xpos;
 	  segments[xpos].x2 = xpos;
-	  segments[xpos].y1 = height_1_ofs - max * ampl_mul;
+	  segments[xpos].y1 = (gint)(height_1_ofs - max * ampl_mul);
 	  segments[xpos].y2 = height_1_ofs;
 
 	  if (index >= size) break;
 
-	  next_index = canvas->start + (xofs + xpos + 2) * canvas->zoom + 0.5;
+	  next_index = (int)(canvas->start + (xofs + xpos + 2) * canvas->zoom + 0.5);
 	  max = -G_MAXDOUBLE;
 	}
 
       gdk_draw_segments (drawable, canvas->max_gc, segments, xpos);
 
       min = G_MAXDOUBLE;
-      next_index = canvas->start + (xofs + 1) * canvas->zoom + 0.5;
+      next_index = (int)(canvas->start + (xofs + 1) * canvas->zoom + 0.5);
 
       /* draw minimum lines */
       for (xpos = 0, index = start; xpos < width; xpos++)
@@ -517,12 +517,12 @@ swamigui_spectrum_canvas_draw (GnomeCanvasItem *item, GdkDrawable *drawable,
 
 	  segments[xpos].x1 = xpos;
 	  segments[xpos].x2 = xpos;
-	  segments[xpos].y1 = height_1_ofs - min * ampl_mul;
+	  segments[xpos].y1 = (gint)(height_1_ofs - min * ampl_mul);
 	  segments[xpos].y2 = height_1_ofs;
 
 	  if (index >= size) break;
 
-	  next_index = canvas->start + (xofs + xpos + 2) * canvas->zoom + 0.5;
+	  next_index = (int)(canvas->start + (xofs + xpos + 2) * canvas->zoom + 0.5);
 	  min = G_MAXDOUBLE;
 	}
 
@@ -538,17 +538,17 @@ swamigui_spectrum_canvas_draw (GnomeCanvasItem *item, GdkDrawable *drawable,
       if (start > 0) start--;	/* draw previous bar for overlap */
 
       /* first xpos co-ordinate */
-      xpos = (start - (int)canvas->start) / canvas->zoom - xofs + 0.5;
+      xpos = (int)((start - (int)canvas->start) / canvas->zoom - xofs + 0.5);
 
       for (index = start; index <= end; index++)
 	{
-	  ypos = height_1_ofs - canvas->spectrum[index] * ampl_mul;
+	  ypos = (int)(height_1_ofs - canvas->spectrum[index] * ampl_mul);
 	  val = (index - canvas->start + 1) / canvas->zoom - xofs + 0.5;
 
 	  gdk_draw_rectangle (drawable, canvas->bar_gc, TRUE,
-			      xpos, ypos, val - xpos + 1,
+			      xpos, ypos, (gint)(val - xpos + 1),
 			      height_1_ofs - ypos + 1);
-	  xpos = val;
+	  xpos = (int)val;
 	}
     }
 }
@@ -595,7 +595,7 @@ swamigui_spectrum_canvas_cb_adjustment_value_changed (GtkAdjustment *adj,
 
   canvas->update_adj = FALSE;	/* disable adjustment updates to stop
 				   adjustment loop */
-  start = adj->value;
+  start = (guint)adj->value;
   g_object_set (canvas, "start", start, NULL);
 
   canvas->update_adj = TRUE;	/* re-enable adjustment updates */
@@ -679,13 +679,14 @@ int
 swamigui_spectrum_canvas_pos_to_spectrum (SwamiguiSpectrumCanvas *canvas,
 					  int xpos)
 {
-  int index;
+  int index, spectrum_size;
 
   g_return_val_if_fail (SWAMIGUI_IS_SPECTRUM_CANVAS (canvas), -1);
 
-  index = canvas->start + canvas->zoom * xpos;
+  index = (int)(canvas->start + canvas->zoom * xpos);
+  spectrum_size = canvas->spectrum_size;
 
-  if (index < 0 || index > canvas->spectrum_size)
+  if (index < 0 || index > spectrum_size)
     return (-1);
 
   return (index);
@@ -704,11 +705,12 @@ int
 swamigui_spectrum_canvas_spectrum_to_pos (SwamiguiSpectrumCanvas *canvas,
 					  int index)
 {
-  int xpos;
+  int xpos, start;
 
   g_return_val_if_fail (SWAMIGUI_IS_SPECTRUM_CANVAS (canvas), -1);
+  start = canvas->start;
 
-  if (index < canvas->start) return -1;	/* index before view start? */
-  xpos = (index - canvas->start) / canvas->zoom + 0.5;
+  if (index < start) return -1;	/* index before view start? */
+  xpos = (int)((index - start) / canvas->zoom + 0.5);
   return (xpos < canvas->width) ? xpos : -1; /* return if not after view end */
 }

@@ -1764,8 +1764,8 @@ category_changed_cb (GtkComboBox *combo, gpointer user_data)
   GtkTreeModel *model;
   GtkTreeIter iter;
   GtkTreePath *path;
-  gint *pinds, d;
-  guint old_cat, new_cat, i;
+  gint *pinds;
+  guint old_cat, new_cat, i, d;
 
   inst = g_object_get_data (G_OBJECT (combo), "controlled-object");
   g_return_if_fail (IPATCH_IS_SLI_INST (inst));

@@ -1066,7 +1066,7 @@ swamigui_piano_pos_to_note (SwamiguiPiano *piano, double x, double y,
     return (-1);
 
   /* calculate note */
-  note = x / piano->key_width;
+  note = (int)(x / piano->key_width);
 
   if (note >= piano->key_count) note = piano->key_count - 1;
   mod = note % 12;
@@ -1093,16 +1093,16 @@ swamigui_piano_pos_to_note (SwamiguiPiano *piano, double x, double y,
 	  if (y < piano->black_vel_ofs) *velocity = 1;
 	  else if (y > piano->black_vel_ofs + piano->black_vel_range)
 	    *velocity = 127;
-	  else *velocity = 1.0 + (y - piano->black_vel_ofs)
-		 / (piano->black_vel_range) * 126.0 + 0.5;
+	  else *velocity = (int)(1.0 + (y - piano->black_vel_ofs)
+		 / (piano->black_vel_range) * 126.0 + 0.5);
 	}
       else			/* white key */
 	{
 	  if (y < piano->white_vel_ofs) *velocity = 1;
 	  else if (y > piano->white_vel_ofs + piano->white_vel_range)
 	    *velocity = 127;
-	  else *velocity = 1.0 + (y - piano->white_vel_ofs)
-		 / (piano->white_vel_range) * 126.0 + 0.5;
+	  else *velocity = (int)(1.0 + (y - piano->white_vel_ofs)
+		 / (piano->white_vel_range) * 126.0 + 0.5);
 	}
     }
 

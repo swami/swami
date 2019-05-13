@@ -164,7 +164,7 @@ swamigui_panel_get_types_in_selection (IpatchList *selection)
   GArray *typearray;
   GType type;
   GList *p;
-  int i;
+  guint i;
 
   typearray = g_array_new (TRUE, FALSE, sizeof (GType));	/* ++ alloc */
 
