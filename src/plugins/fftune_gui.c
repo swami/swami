@@ -695,7 +695,8 @@ fftune_gui_cb_tunings_change (FFTuneSpectra *spectra, guint count,
   GtkTreeIter iter;
   double power, max_power = 0.0, freq, cents;
   char powerstr[6], freqstr[32], notestr[11], centsstr[16];
-  int i, note;
+  int note;
+  guint i;
 
   gtk_list_store_clear (fftunegui->freq_store);
 
@@ -713,7 +714,7 @@ fftune_gui_cb_tunings_change (FFTuneSpectra *spectra, guint count,
       if (i == 0) max_power = power;	/* first tuning is max power */
 
       cents = ipatch_unit_hertz_to_cents (freq);
-      note = cents / 100.0 + 0.5;
+      note = (int)(cents / 100.0 + 0.5);
       cents -= note * 100;
 
       sprintf (powerstr, "%0.2f", power / max_power);
@@ -857,7 +858,7 @@ fftune_gui_cb_spectrum_canvas_event (GnomeCanvas *canvas,
 
       if (!fftunegui->snap_active) break;
 
-      ofs = motion_event->x - fftunegui->snap_pos;
+      ofs = (int)(motion_event->x - fftunegui->snap_pos);
       val = ABS (ofs);
       if (val > SNAP_TIMEOUT_PIXEL_RANGE) val = SNAP_TIMEOUT_PIXEL_RANGE;
 
@@ -885,7 +886,7 @@ fftune_gui_cb_spectrum_canvas_event (GnomeCanvas *canvas,
 	  if (ofs >= 0) val = SNAP_SCROLL_MIN;
 	  else val = -SNAP_SCROLL_MIN;
 
-	  fftunegui->scroll_amt = zoom * (ofs * SNAP_SCROLL_MULT + val);
+	  fftunegui->scroll_amt = (int)(zoom * (ofs * SNAP_SCROLL_MULT + val));
 	}
       else fftunegui->scroll_active = FALSE;
 
@@ -924,7 +925,7 @@ fftune_gui_cb_spectrum_canvas_event (GnomeCanvas *canvas,
 
       fftunegui->snap_active = TRUE;
 
-      fftunegui->snap_pos = btn_event->x;
+      fftunegui->snap_pos = (int)btn_event->x;
       height = GTK_WIDGET (fftunegui->canvas)->allocation.height;
 
       points = gnome_canvas_points_new (2);
@@ -977,7 +978,7 @@ fftune_gui_cb_spectrum_canvas_event (GnomeCanvas *canvas,
       if (scroll_event->direction == GDK_SCROLL_DOWN)
 	scale = 1 / scale;
 
-      fftune_gui_zoom_ofs (fftunegui, scale, scroll_event->x);
+      fftune_gui_zoom_ofs (fftunegui, scale, (int)scroll_event->x);
 
       fftunegui->last_wheel_dir = scroll_event->direction;
       fftunegui->last_wheel_time = scroll_event->time;
@@ -1066,9 +1067,8 @@ static void
 fftune_gui_zoom_ofs (FFTuneGui *fftunegui, double zoom_amt, int zoom_xpos)
 {
   double zoom;
-  guint start;
   guint spectrum_size;
-  int width, index_ofs;
+  int start, width, index_ofs;
 
   g_return_if_fail (FFTUNE_IS_GUI (fftunegui));
 
@@ -1079,7 +1079,7 @@ fftune_gui_zoom_ofs (FFTuneGui *fftunegui, double zoom_amt, int zoom_xpos)
 		"width", &width,
 		NULL);
 
-  index_ofs = zoom_xpos * zoom; /* index to zoom xpos */
+  index_ofs = (int)(zoom_xpos * zoom); /* index to zoom xpos */
   zoom *= zoom_amt;
 
   spectrum_size = SWAMIGUI_SPECTRUM_CANVAS (fftunegui->spectrum)->spectrum_size;
@@ -1094,13 +1094,13 @@ fftune_gui_zoom_ofs (FFTuneGui *fftunegui, double zoom_amt, int zoom_xpos)
     }
   else
     {
-      index_ofs -= zoom_xpos * zoom; /* subtract new zoom offset */
+      index_ofs -= (int)(zoom_xpos * zoom); /* subtract new zoom offset */
       if (index_ofs < 0 && -index_ofs > start) start = 0;
       else start += index_ofs;
 
       /* make sure spectrum doesn't end in the middle of the display */
       if (start + width * zoom > spectrum_size)
-	start = spectrum_size - width * zoom;
+	start = (int)(spectrum_size - width * zoom);
     }
 
   g_object_set (fftunegui->spectrum,
@@ -1130,7 +1130,7 @@ fftune_gui_scroll_ofs (FFTuneGui *fftunegui, int index_ofs)
 
   spectrum_size = SWAMIGUI_SPECTRUM_CANVAS (fftunegui->spectrum)->spectrum_size;
 
-  last_index = spectrum_size - zoom * width;
+  last_index = (int)(spectrum_size - zoom * width);
   if (last_index < 0) return;	/* spectrum too small for current zoom? */
 
   newstart = (int)start_index + index_ofs;

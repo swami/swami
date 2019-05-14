@@ -69,6 +69,9 @@ set (DEFINITION_FILE_FFTUNE "")
 set (DEFINITION_FILE_FFTUNE_GUI "")
 # Options for WINDOWS only
 if( WIN32 )
+    # disable deprecation warnings 
+    add_definitions ( -D_CRT_SECURE_NO_WARNINGS )
+
     if (BUILD_SHARED_LIBS)
         # adding a module definition file for shared libs will export symbols and produce import library
         set (DEFINITION_FILE_FFTUNE fftune.def)
