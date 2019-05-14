@@ -65,16 +65,18 @@ link_directories ( ${GOBJECT_LIBDIR} ${GOBJECT_LIBRARY_DIRS}
     ${LIBINSTPATCH_LIBDIR} ${LIBINSTPATCH_LIBRARY_DIRS} ${FFTW_LIBDIR} ${FFTW_LIBRARY_DIRS}
 )
 
-set (DEFINITION_FILE "")
+set (DEFINITION_FILE_FFTUNE "")
+set (DEFINITION_FILE_FFTUNE_GUI "")
 # Options for WINDOWS only
 if( WIN32 )
     if (BUILD_SHARED_LIBS)
         # adding a module definition file for shared libs will export symbols and produce import library
-        set (DEFINITION_FILE fftune.def)
+        set (DEFINITION_FILE_FFTUNE fftune.def)
+        set (DEFINITION_FILE_FFTUNE_GUI fftune_gui.def)
     endif(BUILD_SHARED_LIBS)
 endif( WIN32 )
 
-add_library ( fftune MODULE fftune.c ${DEFINITION_FILE})
+add_library ( fftune MODULE fftune.c ${DEFINITION_FILE_FFTUNE})
 
 if (UNIX)
     set(MATH_LIB m)
@@ -88,7 +90,7 @@ link_directories ( ${GUI_LIBDIR} ${GUI_LIBRARY_DIRS} ${LIBINSTPATCH_LIBDIR}
     ${LIBINSTPATCH_LIBRARY_DIRS}
 )
 
-add_library ( fftune_gui MODULE fftune_gui.c )
+add_library ( fftune_gui MODULE fftune_gui.c ${DEFINITION_FILE_FFTUNE_GUI})
 
 target_link_libraries ( fftune_gui libswami libswamigui ${GUI_LIBRARIES}
     ${LIBINSTPATCH_LIBRARIES}
