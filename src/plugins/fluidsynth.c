@@ -2014,7 +2014,11 @@ cache_instrument_noteon (WavetblFluidSynth *wavetbl, IpatchItem *item,
 	if (IPATCH_SF2_GEN_ARRAY_TEST_FLAG (gen_array, i))
 	  fluid_voice_gen_set (flvoice, i, (float)(gen_array->values[i].sword));
 
+	  /* set modulators in fvoice internal list */
+	  /* Note: here modulators are assumed non-linked modulators */
       wumod = g_alloca(fluid_mod_sizeof());
+	  /* clear  fields is more safe.( in particular next field ) */
+	  memset(wumod,0,fluid_mod_sizeof());
       p = voice->mod_list;
       while (p)
 	{
