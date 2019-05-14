@@ -419,6 +419,9 @@ static gboolean
 plugin_fluidsynth_save_xml (SwamiPlugin *plugin, GNode *xmlnode, GError **err)
 {
   WavetblFluidSynth *wavetbl;
+  
+  /* get swamigui_root from swamigui library */
+  SwamiguiRoot * swamigui_root = swamigui_get_swamigui_root ();
 
   if (!swamigui_root || !swamigui_root->wavetbl
       || !WAVETBL_IS_FLUIDSYNTH (swamigui_root->wavetbl))
@@ -438,6 +441,8 @@ plugin_fluidsynth_load_xml (SwamiPlugin *plugin, GNode *xmlnode, GError **err)
 {
   WavetblFluidSynth *wavetbl;
 
+  /* get swamigui_root from swamigui library */
+  SwamiguiRoot * swamigui_root = swamigui_get_swamigui_root ();
   if (!swamigui_root || !swamigui_root->wavetbl
       || !WAVETBL_IS_FLUIDSYNTH (swamigui_root->wavetbl))
   {
