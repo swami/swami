@@ -1,0 +1,4 @@
+LIBRARY
+EXPORTS
+fftune_spectra_get_type
+swami_plugin_info
