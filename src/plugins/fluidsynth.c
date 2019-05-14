@@ -290,7 +290,7 @@ static GType chorus_waveform_type = 0;
 static GObjectClass *wavetbl_parent_class = NULL;
 
 /* last dynamic property ID (incremented for each dynamically installed prop) */
-static int last_property_id = FIRST_DYNAMIC_PROP;
+static guint last_property_id = FIRST_DYNAMIC_PROP;
 
 /* stores all dynamic FluidSynth setting names for mapping between property
    ID and FluidSynth setting */
