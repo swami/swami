@@ -65,7 +65,16 @@ link_directories ( ${GOBJECT_LIBDIR} ${GOBJECT_LIBRARY_DIRS}
     ${LIBINSTPATCH_LIBDIR} ${LIBINSTPATCH_LIBRARY_DIRS} ${FFTW_LIBDIR} ${FFTW_LIBRARY_DIRS}
 )
 
-add_library ( fftune MODULE fftune.c )
+set (DEFINITION_FILE "")
+# Options for WINDOWS only
+if( WIN32 )
+    if (BUILD_SHARED_LIBS)
+        # adding a module definition file for shared libs will export symbols and produce import library
+        set (DEFINITION_FILE fftune.def)
+    endif(BUILD_SHARED_LIBS)
+endif( WIN32 )
+
+add_library ( fftune MODULE fftune.c ${DEFINITION_FILE})
 
 if (UNIX)
     set(MATH_LIB m)
