@@ -200,7 +200,7 @@ fftune_spectra_class_init (FFTuneSpectraClass *klass)
   g_object_class_install_property (obj_class, PROP_THRESHOLD,
 	    g_param_spec_float ("threshold", _("Threshold"),
 				_("Min ratio to max power of tuning suggestions"),
-				0.0, 1.0, DEFAULT_THRESHOLD,
+				(gfloat)0.0, (gfloat)1.0, (gfloat)DEFAULT_THRESHOLD,
 				G_PARAM_READWRITE));
   g_object_class_install_property (obj_class, PROP_SEPARATION,
 	    g_param_spec_float ("separation", _("Separation"),
@@ -256,7 +256,7 @@ static void
 fftune_spectra_init (FFTuneSpectra *spectra)
 {
   spectra->sample_mode = FFTUNE_MODE_SELECTION;
-  spectra->threshold = DEFAULT_THRESHOLD;
+  spectra->threshold = (gfloat)DEFAULT_THRESHOLD;
   spectra->separation = DEFAULT_SEPARATION;
   spectra->min_freq = DEFAULT_MIN_FREQ;
   spectra->max_freq = DEFAULT_MAX_FREQ;
@@ -470,8 +470,8 @@ fftune_spectra_calc_spectrum (FFTuneSpectra *spectra)
   GError *err = NULL;
   void *data;           /* Stores sample data (floats) */
   double *result;       /* FFT power spectrum result */
-  int dsize, result_size;
-  int count, i;
+  int result_size;
+  guint count, i , dsize;
   GTimeVal start_time, end_time;
   float ellapsed;
 
@@ -565,7 +565,7 @@ fftune_spectra_calc_spectrum (FFTuneSpectra *spectra)
   if (spectra->enable_window)
   {
     for (i = 0; i < dsize; i++)
-      ((float *)data)[i] *= 0.5 * (1.0 - cos (2.0 * G_PI * ((float)i / (dsize - 1)))); 
+      ((float *)data)[i] *= (float)(0.5 * (1.0 - cos (2.0 * G_PI * ((float)i / (dsize - 1))))); 
   }
 
   /* Calculate FFT power spectrum of sample data. Result is returned in the same array. */
@@ -573,8 +573,8 @@ fftune_spectra_calc_spectrum (FFTuneSpectra *spectra)
 
   g_get_current_time (&end_time);
 
-  ellapsed = (end_time.tv_sec - start_time.tv_sec)
-    + (end_time.tv_usec - start_time.tv_usec) / 1000000.0;
+  ellapsed = (float)((end_time.tv_sec - start_time.tv_sec)
+    + (end_time.tv_usec - start_time.tv_usec) / 1000000.0);
 
   spectra->ellapsed_time = ellapsed;
 
@@ -671,14 +671,14 @@ fftune_spectra_calc_tunings (FFTuneSpectra *spectra)
   spectra->freqres = (double)sample_rate / ((spectra->spectrum_size - 1) * 2);
 
   /* separation amount in array index units for selecting unique tunings */
-  tolndx = spectra->separation / spectra->freqres + 0.5;
+  tolndx = (int)(spectra->separation / spectra->freqres + 0.5);
 
   /* don't care about anything below min_freq */
   start = (int)(spectra->min_freq / spectra->freqres) + 1;
   start = CLAMP (start, 0, spectra->spectrum_size - 1);
 
   /* don't care about anything above max_freq */
-  stop = spectra->max_freq / spectra->freqres;
+  stop = (int)(spectra->max_freq / spectra->freqres);
   stop = CLAMP (stop, 0, spectra->spectrum_size - 1);
 
   /* get maximum power in frequency range (full_max) */
