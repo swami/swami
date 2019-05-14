@@ -148,47 +148,7 @@ static void fftune_gui_scroll_ofs (FFTuneGui *fftunegui, int index_ofs);
 static float 
 strtof(const char* str, char **endptr)
 {
-    double res = 0.0f;
-	/* Flags negative number, next dixit is after the decimal point */
-    BOOL negative, after_decimal_point = FALSE;
-    /* current decimal factor for digits after the decimal point */
-	double dec = 0.1;
-    int i = 0;
-    char c = str[i]; /* current caracter */
-	
-	if (negative = (c == '-')) /* negative number */
-    {
-        c = str[++i];
-    }
-    while (c != '\0') 
-	{
-        if (  ('0' <= c) && (c <= '9')) /* is digit [0..9] */
-		{
-			c -= '0'; 
-			if (!after_decimal_point) 
-            {   /* Integer part */
-                res *= 10; /* Shift the previous digits to the left */
-                res += c ; /* Add the new one */
-            }
-            else
-            {   /* Decimal part */
-                res += (double)(c) * dec;
-				dec *= 0.1;
-            }
-        }
-        else if (c == '.') 
-        {
-            after_decimal_point = TRUE;
-        }
-        else
-        {   /* terminate parsing if c isn't a digit */
-            break; 
-        }
-        c = str[++i]; /* next caracter */
-    }
-	if (negative) res = -res;
-    
-    return (float)res;
+    return (float)strtod(str, endptr);
 }
 
 /*
