@@ -101,6 +101,9 @@ fluid_synth_pref_handler (void)
   GtkCellRenderer *cell;
   char **options, **optionp;
 
+  /* get swamigui_root from swamigui library */
+  SwamiguiRoot * swamigui_root = swamigui_get_swamigui_root ();
+
   fluid_widg = swamigui_util_glade_create ("FluidSynthPrefs");
 
   if (swamigui_root->wavetbl)
@@ -180,6 +183,9 @@ fluid_synth_gui_audio_driver_changed (GtkComboBox *combo, gpointer user_data)
   char *driver, *widgname;
   const char **sptr;
 
+  /* get swamigui_root from swamigui library */
+  SwamiguiRoot * swamigui_root = swamigui_get_swamigui_root ();
+
   driver = gtk_combo_box_get_active_text (combo);	/* ++ alloc */
 
   vbox = swamigui_util_glade_lookup (fluid_widg, "VBoxAudioDriver");
@@ -215,6 +221,9 @@ fluid_synth_gui_midi_driver_changed (GtkComboBox *combo, gpointer user_data)
   GtkWidget *vbox;
   char *driver, *widgname;
   const char **sptr;
+
+  /* get swamigui_root from swamigui library */
+  SwamiguiRoot * swamigui_root = swamigui_get_swamigui_root ();
 
   driver = gtk_combo_box_get_active_text (combo);	/* ++ alloc */
 
@@ -280,6 +289,9 @@ fluid_synth_gui_control_init (FluidSynthGuiControl *fsctrl)
   GtkWidget *widg;
   GType type;
   int i;
+
+  /* get swamigui_root from swamigui library */
+  SwamiguiRoot * swamigui_root = swamigui_get_swamigui_root ();
 
   fsctrl->ctrl_widg = swamigui_util_glade_create ("FluidSynth");
   gtk_widget_show (fsctrl->ctrl_widg);

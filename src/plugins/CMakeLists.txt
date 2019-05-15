@@ -32,7 +32,18 @@ link_directories ( ${GOBJECT_LIBDIR} ${GOBJECT_LIBRARY_DIRS}
     ${FLUIDSYNTH_LIBRARY_DIRS}
 )
 
-add_library ( fluidsynth_plugin MODULE fluidsynth.c )
+set (DEFINITION_FILE_FLUIDSYNTH_PLUGIN "")
+set (DEFINITION_FILE_FLUIDSYNTH_GUI "")
+# Options for WINDOWS only
+if( WIN32 )
+    if (BUILD_SHARED_LIBS)
+        # adding a module definition file for shared libs will export symbols and produce import library
+        set (DEFINITION_FILE_FLUIDSYNTH_PLUGIN fluidsynth_plugin.def)
+        set (DEFINITION_FILE_FLUIDSYNTH_GUI fluidsynth_gui.def)
+    endif(BUILD_SHARED_LIBS)
+endif( WIN32 )
+
+add_library ( fluidsynth_plugin MODULE fluidsynth.c ${DEFINITION_FILE_FLUIDSYNTH_PLUGIN})
 
 target_link_libraries ( fluidsynth_plugin libswami libswamigui ${GOBJECT_LIBRARIES}
     ${LIBINSTPATCH_LIBRARIES} ${FLUIDSYNTH_LIBRARIES}
@@ -42,7 +53,7 @@ link_directories ( ${GUI_LIBDIR} ${GUI_LIBRARY_DIRS} ${LIBINSTPATCH_LIBDIR}
     ${LIBINSTPATCH_LIBRARY_DIRS} ${FLUIDSYNTH_LIBDIR} ${FLUIDSYNTH_LIBRARY_DIRS}
 )
 
-add_library ( fluidsynth_gui MODULE fluidsynth_gui.c )
+add_library ( fluidsynth_gui MODULE fluidsynth_gui.c ${DEFINITION_FILE_FLUIDSYNTH_GUI})
 
 target_link_libraries ( fluidsynth_gui libswami libswamigui ${GUI_LIBRARIES}
     ${LIBINSTPATCH_LIBRARIES} ${FLUIDSYNTH_LIBRARIES}

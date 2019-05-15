@@ -290,7 +290,7 @@ static GType chorus_waveform_type = 0;
 static GObjectClass *wavetbl_parent_class = NULL;
 
 /* last dynamic property ID (incremented for each dynamically installed prop) */
-static int last_property_id = FIRST_DYNAMIC_PROP;
+static guint last_property_id = FIRST_DYNAMIC_PROP;
 
 /* stores all dynamic FluidSynth setting names for mapping between property
    ID and FluidSynth setting */
@@ -419,6 +419,9 @@ static gboolean
 plugin_fluidsynth_save_xml (SwamiPlugin *plugin, GNode *xmlnode, GError **err)
 {
   WavetblFluidSynth *wavetbl;
+  
+  /* get swamigui_root from swamigui library */
+  SwamiguiRoot * swamigui_root = swamigui_get_swamigui_root ();
 
   if (!swamigui_root || !swamigui_root->wavetbl
       || !WAVETBL_IS_FLUIDSYNTH (swamigui_root->wavetbl))
@@ -438,6 +441,8 @@ plugin_fluidsynth_load_xml (SwamiPlugin *plugin, GNode *xmlnode, GError **err)
 {
   WavetblFluidSynth *wavetbl;
 
+  /* get swamigui_root from swamigui library */
+  SwamiguiRoot * swamigui_root = swamigui_get_swamigui_root ();
   if (!swamigui_root || !swamigui_root->wavetbl
       || !WAVETBL_IS_FLUIDSYNTH (swamigui_root->wavetbl))
   {
@@ -2009,7 +2014,11 @@ cache_instrument_noteon (WavetblFluidSynth *wavetbl, IpatchItem *item,
 	if (IPATCH_SF2_GEN_ARRAY_TEST_FLAG (gen_array, i))
 	  fluid_voice_gen_set (flvoice, i, (float)(gen_array->values[i].sword));
 
+	  /* set modulators in fvoice internal list */
+	  /* Note: here modulators are assumed non-linked modulators */
       wumod = g_alloca(fluid_mod_sizeof());
+	  /* clear  fields is more safe.( in particular next field ) */
+	  memset(wumod,0,fluid_mod_sizeof());
       p = voice->mod_list;
       while (p)
 	{
