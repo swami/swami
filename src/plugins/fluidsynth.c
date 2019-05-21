@@ -436,6 +436,19 @@ plugin_fluidsynth_save_xml (SwamiPlugin *plugin, GNode *xmlnode, GError **err)
   return (ipatch_xml_encode_object (xmlnode, G_OBJECT (wavetbl), FALSE, err));
 }
 
+/* 
+ load fluidsynth preference from xml file.
+ Warning: current locale should be already set (by calling setlocale(LC_ALL, "")).
+ This will ensure that when loading float numbers, decimal part values are
+ properly decoded accordling to the LC_NUMERIC separator. Otherwise there is risk
+ that decimal part will be ignored, leading in previous float preferences being 
+ read as integer value.
+
+ For example, let chorus speed preference saved as 0,30 in preferences.xml file.
+ At the next invocation of swami this value is loaded and decoded (using sscanf).
+ If the current locale isn't set, sscanf will expect a point separator which lead
+ to ignore the decimal part, chorus speed value will be decoded as 0,0 instead of 0,30.
+*/
 static gboolean
 plugin_fluidsynth_load_xml (SwamiPlugin *plugin, GNode *xmlnode, GError **err)
 {
@@ -719,7 +732,7 @@ settings_foreach_func (void *data, const char *name, int type)
       fluid_settings_getint_default (bag->settings, name, &idef);
       fluid_settings_get_hints(bag->settings, name, &hint);
 
-      if ((hint | FLUID_HINT_TOGGLED) != 0)	/* boolean parameter? */
+      if ((hint & FLUID_HINT_TOGGLED) != 0)	/* boolean parameter? */
 	spec = g_param_spec_boolean (name, name, name, idef != 0, G_PARAM_READWRITE);
       else
 	spec = g_param_spec_int (name, name, name, imin, imax, idef, G_PARAM_READWRITE);
