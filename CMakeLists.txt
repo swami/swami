@@ -51,12 +51,10 @@ if ( CMAKE_SIZEOF_VOID_P EQUAL 8 )
 else ( CMAKE_SIZEOF_VOID_P EQUAL 8 )
   set ( _init_lib_suffix "" )
 endif ( CMAKE_SIZEOF_VOID_P EQUAL 8 )
-set ( LIB_SUFFIX ${_init_lib_suffix} CACHE STRING 
-      "library directory name suffix (32/64/nothing)" )
-mark_as_advanced ( LIB_SUFFIX )
 
 # Default install directory names
 include ( DefaultDirs )
+include ( GNUInstallDirs )
 
 # Basic C library checks
 include ( CheckSTDC )
@@ -183,15 +181,15 @@ if ( UNIX )
       "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
 
     # Install XDG mime type, application icon and .desktop file
-    install ( FILES swami.desktop DESTINATION ${DATA_INSTALL_DIR}/applications )
-    install ( FILES swami.xml DESTINATION ${DATA_INSTALL_DIR}/mime/packages )
-    install ( FILES swami.png DESTINATION ${DATA_INSTALL_DIR}/icons/hicolor/48x48/apps )
-    install ( FILES swami.svg DESTINATION ${DATA_INSTALL_DIR}/icons/hicolor/scalable/apps )
+    install ( FILES swami.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications )
+    install ( FILES swami.xml DESTINATION ${CMAKE_INSTALL_DATADIR}/mime/packages )
+    install ( FILES swami.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/48x48/apps )
+    install ( FILES swami.svg DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps )
 endif ( UNIX )
 
 # Extra targets for Windows
 if ( WIN32 )
-    install ( FILES swami.ico DESTINATION ${BIN_INSTALL_DIR} )
+    install ( FILES swami.ico DESTINATION ${CMAKE_INSTALL_BINDIR} )
 endif ( WIN32 )
 
 message( "\n**************************************************************\n" )

@@ -127,7 +127,7 @@ link_directories (
 )
 
 add_definitions (
-    -DLOCALEDIR=\"${DATA_INSTALL_DIR}/locale\"
+    -DLOCALEDIR=\"${CMAKE_INSTALL_LOCALEDIR}\"
     -DG_LOG_DOMAIN=\"libswamigui\"
 )
 
@@ -163,7 +163,7 @@ target_link_libraries ( libswamigui
 install ( FILES
     ${libswamigui_public_HEADERS}
     ${public_main_HEADER}
-    DESTINATION ${INCLUDE_INSTALL_DIR}/swami/libswamigui )
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/swami/libswamigui )
 
 if (APPLE)
   set_property ( TARGET libswamigui
@@ -281,9 +281,9 @@ else ( MINGW OR WIN32 )
 endif ( MACOSX_FRAMEWORK )
 
 install ( TARGETS swami libswamigui
-  RUNTIME DESTINATION ${BIN_INSTALL_DIR}
-  LIBRARY DESTINATION ${LIB_INSTALL_DIR}${LIB_SUFFIX}
-  ARCHIVE DESTINATION ${LIB_INSTALL_DIR}${LIB_SUFFIX}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   FRAMEWORK DESTINATION ${FRAMEWORK_INSTALL_DIR}
   BUNDLE DESTINATION ${BUNDLE_INSTALL_DIR}
 )
