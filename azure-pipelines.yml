@@ -36,122 +36,82 @@ jobs:
         make
       displayName: 'Compile swami'
 
-- job: WindowsXP_VS2017_x86
+- job: Windows
+  strategy:
+    matrix:
+      VS2017_XP_x86:
+        platform: Win32
+        toolset: v141_xp
+        gtk-bundle: $(gtk-bundle-x86)
+        libsndfile-url: $(libsndfile-url-x86)
+        artifact-name: "fluidsynth-WinXP-x86"
+        imageName: 'vs2017-win2016'
+      VS2017_XP_x64:
+        platform: x64
+        toolset: v141_xp
+        gtk-bundle: $(gtk-bundle-x64)
+        libsndfile-url: $(libsndfile-url-x64)
+        artifact-name: "fluidsynth-WinXP-x64"
+        imageName: 'vs2017-win2016'
+      VS2019_x86:
+        platform: Win32
+        toolset: v142
+        gtk-bundle: $(gtk-bundle-x86)
+        libsndfile-url: $(libsndfile-url-x86)
+        artifact-name: "fluidsynth-Win10-x86"
+        imageName: 'windows-2019'
+      VS2019_x64:
+        platform: x64
+        toolset: v142
+        gtk-bundle: $(gtk-bundle-x64)
+        libsndfile-url: $(libsndfile-url-x64)
+        artifact-name: "fluidsynth-Win10-x64"
+        imageName: 'windows-2019'
   pool:
-    vmImage: 'vs2017-win2016'
-  variables:
-    gtk-bundle: 'http://ftp.gnome.org/pub/gnome/binaries/win32/gtk+/2.24/gtk+-bundle_2.24.10-20120208_win32.zip'
-    pkg-config-url: 'http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/pkg-config_0.26-1_win32.zip'
-    libsndfile-url: 'http://www.mega-nerd.com/libsndfile/files/libsndfile-1.0.28-w32.zip'
+    vmImage: $(imageName)
   steps:
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: specific
+        # https://dev.azure.com/tommbrt/_apis/projects?api-version=5.0
+        project: 'd3638885-de4a-4ce7-afe7-f237ae461c07'
+        pipeline: 3
+        artifactName: fluidsynth-WinXP-$(platform)
+        downloadPath: '$(Build.ArtifactStagingDirectory)'
+      displayName: 'Get fluidsynth'
     - script: |
         @ECHO ON
         mkdir d:\deps || exit -1
         cd d:\deps || exit -1
         curl -LfsS -o gtk-bundle-dev.zip $(gtk-bundle) || exit -1
-        curl -LfsS -o pkg-config.zip $(pkg-config-url) || exit -1t -1
         curl -LfsS -o libsndfile-dev.zip $(libsndfile-url) || exit -1
         7z x -aos -- gtk-bundle-dev.zip > NUL || exit -1
-        7z x -aos -- pkg-config.zip > NUL || exit -1
         7z x -aos -- libsndfile-dev.zip > NUL || exit -1
         REM need to fix the naming of libsndfile otherwise the linker won't find it
         mv lib\libsndfile-1.lib lib\sndfile.lib || exit -1
         mv lib\libsndfile-1.def lib\sndfile.def || exit -1
+        cd $(Build.ArtifactStagingDirectory)\fluidsynth-WinXP-$(platform)
+        cp -rf * d:\deps\
+        mv -f * ..
+        cd ..
+        rmdir $(Build.ArtifactStagingDirectory)\fluidsynth-WinXP-$(platform)\
       displayName: 'Prerequisites'
     - script: |
         @ECHO ON
         SET "PATH=d:\deps\bin;%PATH%"
         mkdir build && cd build || exit -1
-        cmake -G "Visual Studio 15 2017" -T "v141_xp" -DCMAKE_INSTALL_PREFIX=$HOME/swami_install -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_VERBOSE_MAKEFILE=0 .. || exit -1
-        cmake --build . || exit 1
+        cmake -A $(platform) -T $(toolset) -DCMAKE_INSTALL_PREFIX=$(Build.ArtifactStagingDirectory) -DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE=0 .. || exit -1
+        cmake --build . --config Release || exit -1
       displayName: 'Compile swami'
-
-- job: WindowsXP_VS2017_x64
-  pool:
-    vmImage: 'vs2017-win2016'
-  variables:
-    gtk-bundle: 'http://ftp.gnome.org/pub/gnome/binaries/win64/gtk+/2.22/gtk+-bundle_2.22.1-20101229_win64.zip'
-    pkg-config-url: 'http://ftp.gnome.org/pub/gnome/binaries/win64/dependencies/pkg-config_0.23-2_win64.zip'
-    libsndfile-url: 'http://www.mega-nerd.com/libsndfile/files/libsndfile-1.0.28-w64.zip'
-  steps:
     - script: |
         @ECHO ON
-        mkdir d:\deps || exit -1
-        cd d:\deps || exit -1
-        curl -LfsS -o gtk-bundle-dev.zip $(gtk-bundle) || exit -1
-        curl -LfsS -o pkg-config.zip $(pkg-config-url) || exit -1t -1
-        curl -LfsS -o libsndfile-dev.zip $(libsndfile-url) || exit -1
-        7z x -aos -- gtk-bundle-dev.zip > NUL || exit -1
-        7z x -aos -- pkg-config.zip > NUL || exit -1
-        7z x -aos -- libsndfile-dev.zip > NUL || exit -1
-        REM need to fix the naming of libsndfile otherwise the linker won't find it
-        mv lib\libsndfile-1.lib lib\sndfile.lib || exit -1
-        mv lib\libsndfile-1.def lib\sndfile.def || exit -1
-      displayName: 'Prerequisites'
-    - script: |
-        @ECHO ON
-        SET "PATH=d:\deps\bin;%PATH%"
-        mkdir build && cd build || exit -1
-        cmake -G "Visual Studio 15 2017 Win64" -T "v141_xp" -DCMAKE_INSTALL_PREFIX=$HOME/swami_install -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_VERBOSE_MAKEFILE=0 .. || exit -1
-        cmake --build . || exit 1
-      displayName: 'Compile swami'
-
-- job: Windows_VS2019_x86
-  pool:
-    vmImage: 'windows-2019'
-  variables:
-    gtk-bundle: 'http://ftp.gnome.org/pub/gnome/binaries/win32/gtk+/2.24/gtk+-bundle_2.24.10-20120208_win32.zip'
-    pkg-config-url: 'http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/pkg-config_0.26-1_win32.zip'
-    libsndfile-url: 'http://www.mega-nerd.com/libsndfile/files/libsndfile-1.0.28-w32.zip'
-  steps:
-    - script: |
-        @ECHO ON
-        mkdir d:\deps || exit -1
-        cd d:\deps || exit -1
-        curl -LfsS -o gtk-bundle-dev.zip $(gtk-bundle) || exit -1
-        curl -LfsS -o pkg-config.zip $(pkg-config-url) || exit -1t -1
-        curl -LfsS -o libsndfile-dev.zip $(libsndfile-url) || exit -1
-        7z x -aos -- gtk-bundle-dev.zip > NUL || exit -1
-        7z x -aos -- pkg-config.zip > NUL || exit -1
-        7z x -aos -- libsndfile-dev.zip > NUL || exit -1
-        REM need to fix the naming of libsndfile otherwise the linker won't find it
-        mv lib\libsndfile-1.lib lib\sndfile.lib || exit -1
-        mv lib\libsndfile-1.def lib\sndfile.def || exit -1
-      displayName: 'Prerequisites'
-    - script: |
-        @ECHO ON
-        SET "PATH=d:\deps\bin;%PATH%"
-        mkdir build && cd build || exit -1
-        cmake -G "Visual Studio 16 2019" -A Win32 -DCMAKE_INSTALL_PREFIX=$HOME/swami_install -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_VERBOSE_MAKEFILE=0 .. || exit -1
-        cmake --build . || exit 1
-      displayName: 'Compile swami'
-
-- job: Windows_VS2019_x64
-  pool:
-    vmImage: 'windows-2019'
-  variables:
-    gtk-bundle: 'http://ftp.gnome.org/pub/gnome/binaries/win64/gtk+/2.22/gtk+-bundle_2.22.1-20101229_win64.zip'
-    pkg-config-url: 'http://ftp.gnome.org/pub/gnome/binaries/win64/dependencies/pkg-config_0.23-2_win64.zip'
-    libsndfile-url: 'http://www.mega-nerd.com/libsndfile/files/libsndfile-1.0.28-w64.zip'
-  steps:
-    - script: |
-        @ECHO ON
-        mkdir d:\deps || exit -1
-        cd d:\deps || exit -1
-        curl -LfsS -o gtk-bundle-dev.zip $(gtk-bundle) || exit -1
-        curl -LfsS -o pkg-config.zip $(pkg-config-url) || exit -1t -1
-        curl -LfsS -o libsndfile-dev.zip $(libsndfile-url) || exit -1
-        7z x -aos -- gtk-bundle-dev.zip > NUL || exit -1
-        7z x -aos -- pkg-config.zip > NUL || exit -1
-        7z x -aos -- libsndfile-dev.zip > NUL || exit -1
-        REM need to fix the naming of libsndfile otherwise the linker won't find it
-        mv lib\libsndfile-1.lib lib\sndfile.lib || exit -1
-        mv lib\libsndfile-1.def lib\sndfile.def || exit -1
-      displayName: 'Prerequisites'
-    - script: |
-        @ECHO ON
-        SET "PATH=d:\deps\bin;%PATH%"
-        mkdir build && cd build || exit -1
-        cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_INSTALL_PREFIX=$HOME/swami_install -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_VERBOSE_MAKEFILE=0 .. || exit -1
-        cmake --build . || exit 1
-      displayName: 'Compile swami'
+        cd build
+        cmake --build . --config Release --target install || exit -1
+        del $(Build.ArtifactStagingDirectory)\bin\concrt*.dll
+        del $(Build.ArtifactStagingDirectory)\bin\vcruntime*.dll
+        del $(Build.ArtifactStagingDirectory)\bin\msvcp*.dll
+      displayName: 'Copy Artifacts'
+    - task: PublishBuildArtifacts@1
+      inputs:
+          pathtoPublish: $(Build.ArtifactStagingDirectory)
+          artifactName: $(artifact-name)
