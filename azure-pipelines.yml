@@ -46,6 +46,8 @@ jobs:
         libsndfile-url: $(libsndfile-url-x86)
         libgnomecanvas-url: $(libgnomecanvas-url-x86)
         libgnomecanvas-dev-url: $(libgnomecanvas-dev-url-x86)
+        libart-url: http://ftp.gnome.org/pub/gnome/binaries/win32/libart_lgpl/2.3/libart-lgpl_2.3.21-1_win32.zip
+        libart-dev-url: http://ftp.gnome.org/pub/gnome/binaries/win32/libart_lgpl/2.3/libart-lgpl-dev_2.3.21-1_win32.zip
         artifact-name: "swami"
         imageName: 'vs2017-win2016'
   pool:
@@ -68,10 +70,14 @@ jobs:
         curl -LfsS -o libsndfile-dev.zip $(libsndfile-url) || exit -1
         curl -LfsS -o libgnomecanvas.zip $(libgnomecanvas-url) || exit -1
         curl -LfsS -o libgnomecanvas-dev.zip $(libgnomecanvas-dev-url) || exit -1
+        curl -LfsS -o libart.zip $(libart-url) || exit -1
+        curl -LfsS -o libart-dev.zip $(libart-dev-url) || exit -1
         7z x -aos -- gtk-bundle-dev.zip > NUL || exit -1
         7z x -aos -- libsndfile-dev.zip > NUL || exit -1
         7z x -aos -- libgnomecanvas.zip > NUL || exit -1
         7z x -aos -- libgnomecanvas-dev.zip > NUL || exit -1
+        7z x -aos -- libart.zip > NUL || exit -1
+        7z x -aos -- libart-dev.zip > NUL || exit -1
         REM need to fix the naming of libsndfile otherwise the linker won't find it
         mv lib\libsndfile-1.lib lib\sndfile.lib || exit -1
         mv lib\libsndfile-1.def lib\sndfile.def || exit -1
