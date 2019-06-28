@@ -44,29 +44,8 @@ jobs:
         toolset: v141_xp
         gtk-bundle: $(gtk-bundle-x86)
         libsndfile-url: $(libsndfile-url-x86)
-        artifact-name: "fluidsynth-WinXP-x86"
+        artifact-name: "swami"
         imageName: 'vs2017-win2016'
-      VS2017_XP_x64:
-        platform: x64
-        toolset: v141_xp
-        gtk-bundle: $(gtk-bundle-x64)
-        libsndfile-url: $(libsndfile-url-x64)
-        artifact-name: "fluidsynth-WinXP-x64"
-        imageName: 'vs2017-win2016'
-      VS2019_x86:
-        platform: Win32
-        toolset: v142
-        gtk-bundle: $(gtk-bundle-x86)
-        libsndfile-url: $(libsndfile-url-x86)
-        artifact-name: "fluidsynth-Win10-x86"
-        imageName: 'windows-2019'
-      VS2019_x64:
-        platform: x64
-        toolset: v142
-        gtk-bundle: $(gtk-bundle-x64)
-        libsndfile-url: $(libsndfile-url-x64)
-        artifact-name: "fluidsynth-Win10-x64"
-        imageName: 'windows-2019'
   pool:
     vmImage: $(imageName)
   steps:
@@ -76,7 +55,7 @@ jobs:
         # https://dev.azure.com/tommbrt/_apis/projects?api-version=5.0
         project: 'd3638885-de4a-4ce7-afe7-f237ae461c07'
         pipeline: 3
-        artifactName: fluidsynth-WinXP-$(platform)
+        artifactName: fluidsynth-$(platform)
         downloadPath: '$(Build.ArtifactStagingDirectory)'
       displayName: 'Get fluidsynth'
     - script: |
@@ -90,11 +69,11 @@ jobs:
         REM need to fix the naming of libsndfile otherwise the linker won't find it
         mv lib\libsndfile-1.lib lib\sndfile.lib || exit -1
         mv lib\libsndfile-1.def lib\sndfile.def || exit -1
-        cd $(Build.ArtifactStagingDirectory)\fluidsynth-WinXP-$(platform)
+        cd $(Build.ArtifactStagingDirectory)\fluidsynth-$(platform)
         cp -rf * d:\deps\
         mv -f * ..
         cd ..
-        rmdir $(Build.ArtifactStagingDirectory)\fluidsynth-WinXP-$(platform)\
+        rmdir $(Build.ArtifactStagingDirectory)\fluidsynth-$(platform)\
       displayName: 'Prerequisites'
     - script: |
         @ECHO ON
@@ -114,4 +93,4 @@ jobs:
     - task: PublishBuildArtifacts@1
       inputs:
           pathtoPublish: $(Build.ArtifactStagingDirectory)
-          artifactName: $(artifact-name)
+          artifactName: $(artifact-name)-$(platform)
