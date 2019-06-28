@@ -44,6 +44,8 @@ jobs:
         toolset: v141_xp
         gtk-bundle: $(gtk-bundle-x86)
         libsndfile-url: $(libsndfile-url-x86)
+        libgnomecanvas-url: $(libgnomecanvas-url-x86)
+        libgnomecanvas-dev-url: $(libgnomecanvas-dev-url-x86)
         artifact-name: "swami"
         imageName: 'vs2017-win2016'
   pool:
@@ -64,8 +66,12 @@ jobs:
         cd d:\deps || exit -1
         curl -LfsS -o gtk-bundle-dev.zip $(gtk-bundle) || exit -1
         curl -LfsS -o libsndfile-dev.zip $(libsndfile-url) || exit -1
+        curl -LfsS -o libgnomecanvas.zip $(libgnomecanvas-url) || exit -1
+        curl -LfsS -o libgnomecanvas-dev.zip $(libgnomecanvas-dev-url) || exit -1
         7z x -aos -- gtk-bundle-dev.zip > NUL || exit -1
         7z x -aos -- libsndfile-dev.zip > NUL || exit -1
+        7z x -aos -- libgnomecanvas.zip > NUL || exit -1
+        7z x -aos -- libgnomecanvas-dev.zip > NUL || exit -1
         REM need to fix the naming of libsndfile otherwise the linker won't find it
         mv lib\libsndfile-1.lib lib\sndfile.lib || exit -1
         mv lib\libsndfile-1.def lib\sndfile.def || exit -1
@@ -86,6 +92,7 @@ jobs:
         @ECHO ON
         cd build
         cmake --build . --config Release --target install || exit -1
+        cp d:/deps/bin/libgnomecanvas*.dll $(Build.ArtifactStagingDirectory)
         del $(Build.ArtifactStagingDirectory)\bin\concrt*.dll
         del $(Build.ArtifactStagingDirectory)\bin\vcruntime*.dll
         del $(Build.ArtifactStagingDirectory)\bin\msvcp*.dll
