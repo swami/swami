@@ -21,13 +21,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  * 02111-1307, USA or point your web browser to http://www.gnu.org.
  */
-#include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <dirent.h>
-//#include <unistd.h>
-#include "config.h"
 
 #include <libinstpatch/misc.h>	/* ipatch_gerror_message() */
 
