@@ -13,7 +13,8 @@ jobs:
         sudo apt-get -y install \
           libglib2.0-0 \
           libsndfile-dev \
-          libfluidsynth-dev
+          libfluidsynth-dev \
+          libinstpatch-dev
       displayName: 'Prerequisites'
     - script: |
         mkdir build && cd build
@@ -27,7 +28,7 @@ jobs:
   steps:
     - script: |
         brew update
-        brew install glib gobject-introspection libsndfile pkg-config fluidsynth
+        brew install glib gobject-introspection libsndfile pkg-config fluidsynth libinstpatch
       displayName: 'Prerequisites'
     - script: |
         mkdir build && cd build
