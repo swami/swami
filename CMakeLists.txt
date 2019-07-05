@@ -122,7 +122,7 @@ endif ( enable-source-build )
 find_package ( PkgConfig REQUIRED )
 
 # Mandatory library libinstpatch
-pkg_check_modules ( LIBINSTPATCH REQUIRED libinstpatch>=1.1 )
+pkg_check_modules ( LIBINSTPATCH REQUIRED libinstpatch-1.0>=1.1 )
 
 # Mandatory libraries: GTK+ and libgnomecanvas
 pkg_check_modules ( GUI REQUIRED gtk+-2.0>=2.12 libgnomecanvas-2.0>=2.0 )
