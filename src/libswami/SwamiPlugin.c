@@ -21,13 +21,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  * 02111-1307, USA or point your web browser to http://www.gnu.org.
  */
-#include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <dirent.h>
-//#include <unistd.h>
-#include "config.h"
 
 #include <libinstpatch/misc.h>	/* ipatch_gerror_message() */
 
@@ -398,31 +392,31 @@ swami_plugin_load_all (void)
 static gboolean
 swami_plugin_load_recurse (char *file, char *name)
 {
-  DIR *dir;
-  struct dirent *dirent;
+  GDir *dir;
+  const gchar *d_name;
   gboolean loaded = FALSE;
   char *dirname, *temp;
 
-  dir = opendir (file);
+  dir = g_dir_open (file, 0, NULL);
   if (dir)			/* is "file" a directory or file? */
     {
-      while ((dirent = readdir (dir))) /* its a directory, open it */
+      while ((d_name = g_dir_read_name (dir))) /* its a directory, open it */
 	{
 	  /* don't want to recurse in place or backwards */
-	  if (strcmp (dirent->d_name, ".") && strcmp (dirent->d_name, ".."))
+	  if (strcmp (d_name, ".") && strcmp (d_name, ".."))
 	    {
 	      dirname = g_strjoin (G_DIR_SEPARATOR_S, file,
-				   dirent->d_name, NULL);
+				   d_name, NULL);
 	      loaded = swami_plugin_load_recurse (dirname, name);
 	      g_free (dirname);
 	      if (loaded && name) /* done searching for a specific plugin? */
 		{
-		  closedir (dir);
+		  g_dir_close (dir);
 		  return TRUE;
 		}
 	    }
 	}
-      closedir (dir);
+      g_dir_close (dir);
     }
   else
     { /* search for shared library extension */

@@ -81,20 +81,6 @@ main (int argc, char *argv[])
   textdomain (PACKAGE);
 #endif
 
-  /* set up current locale for swami.
-     
-     Warning: This ensures that when loading preferences, decimal floating values are
-     properly decoded accordling to the LC_NUMERIC separator.
-     This will ensure that when loading float numbers, decimal part values are
-     properly decoded. Otherwise there is risk that decimal part will be ignored,
-     leading in previous float preferences being read as integer value.
-  */
-  if(! setlocale( LC_ALL, "" ))
-  {
-      g_critical("Error setting locale");
-      return (1);
-  }
-
   context = g_option_context_new (NULL);
   g_option_context_add_main_entries (context, entries, PACKAGE);
   g_option_context_add_group (context, gtk_get_option_group (TRUE));
