@@ -35,13 +35,13 @@ link_directories ( ${GOBJECT_LIBDIR} ${GOBJECT_LIBRARY_DIRS}
 set (DEFINITION_FILE_FLUIDSYNTH_PLUGIN "")
 set (DEFINITION_FILE_FLUIDSYNTH_GUI "")
 # Options for WINDOWS only
-if( WIN32 )
+if( MSVC )
     if (BUILD_SHARED_LIBS)
         # adding a module definition file for shared libs will export symbols and produce import library
         set (DEFINITION_FILE_FLUIDSYNTH_PLUGIN fluidsynth_plugin.def)
         set (DEFINITION_FILE_FLUIDSYNTH_GUI fluidsynth_gui.def)
     endif(BUILD_SHARED_LIBS)
-endif( WIN32 )
+endif( MSVC )
 
 add_library ( fluidsynth_plugin MODULE fluidsynth.c ${DEFINITION_FILE_FLUIDSYNTH_PLUGIN})
 
@@ -79,7 +79,7 @@ link_directories ( ${GOBJECT_LIBDIR} ${GOBJECT_LIBRARY_DIRS}
 set (DEFINITION_FILE_FFTUNE "")
 set (DEFINITION_FILE_FFTUNE_GUI "")
 # Options for WINDOWS only
-if( WIN32 )
+if( MSVC )
     # disable deprecation warnings 
     add_definitions ( -D_CRT_SECURE_NO_WARNINGS )
 
@@ -88,7 +88,7 @@ if( WIN32 )
         set (DEFINITION_FILE_FFTUNE fftune.def)
         set (DEFINITION_FILE_FFTUNE_GUI fftune_gui.def)
     endif(BUILD_SHARED_LIBS)
-endif( WIN32 )
+endif( MSVC )
 
 add_library ( fftune MODULE fftune.c ${DEFINITION_FILE_FFTUNE})
 

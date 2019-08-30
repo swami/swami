@@ -108,14 +108,14 @@ add_definitions (
 
 set (DEFINITION_FILE "")
 # Options for Windows only
-if( WIN32 )
+if( MSVC )
     # disable deprecation warnings 
     add_definitions ( -D_CRT_SECURE_NO_WARNINGS )
 	if (BUILD_SHARED_LIBS)
         # adding a module definition file for shared libs will export symbols and produce import library
         set (DEFINITION_FILE libswami.def)
     endif(BUILD_SHARED_LIBS)
-endif( WIN32 )
+endif( MSVC )
 
 add_library ( libswami
     ${CMAKE_CURRENT_BINARY_DIR}/marshals.c
