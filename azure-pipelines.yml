@@ -1,0 +1,150 @@
+# C/C++ with GCC
+# Build your C/C++ project with GCC using make.
+# Add steps that publish test results, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/c-cpp/gcc
+
+jobs:
+- job: Linux
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+    - script: |
+        sudo apt-get update
+        sudo apt-get -y install \
+          libglib2.0-0 \
+          libsndfile-dev \
+          libfluidsynth-dev \
+          libgnomecanvas2-dev \
+          libgtk2.0-dev 
+      displayName: 'Prerequisites'
+    - script: |
+        git clone https://github.com/swami/libinstpatch.git
+        cd libinstpatch
+        mkdir build && cd build
+        cmake -DCMAKE_INSTALL_PREFIX=/usr -DLIB_SUFFIX="" ..
+        make -j4
+        sudo make install
+      displayName: 'Compile & Install libinstpatch'
+    - script: |
+        git clone https://github.com/FluidSynth/fluidsynth.git
+        cd fluidsynth
+        mkdir build && cd build
+        cmake -DCMAKE_INSTALL_PREFIX=/usr -DLIB_SUFFIX="" ..
+        make -j4
+        sudo make install
+      displayName: 'Compile & Install fluidsynth'
+    - script: |
+        mkdir build && cd build
+        cmake -DCMAKE_INSTALL_PREFIX=$HOME/swami_install -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_VERBOSE_MAKEFILE=0 ..
+        make
+      displayName: 'Compile swami'
+
+- job: macOS
+  pool:
+    vmImage: 'macOS-10.14'
+  steps:
+    - script: |
+        brew update
+        brew install glib gobject-introspection libsndfile pkg-config fluidsynth gtk+ libgnomecanvas
+      displayName: 'Prerequisites'
+    - script: |
+        git clone https://github.com/swami/libinstpatch.git
+        cd libinstpatch
+        mkdir build && cd build
+        export PKG_CONFIG_PATH="/usr/local/opt/libffi/lib/pkgconfig"
+        cmake -DINTROSPECTION_ENABLED=0 -DLIB_SUFFIX="" ..
+        make -j4
+        sudo make install
+      displayName: 'Compile & Install libinstpatch'
+    - script: |
+        mkdir build && cd build
+        export PKG_CONFIG_PATH="/usr/local/opt/libffi/lib/pkgconfig"
+        cmake -DINTROSPECTION_ENABLED=0 -DCMAKE_INSTALL_PREFIX=$HOME/swami_install -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_VERBOSE_MAKEFILE=0 ..
+        make
+      displayName: 'Compile swami'
+
+- job: Windows
+  strategy:
+    matrix:
+      MinGW_x86:
+        platform: Win32
+        toolset: v141_xp
+        gtk-bundle: $(gtk-bundle-x86)
+        libsndfile-url: $(libsndfile-url-x86)
+        libgnomecanvas-url: $(libgnomecanvas-url-x86)
+        libgnomecanvas-dev-url: $(libgnomecanvas-dev-url-x86)
+        libart-url: http://ftp.gnome.org/pub/gnome/binaries/win32/libart_lgpl/2.3/libart-lgpl_2.3.21-1_win32.zip
+        libart-dev-url: http://ftp.gnome.org/pub/gnome/binaries/win32/libart_lgpl/2.3/libart-lgpl-dev_2.3.21-1_win32.zip
+        mingw-url: $(mingw-url-x86)
+        artifact-name: "swami"
+        imageName: 'vs2017-win2016'
+  pool:
+    vmImage: $(imageName)
+  steps:
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: specific
+        # https://dev.azure.com/tommbrt/_apis/projects?api-version=5.0
+        project: 'd3638885-de4a-4ce7-afe7-f237ae461c07'
+        pipeline: 3
+        artifactName: fluidsynth-$(platform)
+        downloadPath: '$(Build.ArtifactStagingDirectory)'
+      displayName: 'Get fluidsynth'
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: specific
+        # https://dev.azure.com/tommbrt/_apis/projects?api-version=5.0
+        project: 'd3638885-de4a-4ce7-afe7-f237ae461c07'
+        pipeline: 1
+        artifactName: libinstpatch-$(platform)
+        downloadPath: '$(Build.ArtifactStagingDirectory)'
+      displayName: 'Get libinstpatch'
+    - script: |
+        @ECHO ON
+        mkdir d:\deps || exit -1
+        cd d:\deps || exit -1
+        curl -LfsS -o gtk-bundle-dev.zip $(gtk-bundle) || exit -1
+        curl -LfsS -o libsndfile-dev.zip $(libsndfile-url) || exit -1
+        curl -LfsS -o libgnomecanvas.zip $(libgnomecanvas-url) || exit -1
+        curl -LfsS -o libgnomecanvas-dev.zip $(libgnomecanvas-dev-url) || exit -1
+        curl -LfsS -o libart.zip $(libart-url) || exit -1
+        curl -LfsS -o libart-dev.zip $(libart-dev-url) || exit -1
+        curl -LfsS -o mingw.zip $(mingw-url) || exit -1
+        7z x -aos -- gtk-bundle-dev.zip > NUL || exit -1
+        7z x -aos -- libsndfile-dev.zip > NUL || exit -1
+        7z x -aos -- libgnomecanvas.zip > NUL || exit -1
+        7z x -aos -- libgnomecanvas-dev.zip > NUL || exit -1
+        7z x -aos -- libart.zip > NUL || exit -1
+        7z x -aos -- libart-dev.zip > NUL || exit -1
+        7z x -aos -- mingw.zip > NUL || exit -1
+        rm *.zip
+        REM need to fix the naming of libsndfile otherwise the linker won't find it
+        mv lib\libsndfile-1.lib lib\sndfile.lib || exit -1
+        mv lib\libsndfile-1.def lib\sndfile.def || exit -1
+        cd mingw*\ && cp -rf * .. && cd .. && rm -rf mingw* || exit -1
+        cd $(Build.ArtifactStagingDirectory)\fluidsynth-$(platform) && cp -rf * d:\deps\ && cd .. && rm -rf $(Build.ArtifactStagingDirectory)\fluidsynth-$(platform)\ || exit -1
+        cd $(Build.ArtifactStagingDirectory)\libinstpatch-$(platform) && cp -rf * d:\deps\ && cd .. && rm -rf $(Build.ArtifactStagingDirectory)\libinstpatch-$(platform)\ || exit -1
+      displayName: 'Prerequisites'
+    - script: |
+        @ECHO ON
+        SET "PATH=d:\deps\bin;%PATH%"
+        REM remove that path from PATH to make sure sh.exe is not found (cmake will complain otherwise)
+        set PATH=%PATH:C:\Program Files\Git\bin;=%
+        set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
+        mkdir build && cd build || exit -1
+        cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=$(Build.ArtifactStagingDirectory) -DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE=0 .. || exit -1
+        mingw32-make.exe all || exit -1
+      displayName: 'Compile swami'
+    - script: |
+        @ECHO ON
+        cd build
+        mingw32-make.exe install || exit -1
+        cp d:/deps/bin/libgnomecanvas*.dll $(Build.ArtifactStagingDirectory)
+        del $(Build.ArtifactStagingDirectory)\bin\concrt*.dll
+        del $(Build.ArtifactStagingDirectory)\bin\vcruntime*.dll
+        del $(Build.ArtifactStagingDirectory)\bin\msvcp*.dll
+      displayName: 'Copy Artifacts'
+    - task: PublishBuildArtifacts@1
+      inputs:
+          pathtoPublish: $(Build.ArtifactStagingDirectory)
+          artifactName: $(artifact-name)-$(platform)
