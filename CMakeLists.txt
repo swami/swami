@@ -231,7 +231,7 @@ message ( "**************************************************************\n\n" )
 # CPack support 
 set ( CPACK_PACKAGE_DESCRIPTION_SUMMARY "Swami instrument editor" )
 set ( CPACK_PACKAGE_VENDOR "swami.sourceforge.net" )
-set ( CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_SOURCE_DIR}/README" )
+set ( CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_SOURCE_DIR}/README.md" )
 set ( CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/COPYING" )
 set ( CPACK_PACKAGE_VERSION_MAJOR ${SWAMI_VERSION_MAJOR} )
 set ( CPACK_PACKAGE_VERSION_MINOR ${SWAMI_VERSION_MINOR} )
