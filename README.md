@@ -378,5 +378,3 @@ tell me how much you like Swami, or have suggestions or ideas.
 Email: element@elementsofsound.org
 
 Swami homepage: http://www.swamiproject.org
-
-=====================================
