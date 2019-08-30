@@ -45,13 +45,6 @@ option ( BUILD_SHARED_LIBS "Build a shared object or DLL (default=yes)" on )
 option ( enable-fluidsynth "enable FluidSynth plugin - needed for sound (if it is available)" on )
 option ( enable-fftw "enable fftw support for the FFTune plugin (if it is available)" on )
 
-# Initialize the library directory name suffix.
-if ( CMAKE_SIZEOF_VOID_P EQUAL 8 )
-  set ( _init_lib_suffix "64" )
-else ( CMAKE_SIZEOF_VOID_P EQUAL 8 )
-  set ( _init_lib_suffix "" )
-endif ( CMAKE_SIZEOF_VOID_P EQUAL 8 )
-
 # Default install directory names
 include ( DefaultDirs )
 include ( GNUInstallDirs )
