@@ -37,7 +37,8 @@ jobs:
         mkdir build && cd build
         cmake -DCMAKE_INSTALL_PREFIX=$HOME/swami_install -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_VERBOSE_MAKEFILE=0 ..
         make
-      displayName: 'Compile swami'
+        sudo make install
+      displayName: 'Compile & Install swami'
 
 - job: macOS
   pool:
