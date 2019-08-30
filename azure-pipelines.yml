@@ -128,6 +128,9 @@ jobs:
     - script: |
         @ECHO ON
         SET "PATH=d:\deps\bin;%PATH%"
+        REM remove that path from PATH to make sure sh.exe is not found (cmake will complain otherwise)
+        set PATH=%PATH:C:\Program Files\Git\bin;=%
+        set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
         mkdir build && cd build || exit -1
         cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=$(Build.ArtifactStagingDirectory) -DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE=0 .. || exit -1
         mingw32-make.exe all || exit -1
