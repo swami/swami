@@ -13,7 +13,9 @@ jobs:
         sudo apt-get -y install \
           libglib2.0-0 \
           libsndfile-dev \
-          libfluidsynth-dev
+          libfluidsynth-dev \
+          libgnomecanvas2-dev \
+          libgtk2.0-dev 
       displayName: 'Prerequisites'
     - script: |
         git clone https://github.com/swami/libinstpatch.git
@@ -38,7 +40,7 @@ jobs:
   steps:
     - script: |
         brew update
-        brew install glib gobject-introspection libsndfile pkg-config fluidsynth
+        brew install glib gobject-introspection libsndfile pkg-config fluidsynth gtk+ libgnomecanvas
       displayName: 'Prerequisites'
     - script: |
         git clone https://github.com/swami/libinstpatch.git
@@ -59,9 +61,7 @@ jobs:
 - job: Windows
   strategy:
     matrix:
-      VS2017_XP_x86:
-        platform: Win32
-        toolset: v141_xp
+      MinGW_x86:
         gtk-bundle: $(gtk-bundle-x86)
         libsndfile-url: $(libsndfile-url-x86)
         libgnomecanvas-url: $(libgnomecanvas-url-x86)
@@ -122,7 +122,7 @@ jobs:
         @ECHO ON
         SET "PATH=d:\deps\bin;%PATH%"
         mkdir build && cd build || exit -1
-        cmake -G "MinGW Makefiles" -A $(platform) -T $(toolset) -DCMAKE_INSTALL_PREFIX=$(Build.ArtifactStagingDirectory) -DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE=0 .. || exit -1
+        cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=$(Build.ArtifactStagingDirectory) -DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE=0 .. || exit -1
         mingw32-make.exe all || exit -1
       displayName: 'Compile swami'
     - script: |
