@@ -145,7 +145,7 @@ include ( UnsetPkgConfig )
 # Optional library FluidSynth
 unset ( FLUIDSYNTH_SUPPORT CACHE )
 if ( enable-fluidsynth )
-  pkg_check_modules ( FLUIDSYNTH fluidsynth>=1.0 )
+  pkg_check_modules ( FLUIDSYNTH fluidsynth>=2.0 )
   set ( FLUIDSYNTH_SUPPORT ${FLUIDSYNTH_FOUND} )
 else ( enable-fluidsynth )
   unset_pkg_config ( FLUIDSYNTH )
