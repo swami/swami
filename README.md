@@ -1,8 +1,11 @@
 # Swami - README
 ### Copyright (C) 1999-2019 Element Green and others
+
 http://www.swamiproject.org
 
-##### NOTE that this readme might be outdated.
+[![Build Status](https://dev.azure.com/tommbrt/tommbrt/_apis/build/status/swami.swami?branchName=master)](https://dev.azure.com/tommbrt/tommbrt/_build/latest?definitionId=2&branchName=master)
+
+_Note that this readme might be outdated_
 
 
 ## 1. What is Swami?
