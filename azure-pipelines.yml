@@ -13,9 +13,16 @@ jobs:
         sudo apt-get -y install \
           libglib2.0-0 \
           libsndfile-dev \
-          libfluidsynth-dev \
-          libinstpatch-dev
+          libfluidsynth-dev
       displayName: 'Prerequisites'
+    - script: |
+        git clone https://github.com/swami/libinstpatch.git
+        cd libinstpatch
+        mkdir build && cd build
+        cmake ..
+        make -j4
+        sudo make install
+      displayName: 'Compile & Install libinstpatch'
     - script: |
         mkdir build && cd build
         cmake -DCMAKE_INSTALL_PREFIX=$HOME/swami_install -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_VERBOSE_MAKEFILE=0 ..
@@ -28,8 +35,16 @@ jobs:
   steps:
     - script: |
         brew update
-        brew install glib gobject-introspection libsndfile pkg-config fluidsynth libinstpatch
+        brew install glib gobject-introspection libsndfile pkg-config fluidsynth
       displayName: 'Prerequisites'
+    - script: |
+        git clone https://github.com/swami/libinstpatch.git
+        cd libinstpatch
+        mkdir build && cd build
+        cmake ..
+        make -j4
+        sudo make install
+      displayName: 'Compile & Install libinstpatch'
     - script: |
         mkdir build && cd build
         export PKG_CONFIG_PATH="/usr/local/opt/libffi/lib/pkgconfig"
