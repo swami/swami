@@ -24,10 +24,15 @@ jobs:
         cmake -DCMAKE_INSTALL_PREFIX=/usr -DLIB_SUFFIX="" ..
         make -j4
         sudo make install
-        ls -la /usr/lib
-        ls -la /usr/lib/pkgconfig
-        cat /usr/lib/pkgconfig/libinstpatch-1.0.pc
       displayName: 'Compile & Install libinstpatch'
+    - script: |
+        git clone https://github.com/FluidSynth/fluidsynth.git
+        cd fluidsynth
+        mkdir build && cd build
+        cmake -DCMAKE_INSTALL_PREFIX=/usr -DLIB_SUFFIX="" ..
+        make -j4
+        sudo make install
+      displayName: 'Compile & Install fluidsynth'
     - script: |
         mkdir build && cd build
         cmake -DCMAKE_INSTALL_PREFIX=$HOME/swami_install -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_VERBOSE_MAKEFILE=0 ..
@@ -62,6 +67,8 @@ jobs:
   strategy:
     matrix:
       MinGW_x86:
+        platform: Win32
+        toolset: v141_xp
         gtk-bundle: $(gtk-bundle-x86)
         libsndfile-url: $(libsndfile-url-x86)
         libgnomecanvas-url: $(libgnomecanvas-url-x86)
