@@ -219,11 +219,7 @@ swamigui_spin_scale_cb_output (GtkSpinButton *spin_button, gpointer user_data)
 static gint
 swamigui_spin_scale_cb_input (GtkSpinButton *spinbutton, gdouble *newval, gpointer user_data)
 {
-  SwamiguiSpinScale *spin_scale = SWAMIGUI_SPIN_SCALE (user_data);
-  GValue dispval = { 0 }, adjval = { 0 };
-  GtkAdjustment *adj;
-
-  adj = gtk_spin_button_get_adjustment (spinbutton);
+  GtkAdjustment *adj = gtk_spin_button_get_adjustment (spinbutton);
   *newval = adj->value;
 
   return TRUE;
@@ -242,7 +238,7 @@ swamigui_spin_scale_cb_activate (GtkSpinButton *spin_button, gpointer user_data)
     GValue adjval = { 0 }, dispval = { 0 };
 
     /* take text coming from "text entry". */
-    /* The buffer is internal and shouln't never be freed. */
+    /* The buffer is internal and shouldn't be freed. */
     const char *text = gtk_entry_get_text (GTK_ENTRY (spin_button));
 
     if (!text)
