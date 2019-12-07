@@ -50,6 +50,7 @@ static void swamigui_spin_scale_get_property (GObject *object, guint property_id
 static void swamigui_spin_scale_init (SwamiguiSpinScale *spin_scale);
 static gboolean swamigui_spin_scale_cb_output (GtkSpinButton *spin_button, gpointer user_data);
 static gint swamigui_spin_scale_cb_input (GtkSpinButton *spinbutton, gdouble *newval, gpointer user_data);
+static void swamigui_spin_scale_cb_activate (GtkSpinButton *spin_button, gpointer user_data);
 static gboolean swamigui_spin_scale_real_set_order (SwamiguiSpinScale *spin_scale,
 						    gboolean scale_first);
 
@@ -158,8 +159,21 @@ swamigui_spin_scale_init (SwamiguiSpinScale *spin_scale)
   gtk_widget_show (spin_scale->spinbtn);
   gtk_box_pack_start (GTK_BOX (spin_scale), spin_scale->spinbtn, FALSE, FALSE, 0);
 
+  /*
+    Because text displayed in "text entry" is expected to have a different
+    representation and different resolution that adjustment value, it is
+    important to keep:
+    1)"text entry" input disconnected from internal automatic update of adjustment value.
+    2)"spin button" input disconnected from internal automatic update of "text entry" value.
+    3)cb output being solely responsable of update "text entry" value converted
+      from adjustment value.
+
+    To insure (1) and (2) we need to connect callbacks on both signals "activate" and "input".
+    To insure (3) we need to connect a callback on "output" signal.
+  */
   g_signal_connect (spin_scale->spinbtn, "output", G_CALLBACK (swamigui_spin_scale_cb_output), spin_scale);
   g_signal_connect (spin_scale->spinbtn, "input", G_CALLBACK (swamigui_spin_scale_cb_input), spin_scale);
+  g_signal_connect (spin_scale->spinbtn, "activate", G_CALLBACK (swamigui_spin_scale_cb_activate), spin_scale);
 
   spin_scale->hscale = gtk_hscale_new (adj);
   gtk_scale_set_draw_value (GTK_SCALE (spin_scale->hscale), FALSE);
@@ -191,9 +205,7 @@ swamigui_spin_scale_cb_output (GtkSpinButton *spin_button, gpointer user_data)
   digits = gtk_spin_button_get_digits (spin_button);
 
   text = g_strdup_printf ("%.*f", digits, g_value_get_double (&dispval));       // ++ alloc
-  spin_scale->ignore_input = TRUE;
   gtk_entry_set_text (GTK_ENTRY (spin_button), text);
-  spin_scale->ignore_input = FALSE;
   g_free (text);                                                                // -- free
 
   // Probably not needed - but just for good measure
@@ -207,35 +219,45 @@ swamigui_spin_scale_cb_output (GtkSpinButton *spin_button, gpointer user_data)
 static gint
 swamigui_spin_scale_cb_input (GtkSpinButton *spinbutton, gdouble *newval, gpointer user_data)
 {
-  SwamiguiSpinScale *spin_scale = SWAMIGUI_SPIN_SCALE (user_data);
-  GValue dispval = { 0 }, adjval = { 0 };
-  GtkAdjustment *adj;
-  const char *text;
-
-  adj = gtk_spin_button_get_adjustment (spinbutton);
+  GtkAdjustment *adj = gtk_spin_button_get_adjustment (spinbutton);
   *newval = adj->value;
 
-  if (spin_scale->ignore_input)
-    return (FALSE);
+  return TRUE;
+}
 
-  text = gtk_entry_get_text (GTK_ENTRY (spinbutton));
+/*
+ Callback for "text entry" input.
+ Take text entry value and convert it to adjustment value.
+*/
+static void
+swamigui_spin_scale_cb_activate (GtkSpinButton *spin_button, gpointer user_data)
+{
 
-  if (!text)
-    return (FALSE);
+    SwamiguiSpinScale *spin_scale = SWAMIGUI_SPIN_SCALE (user_data);
+    GtkAdjustment *adj;
+    GValue adjval = { 0 }, dispval = { 0 };
 
-  g_value_init (&dispval, G_TYPE_DOUBLE);
-  g_value_set_double (&dispval, atof (text));
-  g_value_init (&adjval, G_TYPE_DOUBLE);
+    /* take text coming from "text entry". */
+    /* The buffer is internal and shouldn't be freed. */
+    const char *text = gtk_entry_get_text (GTK_ENTRY (spin_button));
 
-  ipatch_unit_convert (spin_scale->disp_units, spin_scale->adj_units, &dispval, &adjval);
+    if (!text)
+    {
+        return;
+    }
 
-  *newval = g_value_get_double (&adjval);
+    /* Convert dispval -> adjval */
+    g_value_init (&dispval, G_TYPE_DOUBLE);
+    g_value_set_double (&dispval, atof (text));
+    g_value_init (&adjval, G_TYPE_DOUBLE);
 
-  // Probably not needed - but just for good measure
-  g_value_unset (&dispval);
-  g_value_unset (&adjval);
+    ipatch_unit_convert (spin_scale->disp_units, spin_scale->adj_units, &dispval, &adjval);
 
-  return (TRUE);
+    /* set adjustement value */
+    adj = gtk_spin_button_get_adjustment (spin_button);
+    gtk_adjustment_set_value (adj, g_value_get_double(&adjval) );
+
+    return;
 }
 
 /**

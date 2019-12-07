@@ -49,7 +49,6 @@ struct _SwamiguiSpinScale
   gboolean scale_first;		/* indicates order of widgets */
   guint16 adj_units;            // Adjustment units (#IpatchUnitType)
   guint16 disp_units;           // Spin button display units (#IpatchUnitType)
-  gboolean ignore_input;        // Hack to stop output/input signal loop
 };
 
 /* Swami SpinScale widget class */
