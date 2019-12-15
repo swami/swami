@@ -131,7 +131,10 @@ static void swamigui_sample_editor_get_property (GObject *object,
 						 GParamSpec *pspec);
 static void swamigui_sample_editor_finalize (GObject *object);
 static void swamigui_sample_editor_init (SwamiguiSampleEditor *editor);
-#if 0
+
+//#define sample_edition
+/* Disabled until sample editing operations are implemented by #define sample_edition */
+#ifdef sample_edition
 static void swamigui_sample_editor_cb_cut_sample (GtkToggleToolButton *button,
 						  gpointer user_data);
 static void swamigui_sample_editor_cb_crop_sample (GtkToggleToolButton *button,
@@ -140,6 +143,7 @@ static void swamigui_sample_editor_cb_copy_new_sample (GtkToggleToolButton *butt
 						       gpointer user_data);
 static IpatchSampleData *get_selection_sample_data (SwamiguiSampleEditor *editor);
 #endif
+
 static void swamigui_sample_editor_cb_loop_finder (GtkToggleToolButton *button,
 						   gpointer user_data);
 static void editor_cb_pane_size_allocate (GtkWidget *pane,
@@ -567,9 +571,8 @@ swamigui_sample_editor_init (SwamiguiSampleEditor *editor)
   gtk_toolbar_insert (GTK_TOOLBAR (editor->toolbar), item, -1);
 
 
-/* Disabled until sample editing operations are implemented */
-
-#if 0
+/* Disabled until sample editing operations are implemented by #define sample_edition */
+#ifdef sample_edition
   /* add separator */
   gtk_toolbar_insert (GTK_TOOLBAR (editor->toolbar),
 		      gtk_separator_tool_item_new (), -1);
@@ -796,7 +799,8 @@ swamigui_sample_editor_init (SwamiguiSampleEditor *editor)
 					 SWAMI_CONTROL_CONN_BIDIR_INIT);
 }
 
-#if 0
+/* Disabled until sample editing operations are implemented by #define sample_edition */
+#ifdef sample_edition
 static void
 swamigui_sample_editor_cb_cut_sample (GtkToggleToolButton *button,
 				      gpointer user_data)
@@ -1138,8 +1142,8 @@ swamigui_sample_editor_cb_sample_canvas_event (GnomeCanvas *canvas,
 
       /* set selection marker - start/end swapped in function if needed */
 
-      /* Disabled until sample editing operations implemented */
-#if 0
+      /* Disabled until sample editing operations are implemented by #define sample_edition */
+#ifdef sample_edition
       swamigui_sample_editor_show_marker (editor, 0, TRUE);
 #endif
       swamigui_sample_editor_set_marker (editor, 0, newstart, newend);
@@ -1249,6 +1253,7 @@ pos_is_marker (SwamiguiSampleEditor *editor, int xpos, int ypos,
   int inview, onsample, pos;
   int startdiff, enddiff;
   GList *p;
+  int i;
 
   if (is_onbox) *is_onbox = FALSE;
   if (marker_edge) *marker_edge = -1;
@@ -1264,8 +1269,15 @@ pos_is_marker (SwamiguiSampleEditor *editor, int xpos, int ypos,
     item = gnome_canvas_get_item_at (editor->sample_canvas, xpos, ypos);
     if (!item) return (NULL);
 
-    for (p = editor->markers; p; p = p->next)
+    for (i=0, p = editor->markers; p; i++, p = p->next)
     {
+#ifndef sample_edition
+      /* Marker 0 is ignored until sample edition will be implemented by #define sample_edition */
+      if(i == 0) continue;
+#endif
+      /* don't search marker 1 and 2 if loop finder isn't active */
+      if( ((i == 1) || (i == 2)) && !editor->loop_finder_active) continue;
+
       marker_info = (MarkerInfo *)(p->data);
 
       if (marker_info->range_box == item)	/* range box matches? */
@@ -1293,8 +1305,15 @@ pos_is_marker (SwamiguiSampleEditor *editor, int xpos, int ypos,
 
   /* click not in marker bar area */
 
-  for (p = editor->markers; p; p = p->next)
+  for (i=0, p = editor->markers; p; i++, p = p->next)
   {
+#ifndef sample_edition
+  /* Marker 0 is ignored until sample edition will be implemented by #define sample_edition */
+    if(i == 0) continue;
+#endif
+    /* don't search marker 1 and 2 if loop finder isn't active */
+    if( ((i == 1) || (i == 2)) && !editor->loop_finder_active) continue;
+
     marker_info = (MarkerInfo *)(p->data);
 
     x = swamigui_sample_canvas_sample_to_xpos (sample_view, 
