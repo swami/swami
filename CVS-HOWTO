@@ -1,7 +1,0 @@
-If you got Swami from CVS, then run ./autogen.sh.
-You need autoconf and automake installed in order for this to work.
-Once this is done, you can compile like you normally would (see INSTALL for
-details):
-./configure
-make
-make install
