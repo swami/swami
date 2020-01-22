@@ -1,60 +1,37 @@
 +-------------------------------------------------------+
-+	Swami - Installation				+
-+	Copyright (C) 1999-2002 Josh Green		+
-+	Email: jgreen@users.sourceforge.net		+
-+	Swami homepage: http://swami.sourceforge.net	+
++ Swami - Installation                                  +
++ Copyright (C) 1999-2020 Josh Green and others         +
++ Email: jgreen@users.sourceforge.net                   +
++ Swami homepage: https://github.com/swami/swami        +
 +-------------------------------------------------------+
 
-If compiling from CVS
------------------
-You need to run "./autogen.sh" in the toplevel directory. You'll need
-autoconf, automake, libtool and perhaps other libraries and there development
-packages in order for this to work.
-
+Swami uses the CMake build system. If you are new to cmake, you should at first compile fluidsynth (you will need it for Swami anyway). Check you their build instructions to get a basic understanding of how CMake works: https://github.com/FluidSynth/fluidsynth/wiki/BuildingWithCMake
 
 Configure build system
 -----------------
 
 Change to toplevel Swami source directory and execute:
-./configure
+mkdir build && cd build
+cmake ..
 
 Some useful options to the configure script ("./configure --help" to list more
 options) you probably won't need to specify any of these:
 
---with-audiofile-prefix=PFX  Prefix where AUDIOFILE is installed (optional)
---disable-splash        Don't compile Swami splash intro image
-
-TIPS in using the configure script
------------------
-
-Support for external libraries is for the most part auto detected. So you
-probably won't need to supply any switches to the configure script. If the
-configure script does something unexpected or fails it is often useful to
-look at the config.log file. If you install or remove a library used by
-Swami and you want to re-run configure, you may want to delete
-config.cache first.
+-DCMAKE_INSTALL_PREFIX=PFX       Prefix where SWAMI is installed (optional)
+-DCMAKE_INSTALL_DATADIR=DTDIR    Data dir to use for installing various UI related files (depends on your OS, commonly /usr/share is being used)
 
 Required libraries
 -----------------
 
 Swami requires a sound file library to load sample files (WAV, AU etc).
-Currently only audiofile is supported (libsndfile support soon).
 
-audiofile homepage: http://www.68k.org/~michael/audiofile/
 libsndfile homepage: http://www.zip.com.au/~erikd/libsndfile/
+libinstpatch: https://github.com/swami/libinstpatch
 
-GTK 1.2+ is required. It depends on a number of other libraries as well.
+GTK+ 2.0 is required. It depends on a number of other libraries as well.
 Chances are you already have it.
 
 GTK homepage: http://www.gtk.org
-
-Optional libraries
------------------
-
-The libpng library is used for the splash intro image. If you don't have it
-you won't get the splash image. You can also force the splash image to not be
-compiled (save about 60k in the Swami binary, but lose some of the Swami
-atmosphere) with the --disable-splash switch.
 
 Compile and install
 -----------------
@@ -65,5 +42,4 @@ make
 To install the binary file "swami" issue a:
 make install
 
-Please contact me (Josh Green <jgreen@users.sourceforge.net>) if you have
-problems or suggestions with the build process.
+Please open a ticket at GitHub if you have problems or suggestions with the build process.
