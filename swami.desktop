@@ -5,6 +5,7 @@ GenericName=Instrument Editor
 GenericName[ru]=Редактор сэмплов 
 Comment=Create, play and organize MIDI instruments and sounds
 Comment[ru]=Создание, воспроизведение и организация звуковых сэмплов
+Keywords=audio;sound;jackd;sampler;instrument;editor;sf2;
 Exec=swami %F
 Icon=swami
 StartupNotify=true
