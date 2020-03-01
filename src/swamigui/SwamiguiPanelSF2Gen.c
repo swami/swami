@@ -89,10 +89,26 @@ G_DEFINE_ABSTRACT_TYPE_WITH_CODE (SwamiguiPanelSF2Gen, swamigui_panel_sf2_gen,
 		    G_IMPLEMENT_INTERFACE (SWAMIGUI_TYPE_PANEL,
 					   swamigui_panel_sf2_gen_panel_iface_init));
 
+/* Override mouse button event:
+   To avoid lose of focus in pannels selector (GtkNoteBook tabs selector).
+   Otherwise,the user would be forced to clic two times when he want to select
+   another pannel.
+*/
+static gboolean swamigui_panel_sf2_gen_press_button (GtkWidget *widget,
+                                                     GdkEventButton *event)
+{
+    /*  mouse click button propagation is ignored */
+    return TRUE;
+}
+
 static void
 swamigui_panel_sf2_gen_class_init (SwamiguiPanelSF2GenClass *klass)
 {
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
+
+  /* Override mouse button event */
+  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
+  widget_class->button_press_event = swamigui_panel_sf2_gen_press_button ;
 
   obj_class->set_property = swamigui_panel_sf2_gen_set_property;
   obj_class->get_property = swamigui_panel_sf2_gen_get_property;

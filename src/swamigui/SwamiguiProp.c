@@ -168,10 +168,26 @@ swamigui_prop_get_type (void)
   return (obj_type);
 }
 
+/* Override mouse button event:
+   To avoid lose of focus in pannels selector (GtkNoteBook tabs selector).
+   Otherwise,the user would be forced to clic two times when he want to select
+   another pannel.
+*/
+static gboolean swamigui_prop_press_button (GtkWidget *widget,
+                                                     GdkEventButton *event)
+{
+    /*  mouse click button propagation is ignored */
+    return TRUE;
+}
+
 static void
 swamigui_prop_class_init (SwamiguiPropClass *klass)
 {
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
+
+  /* Override mouse button event */
+  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
+  widget_class->button_press_event = swamigui_prop_press_button ;
 
   parent_class = g_type_class_peek_parent (klass);
 
