@@ -51,6 +51,8 @@ struct _SwamiguiModEdit
     GtkWidget *tree_view;		/* tree view widget for modulator list */
     GtkListStore *list_store;	/* GtkTreeModel list store of modulator list */
 
+    GtkWidget *del_button;      /* delete button widget */
+
     gboolean mod_selected;	/* modulator selected? (mod_iter is valid) */
     GtkTreeIter mod_iter;		/* modulator list node being edited */
 

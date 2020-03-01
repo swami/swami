@@ -552,6 +552,9 @@ swamigui_mod_edit_init(SwamiguiModEdit *modedit)
                      G_CALLBACK(swamigui_mod_edit_cb_new_clicked), modedit);
 
     widg = swamigui_util_glade_lookup(glade_widg, "BTNDel");
+    modedit->del_button = widg;
+    gtk_widget_set_sensitive (widg, 0); /* disable delete button */
+
     g_signal_connect(widg, "clicked",
                      G_CALLBACK(swamigui_mod_edit_cb_delete_clicked), modedit);
 
@@ -673,6 +676,10 @@ swamigui_mod_edit_create_list_view(SwamiguiModEdit *modedit)
                                G_TYPE_STRING,
                                G_TYPE_INT,
                                IPATCH_TYPE_SF2_MOD);
+
+    /* set grid lines for rows and columns */
+    gtk_tree_view_set_grid_lines (GTK_TREE_VIEW (tree),
+                                  GTK_TREE_VIEW_GRID_LINES_BOTH);
 
     gtk_tree_view_set_model(GTK_TREE_VIEW(tree), GTK_TREE_MODEL(store));
 
@@ -940,6 +947,9 @@ swamigui_mod_edit_cb_mod_select_changed(GtkTreeSelection *selection,
     {
         swamigui_mod_edit_set_active_mod(modedit, NULL, TRUE);
     }
+
+    /* Enabe/disable "delete" button */
+    gtk_widget_set_sensitive (modedit->del_button, selbag.count);
 }
 
 static void
