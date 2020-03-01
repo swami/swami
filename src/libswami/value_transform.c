@@ -22,54 +22,62 @@
 #include <stdlib.h>
 #include <glib-object.h>
 
-static void value_transform_string_int (const GValue *src_value,
-					GValue *dest_value);
-static void value_transform_string_double (const GValue *src_value,
-					   GValue *dest_value);
+static void value_transform_string_int(const GValue *src_value,
+                                       GValue *dest_value);
+static void value_transform_string_double(const GValue *src_value,
+        GValue *dest_value);
 
 void
-_swami_value_transform_init (void)
+_swami_value_transform_init(void)
 {
-  g_value_register_transform_func (G_TYPE_STRING, G_TYPE_INT,
-				   value_transform_string_int);
-  g_value_register_transform_func (G_TYPE_STRING, G_TYPE_DOUBLE,
-				   value_transform_string_double);
+    g_value_register_transform_func(G_TYPE_STRING, G_TYPE_INT,
+                                    value_transform_string_int);
+    g_value_register_transform_func(G_TYPE_STRING, G_TYPE_DOUBLE,
+                                    value_transform_string_double);
 }
 
 /* string to int transform function */
 static void
-value_transform_string_int (const GValue *src_value, GValue *dest_value)
+value_transform_string_int(const GValue *src_value, GValue *dest_value)
 {
-  const char *str;
-  char *endptr;
-  long int lval = 0;
+    const char *str;
+    char *endptr;
+    long int lval = 0;
 
-  str = g_value_get_string (src_value);
+    str = g_value_get_string(src_value);
 
-  if (str)
-  {
-    lval = strtol (str, &endptr, 10);
-    if (*endptr != '\0' || endptr == str) lval = 0;
-  }
+    if(str)
+    {
+        lval = strtol(str, &endptr, 10);
 
-  g_value_set_int (dest_value, lval);
+        if(*endptr != '\0' || endptr == str)
+        {
+            lval = 0;
+        }
+    }
+
+    g_value_set_int(dest_value, lval);
 }
 
 /* string to double transform function */
 static void
-value_transform_string_double (const GValue *src_value, GValue *dest_value)
+value_transform_string_double(const GValue *src_value, GValue *dest_value)
 {
-  const char *str;
-  char *endptr;
-  double dval = 0.0;
+    const char *str;
+    char *endptr;
+    double dval = 0.0;
 
-  str = g_value_get_string (src_value);
+    str = g_value_get_string(src_value);
 
-  if (str)
-  {
-    dval = strtod (str, &endptr);
-    if (*endptr != '\0' || endptr == str) dval = 0;
-  }
+    if(str)
+    {
+        dval = strtod(str, &endptr);
 
-  g_value_set_double (dest_value, dval);
+        if(*endptr != '\0' || endptr == str)
+        {
+            dval = 0;
+        }
+    }
+
+    g_value_set_double(dest_value, dval);
 }

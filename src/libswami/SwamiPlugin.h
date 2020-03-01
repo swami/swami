@@ -54,7 +54,7 @@ typedef struct _SwamiPluginInfo SwamiPluginInfo;
  * Returns: Should return %TRUE on success, %FALSE otherwise (@err should be
  * set on failure).
  */
-typedef gboolean (*SwamiPluginInitFunc)(SwamiPlugin *plugin, GError **err);
+typedef gboolean(*SwamiPluginInitFunc)(SwamiPlugin *plugin, GError **err);
 
 /**
  * SwamiPluginExitFunc:
@@ -76,8 +76,8 @@ typedef void (*SwamiPluginExitFunc)(SwamiPlugin *plugin);
  * Returns: Should return %TRUE on success, %FALSE otherwise (in which case @err
  *   should be set).
  */
-typedef gboolean (*SwamiPluginSaveXmlFunc)(SwamiPlugin *plugin, GNode *xmlnode,
-                                           GError **err);
+typedef gboolean(*SwamiPluginSaveXmlFunc)(SwamiPlugin *plugin, GNode *xmlnode,
+        GError **err);
 
 /**
  * SwamiPluginLoadXmlFunc:
@@ -91,33 +91,33 @@ typedef gboolean (*SwamiPluginSaveXmlFunc)(SwamiPlugin *plugin, GNode *xmlnode,
  * Returns: Should return %TRUE on success, %FALSE otherwise (in which case @err
  *   should be set).
  */
-typedef gboolean (*SwamiPluginLoadXmlFunc)(SwamiPlugin *plugin, GNode *xmlnode,
-                                           GError **err);
+typedef gboolean(*SwamiPluginLoadXmlFunc)(SwamiPlugin *plugin, GNode *xmlnode,
+        GError **err);
 
 /* Swami plugin object (each loaded plugin gets one of these) */
 struct _SwamiPlugin
 {
-  GTypeModule parent_instance;	/* derived from GTypeModule */
+    GTypeModule parent_instance;	/* derived from GTypeModule */
 
-  /*< private >*/
-  GModule *module;    /* module of the plugin or NULL if not loaded */
-  SwamiPluginInitFunc init;	/* function stored from SwamiPluginInfo */
-  SwamiPluginExitFunc exit;	/* function stored from SwamiPluginInfo */
-  SwamiPluginSaveXmlFunc save_xml;	/* Optional XML save function assigned in init */
-  SwamiPluginLoadXmlFunc load_xml;	/* Optional XML load function assigned in init */
-  char *filename;		/* filename it came from */
+    /*< private >*/
+    GModule *module;    /* module of the plugin or NULL if not loaded */
+    SwamiPluginInitFunc init;	/* function stored from SwamiPluginInfo */
+    SwamiPluginExitFunc exit;	/* function stored from SwamiPluginInfo */
+    SwamiPluginSaveXmlFunc save_xml;	/* Optional XML save function assigned in init */
+    SwamiPluginLoadXmlFunc load_xml;	/* Optional XML load function assigned in init */
+    char *filename;		/* filename it came from */
 
-  char *version;		/* plugin specific version string */
-  char *author;			/* author of this plugin */
-  char *copyright;		/* copyright string */
-  char *descr;			/* description of plugin */
-  char *license;		/* license this plugin is distributed under */
+    char *version;		/* plugin specific version string */
+    char *author;			/* author of this plugin */
+    char *copyright;		/* copyright string */
+    char *descr;			/* description of plugin */
+    char *license;		/* license this plugin is distributed under */
 };
 
 /* Swami plugin class */
 struct _SwamiPluginClass
 {
-  GTypeModuleClass parent_class;
+    GTypeModuleClass parent_class;
 };
 
 /* magic string to check sanity of plugins */
@@ -126,10 +126,10 @@ struct _SwamiPluginClass
 
 struct _SwamiPluginInfo
 {
-  char magic[4];		/* magic string to ensure sanity */
-  char *swami_version;		/* version of Swami plugin compiled for */
-  SwamiPluginInitFunc init;	/* called to initialize plugin */
-  SwamiPluginExitFunc exit;	/* called before plugin is unloaded */
+    char magic[4];		/* magic string to ensure sanity */
+    char *swami_version;		/* version of Swami plugin compiled for */
+    SwamiPluginInitFunc init;	/* called to initialize plugin */
+    SwamiPluginExitFunc exit;	/* called before plugin is unloaded */
 };
 
 /* a convenience macro to define plugin info */
@@ -142,17 +142,17 @@ SwamiPluginInfo swami_plugin_info =	\
   exit					\
 };
 
-GType swami_plugin_get_type (void);
+GType swami_plugin_get_type(void);
 
-void swami_plugin_add_path (const char *path);
-void swami_plugin_load_all (void);
-gboolean swami_plugin_load (const char *filename);
-gboolean swami_plugin_load_absolute (const char *filename);
-gboolean swami_plugin_load_plugin (SwamiPlugin *plugin);
-gboolean swami_plugin_is_loaded	(SwamiPlugin *plugin);
-SwamiPlugin *swami_plugin_find (const char *name);
-GList *swami_plugin_get_list (void);
-gboolean swami_plugin_save_xml (SwamiPlugin *plugin, GNode *xmlnode, GError **err);
-gboolean swami_plugin_load_xml (SwamiPlugin *plugin, GNode *xmlnode, GError **err);
+void swami_plugin_add_path(const char *path);
+void swami_plugin_load_all(void);
+gboolean swami_plugin_load(const char *filename);
+gboolean swami_plugin_load_absolute(const char *filename);
+gboolean swami_plugin_load_plugin(SwamiPlugin *plugin);
+gboolean swami_plugin_is_loaded(SwamiPlugin *plugin);
+SwamiPlugin *swami_plugin_find(const char *name);
+GList *swami_plugin_get_list(void);
+gboolean swami_plugin_save_xml(SwamiPlugin *plugin, GNode *xmlnode, GError **err);
+gboolean swami_plugin_load_xml(SwamiPlugin *plugin, GNode *xmlnode, GError **err);
 
 #endif /* __SWAMI_PLUGIN_H__ */

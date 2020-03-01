@@ -41,38 +41,38 @@ typedef struct _SwamiguiBarPtrClass SwamiguiBarPtrClass;
 /* Pointer type */
 typedef enum
 {
-  SWAMIGUI_BAR_PTR_POSITION,	/* pointer position indicator */
-  SWAMIGUI_BAR_PTR_RANGE	/* range selection */
+    SWAMIGUI_BAR_PTR_POSITION,	/* pointer position indicator */
+    SWAMIGUI_BAR_PTR_RANGE	/* range selection */
 } SwamiguiBarPtrType;
 
 /* Bar pointer object */
 struct _SwamiguiBarPtr
 {
-  GnomeCanvasGroup parent_instance;
+    GnomeCanvasGroup parent_instance;
 
-  /*< private >*/
+    /*< private >*/
 
-  GnomeCanvasItem *rect;	/* pointer rectangle */
-  GnomeCanvasItem *ptr;		/* triangle pointer (if SWAMIGUI_BAR_POINTER) */
-  GnomeCanvasItem *icon;	/* icon for this pointer */
+    GnomeCanvasItem *rect;	/* pointer rectangle */
+    GnomeCanvasItem *ptr;		/* triangle pointer (if SWAMIGUI_BAR_POINTER) */
+    GnomeCanvasItem *icon;	/* icon for this pointer */
 
-  int width;			/* width in pixels */
-  int height;			/* height in pixels */
-  int pointer_height;		/* height of pointer in pixels */
-  SwamiguiBarPtrType type;	/* pointer interface type */
-  gboolean interactive;		/* TRUE if user can change this pointer */
-  guint32 color;
-  char *label;
-  char *tooltip;
+    int width;			/* width in pixels */
+    int height;			/* height in pixels */
+    int pointer_height;		/* height of pointer in pixels */
+    SwamiguiBarPtrType type;	/* pointer interface type */
+    gboolean interactive;		/* TRUE if user can change this pointer */
+    guint32 color;
+    char *label;
+    char *tooltip;
 };
 
 struct _SwamiguiBarPtrClass
 {
-  GnomeCanvasGroupClass parent_class;
+    GnomeCanvasGroupClass parent_class;
 };
 
 
-GType swamigui_bar_ptr_get_type (void);
-GnomeCanvasItem *swamigui_bar_ptr_new (void);
+GType swamigui_bar_ptr_get_type(void);
+GnomeCanvasItem *swamigui_bar_ptr_new(void);
 
 #endif

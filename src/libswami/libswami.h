@@ -29,7 +29,7 @@
 #include <libswami/SwamiEvent_ipatch.h>
 
 /* libswami.c */
-void swami_init (void);
+void swami_init(void);
 
 /* IpatchItem event controls */
 extern SwamiControl *swami_patch_prop_title_control;

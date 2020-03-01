@@ -43,19 +43,19 @@ typedef struct _SwamiContainerClass SwamiContainerClass;
 
 struct _SwamiContainer
 {
-  IpatchContainer parent;
+    IpatchContainer parent;
 
-  /*< private >*/
-  GSList *patch_list;		/* list of instrument patches */
-  SwamiRoot *root;		/* root object owning this container */
+    /*< private >*/
+    GSList *patch_list;		/* list of instrument patches */
+    SwamiRoot *root;		/* root object owning this container */
 };
 
 struct _SwamiContainerClass
 {
-  IpatchContainerClass parent_class;
+    IpatchContainerClass parent_class;
 };
 
-GType swami_container_get_type (void);
-SwamiContainer *swami_container_new (void);
+GType swami_container_get_type(void);
+SwamiContainer *swami_container_new(void);
 
 #endif

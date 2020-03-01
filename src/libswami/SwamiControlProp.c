@@ -36,42 +36,42 @@
 /* hash key used for cache of SwamiControlProp by Object:GParamSpec */
 typedef struct
 {
-  GObject *object;	/* object, no ref is held, weak notify instead */
-  GParamSpec *pspec;	/* property param spec of the control */
+    GObject *object;	/* object, no ref is held, weak notify instead */
+    GParamSpec *pspec;	/* property param spec of the control */
 } ControlPropKey;
 
 /* defined in libswami.c */
-extern void _swami_set_patch_prop_origin_event (SwamiControlEvent *origin);
+extern void _swami_set_patch_prop_origin_event(SwamiControlEvent *origin);
 
 
-static void control_prop_weak_notify (gpointer data, GObject *was_object);
-static guint control_prop_hash_func (gconstpointer key);
-static gboolean control_prop_equal_func (gconstpointer a, gconstpointer b);
-static void control_prop_key_free_func (gpointer data);
+static void control_prop_weak_notify(gpointer data, GObject *was_object);
+static guint control_prop_hash_func(gconstpointer key);
+static gboolean control_prop_equal_func(gconstpointer a, gconstpointer b);
+static void control_prop_key_free_func(gpointer data);
 
-static void swami_control_prop_class_init (SwamiControlPropClass *klass);
-static void swami_control_prop_finalize (GObject *object);
-static GParamSpec *control_prop_get_spec_method (SwamiControl *control);
-static void control_prop_get_value_method (SwamiControl *control,
-					   GValue *value);
-static void control_prop_set_value_method (SwamiControl *control,
-					   SwamiControlEvent *event,
-					   const GValue *value);
-static void swami_control_prop_item_cb_notify (IpatchItemPropNotify *notify);
-static void swami_control_prop_item_cb_notify_event (IpatchItemPropNotify *notify);
-static void swami_control_prop_cb_notify (GObject *object, GParamSpec *pspec,
-					  SwamiControlProp *ctrlprop);
-static void swami_control_prop_cb_notify_event (GObject *object,
-						GParamSpec *pspec,
-						SwamiControlProp *ctrlprop);
-static void control_prop_object_weak_notify (gpointer user_data, GObject *object);
+static void swami_control_prop_class_init(SwamiControlPropClass *klass);
+static void swami_control_prop_finalize(GObject *object);
+static GParamSpec *control_prop_get_spec_method(SwamiControl *control);
+static void control_prop_get_value_method(SwamiControl *control,
+        GValue *value);
+static void control_prop_set_value_method(SwamiControl *control,
+        SwamiControlEvent *event,
+        const GValue *value);
+static void swami_control_prop_item_cb_notify(IpatchItemPropNotify *notify);
+static void swami_control_prop_item_cb_notify_event(IpatchItemPropNotify *notify);
+static void swami_control_prop_cb_notify(GObject *object, GParamSpec *pspec,
+        SwamiControlProp *ctrlprop);
+static void swami_control_prop_cb_notify_event(GObject *object,
+        GParamSpec *pspec,
+        SwamiControlProp *ctrlprop);
+static void control_prop_object_weak_notify(gpointer user_data, GObject *object);
 
 
 static GObjectClass *parent_class = NULL;
 
 /* hash of GObject:GParamSpec -> SwamiControlProp objects. Only 1 control
    needed for an object property. */
-G_LOCK_DEFINE_STATIC (control_prop_hash);
+G_LOCK_DEFINE_STATIC(control_prop_hash);
 static GHashTable *control_prop_hash = NULL;
 
 /* reverse hash for quick lookup by control (on control removal)
@@ -105,76 +105,87 @@ static GStaticPrivate prop_notify_origin = G_STATIC_PRIVATE_INIT;
  *   finished.
  */
 SwamiControl *
-swami_get_control_prop (GObject *object, GParamSpec *pspec)
+swami_get_control_prop(GObject *object, GParamSpec *pspec)
 {
-  ControlPropKey key, *newkey;
-  SwamiControlProp *control, *beatus;
+    ControlPropKey key, *newkey;
+    SwamiControlProp *control, *beatus;
 
-  key.object = object;
-  key.pspec = pspec;
+    key.object = object;
+    key.pspec = pspec;
 
-  G_LOCK (control_prop_hash);
-  control = (SwamiControlProp *)g_hash_table_lookup (control_prop_hash, &key);
-  if (control) g_object_ref (control);
-  G_UNLOCK (control_prop_hash);
+    G_LOCK(control_prop_hash);
+    control = (SwamiControlProp *)g_hash_table_lookup(control_prop_hash, &key);
 
-  if (!control)
-    { /* ++ ref control (caller takes over reference) */
-      control = swami_control_prop_new (object, pspec);
-      g_return_val_if_fail (control != NULL, NULL);
-
-      newkey = g_slice_new (ControlPropKey);
-      newkey->object = object;
-      newkey->pspec = pspec;
-
-
-      G_LOCK (control_prop_hash);
-
-      /* double check that another thread didn't create the same control between
-       * these two locks (beat us to it) */
-      beatus = (SwamiControlProp *)g_hash_table_lookup (control_prop_hash, &key);
-
-      if (!beatus)
-	{
-	  g_hash_table_insert (control_prop_hash, newkey, control);
-	  g_hash_table_insert (control_prop_reverse_hash, control, newkey);
-	}
-      else g_object_ref (beatus);
-
-      G_UNLOCK (control_prop_hash);
-
-
-      if (beatus)	/* if another thread created control, cleanup properly */
-	{
-	  g_slice_free (ControlPropKey, newkey);
-	  g_object_unref (control);	/* -- unref */
-	  control = beatus;
-	}
-      else /* passively watch the control, to remove it from hash when destroyed */
-	g_object_weak_ref (G_OBJECT (control), control_prop_weak_notify, NULL);
+    if(control)
+    {
+        g_object_ref(control);
     }
 
-  return ((SwamiControl *)control);
+    G_UNLOCK(control_prop_hash);
+
+    if(!control)
+    {
+        /* ++ ref control (caller takes over reference) */
+        control = swami_control_prop_new(object, pspec);
+        g_return_val_if_fail(control != NULL, NULL);
+
+        newkey = g_slice_new(ControlPropKey);
+        newkey->object = object;
+        newkey->pspec = pspec;
+
+
+        G_LOCK(control_prop_hash);
+
+        /* double check that another thread didn't create the same control between
+         * these two locks (beat us to it) */
+        beatus = (SwamiControlProp *)g_hash_table_lookup(control_prop_hash, &key);
+
+        if(!beatus)
+        {
+            g_hash_table_insert(control_prop_hash, newkey, control);
+            g_hash_table_insert(control_prop_reverse_hash, control, newkey);
+        }
+        else
+        {
+            g_object_ref(beatus);
+        }
+
+        G_UNLOCK(control_prop_hash);
+
+
+        if(beatus)	/* if another thread created control, cleanup properly */
+        {
+            g_slice_free(ControlPropKey, newkey);
+            g_object_unref(control);	/* -- unref */
+            control = beatus;
+        }
+        else /* passively watch the control, to remove it from hash when destroyed */
+        {
+            g_object_weak_ref(G_OBJECT(control), control_prop_weak_notify, NULL);
+        }
+    }
+
+    return ((SwamiControl *)control);
 }
 
 /* weak notify to remove control from hash when it gets destroyed */
 static void
-control_prop_weak_notify (gpointer data, GObject *was_object)
+control_prop_weak_notify(gpointer data, GObject *was_object)
 {
-  ControlPropKey *key;
+    ControlPropKey *key;
 
-  G_LOCK (control_prop_hash);
+    G_LOCK(control_prop_hash);
 
-  /* lookup key in reverse hash */
-  key = g_hash_table_lookup (control_prop_reverse_hash, was_object);
+    /* lookup key in reverse hash */
+    key = g_hash_table_lookup(control_prop_reverse_hash, was_object);
 
-  if (key)	/* still in hash? (this func may be called multiple times) */
+    if(key)	/* still in hash? (this func may be called multiple times) */
     {
-      g_hash_table_remove (control_prop_reverse_hash, was_object);
-      g_hash_table_remove (control_prop_hash, key);
+        g_hash_table_remove(control_prop_reverse_hash, was_object);
+        g_hash_table_remove(control_prop_hash, key);
     }
 
-  G_UNLOCK (control_prop_hash);
+    G_UNLOCK(control_prop_hash);
 }
 
 /**
@@ -192,24 +203,27 @@ control_prop_weak_notify (gpointer data, GObject *was_object)
  *   finished.
  */
 SwamiControl *
-swami_get_control_prop_by_name (GObject *object, const char *name)
+swami_get_control_prop_by_name(GObject *object, const char *name)
 {
-  GParamSpec *pspec;
-  GObjectClass *klass;
+    GParamSpec *pspec;
+    GObjectClass *klass;
 
-  g_return_val_if_fail (G_IS_OBJECT (object), NULL);
+    g_return_val_if_fail(G_IS_OBJECT(object), NULL);
 
-  if (name)
+    if(name)
     {
-      klass = G_OBJECT_GET_CLASS (object);
-      g_return_val_if_fail (klass != NULL, NULL);
-    
-      pspec = g_object_class_find_property (klass, name);
-      g_return_val_if_fail (pspec != NULL, NULL);
-    }
-  else pspec = NULL;
+        klass = G_OBJECT_GET_CLASS(object);
+        g_return_val_if_fail(klass != NULL, NULL);
 
-  return (swami_get_control_prop (object, pspec));
+        pspec = g_object_class_find_property(klass, name);
+        g_return_val_if_fail(pspec != NULL, NULL);
+    }
+    else
+    {
+        pspec = NULL;
+    }
+
+    return (swami_get_control_prop(object, pspec));
 }
 
 /**
@@ -224,31 +238,32 @@ swami_get_control_prop_by_name (GObject *object, const char *name)
  * controls.
  */
 void
-swami_control_prop_connect_objects (GObject *src, const char *propname1,
-				    GObject *dest, const char *propname2,
-				    guint flags)
+swami_control_prop_connect_objects(GObject *src, const char *propname1,
+                                   GObject *dest, const char *propname2,
+                                   guint flags)
 {
-  SwamiControl *sctrl, *dctrl;
+    SwamiControl *sctrl, *dctrl;
 
-  g_return_if_fail (G_IS_OBJECT (src));
-  g_return_if_fail (propname1 != NULL);
-  g_return_if_fail (G_IS_OBJECT (dest));
+    g_return_if_fail(G_IS_OBJECT(src));
+    g_return_if_fail(propname1 != NULL);
+    g_return_if_fail(G_IS_OBJECT(dest));
 
-  sctrl = swami_get_control_prop_by_name (src, propname1);	/* ++ ref */
-  g_return_if_fail (sctrl != NULL);
+    sctrl = swami_get_control_prop_by_name(src, propname1);	/* ++ ref */
+    g_return_if_fail(sctrl != NULL);
 
-  /* ++ ref */
-  dctrl = swami_get_control_prop_by_name (dest, propname2 ? propname2 : propname1);
-  if (swami_log_if_fail (dctrl != NULL))
+    /* ++ ref */
+    dctrl = swami_get_control_prop_by_name(dest, propname2 ? propname2 : propname1);
+
+    if(swami_log_if_fail(dctrl != NULL))
     {
-      g_object_unref (sctrl);	/* -- unref */
-      return;
+        g_object_unref(sctrl);	/* -- unref */
+        return;
     }
 
-  swami_control_connect (sctrl, dctrl, flags);
+    swami_control_connect(sctrl, dctrl, flags);
 
-  g_object_unref (sctrl);	/* -- unref */
-  g_object_unref (dctrl);	/* -- unref */
+    g_object_unref(sctrl);	/* -- unref */
+    g_object_unref(dctrl);	/* -- unref */
 }
 
 /**
@@ -262,21 +277,21 @@ swami_control_prop_connect_objects (GObject *src, const char *propname1,
  * to another #SwamiControl.
  */
 void
-swami_control_prop_connect_to_control (GObject *src, const char *propname,
-				       SwamiControl *dest, guint flags)
+swami_control_prop_connect_to_control(GObject *src, const char *propname,
+                                      SwamiControl *dest, guint flags)
 {
-  SwamiControl *sctrl;
+    SwamiControl *sctrl;
 
-  g_return_if_fail (G_IS_OBJECT (src));
-  g_return_if_fail (propname != NULL);
-  g_return_if_fail (SWAMI_IS_CONTROL (dest));
+    g_return_if_fail(G_IS_OBJECT(src));
+    g_return_if_fail(propname != NULL);
+    g_return_if_fail(SWAMI_IS_CONTROL(dest));
 
-  sctrl = swami_get_control_prop_by_name (src, propname);	/* ++ ref */
-  g_return_if_fail (sctrl != NULL);
+    sctrl = swami_get_control_prop_by_name(src, propname);	/* ++ ref */
+    g_return_if_fail(sctrl != NULL);
 
-  swami_control_connect (sctrl, dest, flags);
+    swami_control_connect(sctrl, dest, flags);
 
-  g_object_unref (sctrl);	/* -- unref */
+    g_object_unref(sctrl);	/* -- unref */
 }
 
 /**
@@ -290,214 +305,222 @@ swami_control_prop_connect_to_control (GObject *src, const char *propname,
  * the destination control.
  */
 void
-swami_control_prop_connect_from_control (SwamiControl *src, GObject *dest,
-					 const char *propname, guint flags)
+swami_control_prop_connect_from_control(SwamiControl *src, GObject *dest,
+                                        const char *propname, guint flags)
 {
-  SwamiControl *dctrl;
+    SwamiControl *dctrl;
 
-  g_return_if_fail (SWAMI_IS_CONTROL (src));
-  g_return_if_fail (G_IS_OBJECT (dest));
-  g_return_if_fail (propname != NULL);
+    g_return_if_fail(SWAMI_IS_CONTROL(src));
+    g_return_if_fail(G_IS_OBJECT(dest));
+    g_return_if_fail(propname != NULL);
 
-  dctrl = swami_get_control_prop_by_name (dest, propname);	/* ++ ref */
-  g_return_if_fail (dctrl != NULL);
+    dctrl = swami_get_control_prop_by_name(dest, propname);	/* ++ ref */
+    g_return_if_fail(dctrl != NULL);
 
-  swami_control_connect (src, dctrl, flags);
+    swami_control_connect(src, dctrl, flags);
 
-  g_object_unref (dctrl);	/* -- unref */
+    g_object_unref(dctrl);	/* -- unref */
 }
 
 static guint
-control_prop_hash_func (gconstpointer key)
+control_prop_hash_func(gconstpointer key)
 {
-  ControlPropKey *pkey = (ControlPropKey *)key;
+    ControlPropKey *pkey = (ControlPropKey *)key;
 
-  return (GPOINTER_TO_UINT (pkey->object) + GPOINTER_TO_UINT (pkey->pspec));
+    return (GPOINTER_TO_UINT(pkey->object) + GPOINTER_TO_UINT(pkey->pspec));
 }
 
 static gboolean
-control_prop_equal_func (gconstpointer a, gconstpointer b)
+control_prop_equal_func(gconstpointer a, gconstpointer b)
 {
-  ControlPropKey *akey = (ControlPropKey *)a;
-  ControlPropKey *bkey = (ControlPropKey *)b;
+    ControlPropKey *akey = (ControlPropKey *)a;
+    ControlPropKey *bkey = (ControlPropKey *)b;
 
-  return (akey->object == bkey->object && akey->pspec == bkey->pspec);
+    return (akey->object == bkey->object && akey->pspec == bkey->pspec);
 }
 
 static void
-control_prop_key_free_func (gpointer data)
+control_prop_key_free_func(gpointer data)
 {
-  g_slice_free (ControlPropKey, data);
+    g_slice_free(ControlPropKey, data);
 }
 
 GType
-swami_control_prop_get_type (void)
+swami_control_prop_get_type(void)
 {
-  static GType otype = 0;
+    static GType otype = 0;
 
-  if (!otype)
+    if(!otype)
     {
-      static const GTypeInfo type_info =
-	{
-	  sizeof (SwamiControlPropClass), NULL, NULL,
-	  (GClassInitFunc) swami_control_prop_class_init,
-	  (GClassFinalizeFunc) NULL, NULL,
-	  sizeof (SwamiControlProp), 0,
-	  (GInstanceInitFunc) NULL
-	};
+        static const GTypeInfo type_info =
+        {
+            sizeof(SwamiControlPropClass), NULL, NULL,
+            (GClassInitFunc) swami_control_prop_class_init,
+            (GClassFinalizeFunc) NULL, NULL,
+            sizeof(SwamiControlProp), 0,
+            (GInstanceInitFunc) NULL
+        };
 
-      control_prop_hash =
-	g_hash_table_new_full (control_prop_hash_func,
-			       control_prop_equal_func,
-			       control_prop_key_free_func, NULL);
+        control_prop_hash =
+            g_hash_table_new_full(control_prop_hash_func,
+                                  control_prop_equal_func,
+                                  control_prop_key_free_func, NULL);
 
-      control_prop_reverse_hash = g_hash_table_new (NULL, NULL);
+        control_prop_reverse_hash = g_hash_table_new(NULL, NULL);
 
-      otype = g_type_register_static (SWAMI_TYPE_CONTROL, "SwamiControlProp",
-				      &type_info, 0);
+        otype = g_type_register_static(SWAMI_TYPE_CONTROL, "SwamiControlProp",
+                                       &type_info, 0);
     }
 
-  return (otype);
+    return (otype);
 }
 
 static void
-swami_control_prop_class_init (SwamiControlPropClass *klass)
+swami_control_prop_class_init(SwamiControlPropClass *klass)
 {
-  GObjectClass *obj_class = G_OBJECT_CLASS (klass);
-  SwamiControlClass *control_class = SWAMI_CONTROL_CLASS (klass);
+    GObjectClass *obj_class = G_OBJECT_CLASS(klass);
+    SwamiControlClass *control_class = SWAMI_CONTROL_CLASS(klass);
 
-  parent_class = g_type_class_peek_parent (klass);
-  obj_class->finalize = swami_control_prop_finalize;
+    parent_class = g_type_class_peek_parent(klass);
+    obj_class->finalize = swami_control_prop_finalize;
 
-  control_class->get_spec = control_prop_get_spec_method;
-  control_class->set_spec = NULL;
-  control_class->get_value = control_prop_get_value_method;
-  control_class->set_value = control_prop_set_value_method;
+    control_class->get_spec = control_prop_get_spec_method;
+    control_class->set_spec = NULL;
+    control_class->get_value = control_prop_get_value_method;
+    control_class->set_value = control_prop_set_value_method;
 }
 
 static void
-swami_control_prop_finalize (GObject *object)
+swami_control_prop_finalize(GObject *object)
 {
-  SwamiControlProp *ctrlprop = SWAMI_CONTROL_PROP (object);
+    SwamiControlProp *ctrlprop = SWAMI_CONTROL_PROP(object);
 
-  SWAMI_LOCK_WRITE (ctrlprop);
+    SWAMI_LOCK_WRITE(ctrlprop);
 
-  if (ctrlprop->object)
+    if(ctrlprop->object)
     {
-      if (ctrlprop->item_handler_id)
-	ipatch_item_prop_disconnect (ctrlprop->item_handler_id);
-      else if (g_signal_handler_is_connected (ctrlprop->object,
-					      ctrlprop->notify_handler_id))
-	g_signal_handler_disconnect (ctrlprop->object,
-				     ctrlprop->notify_handler_id);
+        if(ctrlprop->item_handler_id)
+        {
+            ipatch_item_prop_disconnect(ctrlprop->item_handler_id);
+        }
+        else if(g_signal_handler_is_connected(ctrlprop->object,
+                                              ctrlprop->notify_handler_id))
+            g_signal_handler_disconnect(ctrlprop->object,
+                                        ctrlprop->notify_handler_id);
 
-      g_object_weak_unref (ctrlprop->object, control_prop_object_weak_notify,
-			   ctrlprop);
+        g_object_weak_unref(ctrlprop->object, control_prop_object_weak_notify,
+                            ctrlprop);
 
-      ctrlprop->object = NULL;
+        ctrlprop->object = NULL;
     }
-  if (ctrlprop->spec) g_param_spec_unref (ctrlprop->spec);
 
-  SWAMI_UNLOCK_WRITE (ctrlprop);
+    if(ctrlprop->spec)
+    {
+        g_param_spec_unref(ctrlprop->spec);
+    }
 
-  if (parent_class->finalize)
-    parent_class->finalize (object);
+    SWAMI_UNLOCK_WRITE(ctrlprop);
+
+    if(parent_class->finalize)
+    {
+        parent_class->finalize(object);
+    }
 }
 
 /* control is locked by caller */
 static GParamSpec *
-control_prop_get_spec_method (SwamiControl *control)
+control_prop_get_spec_method(SwamiControl *control)
 {
-  SwamiControlProp *ctrlprop = SWAMI_CONTROL_PROP (control);
-  return (ctrlprop->spec);
+    SwamiControlProp *ctrlprop = SWAMI_CONTROL_PROP(control);
+    return (ctrlprop->spec);
 }
 
 /* NOT locked by caller */
 static void
-control_prop_get_value_method (SwamiControl *control, GValue *value)
+control_prop_get_value_method(SwamiControl *control, GValue *value)
 {
-  SwamiControlProp *ctrlprop = SWAMI_CONTROL_PROP (control);
-  GObject *object;
-  GParamSpec *spec;
+    SwamiControlProp *ctrlprop = SWAMI_CONTROL_PROP(control);
+    GObject *object;
+    GParamSpec *spec;
 
-  SWAMI_LOCK_READ (ctrlprop);
+    SWAMI_LOCK_READ(ctrlprop);
 
-  if (!ctrlprop->object || !ctrlprop->spec)
+    if(!ctrlprop->object || !ctrlprop->spec)
     {
-      SWAMI_UNLOCK_READ (ctrlprop);
-      return;
+        SWAMI_UNLOCK_READ(ctrlprop);
+        return;
     }
 
-  spec = ctrlprop->spec;	/* no need to ref, since owner object ref'd */
+    spec = ctrlprop->spec;	/* no need to ref, since owner object ref'd */
 
-  object = g_object_ref (ctrlprop->object); /* ++ ref object */
+    object = g_object_ref(ctrlprop->object);  /* ++ ref object */
 
-  SWAMI_UNLOCK_READ (ctrlprop);
+    SWAMI_UNLOCK_READ(ctrlprop);
 
-  /* OPTME - Faster, but doesn't work for overridden properties (wrong param_id) */
-  /* klass->get_property (object, SWAMI_PARAM_SPEC_ID (spec), value, spec); */
+    /* OPTME - Faster, but doesn't work for overridden properties (wrong param_id) */
+    /* klass->get_property (object, SWAMI_PARAM_SPEC_ID (spec), value, spec); */
 
-  g_object_get_property (object, spec->name, value);
+    g_object_get_property(object, spec->name, value);
 
-  g_object_unref (object);	/* -- unref object */
+    g_object_unref(object);	/* -- unref object */
 }
 
 /* NOT locked by caller */
 static void
-control_prop_set_value_method (SwamiControl *control, SwamiControlEvent *event,
-			       const GValue *value)
+control_prop_set_value_method(SwamiControl *control, SwamiControlEvent *event,
+                              const GValue *value)
 {
-  SwamiControlProp *ctrlprop = SWAMI_CONTROL_PROP (control);
-  guint notify_handler_id, item_handler_id;
-  GParamSpec *spec;
-  GObject *object;
+    SwamiControlProp *ctrlprop = SWAMI_CONTROL_PROP(control);
+    guint notify_handler_id, item_handler_id;
+    GParamSpec *spec;
+    GObject *object;
 
-  SWAMI_LOCK_READ (ctrlprop);
+    SWAMI_LOCK_READ(ctrlprop);
 
-  if (!ctrlprop->object || !ctrlprop->spec)
+    if(!ctrlprop->object || !ctrlprop->spec)
     {
-      SWAMI_UNLOCK_READ (ctrlprop);
-      return;
+        SWAMI_UNLOCK_READ(ctrlprop);
+        return;
     }
 
-  object = g_object_ref (ctrlprop->object); /* ++ ref object */
-  spec = ctrlprop->spec;	/* no need to ref since we ref'd owner obj */
-  item_handler_id = ctrlprop->item_handler_id;
-  notify_handler_id = ctrlprop->notify_handler_id;
+    object = g_object_ref(ctrlprop->object);  /* ++ ref object */
+    spec = ctrlprop->spec;	/* no need to ref since we ref'd owner obj */
+    item_handler_id = ctrlprop->item_handler_id;
+    notify_handler_id = ctrlprop->notify_handler_id;
 
-  SWAMI_UNLOCK_READ (ctrlprop);
+    SWAMI_UNLOCK_READ(ctrlprop);
 
 
-  if (item_handler_id) /* IpatchItem object? */
-    { 
-      /* set current thread IpatchItem origin event to prevent event loops */
-      g_static_private_set (&prop_notify_origin, event->origin ? event->origin : event, NULL);
-
-      /* OPTME - Faster but can't use for overridden properties (wrong param_id) */
-      // klass->set_property (object, SWAMI_PARAM_SPEC_ID (spec), value, spec);
-
-      g_object_set_property (object, spec->name, value);
-
-      /* IpatchItem set property no longer active for this thread */
-      g_static_private_set (&prop_notify_origin, NULL, NULL);
-    }
-  else				/* non IpatchItem object */
+    if(item_handler_id)  /* IpatchItem object? */
     {
-      /* block handler to avoid property set/notify loop (object "notify") */
-      g_signal_handler_block (object, notify_handler_id);
+        /* set current thread IpatchItem origin event to prevent event loops */
+        g_static_private_set(&prop_notify_origin, event->origin ? event->origin : event, NULL);
 
-      /* OPTME - Faster but can't use for overridden properties (wrong param_id) */
-      // klass->set_property (object, SWAMI_PARAM_SPEC_ID (spec), value, spec);
+        /* OPTME - Faster but can't use for overridden properties (wrong param_id) */
+        // klass->set_property (object, SWAMI_PARAM_SPEC_ID (spec), value, spec);
 
-      g_object_set_property (object, spec->name, value);
+        g_object_set_property(object, spec->name, value);
 
-      g_signal_handler_unblock (object, notify_handler_id);
+        /* IpatchItem set property no longer active for this thread */
+        g_static_private_set(&prop_notify_origin, NULL, NULL);
+    }
+    else				/* non IpatchItem object */
+    {
+        /* block handler to avoid property set/notify loop (object "notify") */
+        g_signal_handler_block(object, notify_handler_id);
+
+        /* OPTME - Faster but can't use for overridden properties (wrong param_id) */
+        // klass->set_property (object, SWAMI_PARAM_SPEC_ID (spec), value, spec);
+
+        g_object_set_property(object, spec->name, value);
+
+        g_signal_handler_unblock(object, notify_handler_id);
     }
 
-  g_object_unref (object);	/* -- unref the object */
+    g_object_unref(object);	/* -- unref the object */
 
-  /* propagate to outputs - FIXME: Should all controls do this? */
-  swami_control_transmit_event_loop (control, event);
+    /* propagate to outputs - FIXME: Should all controls do this? */
+    swami_control_transmit_event_loop(control, event);
 }
 
 /**
@@ -508,7 +531,7 @@ control_prop_set_value_method (SwamiControl *control, SwamiControlEvent *event,
  * Create a new GObject property control.  Note that swami_get_control_prop()
  * is likely more desireable to use, since it will return an existing control
  * if one already exists for the given @object and @pspec.
- * 
+ *
  * If one of @object or @pspec is %NULL then it acts as a wildcard and the
  * control will send only (transmit changes for matching properties).  If both
  * are %NULL however, the control has no active property to control (use
@@ -520,15 +543,15 @@ control_prop_set_value_method (SwamiControl *control, SwamiControlEvent *event,
  * owns.
  */
 SwamiControlProp *
-swami_control_prop_new (GObject *object, GParamSpec *pspec)
+swami_control_prop_new(GObject *object, GParamSpec *pspec)
 {
-  SwamiControlProp *ctrlprop;
+    SwamiControlProp *ctrlprop;
 
-  ctrlprop = g_object_new (SWAMI_TYPE_CONTROL_PROP, NULL);
-  swami_control_prop_assign (ctrlprop, object, pspec,
-			     (!object || !pspec) && (object || pspec));
+    ctrlprop = g_object_new(SWAMI_TYPE_CONTROL_PROP, NULL);
+    swami_control_prop_assign(ctrlprop, object, pspec,
+                              (!object || !pspec) && (object || pspec));
 
-  return (ctrlprop);
+    return (ctrlprop);
 }
 
 /**
@@ -549,107 +572,136 @@ swami_control_prop_new (GObject *object, GParamSpec *pspec)
  * are %NULL however, the control has no active property to control.
  */
 void
-swami_control_prop_assign (SwamiControlProp *ctrlprop,
-			   GObject *object, GParamSpec *pspec,
-			   gboolean send_events)
+swami_control_prop_assign(SwamiControlProp *ctrlprop,
+                          GObject *object, GParamSpec *pspec,
+                          gboolean send_events)
 {
-  SwamiControl *control;
-  GType value_type;
+    SwamiControl *control;
+    GType value_type;
 
-  g_return_if_fail (SWAMI_IS_CONTROL_PROP (ctrlprop));
-  g_return_if_fail (!object || pspec || IPATCH_IS_ITEM (object));
+    g_return_if_fail(SWAMI_IS_CONTROL_PROP(ctrlprop));
+    g_return_if_fail(!object || pspec || IPATCH_IS_ITEM(object));
 
-  control = SWAMI_CONTROL (ctrlprop);
+    control = SWAMI_CONTROL(ctrlprop);
 
-  if (pspec && !send_events)
+    if(pspec && !send_events)
     {
-      value_type = G_PARAM_SPEC_VALUE_TYPE (pspec);
+        value_type = G_PARAM_SPEC_VALUE_TYPE(pspec);
 
-      /* use derived type if GBoxed or GObject parameter */
-      if (value_type == G_TYPE_BOXED || value_type == G_TYPE_OBJECT)
-	value_type = pspec->value_type;    
+        /* use derived type if GBoxed or GObject parameter */
+        if(value_type == G_TYPE_BOXED || value_type == G_TYPE_OBJECT)
+        {
+            value_type = pspec->value_type;
+        }
     }
-  else value_type = SWAMI_TYPE_EVENT_PROP_CHANGE;
-
-  /* set control value type */
-  swami_control_set_value_type (control, value_type);
-  g_return_if_fail (control->value_type == value_type);
-
-  SWAMI_LOCK_WRITE (ctrlprop);
-
-  /* spec must be supplied and be writable if control has input connections */
-  if (control->inputs && !(pspec && (pspec->flags & G_PARAM_WRITABLE)))
+    else
     {
-      g_critical ("%s: Invalid writable property control object change",
-		  G_STRLOC);
-      SWAMI_UNLOCK_WRITE (ctrlprop);
-      return;
+        value_type = SWAMI_TYPE_EVENT_PROP_CHANGE;
     }
 
-  /* spec can be wildcard or be readable if control has output connections */
-  if (control->outputs && (pspec && !(pspec->flags & G_PARAM_READABLE)))
+    /* set control value type */
+    swami_control_set_value_type(control, value_type);
+    g_return_if_fail(control->value_type == value_type);
+
+    SWAMI_LOCK_WRITE(ctrlprop);
+
+    /* spec must be supplied and be writable if control has input connections */
+    if(control->inputs && !(pspec && (pspec->flags & G_PARAM_WRITABLE)))
     {
-      g_critical ("%s: Invalid readable property control object change",
-		  G_STRLOC);
-      SWAMI_UNLOCK_WRITE (ctrlprop);
-      return;
+        g_critical("%s: Invalid writable property control object change",
+                   G_STRLOC);
+        SWAMI_UNLOCK_WRITE(ctrlprop);
+        return;
     }
 
-  if (ctrlprop->object)
+    /* spec can be wildcard or be readable if control has output connections */
+    if(control->outputs && (pspec && !(pspec->flags & G_PARAM_READABLE)))
     {
-      if (ctrlprop->item_handler_id)
-	  ipatch_item_prop_disconnect (ctrlprop->item_handler_id);
-      else if (g_signal_handler_is_connected (ctrlprop->object,
-					      ctrlprop->notify_handler_id))
-	g_signal_handler_disconnect (ctrlprop->object,
-				     ctrlprop->notify_handler_id);
-
-      ctrlprop->item_handler_id = 0;
-      ctrlprop->notify_handler_id = 0;
-      g_object_weak_unref (ctrlprop->object, control_prop_object_weak_notify,
-			   ctrlprop);
+        g_critical("%s: Invalid readable property control object change",
+                   G_STRLOC);
+        SWAMI_UNLOCK_WRITE(ctrlprop);
+        return;
     }
 
-  if (ctrlprop->spec) g_param_spec_unref (ctrlprop->spec);
+    if(ctrlprop->object)
+    {
+        if(ctrlprop->item_handler_id)
+        {
+            ipatch_item_prop_disconnect(ctrlprop->item_handler_id);
+        }
+        else if(g_signal_handler_is_connected(ctrlprop->object,
+                                              ctrlprop->notify_handler_id))
+            g_signal_handler_disconnect(ctrlprop->object,
+                                        ctrlprop->notify_handler_id);
 
-  ctrlprop->object = object;
-  ctrlprop->spec = pspec;
-  ctrlprop->send_events = send_events;
-
-  if (object) g_object_weak_ref (object, control_prop_object_weak_notify, ctrlprop);
-  if (pspec) g_param_spec_ref (pspec);
-
-  /* set readable/writable control flags to reflect new object property */
-  if (pspec && (pspec->flags & G_PARAM_WRITABLE))
-    control->flags |= SWAMI_CONTROL_RECVS;
-  else control->flags &= ~SWAMI_CONTROL_RECVS;
-
-  if (!pspec || (pspec->flags & G_PARAM_READABLE))
-    control->flags |= SWAMI_CONTROL_SENDS;
-  else control->flags &= ~SWAMI_CONTROL_SENDS;
-
-  /* IpatchItems are handled differently, wildcard is #IpatchItem only */
-  if (!object || !pspec || IPATCH_IS_ITEM (object))
-    { /* add a IpatchItem change callback for the given property */
-      ctrlprop->item_handler_id
-	= ipatch_item_prop_connect ((IpatchItem *)object, pspec,
-				    send_events
-				    ? swami_control_prop_item_cb_notify_event
-				    : swami_control_prop_item_cb_notify,
-				    NULL, /* disconnect func */
-				    ctrlprop);
-    }
-  else				/* regular object (not IpatchItem) */
-    { /* connect signal to property change notify */
-      char *s = g_strconcat ("notify::", pspec->name, NULL);
-      ctrlprop->notify_handler_id =
-	g_signal_connect (object, s, G_CALLBACK
-			  (send_events ? swami_control_prop_cb_notify_event
-			   : swami_control_prop_cb_notify), ctrlprop);
-      g_free (s);
+        ctrlprop->item_handler_id = 0;
+        ctrlprop->notify_handler_id = 0;
+        g_object_weak_unref(ctrlprop->object, control_prop_object_weak_notify,
+                            ctrlprop);
     }
 
-  SWAMI_UNLOCK_WRITE (ctrlprop);
+    if(ctrlprop->spec)
+    {
+        g_param_spec_unref(ctrlprop->spec);
+    }
+
+    ctrlprop->object = object;
+    ctrlprop->spec = pspec;
+    ctrlprop->send_events = send_events;
+
+    if(object)
+    {
+        g_object_weak_ref(object, control_prop_object_weak_notify, ctrlprop);
+    }
+
+    if(pspec)
+    {
+        g_param_spec_ref(pspec);
+    }
+
+    /* set readable/writable control flags to reflect new object property */
+    if(pspec && (pspec->flags & G_PARAM_WRITABLE))
+    {
+        control->flags |= SWAMI_CONTROL_RECVS;
+    }
+    else
+    {
+        control->flags &= ~SWAMI_CONTROL_RECVS;
+    }
+
+    if(!pspec || (pspec->flags & G_PARAM_READABLE))
+    {
+        control->flags |= SWAMI_CONTROL_SENDS;
+    }
+    else
+    {
+        control->flags &= ~SWAMI_CONTROL_SENDS;
+    }
+
+    /* IpatchItems are handled differently, wildcard is #IpatchItem only */
+    if(!object || !pspec || IPATCH_IS_ITEM(object))
+    {
+        /* add a IpatchItem change callback for the given property */
+        ctrlprop->item_handler_id
+            = ipatch_item_prop_connect((IpatchItem *)object, pspec,
+                                       send_events
+                                       ? swami_control_prop_item_cb_notify_event
+                                       : swami_control_prop_item_cb_notify,
+                                       NULL, /* disconnect func */
+                                       ctrlprop);
+    }
+    else				/* regular object (not IpatchItem) */
+    {
+        /* connect signal to property change notify */
+        char *s = g_strconcat("notify::", pspec->name, NULL);
+        ctrlprop->notify_handler_id =
+            g_signal_connect(object, s, G_CALLBACK
+                             (send_events ? swami_control_prop_cb_notify_event
+                              : swami_control_prop_cb_notify), ctrlprop);
+        g_free(s);
+    }
+
+    SWAMI_UNLOCK_WRITE(ctrlprop);
 }
 
 /**
@@ -664,160 +716,171 @@ swami_control_prop_assign (SwamiControlProp *ctrlprop,
  * to the other function.
  */
 void
-swami_control_prop_assign_by_name (SwamiControlProp *ctrlprop,
-				   GObject *object, const char *prop_name)
+swami_control_prop_assign_by_name(SwamiControlProp *ctrlprop,
+                                  GObject *object, const char *prop_name)
 {
-  GParamSpec *pspec = NULL;
+    GParamSpec *pspec = NULL;
 
-  g_return_if_fail (SWAMI_IS_CONTROL_PROP (ctrlprop));
-  g_return_if_fail (prop_name == NULL || object != NULL);
+    g_return_if_fail(SWAMI_IS_CONTROL_PROP(ctrlprop));
+    g_return_if_fail(prop_name == NULL || object != NULL);
 
-  if (prop_name)
+    if(prop_name)
     {
-      pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (object),
-					   prop_name);
-      if (!pspec)
-	{
-	  g_warning ("%s: object class `%s' has no property named `%s'",
-		     G_STRLOC, G_OBJECT_TYPE_NAME (object), prop_name);
-	  return;
-	}
+        pspec = g_object_class_find_property(G_OBJECT_GET_CLASS(object),
+                                             prop_name);
+
+        if(!pspec)
+        {
+            g_warning("%s: object class `%s' has no property named `%s'",
+                      G_STRLOC, G_OBJECT_TYPE_NAME(object), prop_name);
+            return;
+        }
     }
 
-  swami_control_prop_assign (ctrlprop, object, pspec,
-			     object && !prop_name);
+    swami_control_prop_assign(ctrlprop, object, pspec,
+                              object && !prop_name);
 }
 
 /* IpatchItem property change notify callback */
 static void
-swami_control_prop_item_cb_notify (IpatchItemPropNotify *notify)
+swami_control_prop_item_cb_notify(IpatchItemPropNotify *notify)
 {
-  SwamiControl *ctrlprop = (SwamiControl *)(notify->user_data);
-  SwamiControlEvent *ctrlevent, *origin;
+    SwamiControl *ctrlprop = (SwamiControl *)(notify->user_data);
+    SwamiControlEvent *ctrlevent, *origin;
 
-  /* copy changed value to a new event */
-  ctrlevent = swami_control_event_new (TRUE); /* ++ ref new event */
+    /* copy changed value to a new event */
+    ctrlevent = swami_control_event_new(TRUE);  /* ++ ref new event */
 
-  g_value_init (&ctrlevent->value, G_VALUE_TYPE (notify->new_value));
-  g_value_copy (notify->new_value, &ctrlevent->value);
+    g_value_init(&ctrlevent->value, G_VALUE_TYPE(notify->new_value));
+    g_value_copy(notify->new_value, &ctrlevent->value);
 
-  /* IpatchItem property loop prevention, get current IpatchItem
-     property origin event for this thread (if any) */
-  if ((origin = g_static_private_get (&prop_notify_origin)))
-    swami_control_event_set_origin (ctrlevent, origin);
+    /* IpatchItem property loop prevention, get current IpatchItem
+       property origin event for this thread (if any) */
+    if((origin = g_static_private_get(&prop_notify_origin)))
+    {
+        swami_control_event_set_origin(ctrlevent, origin);
+    }
 
-  /* transmit the new event to the controls destinations */
-  swami_control_transmit_event (ctrlprop, ctrlevent);
+    /* transmit the new event to the controls destinations */
+    swami_control_transmit_event(ctrlprop, ctrlevent);
 
-  swami_control_event_unref (ctrlevent);	/* -- unref creator's ref */
+    swami_control_event_unref(ctrlevent);	/* -- unref creator's ref */
 }
 
 /* used instead of swami_control_prop_item_cb_notify() to send the value as
  * a SwamiEventPropChange event. */
 static void
-swami_control_prop_item_cb_notify_event (IpatchItemPropNotify *notify)
+swami_control_prop_item_cb_notify_event(IpatchItemPropNotify *notify)
 {
-  SwamiControl *ctrlprop = (SwamiControl *)(notify->user_data);
-  SwamiControlEvent *ctrlevent, *origin;
-  SwamiEventPropChange *propevent;
+    SwamiControl *ctrlprop = (SwamiControl *)(notify->user_data);
+    SwamiControlEvent *ctrlevent, *origin;
+    SwamiEventPropChange *propevent;
 
-  propevent = swami_event_prop_change_new ();	/* create prop change event */
+    propevent = swami_event_prop_change_new();	/* create prop change event */
 
-  /* load values of property change structure */
-  propevent->object = (GObject *)g_object_ref (notify->item);
-  propevent->pspec = g_param_spec_ref (notify->pspec);
+    /* load values of property change structure */
+    propevent->object = (GObject *)g_object_ref(notify->item);
+    propevent->pspec = g_param_spec_ref(notify->pspec);
 
-  g_value_init (&propevent->value, G_VALUE_TYPE (notify->new_value));
-  g_value_copy (notify->new_value, &propevent->value);
+    g_value_init(&propevent->value, G_VALUE_TYPE(notify->new_value));
+    g_value_copy(notify->new_value, &propevent->value);
 
-  /* create the control event */
-  ctrlevent = swami_control_event_new (TRUE); /* ++ ref new event */
+    /* create the control event */
+    ctrlevent = swami_control_event_new(TRUE);  /* ++ ref new event */
 
-  g_value_init (&ctrlevent->value, SWAMI_TYPE_EVENT_PROP_CHANGE);
-  g_value_take_boxed (&ctrlevent->value, propevent);
+    g_value_init(&ctrlevent->value, SWAMI_TYPE_EVENT_PROP_CHANGE);
+    g_value_take_boxed(&ctrlevent->value, propevent);
 
-  /* IpatchItem property loop prevention, get current IpatchItem
-     property origin event for this thread (if any) */
-  if ((origin = g_static_private_get (&prop_notify_origin)))
-    swami_control_event_set_origin (ctrlevent, origin);
+    /* IpatchItem property loop prevention, get current IpatchItem
+       property origin event for this thread (if any) */
+    if((origin = g_static_private_get(&prop_notify_origin)))
+    {
+        swami_control_event_set_origin(ctrlevent, origin);
+    }
 
-  /* transmit the new event to the controls destinations */
-  swami_control_transmit_event (ctrlprop, ctrlevent);
+    /* transmit the new event to the controls destinations */
+    swami_control_transmit_event(ctrlprop, ctrlevent);
 
-  swami_control_event_unref (ctrlevent);	/* -- unref creator's ref */
+    swami_control_event_unref(ctrlevent);	/* -- unref creator's ref */
 }
 
 /* property change notify signal callback */
 static void
-swami_control_prop_cb_notify (GObject *object, GParamSpec *pspec,
-			      SwamiControlProp *ctrlprop)
+swami_control_prop_cb_notify(GObject *object, GParamSpec *pspec,
+                             SwamiControlProp *ctrlprop)
 {
-  GValue value = { 0 };
+    GValue value = { 0 };
 
-  g_value_init (&value, G_PARAM_SPEC_VALUE_TYPE (pspec));
+    g_value_init(&value, G_PARAM_SPEC_VALUE_TYPE(pspec));
 
-  /* OPTME - Faster, but doesn't work with overriden properties */
-  /* klass->get_property (object, SWAMI_PARAM_SPEC_ID (spec), &value,
-		       ctrlprop->spec); */
+    /* OPTME - Faster, but doesn't work with overriden properties */
+    /* klass->get_property (object, SWAMI_PARAM_SPEC_ID (spec), &value,
+    	       ctrlprop->spec); */
 
-  g_object_get_property (object, pspec->name, &value);
+    g_object_get_property(object, pspec->name, &value);
 
-  swami_control_transmit_value ((SwamiControl *)ctrlprop, &value);
-  g_value_unset (&value);
+    swami_control_transmit_value((SwamiControl *)ctrlprop, &value);
+    g_value_unset(&value);
 }
 
 /* property change notify signal callback (sends event instead of prop value) */
 static void
-swami_control_prop_cb_notify_event (GObject *object, GParamSpec *pspec,
-				    SwamiControlProp *ctrlprop)
+swami_control_prop_cb_notify_event(GObject *object, GParamSpec *pspec,
+                                   SwamiControlProp *ctrlprop)
 {
-  SwamiEventPropChange *event;
-  GValue value = { 0 };
+    SwamiEventPropChange *event;
+    GValue value = { 0 };
 
-  /* create property change event structure and load fields */
-  event = swami_event_prop_change_new ();
+    /* create property change event structure and load fields */
+    event = swami_event_prop_change_new();
 
-  event->object = g_object_ref (object);
-  event->pspec = g_param_spec_ref (pspec);
+    event->object = g_object_ref(object);
+    event->pspec = g_param_spec_ref(pspec);
 
-  g_value_init (&event->value, G_PARAM_SPEC_VALUE_TYPE (pspec));
-  g_object_get_property (object, pspec->name, &event->value);
+    g_value_init(&event->value, G_PARAM_SPEC_VALUE_TYPE(pspec));
+    g_object_get_property(object, pspec->name, &event->value);
 
-  /* init value and assign prop change event */
-  g_value_init (&value, SWAMI_TYPE_EVENT_PROP_CHANGE);
-  g_value_take_boxed (&value, event);
+    /* init value and assign prop change event */
+    g_value_init(&value, SWAMI_TYPE_EVENT_PROP_CHANGE);
+    g_value_take_boxed(&value, event);
 
-  swami_control_transmit_value ((SwamiControl *)ctrlprop, &value);
-  g_value_unset (&value);
+    swami_control_transmit_value((SwamiControl *)ctrlprop, &value);
+    g_value_unset(&value);
 }
 
 /* catches object finalization passively */
 static void
-control_prop_object_weak_notify (gpointer user_data, GObject *object)
+control_prop_object_weak_notify(gpointer user_data, GObject *object)
 {
-  SwamiControlProp *ctrlprop = SWAMI_CONTROL_PROP (user_data);
-  ControlPropKey key;
+    SwamiControlProp *ctrlprop = SWAMI_CONTROL_PROP(user_data);
+    ControlPropKey key;
 
-  SWAMI_LOCK_WRITE (ctrlprop);
+    SWAMI_LOCK_WRITE(ctrlprop);
 
-  key.object = object;
-  key.pspec = ctrlprop->spec;
+    key.object = object;
+    key.pspec = ctrlprop->spec;
 
-  if (ctrlprop->item_handler_id)
-    ipatch_item_prop_disconnect (ctrlprop->item_handler_id);
+    if(ctrlprop->item_handler_id)
+    {
+        ipatch_item_prop_disconnect(ctrlprop->item_handler_id);
+    }
 
-  ctrlprop->item_handler_id = 0;
-  ctrlprop->notify_handler_id = 0;
-  ctrlprop->object = NULL;
+    ctrlprop->item_handler_id = 0;
+    ctrlprop->notify_handler_id = 0;
+    ctrlprop->object = NULL;
 
-  if (ctrlprop->spec) g_param_spec_unref (ctrlprop->spec);
-  ctrlprop->spec = NULL;
+    if(ctrlprop->spec)
+    {
+        g_param_spec_unref(ctrlprop->spec);
+    }
 
-  SWAMI_UNLOCK_WRITE (ctrlprop);
-  
-  /* remove control prop hash entry if any */
-  G_LOCK (control_prop_hash);
-  g_hash_table_remove (control_prop_reverse_hash, ctrlprop);
-  g_hash_table_remove (control_prop_hash, &key);
-  G_UNLOCK (control_prop_hash);
+    ctrlprop->spec = NULL;
+
+    SWAMI_UNLOCK_WRITE(ctrlprop);
+
+    /* remove control prop hash entry if any */
+    G_LOCK(control_prop_hash);
+    g_hash_table_remove(control_prop_reverse_hash, ctrlprop);
+    g_hash_table_remove(control_prop_hash, &key);
+    G_UNLOCK(control_prop_hash);
 }

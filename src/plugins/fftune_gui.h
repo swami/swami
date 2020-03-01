@@ -45,55 +45,55 @@ typedef struct _FFTuneSpectra FFTuneSpectra;
 /* Sample view object */
 struct _FFTuneGui
 {
-  GtkVBox parent;		/* derived from GtkVBox */
+    GtkVBox parent;		/* derived from GtkVBox */
 
-  FFTuneSpectra *spectra;	/* FFTuneSpectra object (fftune.[ch]) */
+    FFTuneSpectra *spectra;	/* FFTuneSpectra object (fftune.[ch]) */
 
-  gboolean snap_active;	/* set to TRUE when a snap zoom/scroll is active */
-  int snap_pos;			/* xpos of zoom/scroll snap line */
-  guint snap_timeout_handler;	/* snap timeout callback handler ID */
-  guint snap_interval; /* interval in milliseconds for timeout handler */
+    gboolean snap_active;	/* set to TRUE when a snap zoom/scroll is active */
+    int snap_pos;			/* xpos of zoom/scroll snap line */
+    guint snap_timeout_handler;	/* snap timeout callback handler ID */
+    guint snap_interval; /* interval in milliseconds for timeout handler */
 
-  gboolean scroll_active;      /* TRUE if SHIFT scrolling is active */
-  gboolean zoom_active;		/* TRUE if CTRL zooming is active */
-  int scroll_amt;      /* scroll amount for each timeout in samples */
-  double zoom_amt;		/* zoom multiplier for each timeout */
+    gboolean scroll_active;      /* TRUE if SHIFT scrolling is active */
+    gboolean zoom_active;		/* TRUE if CTRL zooming is active */
+    int scroll_amt;      /* scroll amount for each timeout in samples */
+    double zoom_amt;		/* zoom multiplier for each timeout */
 
-  /* for mouse wheel scrolling */
-  GdkScrollDirection last_wheel_dir; /* last wheel direction */
-  guint32 last_wheel_time;	/* last time stamp of mouse wheel */
+    /* for mouse wheel scrolling */
+    GdkScrollDirection last_wheel_dir; /* last wheel direction */
+    guint32 last_wheel_time;	/* last time stamp of mouse wheel */
 
-  GnomeCanvas *canvas;		/* canvas */
-  GnomeCanvasItem *spectrum;	/* SwamiguiSpectrumCanvas item */
-  GnomeCanvasItem *snap_line;	/* zoom/scroll snap line */
-  gboolean recalc_zoom;	/* TRUE to recalc full zoom (after sample change) */
+    GnomeCanvas *canvas;		/* canvas */
+    GnomeCanvasItem *spectrum;	/* SwamiguiSpectrumCanvas item */
+    GnomeCanvasItem *snap_line;	/* zoom/scroll snap line */
+    gboolean recalc_zoom;	/* TRUE to recalc full zoom (after sample change) */
 
-  GtkWidget *mode_menu;		/* data selection menu */
-  GtkWidget *hscrollbar;	/* horizontal scrollbar widget */
+    GtkWidget *mode_menu;		/* data selection menu */
+    GtkWidget *hscrollbar;	/* horizontal scrollbar widget */
 
-  GtkListStore *freq_store;	/* store for freq tuning list */
-  GtkWidget *freq_list;		/* GtkTreeView list of freq tuning suggestions */
-  GtkWidget *vscale;            /* Vertical scale widget */
+    GtkListStore *freq_store;	/* store for freq tuning list */
+    GtkWidget *freq_list;		/* GtkTreeView list of freq tuning suggestions */
+    GtkWidget *vscale;            /* Vertical scale widget */
 
-  GtkWidget *root_notesel;	/* root note selector widget */
-  GtkWidget *fine_tune;		/* fine tune spin button */
-  GtkWidget *revert_button;	/* Revert button */
-  SwamiControl *root_note_ctrl;	/* root note Swami control */
-  SwamiControl *fine_tune_ctrl;	/* fine tune Swami control */
+    GtkWidget *root_notesel;	/* root note selector widget */
+    GtkWidget *fine_tune;		/* fine tune spin button */
+    GtkWidget *revert_button;	/* Revert button */
+    SwamiControl *root_note_ctrl;	/* root note Swami control */
+    SwamiControl *fine_tune_ctrl;	/* fine tune Swami control */
 
-  guint8 orig_root_note;	/* Original root note value */
-  guint8 orig_fine_tune;	/* Original fine tune value */
+    guint8 orig_root_note;	/* Original root note value */
+    guint8 orig_fine_tune;	/* Original fine tune value */
 
-  guint snap_line_color;	/* zoom/scroll snap line color */
+    guint snap_line_color;	/* zoom/scroll snap line color */
 };
 
 /* Sample view object class */
 struct _FFTuneGuiClass
 {
-  GtkVBoxClass parent_class;
+    GtkVBoxClass parent_class;
 };
 
-GType fftune_gui_get_type (void);
-GtkWidget *fftune_gui_new (void);
+GType fftune_gui_get_type(void);
+GtkWidget *fftune_gui_new(void);
 
 #endif

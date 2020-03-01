@@ -43,17 +43,17 @@ typedef struct _SwamiguiTreeStoreConfigClass SwamiguiTreeStoreConfigClass;
 /* Config tree store object */
 struct _SwamiguiTreeStoreConfig
 {
-  SwamiguiTreeStore parent_instance;	/* derived from SwamiguiTreeStore */
+    SwamiguiTreeStore parent_instance;	/* derived from SwamiguiTreeStore */
 };
 
 /* Config tree store class */
 struct _SwamiguiTreeStoreConfigClass
 {
-  SwamiguiTreeStoreClass parent_class;
+    SwamiguiTreeStoreClass parent_class;
 };
 
-GType swamigui_tree_store_config_get_type (void);
+GType swamigui_tree_store_config_get_type(void);
 
-SwamiguiTreeStore *swamigui_tree_store_config_new (void);
+SwamiguiTreeStore *swamigui_tree_store_config_new(void);
 
 #endif

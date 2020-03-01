@@ -30,37 +30,39 @@
 
 /* --- private function prototypes --- */
 
-static void swami_lock_class_init (SwamiLockClass *klass);
-static void swami_lock_init (SwamiLock *lock);
-static void swami_lock_finalize (GObject *object);
+static void swami_lock_class_init(SwamiLockClass *klass);
+static void swami_lock_init(SwamiLock *lock);
+static void swami_lock_finalize(GObject *object);
 
-G_DEFINE_ABSTRACT_TYPE (SwamiLock, swami_lock, G_TYPE_OBJECT);
+G_DEFINE_ABSTRACT_TYPE(SwamiLock, swami_lock, G_TYPE_OBJECT);
 
 /* --- functions --- */
 
 
 static void
-swami_lock_class_init (SwamiLockClass *klass)
+swami_lock_class_init(SwamiLockClass *klass)
 {
-  GObjectClass *obj_class = G_OBJECT_CLASS (klass);
-  obj_class->finalize = swami_lock_finalize;
+    GObjectClass *obj_class = G_OBJECT_CLASS(klass);
+    obj_class->finalize = swami_lock_finalize;
 }
 
 static void
-swami_lock_init (SwamiLock *lock)
+swami_lock_init(SwamiLock *lock)
 {
-  g_static_rec_mutex_init (&lock->mutex);
+    g_static_rec_mutex_init(&lock->mutex);
 }
 
 static void
-swami_lock_finalize (GObject *object)
+swami_lock_finalize(GObject *object)
 {
-  SwamiLock *lock = SWAMI_LOCK (object);
+    SwamiLock *lock = SWAMI_LOCK(object);
 
-  g_static_rec_mutex_free (&lock->mutex);
+    g_static_rec_mutex_free(&lock->mutex);
 
-  if (G_OBJECT_CLASS (swami_lock_parent_class)->finalize)
-    G_OBJECT_CLASS (swami_lock_parent_class)->finalize (object);
+    if(G_OBJECT_CLASS(swami_lock_parent_class)->finalize)
+    {
+        G_OBJECT_CLASS(swami_lock_parent_class)->finalize(object);
+    }
 }
 
 /**
@@ -79,19 +81,19 @@ swami_lock_finalize (GObject *object)
  * where multiple properties depend on each other.
  */
 void
-swami_lock_set_atomic (gpointer lock, const char *first_property_name, ...)
+swami_lock_set_atomic(gpointer lock, const char *first_property_name, ...)
 {
-  va_list args;
+    va_list args;
 
-  g_return_if_fail (SWAMI_IS_LOCK (lock));
+    g_return_if_fail(SWAMI_IS_LOCK(lock));
 
-  va_start (args, first_property_name);
+    va_start(args, first_property_name);
 
-  SWAMI_LOCK_WRITE (lock);
-  g_object_set_valist (G_OBJECT (lock), first_property_name, args);
-  SWAMI_UNLOCK_WRITE (lock);
+    SWAMI_LOCK_WRITE(lock);
+    g_object_set_valist(G_OBJECT(lock), first_property_name, args);
+    SWAMI_UNLOCK_WRITE(lock);
 
-  va_end (args);
+    va_end(args);
 }
 
 /**
@@ -111,17 +113,17 @@ swami_lock_set_atomic (gpointer lock, const char *first_property_name, ...)
  * multiple properties depend on each other.
  */
 void
-swami_lock_get_atomic (gpointer lock, const char *first_property_name, ...)
+swami_lock_get_atomic(gpointer lock, const char *first_property_name, ...)
 {
-  va_list args;
+    va_list args;
 
-  g_return_if_fail (SWAMI_IS_LOCK (lock));
+    g_return_if_fail(SWAMI_IS_LOCK(lock));
 
-  va_start (args, first_property_name);
+    va_start(args, first_property_name);
 
-  SWAMI_LOCK_WRITE (lock);
-  g_object_get_valist (G_OBJECT (lock), first_property_name, args);
-  SWAMI_UNLOCK_WRITE (lock);
+    SWAMI_LOCK_WRITE(lock);
+    g_object_get_valist(G_OBJECT(lock), first_property_name, args);
+    SWAMI_UNLOCK_WRITE(lock);
 
-  va_end (args);
+    va_end(args);
 }

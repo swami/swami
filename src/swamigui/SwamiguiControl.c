@@ -64,51 +64,55 @@
 
 typedef struct
 {
-  GType widg_type;
-  GType value_type;
-  int flags;			/* rank and control/view flags */
-  SwamiguiControlHandler handler;
+    GType widg_type;
+    GType value_type;
+    int flags;			/* rank and control/view flags */
+    SwamiguiControlHandler handler;
 } HandlerInfo;
 
-static int swamigui_control_GCompare_type (gconstpointer a, gconstpointer b);
-static int swamigui_control_GCompare_rank (gconstpointer a, gconstpointer b);
+static int swamigui_control_GCompare_type(gconstpointer a, gconstpointer b);
+static int swamigui_control_GCompare_rank(gconstpointer a, gconstpointer b);
 
 
-G_LOCK_DEFINE_STATIC (control_handlers);
+G_LOCK_DEFINE_STATIC(control_handlers);
 static GList *control_handlers = NULL;
 
 /* quark used to associate a control to a widget using g_object_set_qdata */
 GQuark swamigui_control_quark = 0;
 
 void
-_swamigui_control_init (void)
+_swamigui_control_init(void)
 {
-  swamigui_control_quark
-    = g_quark_from_static_string ("_SwamiguiControl");
+    swamigui_control_quark
+        = g_quark_from_static_string("_SwamiguiControl");
 }
 
 /**
  * swamigui_control_new:
  * @type: A #SwamiControl derived GType of control to create
- * 
+ *
  * Create a control of the given @type which should be a
  * #SwamiControl derived type. The created control is automatically added
  * to the #SwamiguiRoot GUI control event queue. Just a convenience function
  * really.
- * 
+ *
  * Returns: New control with a refcount of 1 which the caller owns.
  */
 SwamiControl *
-swamigui_control_new (GType type)
+swamigui_control_new(GType type)
 {
-  SwamiControl *control;
+    SwamiControl *control;
 
-  g_return_val_if_fail (g_type_is_a (type, SWAMI_TYPE_CONTROL), NULL);
+    g_return_val_if_fail(g_type_is_a(type, SWAMI_TYPE_CONTROL), NULL);
 
-  control = g_object_new (type, NULL);
-  if (control) swamigui_control_set_queue (control);
+    control = g_object_new(type, NULL);
 
-  return (control);
+    if(control)
+    {
+        swamigui_control_set_queue(control);
+    }
+
+    return (control);
 }
 
 /**
@@ -125,10 +129,10 @@ swamigui_control_new (GType type)
  * control will be freed.
  */
 SwamiControl *
-swamigui_control_new_for_widget (GObject *widget)
+swamigui_control_new_for_widget(GObject *widget)
 {
-  g_return_val_if_fail (G_IS_OBJECT (widget), NULL);
-  return (swamigui_control_new_for_widget_full (widget, 0, NULL, 0));
+    g_return_val_if_fail(G_IS_OBJECT(widget), NULL);
+    return (swamigui_control_new_for_widget_full(widget, 0, NULL, 0));
 }
 
 /**
@@ -156,83 +160,111 @@ swamigui_control_new_for_widget (GObject *widget)
  * control will be freed.
  */
 SwamiControl *
-swamigui_control_new_for_widget_full (GObject *widget, GType value_type,
-				      GParamSpec *pspec,
-				      SwamiguiControlFlags flags)
+swamigui_control_new_for_widget_full(GObject *widget, GType value_type,
+                                     GParamSpec *pspec,
+                                     SwamiguiControlFlags flags)
 {
-  SwamiguiControlHandler hfunc = NULL;
-  SwamiControl *control = NULL;
-  GType cmp_widg_type, cmp_value_type;
-  HandlerInfo *hinfo, *bestmatch = NULL;
-  GList *p;
+    SwamiguiControlHandler hfunc = NULL;
+    SwamiControl *control = NULL;
+    GType cmp_widg_type, cmp_value_type;
+    HandlerInfo *hinfo, *bestmatch = NULL;
+    GList *p;
 
-  g_return_val_if_fail (G_IS_OBJECT (widget), NULL);
-  g_return_val_if_fail (!pspec || G_IS_PARAM_SPEC (pspec), NULL);
+    g_return_val_if_fail(G_IS_OBJECT(widget), NULL);
+    g_return_val_if_fail(!pspec || G_IS_PARAM_SPEC(pspec), NULL);
 
-  /* return existing control (if any) */
-  control = g_object_get_qdata (widget, swamigui_control_quark);
-  if (control) return (control);
+    /* return existing control (if any) */
+    control = g_object_get_qdata(widget, swamigui_control_quark);
 
-  value_type = swamigui_control_get_alias_value_type (value_type);
+    if(control)
+    {
+        return (control);
+    }
 
-  /* doesn't make sense to request control only */
-  flags &= SWAMIGUI_CONTROL_CTRLVIEW;
-  if (!(flags & SWAMIGUI_CONTROL_VIEW)) flags = SWAMIGUI_CONTROL_CTRLVIEW;
+    value_type = swamigui_control_get_alias_value_type(value_type);
 
-  cmp_widg_type = G_OBJECT_TYPE (widget);
+    /* doesn't make sense to request control only */
+    flags &= SWAMIGUI_CONTROL_CTRLVIEW;
 
-  switch (G_TYPE_FUNDAMENTAL (value_type))
-  {
+    if(!(flags & SWAMIGUI_CONTROL_VIEW))
+    {
+        flags = SWAMIGUI_CONTROL_CTRLVIEW;
+    }
+
+    cmp_widg_type = G_OBJECT_TYPE(widget);
+
+    switch(G_TYPE_FUNDAMENTAL(value_type))
+    {
     case G_TYPE_ENUM:
     case G_TYPE_FLAGS:
-      cmp_value_type = G_TYPE_FUNDAMENTAL (value_type);
-      break;
+        cmp_value_type = G_TYPE_FUNDAMENTAL(value_type);
+        break;
+
     default:
-      cmp_value_type = value_type;
-      break;
-  }
-
-  G_LOCK (control_handlers);
-
-  /* loop over widget control handlers */
-  for (p = control_handlers; p; p = p->next)
-  {
-    hinfo = (HandlerInfo *)(p->data);
-
-    /* widget type does not match? - Skip */
-    if (cmp_widg_type != hinfo->widg_type) continue;
-
-    /* if wildcard value type or handler type matches compare type, we found it */
-    if (!cmp_value_type || cmp_value_type == hinfo->value_type)
-      break;
-
-    /* check if compare value and param can be converted to that of the handlers */
-    if (G_TYPE_IS_VALUE_TYPE (cmp_value_type)
-	&& G_TYPE_IS_VALUE_TYPE (hinfo->value_type)
-	&& g_value_type_transformable (cmp_value_type, hinfo->value_type))
-//	&& swami_param_type_transformable_value (cmp_value_type, hinfo->value_type))
-    { /* check if this match is the best so far */
-      if (!bestmatch || ((bestmatch->flags & SWAMIGUI_CONTROL_RANK_MASK)
-			 < (hinfo->flags & SWAMIGUI_CONTROL_RANK_MASK)))
-	bestmatch = hinfo;
+        cmp_value_type = value_type;
+        break;
     }
-  }
 
-  if (!p && bestmatch) hfunc = bestmatch->handler;
-  else if (p) hfunc = ((HandlerInfo *)(p->data))->handler;
+    G_LOCK(control_handlers);
 
-  G_UNLOCK (control_handlers);
+    /* loop over widget control handlers */
+    for(p = control_handlers; p; p = p->next)
+    {
+        hinfo = (HandlerInfo *)(p->data);
 
-  if (hfunc)
-    control = hfunc (widget, value_type, pspec, flags); /* ++ ref new ctrl */
+        /* widget type does not match? - Skip */
+        if(cmp_widg_type != hinfo->widg_type)
+        {
+            continue;
+        }
 
-  if (control) swamigui_control_set_queue (control); /* add to GUI queue */
+        /* if wildcard value type or handler type matches compare type, we found it */
+        if(!cmp_value_type || cmp_value_type == hinfo->value_type)
+        {
+            break;
+        }
 
-  /* associate control to the widget (!! widget takes over reference) */
-  g_object_set_qdata_full (widget, swamigui_control_quark, control,
-			   (GDestroyNotify)swami_control_disconnect_unref);
+        /* check if compare value and param can be converted to that of the handlers */
+        if(G_TYPE_IS_VALUE_TYPE(cmp_value_type)
+                && G_TYPE_IS_VALUE_TYPE(hinfo->value_type)
+                && g_value_type_transformable(cmp_value_type, hinfo->value_type))
+//	&& swami_param_type_transformable_value (cmp_value_type, hinfo->value_type))
+        {
+            /* check if this match is the best so far */
+            if(!bestmatch || ((bestmatch->flags & SWAMIGUI_CONTROL_RANK_MASK)
+                              < (hinfo->flags & SWAMIGUI_CONTROL_RANK_MASK)))
+            {
+                bestmatch = hinfo;
+            }
+        }
+    }
 
-  return (control);
+    if(!p && bestmatch)
+    {
+        hfunc = bestmatch->handler;
+    }
+    else if(p)
+    {
+        hfunc = ((HandlerInfo *)(p->data))->handler;
+    }
+
+    G_UNLOCK(control_handlers);
+
+    if(hfunc)
+    {
+        control = hfunc(widget, value_type, pspec, flags);    /* ++ ref new ctrl */
+    }
+
+    if(control)
+    {
+        swamigui_control_set_queue(control);    /* add to GUI queue */
+    }
+
+    /* associate control to the widget (!! widget takes over reference) */
+    g_object_set_qdata_full(widget, swamigui_control_quark, control,
+                            (GDestroyNotify)swami_control_disconnect_unref);
+
+    return (control);
 }
 
 /**
@@ -243,15 +275,20 @@ swamigui_control_new_for_widget_full (GObject *widget, GType value_type,
  * is NOT referenced for the caller (don't unref it).
  */
 SwamiControl *
-swamigui_control_lookup (GObject *widget)
+swamigui_control_lookup(GObject *widget)
 {
-  SwamiControl *control;
+    SwamiControl *control;
 
-  g_return_val_if_fail (G_IS_OBJECT (widget), NULL);
+    g_return_val_if_fail(G_IS_OBJECT(widget), NULL);
 
-  control = g_object_get_qdata (widget, swamigui_control_quark);
-  if (!control) return (NULL);
-  return (SWAMI_CONTROL (control)); /* do a type cast for debugging purposes */
+    control = g_object_get_qdata(widget, swamigui_control_quark);
+
+    if(!control)
+    {
+        return (NULL);
+    }
+
+    return (SWAMI_CONTROL(control));  /* do a type cast for debugging purposes */
 }
 
 /**
@@ -265,38 +302,38 @@ swamigui_control_lookup (GObject *widget)
  * additional options.
  */
 void
-swamigui_control_prop_connect_widget (GObject *object, const char *propname,
-				      GObject *widget)
+swamigui_control_prop_connect_widget(GObject *object, const char *propname,
+                                     GObject *widget)
 {
-  SwamiControl *propctrl;
-  SwamiControl *widgctrl;
-  GParamSpec *pspec;
+    SwamiControl *propctrl;
+    SwamiControl *widgctrl;
+    GParamSpec *pspec;
 
-  g_return_if_fail (G_IS_OBJECT (object));
-  g_return_if_fail (propname != NULL);
-  g_return_if_fail (G_IS_OBJECT (widget));
+    g_return_if_fail(G_IS_OBJECT(object));
+    g_return_if_fail(propname != NULL);
+    g_return_if_fail(G_IS_OBJECT(widget));
 
-  pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (object), propname);
-  g_return_if_fail (pspec != NULL);
+    pspec = g_object_class_find_property(G_OBJECT_GET_CLASS(object), propname);
+    g_return_if_fail(pspec != NULL);
 
-  propctrl = swami_get_control_prop (object, pspec);	/* ++ ref */
-  g_return_if_fail (propctrl != NULL);
+    propctrl = swami_get_control_prop(object, pspec);	/* ++ ref */
+    g_return_if_fail(propctrl != NULL);
 
-  /* create widget control using value type from pspec and view only if
-   * read only property */
-  widgctrl = swamigui_control_new_for_widget_full
-    (widget, G_PARAM_SPEC_VALUE_TYPE (pspec), NULL,
-     (pspec->flags & G_PARAM_READWRITE) == G_PARAM_READABLE
-     ? SWAMIGUI_CONTROL_VIEW : 0);
+    /* create widget control using value type from pspec and view only if
+     * read only property */
+    widgctrl = swamigui_control_new_for_widget_full
+               (widget, G_PARAM_SPEC_VALUE_TYPE(pspec), NULL,
+                (pspec->flags & G_PARAM_READWRITE) == G_PARAM_READABLE
+                ? SWAMIGUI_CONTROL_VIEW : 0);
 
-  if (swami_log_if_fail (widgctrl != NULL))
-  {
-    g_object_unref (propctrl);	/* -- unref */
-    return;
-  }
+    if(swami_log_if_fail(widgctrl != NULL))
+    {
+        g_object_unref(propctrl);	/* -- unref */
+        return;
+    }
 
-  swami_control_connect (propctrl, widgctrl, SWAMI_CONTROL_CONN_BIDIR_SPEC_INIT);
-  g_object_unref (propctrl);	/* -- unref */
+    swami_control_connect(propctrl, widgctrl, SWAMI_CONTROL_CONN_BIDIR_SPEC_INIT);
+    g_object_unref(propctrl);	/* -- unref */
 }
 
 /**
@@ -320,108 +357,123 @@ swamigui_control_prop_connect_widget (GObject *object, const char *propname,
  * not handled. The new object uses the Gtk reference counting behavior.
  */
 GObject *
-swamigui_control_create_widget (GType widg_type, GType value_type,
-				GParamSpec *pspec,
-				SwamiguiControlFlags flags)
+swamigui_control_create_widget(GType widg_type, GType value_type,
+                               GParamSpec *pspec,
+                               SwamiguiControlFlags flags)
 {
-  SwamiguiControlHandler hfunc = NULL;
-  GObject *widget = NULL;
-  HandlerInfo *hinfo;
-  GList *p, *found = NULL;
-  gboolean view_only = FALSE;
+    SwamiguiControlHandler hfunc = NULL;
+    GObject *widget = NULL;
+    HandlerInfo *hinfo;
+    GList *p, *found = NULL;
+    gboolean view_only = FALSE;
 
-  g_return_val_if_fail (value_type != 0, NULL);
+    g_return_val_if_fail(value_type != 0, NULL);
 
-  if (widg_type == 0) widg_type = GTK_TYPE_WIDGET;
-
-  value_type = swamigui_control_get_alias_value_type (value_type);
-
-  /* doesn't make sense to request control only */
-  flags &= SWAMIGUI_CONTROL_CTRLVIEW;
-  if (!(flags & SWAMIGUI_CONTROL_VIEW)) flags = SWAMIGUI_CONTROL_CTRLVIEW;
-
-  /* view only control requested? */
-  if ((flags & SWAMIGUI_CONTROL_CTRLVIEW) == SWAMIGUI_CONTROL_VIEW)
-    view_only = TRUE;
-
-  G_LOCK (control_handlers);
-
-  /* search for matching control handler */
-  p = control_handlers;
-  while (p)
+    if(widg_type == 0)
     {
-      hinfo = (HandlerInfo *)(p->data);
-
-      /* handler widget is derived from @widg_type and of @value_type? */
-      if (g_type_is_a (hinfo->widg_type, widg_type)
-	  && hinfo->value_type == value_type)
-	{
-	  if (!found || ((hinfo->flags & SWAMIGUI_CONTROL_CTRLVIEW)
-			 == SWAMIGUI_CONTROL_VIEW))
-	    found = p;
-
-	  /* if view only, keep searching for a view only handler */
-	  if (!view_only || ((hinfo->flags & SWAMIGUI_CONTROL_CTRLVIEW)
-			     == SWAMIGUI_CONTROL_VIEW))
-	    break;
-	}
-      p = g_list_next (p);
+        widg_type = GTK_TYPE_WIDGET;
     }
 
-  if (found)
+    value_type = swamigui_control_get_alias_value_type(value_type);
+
+    /* doesn't make sense to request control only */
+    flags &= SWAMIGUI_CONTROL_CTRLVIEW;
+
+    if(!(flags & SWAMIGUI_CONTROL_VIEW))
     {
-      hinfo = (HandlerInfo *)(found->data);
-      hfunc = hinfo->handler;
-      widg_type = hinfo->widg_type;
+        flags = SWAMIGUI_CONTROL_CTRLVIEW;
     }
 
-  G_UNLOCK (control_handlers);
-
-  if (found)
+    /* view only control requested? */
+    if((flags & SWAMIGUI_CONTROL_CTRLVIEW) == SWAMIGUI_CONTROL_VIEW)
     {
-      widget = g_object_new (widg_type, NULL);
-
-      /* call handler function to configure UI widget but don't
-	 create control */
-      hfunc (widget, value_type, pspec, flags | SWAMIGUI_CONTROL_NO_CREATE);
+        view_only = TRUE;
     }
 
-  return (widget);
+    G_LOCK(control_handlers);
+
+    /* search for matching control handler */
+    p = control_handlers;
+
+    while(p)
+    {
+        hinfo = (HandlerInfo *)(p->data);
+
+        /* handler widget is derived from @widg_type and of @value_type? */
+        if(g_type_is_a(hinfo->widg_type, widg_type)
+                && hinfo->value_type == value_type)
+        {
+            if(!found || ((hinfo->flags & SWAMIGUI_CONTROL_CTRLVIEW)
+                          == SWAMIGUI_CONTROL_VIEW))
+            {
+                found = p;
+            }
+
+            /* if view only, keep searching for a view only handler */
+            if(!view_only || ((hinfo->flags & SWAMIGUI_CONTROL_CTRLVIEW)
+                              == SWAMIGUI_CONTROL_VIEW))
+            {
+                break;
+            }
+        }
+
+        p = g_list_next(p);
+    }
+
+    if(found)
+    {
+        hinfo = (HandlerInfo *)(found->data);
+        hfunc = hinfo->handler;
+        widg_type = hinfo->widg_type;
+    }
+
+    G_UNLOCK(control_handlers);
+
+    if(found)
+    {
+        widget = g_object_new(widg_type, NULL);
+
+        /* call handler function to configure UI widget but don't
+        create control */
+        hfunc(widget, value_type, pspec, flags | SWAMIGUI_CONTROL_NO_CREATE);
+    }
+
+    return (widget);
 }
 
 /* a GCompareFunc to find a specific widg_type/value_type handler,
    a 0 value_type is a wildcard */
 static int
-swamigui_control_GCompare_type (gconstpointer a, gconstpointer b)
+swamigui_control_GCompare_type(gconstpointer a, gconstpointer b)
 {
-  HandlerInfo *ainfo = (HandlerInfo *)a, *binfo = (HandlerInfo *)b;
-  return (!(ainfo->widg_type == binfo->widg_type
-	  && (!binfo->value_type || ainfo->value_type == binfo->value_type)));
+    HandlerInfo *ainfo = (HandlerInfo *)a, *binfo = (HandlerInfo *)b;
+    return (!(ainfo->widg_type == binfo->widg_type
+              && (!binfo->value_type || ainfo->value_type == binfo->value_type)));
 }
 
 /* compares handler info by rank */
 static int
-swamigui_control_GCompare_rank (gconstpointer a, gconstpointer b)
+swamigui_control_GCompare_rank(gconstpointer a, gconstpointer b)
 {
-  HandlerInfo *ainfo = (HandlerInfo *)a, *binfo = (HandlerInfo *)b;
+    HandlerInfo *ainfo = (HandlerInfo *)a, *binfo = (HandlerInfo *)b;
 
-  /* sort highest rank first */
-  return ((binfo->flags & SWAMIGUI_CONTROL_RANK_MASK)
-	  - (ainfo->flags & SWAMIGUI_CONTROL_RANK_MASK));
+    /* sort highest rank first */
+    return ((binfo->flags & SWAMIGUI_CONTROL_RANK_MASK)
+            - (ainfo->flags & SWAMIGUI_CONTROL_RANK_MASK));
 }
 
 /**
  * swamigui_control_set_queue:
  * @control: Control to assign to the GUI queue
- * 
+ *
  * Set a control to use a GUI queue which is required for all controls
  * that may be controlled from a non-GUI thread.
  */
 void
-swamigui_control_set_queue (SwamiControl *control)
+swamigui_control_set_queue(SwamiControl *control)
 {
-  g_return_if_fail (SWAMI_IS_CONTROL (control));
-  swami_control_set_queue (control, swamigui_root->ctrl_queue);
+    g_return_if_fail(SWAMI_IS_CONTROL(control));
+    swami_control_set_queue(control, swamigui_root->ctrl_queue);
 }
 
 /**
@@ -445,41 +497,50 @@ swamigui_control_set_queue (SwamiControl *control)
  * capability flags.
  */
 void
-swamigui_control_register (GType widg_type, GType value_type,
-			   SwamiguiControlHandler handler, guint flags)
+swamigui_control_register(GType widg_type, GType value_type,
+                          SwamiguiControlHandler handler, guint flags)
 {
-  HandlerInfo *hinfo, cmp;
-  GList *p;
+    HandlerInfo *hinfo, cmp;
+    GList *p;
 
-  g_return_if_fail (g_type_is_a (widg_type, G_TYPE_OBJECT));
-  g_return_if_fail (G_TYPE_IS_VALUE_TYPE (value_type) || value_type == G_TYPE_ENUM || value_type == G_TYPE_FLAGS);
+    g_return_if_fail(g_type_is_a(widg_type, G_TYPE_OBJECT));
+    g_return_if_fail(G_TYPE_IS_VALUE_TYPE(value_type) || value_type == G_TYPE_ENUM || value_type == G_TYPE_FLAGS);
 
-  if ((flags & SWAMIGUI_CONTROL_RANK_MASK) == 0)
-    flags |= SWAMIGUI_CONTROL_RANK_DEFAULT;
-
-  if (!(flags & SWAMIGUI_CONTROL_CTRLVIEW)) flags |= SWAMIGUI_CONTROL_CTRLVIEW;
-
-  cmp.widg_type = widg_type;
-  cmp.value_type = value_type;
-
-  G_LOCK (control_handlers);
-
-  p = g_list_find_custom (control_handlers, &cmp,
-			  swamigui_control_GCompare_type);
-  if (!p)
+    if((flags & SWAMIGUI_CONTROL_RANK_MASK) == 0)
     {
-      hinfo = g_slice_new0 (HandlerInfo);
-      control_handlers = g_list_insert_sorted (control_handlers, hinfo,
-					       swamigui_control_GCompare_rank);
+        flags |= SWAMIGUI_CONTROL_RANK_DEFAULT;
     }
-  else hinfo = (HandlerInfo *)(p->data);
 
-  hinfo->widg_type = widg_type;
-  hinfo->value_type = value_type;
-  hinfo->flags = flags;
-  hinfo->handler = handler;
+    if(!(flags & SWAMIGUI_CONTROL_CTRLVIEW))
+    {
+        flags |= SWAMIGUI_CONTROL_CTRLVIEW;
+    }
 
-  G_UNLOCK (control_handlers);
+    cmp.widg_type = widg_type;
+    cmp.value_type = value_type;
+
+    G_LOCK(control_handlers);
+
+    p = g_list_find_custom(control_handlers, &cmp,
+                           swamigui_control_GCompare_type);
+
+    if(!p)
+    {
+        hinfo = g_slice_new0(HandlerInfo);
+        control_handlers = g_list_insert_sorted(control_handlers, hinfo,
+                                                swamigui_control_GCompare_rank);
+    }
+    else
+    {
+        hinfo = (HandlerInfo *)(p->data);
+    }
+
+    hinfo->widg_type = widg_type;
+    hinfo->value_type = value_type;
+    hinfo->flags = flags;
+    hinfo->handler = handler;
+
+    G_UNLOCK(control_handlers);
 }
 
 /**
@@ -492,49 +553,53 @@ swamigui_control_register (GType widg_type, GType value_type,
  * plugin for instance).
  */
 void
-swamigui_control_unregister (GType widg_type, GType value_type)
+swamigui_control_unregister(GType widg_type, GType value_type)
 {
-  HandlerInfo cmp;
-  GList *p;
+    HandlerInfo cmp;
+    GList *p;
 
-  g_return_if_fail (g_type_is_a (widg_type, GTK_TYPE_OBJECT));
-  g_return_if_fail (G_TYPE_IS_VALUE (value_type));
+    g_return_if_fail(g_type_is_a(widg_type, GTK_TYPE_OBJECT));
+    g_return_if_fail(G_TYPE_IS_VALUE(value_type));
 
-  cmp.widg_type = widg_type;
-  cmp.value_type = value_type;
+    cmp.widg_type = widg_type;
+    cmp.value_type = value_type;
 
-  G_LOCK (control_handlers);
+    G_LOCK(control_handlers);
 
-  p = g_list_find_custom (control_handlers, &cmp,
-			  swamigui_control_GCompare_type);
-  if (p)
+    p = g_list_find_custom(control_handlers, &cmp,
+                           swamigui_control_GCompare_type);
+
+    if(p)
     {
-      g_slice_free (HandlerInfo, p->data);
-      control_handlers = g_list_delete_link (control_handlers, p);
+        g_slice_free(HandlerInfo, p->data);
+        control_handlers = g_list_delete_link(control_handlers, p);
     }
 
-  G_UNLOCK (control_handlers);
+    G_UNLOCK(control_handlers);
 
-  if (!p) g_warning ("Failed to find widget handler type '%s' value type '%s'",
-		     g_type_name (widg_type), g_type_name (value_type));
+    if(!p)
+        g_warning("Failed to find widget handler type '%s' value type '%s'",
+                  g_type_name(widg_type), g_type_name(value_type));
 }
 
 /* Recursive function to walk a GtkContainer and add all widgets with GtkBuilder
  * names beginning with PROP:: to a list */
 static void
-swamigui_control_glade_container_foreach (GtkWidget *widget, gpointer data)
+swamigui_control_glade_container_foreach(GtkWidget *widget, gpointer data)
 {
-  GSList **list = data;
-  const char *name;
+    GSList **list = data;
+    const char *name;
 
-  name = gtk_buildable_get_name (GTK_BUILDABLE (widget));
+    name = gtk_buildable_get_name(GTK_BUILDABLE(widget));
 
-  if (name && strncmp (name, "PROP::", 6) == 0)
-    *list = g_slist_prepend (*list, widget);
+    if(name && strncmp(name, "PROP::", 6) == 0)
+    {
+        *list = g_slist_prepend(*list, widget);
+    }
 
-  if (GTK_IS_CONTAINER (widget))
-    gtk_container_foreach (GTK_CONTAINER (widget),
-                           swamigui_control_glade_container_foreach, list);
+    if(GTK_IS_CONTAINER(widget))
+        gtk_container_foreach(GTK_CONTAINER(widget),
+                              swamigui_control_glade_container_foreach, list);
 }
 
 /**
@@ -552,105 +617,117 @@ swamigui_control_glade_container_foreach (GtkWidget *widget, gpointer data)
  * unique and is ignored.  "PROP::volume:1" for example.
  */
 void
-swamigui_control_glade_prop_connect (GtkWidget *widget, GObject *obj)
+swamigui_control_glade_prop_connect(GtkWidget *widget, GObject *obj)
 {
-  GtkWidget *widg;
-  GParamSpec *pspec = NULL;
-  const char *name;
-  char *propname;
-  SwamiControl *propctrl, *widgctrl;
-  GObjectClass *objclass = NULL;
-  gboolean viewonly = FALSE;
-  GSList *list = NULL, *p;
+    GtkWidget *widg;
+    GParamSpec *pspec = NULL;
+    const char *name;
+    char *propname;
+    SwamiControl *propctrl, *widgctrl;
+    GObjectClass *objclass = NULL;
+    gboolean viewonly = FALSE;
+    GSList *list = NULL, *p;
 
-  g_return_if_fail (GTK_IS_WIDGET (widget));
-  g_return_if_fail (!obj || G_IS_OBJECT (obj));
+    g_return_if_fail(GTK_IS_WIDGET(widget));
+    g_return_if_fail(!obj || G_IS_OBJECT(obj));
 
-  if (obj)
-  {
-    objclass = g_type_class_peek (G_OBJECT_TYPE (obj));
-    g_return_if_fail (objclass != NULL);
-  }
-
-  if (GTK_IS_CONTAINER (widget))        /* Recurse widget tree and add all PROP:: widgets */
-    gtk_container_foreach (GTK_CONTAINER (widget),
-                           swamigui_control_glade_container_foreach, &list);
-  else list = g_slist_prepend (list, widget);
-
-
-  /* loop over widgets */
-  for (p = list; p; p = p->next)
-  {
-    widg = (GtkWidget *)(p->data);
-    name = gtk_buildable_get_name (GTK_BUILDABLE (widg));
-    name += 6;	/* skip "PROP::" prefix */
-
-    /* to work around duplicate names, everything following a ':' char is ignored */
-    if ((propname = strchr (name, ':')))
-      propname = g_strndup (name, propname - name);	/* ++ alloc */
-    else propname = g_strdup (name);			/* ++ alloc */
-
-    /* get parameter spec of the property for object (if obj is set) */
-    if (obj)
+    if(obj)
     {
-      pspec = g_object_class_find_property (objclass, propname);
-
-      if (!pspec)
-      {
-	g_warning ("Object of type %s has no property '%s'",
-		   g_type_name (G_OBJECT_TYPE (obj)), propname);
-	g_free (propname);	/* -- free */
-	continue;
-      }
-
-      viewonly = (pspec->flags & G_PARAM_WRITABLE) == 0;
+        objclass = g_type_class_peek(G_OBJECT_TYPE(obj));
+        g_return_if_fail(objclass != NULL);
     }
 
-    /* lookup existing control widget (if any) */
-    widgctrl = swamigui_control_lookup (G_OBJECT (widg));
-
-    if (!widgctrl)
+    if(GTK_IS_CONTAINER(widget))          /* Recurse widget tree and add all PROP:: widgets */
+        gtk_container_foreach(GTK_CONTAINER(widget),
+                              swamigui_control_glade_container_foreach, &list);
+    else
     {
-      if (!obj)
-      {
-	g_free (propname);	/* -- free */
-	continue;	/* no widget control to disconnect, continue */
-      }
-
-      /* create or lookup widget control (view only if property is read only) */
-      widgctrl = swamigui_control_new_for_widget_full
-	(G_OBJECT (widg), G_PARAM_SPEC_VALUE_TYPE (pspec), pspec,
-	 viewonly ? SWAMIGUI_CONTROL_VIEW : 0);
-
-      if (!widgctrl)
-      {
-	g_critical ("Failed to create widget control for  '%s' of type '%s'",
-		    propname, g_type_name (G_OBJECT_TYPE (widg)));
-	g_free (propname);	/* -- free */
-	continue;
-      }
-    }	/* disconnect any existing connections */
-    else swami_control_disconnect_all (widgctrl);
-
-    if (obj)
-    {
-      /* get a control for the object's property */
-      propctrl = swami_get_control_prop (obj, pspec);	/* ++ ref */
-
-      if (propctrl)
-      {
-	/* connect the property control to the widget control */
-	swami_control_connect (propctrl, widgctrl,
-			       (viewonly ? 0 : SWAMI_CONTROL_CONN_BIDIR)
-			       | SWAMI_CONTROL_CONN_INIT
-			       | SWAMI_CONTROL_CONN_SPEC);
-	g_object_unref (propctrl);	/* -- unref */
-      }
+        list = g_slist_prepend(list, widget);
     }
-    g_free (propname);	/* -- free */
-  }
 
-  g_slist_free (list);	/* -- free list */
+
+    /* loop over widgets */
+    for(p = list; p; p = p->next)
+    {
+        widg = (GtkWidget *)(p->data);
+        name = gtk_buildable_get_name(GTK_BUILDABLE(widg));
+        name += 6;	/* skip "PROP::" prefix */
+
+        /* to work around duplicate names, everything following a ':' char is ignored */
+        if((propname = strchr(name, ':')))
+        {
+            propname = g_strndup(name, propname - name);    /* ++ alloc */
+        }
+        else
+        {
+            propname = g_strdup(name);    /* ++ alloc */
+        }
+
+        /* get parameter spec of the property for object (if obj is set) */
+        if(obj)
+        {
+            pspec = g_object_class_find_property(objclass, propname);
+
+            if(!pspec)
+            {
+                g_warning("Object of type %s has no property '%s'",
+                          g_type_name(G_OBJECT_TYPE(obj)), propname);
+                g_free(propname);	/* -- free */
+                continue;
+            }
+
+            viewonly = (pspec->flags & G_PARAM_WRITABLE) == 0;
+        }
+
+        /* lookup existing control widget (if any) */
+        widgctrl = swamigui_control_lookup(G_OBJECT(widg));
+
+        if(!widgctrl)
+        {
+            if(!obj)
+            {
+                g_free(propname);	/* -- free */
+                continue;	/* no widget control to disconnect, continue */
+            }
+
+            /* create or lookup widget control (view only if property is read only) */
+            widgctrl = swamigui_control_new_for_widget_full
+                       (G_OBJECT(widg), G_PARAM_SPEC_VALUE_TYPE(pspec), pspec,
+                        viewonly ? SWAMIGUI_CONTROL_VIEW : 0);
+
+            if(!widgctrl)
+            {
+                g_critical("Failed to create widget control for  '%s' of type '%s'",
+                           propname, g_type_name(G_OBJECT_TYPE(widg)));
+                g_free(propname);	/* -- free */
+                continue;
+            }
+        }	/* disconnect any existing connections */
+        else
+        {
+            swami_control_disconnect_all(widgctrl);
+        }
+
+        if(obj)
+        {
+            /* get a control for the object's property */
+            propctrl = swami_get_control_prop(obj, pspec);	/* ++ ref */
+
+            if(propctrl)
+            {
+                /* connect the property control to the widget control */
+                swami_control_connect(propctrl, widgctrl,
+                                      (viewonly ? 0 : SWAMI_CONTROL_CONN_BIDIR)
+                                      | SWAMI_CONTROL_CONN_INIT
+                                      | SWAMI_CONTROL_CONN_SPEC);
+                g_object_unref(propctrl);	/* -- unref */
+            }
+        }
+
+        g_free(propname);	/* -- free */
+    }
+
+    g_slist_free(list);	/* -- free list */
 }
 
 /**
@@ -665,9 +742,9 @@ swamigui_control_glade_prop_connect (GtkWidget *widget, GObject *obj)
  * type has no alias.
  */
 GType
-swamigui_control_get_alias_value_type (GType type)
+swamigui_control_get_alias_value_type(GType type)
 {
-  switch (type)
+    switch(type)
     {
     case G_TYPE_CHAR:
     case G_TYPE_UCHAR:
@@ -678,8 +755,9 @@ swamigui_control_get_alias_value_type (GType type)
     case G_TYPE_INT64:
     case G_TYPE_UINT64:
     case G_TYPE_FLOAT:
-      return (G_TYPE_DOUBLE);
+        return (G_TYPE_DOUBLE);
+
     default:
-      return (type);
+        return (type);
     }
 }

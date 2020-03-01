@@ -46,16 +46,16 @@ typedef struct _SwamiguiPrefClass SwamiguiPrefClass;
 /* Swami preferences widget */
 struct _SwamiguiPref
 {
-  GtkDialog parent;
+    GtkDialog parent;
 
-  /*< private >*/
-  GtkWidget *notebook;	/* invisible notebook with preference sections */
+    /*< private >*/
+    GtkWidget *notebook;	/* invisible notebook with preference sections */
 };
 
 /* Swami preferences widget class */
 struct _SwamiguiPrefClass
 {
-  GtkDialogClass parent_class;
+    GtkDialogClass parent_class;
 };
 
 /**
@@ -65,7 +65,7 @@ struct _SwamiguiPrefClass
  *
  * Returns: The toplevel widget of the preference interface.
  */
-typedef GtkWidget * (*SwamiguiPrefHandler)(void);
+typedef GtkWidget *(*SwamiguiPrefHandler)(void);
 
 /**
  * SWAMIGUI_PREF_ORDER_NAME:
@@ -76,10 +76,10 @@ typedef GtkWidget * (*SwamiguiPrefHandler)(void);
  */
 #define SWAMIGUI_PREF_ORDER_NAME	0
 
-void swamigui_register_pref_handler (const char *name, const char *icon,
-				     int order, SwamiguiPrefHandler handler);
+void swamigui_register_pref_handler(const char *name, const char *icon,
+                                    int order, SwamiguiPrefHandler handler);
 
-GType swamigui_pref_get_type (void);
-GtkWidget *swamigui_pref_new (void);
+GType swamigui_pref_get_type(void);
+GtkWidget *swamigui_pref_new(void);
 
 #endif

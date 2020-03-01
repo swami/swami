@@ -39,7 +39,7 @@
 #include "i18n.h"
 
 #ifdef PYTHON_SUPPORT
-static void log_python_output_func (const char *output, gboolean is_stderr);
+static void log_python_output_func(const char *output, gboolean is_stderr);
 #endif
 
 /* global boolean feature hacks */
@@ -48,169 +48,192 @@ extern gboolean swamigui_disable_plugins;
 
 
 int
-main (int argc, char *argv[])
+main(int argc, char *argv[])
 {
-  SwamiguiRoot *root = NULL;
-  gboolean show_version = FALSE;
-  gboolean default_prefs = FALSE;
-  gchar **scripts = NULL;
-  gchar **files = NULL;
-  char *fname;
-  GOptionContext *context;
-  GError *err = NULL;
-  gchar **sptr;
+    SwamiguiRoot *root = NULL;
+    gboolean show_version = FALSE;
+    gboolean default_prefs = FALSE;
+    gchar **scripts = NULL;
+    gchar **files = NULL;
+    char *fname;
+    GOptionContext *context;
+    GError *err = NULL;
+    gchar **sptr;
 
-  GOptionEntry entries[] = {
-    { "version", 'V', 0, G_OPTION_ARG_NONE, &show_version, "Display Swami version number", NULL },
-    { "run-script", 'r', 0, G_OPTION_ARG_FILENAME_ARRAY, &scripts, "Run one or more Python scripts on startup", NULL },
-    { "no-plugins", 'p', 0, G_OPTION_ARG_NONE, &swamigui_disable_plugins, "Don't load plugins", NULL},
-    { "default-prefs", 'd', 0, G_OPTION_ARG_NONE, &default_prefs, "Use default preferences", NULL },
-    { "disable-python", 'y', 0, G_OPTION_ARG_NONE, &swamigui_disable_python, "Disable runtime Python support", NULL },
-    { G_OPTION_REMAINING, '\0', 0, G_OPTION_ARG_FILENAME_ARRAY, &files, NULL, "[file1.sf2 file2.sf2 ...]" },
-    { NULL }
-  };
+    GOptionEntry entries[] =
+    {
+        { "version", 'V', 0, G_OPTION_ARG_NONE, &show_version, "Display Swami version number", NULL },
+        { "run-script", 'r', 0, G_OPTION_ARG_FILENAME_ARRAY, &scripts, "Run one or more Python scripts on startup", NULL },
+        { "no-plugins", 'p', 0, G_OPTION_ARG_NONE, &swamigui_disable_plugins, "Don't load plugins", NULL},
+        { "default-prefs", 'd', 0, G_OPTION_ARG_NONE, &default_prefs, "Use default preferences", NULL },
+        { "disable-python", 'y', 0, G_OPTION_ARG_NONE, &swamigui_disable_python, "Disable runtime Python support", NULL },
+        { G_OPTION_REMAINING, '\0', 0, G_OPTION_ARG_FILENAME_ARRAY, &files, NULL, "[file1.sf2 file2.sf2 ...]" },
+        { NULL }
+    };
 
-  /* FIXME - Kind of a hack, to use relative dirs for GdkPixbuf loaders on WIN32 */
+    /* FIXME - Kind of a hack, to use relative dirs for GdkPixbuf loaders on WIN32 */
 #ifdef MINGW32
-  g_setenv ("GDK_PIXBUF_MODULE_FILE", "lib/gdk-pixbuf-2.0/2.10.0/loaders.cache", TRUE);
-  g_setenv ("GDK_PIXBUF_MODULEDIR", "lib/gdk-pixbuf-2.0/2.10.0/loaders", TRUE);
+    g_setenv("GDK_PIXBUF_MODULE_FILE", "lib/gdk-pixbuf-2.0/2.10.0/loaders.cache", TRUE);
+    g_setenv("GDK_PIXBUF_MODULEDIR", "lib/gdk-pixbuf-2.0/2.10.0/loaders", TRUE);
 #endif
 
 #if defined(ENABLE_NLS)
-  bindtextdomain (PACKAGE, LOCALEDIR);
-  textdomain (PACKAGE);
+    bindtextdomain(PACKAGE, LOCALEDIR);
+    textdomain(PACKAGE);
 #endif
 
-  context = g_option_context_new (NULL);
-  g_option_context_add_main_entries (context, entries, PACKAGE);
-  g_option_context_add_group (context, gtk_get_option_group (TRUE));
+    context = g_option_context_new(NULL);
+    g_option_context_add_main_entries(context, entries, PACKAGE);
+    g_option_context_add_group(context, gtk_get_option_group(TRUE));
 
-  if (!g_option_context_parse (context, &argc, &argv, &err))
-  {
-    g_print ("option parsing failed: %s\n", err->message);
-    return (1);
-  }
-
-  if (show_version)
-  {
-    g_print ("Swami %s\n", VERSION);
-    return (0);
-  }
-
-  swamigui_init (&argc, &argv);
-
-  root = swamigui_root_new ();	/* ++ ref root */
-
-  /* Load preferences unless disabled */
-  if (!default_prefs)
-    swamigui_root_load_prefs (root);
-
-  /* Activate the Swami object */
-  swamigui_root_activate (root);
-
-  /* loop over command line non-options, assuming they're files to open */
-  if (files)
-  {
-    GtkRecentManager *manager;
-    char *file_uri;
-
-    for (sptr = files; *sptr; sptr++)
+    if(!g_option_context_parse(context, &argc, &argv, &err))
     {
-      /* first try and parse argument as a URI (in case we are called from
-	 recent files subsystem), then just use it as a plain file name */
-      if (!(fname = g_filename_from_uri (*sptr, NULL, NULL)))
-	fname = g_strdup (*sptr);
-
-      if (swami_root_patch_load (SWAMI_ROOT (root), fname, NULL, &err))
-      { /* Add file to recent chooser list */
-        if ((file_uri = g_filename_to_uri (fname, NULL, NULL)))
-        {
-          manager = gtk_recent_manager_get_default ();
-
-          if (!gtk_recent_manager_add_item (manager, file_uri))
-            g_warning ("Error while adding file name to recent manager.");
-
-          g_free (file_uri);
-        }
-      }
-      else
-      {
-	g_critical (_("Failed to open file '%s' given as program argument: %s"),
-		    fname, ipatch_gerror_message (err));
-	g_clear_error (&err);
-      }
-
-      g_free (fname);
+        g_print("option parsing failed: %s\n", err->message);
+        return (1);
     }
 
-    g_strfreev (files);
-  }
+    if(show_version)
+    {
+        g_print("Swami %s\n", VERSION);
+        return (0);
+    }
+
+    swamigui_init(&argc, &argv);
+
+    root = swamigui_root_new();	/* ++ ref root */
+
+    /* Load preferences unless disabled */
+    if(!default_prefs)
+    {
+        swamigui_root_load_prefs(root);
+    }
+
+    /* Activate the Swami object */
+    swamigui_root_activate(root);
+
+    /* loop over command line non-options, assuming they're files to open */
+    if(files)
+    {
+        GtkRecentManager *manager;
+        char *file_uri;
+
+        for(sptr = files; *sptr; sptr++)
+        {
+            /* first try and parse argument as a URI (in case we are called from
+            recent files subsystem), then just use it as a plain file name */
+            if(!(fname = g_filename_from_uri(*sptr, NULL, NULL)))
+            {
+                fname = g_strdup(*sptr);
+            }
+
+            if(swami_root_patch_load(SWAMI_ROOT(root), fname, NULL, &err))
+            {
+                /* Add file to recent chooser list */
+                if((file_uri = g_filename_to_uri(fname, NULL, NULL)))
+                {
+                    manager = gtk_recent_manager_get_default();
+
+                    if(!gtk_recent_manager_add_item(manager, file_uri))
+                    {
+                        g_warning("Error while adding file name to recent manager.");
+                    }
+
+                    g_free(file_uri);
+                }
+            }
+            else
+            {
+                g_critical(_("Failed to open file '%s' given as program argument: %s"),
+                           fname, ipatch_gerror_message(err));
+                g_clear_error(&err);
+            }
+
+            g_free(fname);
+        }
+
+        g_strfreev(files);
+    }
 
 #ifdef PYTHON_SUPPORT
-  if (scripts && !swamigui_disable_python)	/* any scripts to run? */
-  {
-    /* set to stdout Python output function (FIXME - Use logging?) */
-    swamigui_python_set_output_func (log_python_output_func);
 
-    for (sptr = scripts; *sptr; sptr++)
+    if(scripts && !swamigui_disable_python)	/* any scripts to run? */
     {
-      char *script;
-      GError *err = NULL;
+        /* set to stdout Python output function (FIXME - Use logging?) */
+        swamigui_python_set_output_func(log_python_output_func);
 
-      if (g_file_get_contents (*sptr, &script, NULL, &err))
-      {
-	PyRun_SimpleString (script);
-	g_free (script);
-      }
-      else
-      {
-	g_critical ("Failed to read Python script '%s': %s", *sptr,
-		    ipatch_gerror_message (err));
-	g_clear_error (&err);
-      }
+        for(sptr = scripts; *sptr; sptr++)
+        {
+            char *script;
+            GError *err = NULL;
+
+            if(g_file_get_contents(*sptr, &script, NULL, &err))
+            {
+                PyRun_SimpleString(script);
+                g_free(script);
+            }
+            else
+            {
+                g_critical("Failed to read Python script '%s': %s", *sptr,
+                           ipatch_gerror_message(err));
+                g_clear_error(&err);
+            }
+        }
     }
-  }
+
 #else
-  if (scripts) g_critical ("No Python support, '-r' commands ignored");
+
+    if(scripts)
+    {
+        g_critical("No Python support, '-r' commands ignored");
+    }
+
 #endif
 
-  if (scripts) g_strfreev (scripts);
+    if(scripts)
+    {
+        g_strfreev(scripts);
+    }
 
-  gdk_threads_enter ();
-  gtk_main ();			/* kick it in the main GTK loop */
-  gdk_threads_leave ();
+    gdk_threads_enter();
+    gtk_main();			/* kick it in the main GTK loop */
+    gdk_threads_leave();
 
-  /* we destroy it all so refdbg can tell us what objects leaked */
-  g_object_unref (root);	/* -- unref root */
+    /* we destroy it all so refdbg can tell us what objects leaked */
+    g_object_unref(root);	/* -- unref root */
 
-  exit (0);
+    exit(0);
 }
 
 #ifdef PYTHON_SUPPORT
 
 /* output function which uses glib logging facility */
 static void
-log_python_output_func (const char *output, gboolean is_stderr)
+log_python_output_func(const char *output, gboolean is_stderr)
 {
-  GString *gs;
-  char *found;
-  int pos = 0;
+    GString *gs;
+    char *found;
+    int pos = 0;
 
-  /* must escape % chars */
-  gs = g_string_new (output);
+    /* must escape % chars */
+    gs = g_string_new(output);
 
-  while ((found = strchr (&gs->str[pos], '%')))
+    while((found = strchr(&gs->str[pos], '%')))
     {
-      pos = found - gs->str;
-      g_string_insert_c (gs, pos + 1, '%');
-      pos += 2;
+        pos = found - gs->str;
+        g_string_insert_c(gs, pos + 1, '%');
+        pos += 2;
     }
 
-  if (is_stderr)
-    fputs (gs->str, stderr);
-  else puts (gs->str);
+    if(is_stderr)
+    {
+        fputs(gs->str, stderr);
+    }
+    else
+    {
+        puts(gs->str);
+    }
 
-  g_string_free (gs, TRUE);
+    g_string_free(gs, TRUE);
 }
 
 #endif

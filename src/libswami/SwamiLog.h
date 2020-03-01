@@ -30,14 +30,14 @@
 
 typedef enum
 {
-  SWAMI_ERROR_FAIL,		/* general failure */
-  SWAMI_ERROR_INVALID,		/* invalid parameter/setting/etc */
-  SWAMI_ERROR_CANCELED,		/* an operation was canceled (SwamiLoopFinder) */
-  SWAMI_ERROR_UNSUPPORTED,	/* an unsupported feature or unhandled operation */
-  SWAMI_ERROR_IO		/* I/O related error */
+    SWAMI_ERROR_FAIL,		/* general failure */
+    SWAMI_ERROR_INVALID,		/* invalid parameter/setting/etc */
+    SWAMI_ERROR_CANCELED,		/* an operation was canceled (SwamiLoopFinder) */
+    SWAMI_ERROR_UNSUPPORTED,	/* an unsupported feature or unhandled operation */
+    SWAMI_ERROR_IO		/* I/O related error */
 } SwamiError;
 
-GQuark swami_error_quark (void);
+GQuark swami_error_quark(void);
 
 
 #ifdef __GNUC__
@@ -57,13 +57,13 @@ GQuark swami_error_quark (void);
 	     #expr))
 #endif
 
-int _swami_ret_g_log (const gchar *log_domain, GLogLevelFlags log_level,
-		      const gchar *format, ...);
+int _swami_ret_g_log(const gchar *log_domain, GLogLevelFlags log_level,
+                     const gchar *format, ...);
 
 #ifndef _WIN32
-extern void _swami_pretty_log_handler (GLogLevelFlags flags,
-				       char *file, char *function, int line,
-				       char *format, ...);
+extern void _swami_pretty_log_handler(GLogLevelFlags flags,
+                                      char *file, char *function, int line,
+                                      char *format, ...);
 
 #ifdef SWAMI_DEBUG_ENABLED
 #define SWAMI_DEBUG(format, args...) \

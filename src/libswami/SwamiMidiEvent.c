@@ -26,16 +26,16 @@
 #include "swami_priv.h"
 
 GType
-swami_midi_event_get_type (void)
+swami_midi_event_get_type(void)
 {
-  static GType item_type = 0;
+    static GType item_type = 0;
 
-  if (!item_type)
-    item_type = g_boxed_type_register_static ("SwamiMidiEvent",
-				(GBoxedCopyFunc)swami_midi_event_copy,
-				(GBoxedFreeFunc)swami_midi_event_free);
+    if(!item_type)
+        item_type = g_boxed_type_register_static("SwamiMidiEvent",
+                    (GBoxedCopyFunc)swami_midi_event_copy,
+                    (GBoxedFreeFunc)swami_midi_event_free);
 
-  return (item_type);
+    return (item_type);
 }
 
 /**
@@ -47,44 +47,44 @@ swami_midi_event_get_type (void)
  * when finished.
  */
 SwamiMidiEvent *
-swami_midi_event_new (void)
+swami_midi_event_new(void)
 {
-  SwamiMidiEvent *event;
+    SwamiMidiEvent *event;
 
-  event = g_slice_new0 (SwamiMidiEvent);
-  event->type = SWAMI_MIDI_NONE;
-  return (event);
+    event = g_slice_new0(SwamiMidiEvent);
+    event->type = SWAMI_MIDI_NONE;
+    return (event);
 }
 
 /**
  * swami_midi_event_free:
  * @event: MIDI event structure to free
- * 
+ *
  * Free a MIDI event previously allocated by swami_midi_event_new().
  */
 void
-swami_midi_event_free (SwamiMidiEvent *event)
+swami_midi_event_free(SwamiMidiEvent *event)
 {
-  g_slice_free (SwamiMidiEvent, event);
+    g_slice_free(SwamiMidiEvent, event);
 }
 
 /**
  * swami_midi_event_copy:
  * @event: MIDI event structure to duplicate
- * 
+ *
  * Duplicate a MIDI event structure.
- * 
+ *
  * Returns: New duplicate MIDI event. Free it with swami_midi_event_free()
  * when finished.
  */
 SwamiMidiEvent *
-swami_midi_event_copy (SwamiMidiEvent *event)
+swami_midi_event_copy(SwamiMidiEvent *event)
 {
-  SwamiMidiEvent *new_event;
+    SwamiMidiEvent *new_event;
 
-  new_event = swami_midi_event_new ();
-  *new_event = *event;
-  return (new_event);
+    new_event = swami_midi_event_new();
+    *new_event = *event;
+    return (new_event);
 }
 
 /**
@@ -99,67 +99,78 @@ swami_midi_event_copy (SwamiMidiEvent *event)
  * the event type specific functions.
  */
 void
-swami_midi_event_set (SwamiMidiEvent *event, SwamiMidiEventType type,
-		      int channel, int param1, int param2)
+swami_midi_event_set(SwamiMidiEvent *event, SwamiMidiEventType type,
+                     int channel, int param1, int param2)
 {
-  SwamiMidiEventNote *note;
-  SwamiMidiEventControl *ctrl;
+    SwamiMidiEventNote *note;
+    SwamiMidiEventControl *ctrl;
 
-  g_return_if_fail (event != NULL);
+    g_return_if_fail(event != NULL);
 
-  note = &event->data.note;
-  ctrl = &event->data.control;
+    note = &event->data.note;
+    ctrl = &event->data.control;
 
-  event->type = type;
-  event->channel = channel;
+    event->type = type;
+    event->channel = channel;
 
-  switch (type)
+    switch(type)
     {
     case SWAMI_MIDI_NOTE_ON:
-      if (param2 == 0) event->type = SWAMI_MIDI_NOTE_OFF; /* velocity is 0? */
-      /* fall through */
+        if(param2 == 0)
+        {
+            event->type = SWAMI_MIDI_NOTE_OFF;    /* velocity is 0? */
+        }
+
+    /* fall through */
     case SWAMI_MIDI_NOTE_OFF:
     case SWAMI_MIDI_KEY_PRESSURE:
-      note->note = param1;
-      note->velocity = param2;
-      break;
+        note->note = param1;
+        note->velocity = param2;
+        break;
+
     case SWAMI_MIDI_PITCH_BEND:
-      ctrl->param = param1;
-      ctrl->value = param2;
-      break;
+        ctrl->param = param1;
+        ctrl->value = param2;
+        break;
+
     case SWAMI_MIDI_PROGRAM_CHANGE:
-      ctrl->value = param1;
-      break;
+        ctrl->value = param1;
+        break;
+
     case SWAMI_MIDI_CONTROL:
     case SWAMI_MIDI_CONTROL14:
-      ctrl->param = param1;
-      ctrl->value = param2;
-      break;
+        ctrl->param = param1;
+        ctrl->value = param2;
+        break;
+
     case SWAMI_MIDI_CHAN_PRESSURE:
-      ctrl->value = param1;
-      break;
+        ctrl->value = param1;
+        break;
+
     case SWAMI_MIDI_RPN:
     case SWAMI_MIDI_NRPN:
-      ctrl->param = param1;
-      ctrl->value = param2;
-      break;
+        ctrl->param = param1;
+        ctrl->value = param2;
+        break;
 
     /* these are handled by other event types, convenience only */
 
     case SWAMI_MIDI_BEND_RANGE:
-      event->type = SWAMI_MIDI_RPN;
-      ctrl->param = SWAMI_MIDI_RPN_BEND_RANGE;
-      ctrl->value = param1;
-      break;
+        event->type = SWAMI_MIDI_RPN;
+        ctrl->param = SWAMI_MIDI_RPN_BEND_RANGE;
+        ctrl->value = param1;
+        break;
+
     case SWAMI_MIDI_BANK_SELECT:
-      event->type = SWAMI_MIDI_CONTROL14;
-      ctrl->param = SWAMI_MIDI_CC_BANK_MSB;
-      ctrl->value = param1;
-      break;
+        event->type = SWAMI_MIDI_CONTROL14;
+        ctrl->param = SWAMI_MIDI_CC_BANK_MSB;
+        ctrl->value = param1;
+        break;
+
     default:
-      g_warning ("Unknown MIDI event type");
-      event->type = SWAMI_MIDI_NONE;
-      break;
+        g_warning("Unknown MIDI event type");
+        event->type = SWAMI_MIDI_NONE;
+        break;
     }
 }
 
@@ -173,18 +184,18 @@ swami_midi_event_set (SwamiMidiEvent *event, SwamiMidiEventType type,
  * Make a MIDI event structure a note on event.
  */
 void
-swami_midi_event_note_on (SwamiMidiEvent *event, int channel, int note,
-			  int velocity)
+swami_midi_event_note_on(SwamiMidiEvent *event, int channel, int note,
+                         int velocity)
 {
-  SwamiMidiEventNote *n;
+    SwamiMidiEventNote *n;
 
-  g_return_if_fail (event != NULL);
+    g_return_if_fail(event != NULL);
 
-  event->type = (velocity != 0) ? SWAMI_MIDI_NOTE_ON : SWAMI_MIDI_NOTE_OFF;
-  event->channel = channel;
-  n = &event->data.note;
-  n->note = note;
-  n->velocity = velocity;
+    event->type = (velocity != 0) ? SWAMI_MIDI_NOTE_ON : SWAMI_MIDI_NOTE_OFF;
+    event->channel = channel;
+    n = &event->data.note;
+    n->note = note;
+    n->velocity = velocity;
 }
 
 /**
@@ -197,18 +208,18 @@ swami_midi_event_note_on (SwamiMidiEvent *event, int channel, int note,
  * Make a MIDI event structure a note off event.
  */
 void
-swami_midi_event_note_off (SwamiMidiEvent *event, int channel, int note,
-			   int velocity)
+swami_midi_event_note_off(SwamiMidiEvent *event, int channel, int note,
+                          int velocity)
 {
-  SwamiMidiEventNote *n;
+    SwamiMidiEventNote *n;
 
-  g_return_if_fail (event != NULL);
+    g_return_if_fail(event != NULL);
 
-  event->type = SWAMI_MIDI_NOTE_OFF;
-  event->channel = channel;
-  n = &event->data.note;
-  n->note = note;
-  n->velocity = velocity;
+    event->type = SWAMI_MIDI_NOTE_OFF;
+    event->channel = channel;
+    n = &event->data.note;
+    n->note = note;
+    n->velocity = velocity;
 }
 
 /**
@@ -221,17 +232,17 @@ swami_midi_event_note_off (SwamiMidiEvent *event, int channel, int note,
  * since a bank select is just a controller event, and is sent as such.
  */
 void
-swami_midi_event_bank_select (SwamiMidiEvent *event, int channel, int bank)
+swami_midi_event_bank_select(SwamiMidiEvent *event, int channel, int bank)
 {
-  SwamiMidiEventControl *ctrl;
+    SwamiMidiEventControl *ctrl;
 
-  g_return_if_fail (event != NULL);
+    g_return_if_fail(event != NULL);
 
-  event->type = SWAMI_MIDI_CONTROL14;
-  event->channel = channel;
-  ctrl = &event->data.control;
-  ctrl->param = SWAMI_MIDI_CC_BANK_MSB;
-  ctrl->value = bank;
+    event->type = SWAMI_MIDI_CONTROL14;
+    event->channel = channel;
+    ctrl = &event->data.control;
+    ctrl->param = SWAMI_MIDI_CC_BANK_MSB;
+    ctrl->value = bank;
 }
 
 /**
@@ -243,16 +254,16 @@ swami_midi_event_bank_select (SwamiMidiEvent *event, int channel, int bank)
  * Set a MIDI event structure to a program change event.
  */
 void
-swami_midi_event_set_program (SwamiMidiEvent *event, int channel, int program)
+swami_midi_event_set_program(SwamiMidiEvent *event, int channel, int program)
 {
-  SwamiMidiEventControl *ctrl;
+    SwamiMidiEventControl *ctrl;
 
-  g_return_if_fail (event != NULL);
+    g_return_if_fail(event != NULL);
 
-  event->type = SWAMI_MIDI_PROGRAM_CHANGE;
-  event->channel = channel;
-  ctrl = &event->data.control;
-  ctrl->value = program;
+    event->type = SWAMI_MIDI_PROGRAM_CHANGE;
+    event->channel = channel;
+    ctrl = &event->data.control;
+    ctrl->value = program;
 }
 
 /**
@@ -265,17 +276,17 @@ swami_midi_event_set_program (SwamiMidiEvent *event, int channel, int program)
  * could also use the swami_midi_event_rpn() function.
  */
 void
-swami_midi_event_set_bend_range (SwamiMidiEvent *event, int channel, int cents)
+swami_midi_event_set_bend_range(SwamiMidiEvent *event, int channel, int cents)
 {
-  SwamiMidiEventControl *ctrl;
+    SwamiMidiEventControl *ctrl;
 
-  g_return_if_fail (event != NULL);
+    g_return_if_fail(event != NULL);
 
-  event->type = SWAMI_MIDI_RPN;
-  event->channel = channel;
-  ctrl = &event->data.control;
-  ctrl->param = SWAMI_MIDI_RPN_BEND_RANGE;
-  ctrl->value = cents;
+    event->type = SWAMI_MIDI_RPN;
+    event->channel = channel;
+    ctrl = &event->data.control;
+    ctrl->param = SWAMI_MIDI_RPN_BEND_RANGE;
+    ctrl->value = cents;
 }
 
 /**
@@ -287,16 +298,16 @@ swami_midi_event_set_bend_range (SwamiMidiEvent *event, int channel, int cents)
  * Make a MIDI event structure a pitch bend event.
  */
 void
-swami_midi_event_pitch_bend (SwamiMidiEvent *event, int channel, int value)
+swami_midi_event_pitch_bend(SwamiMidiEvent *event, int channel, int value)
 {
-  SwamiMidiEventControl *ctrl;
+    SwamiMidiEventControl *ctrl;
 
-  g_return_if_fail (event != NULL);
+    g_return_if_fail(event != NULL);
 
-  event->type = SWAMI_MIDI_PITCH_BEND;
-  event->channel = channel;
-  ctrl = &event->data.control;
-  ctrl->value = value;
+    event->type = SWAMI_MIDI_PITCH_BEND;
+    event->channel = channel;
+    ctrl = &event->data.control;
+    ctrl->value = value;
 }
 
 /**
@@ -309,18 +320,18 @@ swami_midi_event_pitch_bend (SwamiMidiEvent *event, int channel, int value)
  * Make a MIDI event structure a 7 bit controller event.
  */
 void
-swami_midi_event_control (SwamiMidiEvent *event, int channel,
-			  int ctrlnum, int value)
+swami_midi_event_control(SwamiMidiEvent *event, int channel,
+                         int ctrlnum, int value)
 {
-  SwamiMidiEventControl *ctrl;
+    SwamiMidiEventControl *ctrl;
 
-  g_return_if_fail (event != NULL);
+    g_return_if_fail(event != NULL);
 
-  event->type = SWAMI_MIDI_CONTROL;
-  event->channel = channel;
-  ctrl = &event->data.control;
-  ctrl->param = ctrlnum;
-  ctrl->value = value;
+    event->type = SWAMI_MIDI_CONTROL;
+    event->channel = channel;
+    ctrl = &event->data.control;
+    ctrl->param = ctrlnum;
+    ctrl->value = value;
 }
 
 /**
@@ -337,21 +348,24 @@ swami_midi_event_control (SwamiMidiEvent *event, int channel,
  * number). Internally the MSB controller numbers are used (0-31).
  */
 void
-swami_midi_event_control14 (SwamiMidiEvent *event, int channel,
-			    int ctrlnum, int value)
+swami_midi_event_control14(SwamiMidiEvent *event, int channel,
+                           int ctrlnum, int value)
 {
-  SwamiMidiEventControl *ctrl;
+    SwamiMidiEventControl *ctrl;
 
-  g_return_if_fail (event != NULL);
-  g_return_if_fail (ctrlnum >= 0 && ctrlnum <= 63);
+    g_return_if_fail(event != NULL);
+    g_return_if_fail(ctrlnum >= 0 && ctrlnum <= 63);
 
-  if (ctrlnum > 31) ctrlnum -= 32;
+    if(ctrlnum > 31)
+    {
+        ctrlnum -= 32;
+    }
 
-  event->type = SWAMI_MIDI_CONTROL14;
-  event->channel = channel;
-  ctrl = &event->data.control;
-  ctrl->param = ctrlnum;
-  ctrl->value = value;
+    event->type = SWAMI_MIDI_CONTROL14;
+    event->channel = channel;
+    ctrl = &event->data.control;
+    ctrl->param = ctrlnum;
+    ctrl->value = value;
 }
 
 /**
@@ -364,18 +378,18 @@ swami_midi_event_control14 (SwamiMidiEvent *event, int channel,
  * Make a MIDI event structure a RPN (registered parameter number) event.
  */
 void
-swami_midi_event_rpn (SwamiMidiEvent *event, int channel, int paramnum,
-		      int value)
+swami_midi_event_rpn(SwamiMidiEvent *event, int channel, int paramnum,
+                     int value)
 {
-  SwamiMidiEventControl *ctrl;
+    SwamiMidiEventControl *ctrl;
 
-  g_return_if_fail (event != NULL);
+    g_return_if_fail(event != NULL);
 
-  event->type = SWAMI_MIDI_RPN;
-  event->channel = channel;
-  ctrl = &event->data.control;
-  ctrl->param = paramnum;
-  ctrl->value = value;
+    event->type = SWAMI_MIDI_RPN;
+    event->channel = channel;
+    ctrl = &event->data.control;
+    ctrl->param = paramnum;
+    ctrl->value = value;
 }
 
 /**
@@ -388,16 +402,16 @@ swami_midi_event_rpn (SwamiMidiEvent *event, int channel, int paramnum,
  * Make a MIDI event structure a NRPN (non-registered parameter number) event.
  */
 void
-swami_midi_event_nrpn (SwamiMidiEvent *event, int channel, int paramnum,
-		       int value)
+swami_midi_event_nrpn(SwamiMidiEvent *event, int channel, int paramnum,
+                      int value)
 {
-  SwamiMidiEventControl *ctrl;
+    SwamiMidiEventControl *ctrl;
 
-  g_return_if_fail (event != NULL);
+    g_return_if_fail(event != NULL);
 
-  event->type = SWAMI_MIDI_NRPN;
-  event->channel = channel;
-  ctrl = &event->data.control;
-  ctrl->param = paramnum;
-  ctrl->value = value;
+    event->type = SWAMI_MIDI_NRPN;
+    event->channel = channel;
+    ctrl = &event->data.control;
+    ctrl->param = paramnum;
+    ctrl->value = value;
 }

@@ -38,29 +38,29 @@ typedef struct _SwamiLoopResultsClass SwamiLoopResultsClass;
 /* loop match structure */
 typedef struct
 {
-  guint start;
-  guint end;
-  float quality;
+    guint start;
+    guint end;
+    float quality;
 } SwamiLoopMatch;
 
 /* Loop results object */
 struct _SwamiLoopResults
 {
-  GObject parent_instance;
+    GObject parent_instance;
 
-  /*< public >*/
-  SwamiLoopMatch *values;	/* loop match result values */
-  int count;			/* number of entries in values */
+    /*< public >*/
+    SwamiLoopMatch *values;	/* loop match result values */
+    int count;			/* number of entries in values */
 };
 
 /* Loop finder class */
 struct _SwamiLoopResultsClass
 {
-  GObjectClass parent_class;
+    GObjectClass parent_class;
 };
 
-GType swami_loop_results_get_type (void);
-SwamiLoopResults *swami_loop_results_new (void);
-SwamiLoopMatch *swami_loop_results_get_values (SwamiLoopResults *results,
-					       guint *count);
+GType swami_loop_results_get_type(void);
+SwamiLoopResults *swami_loop_results_new(void);
+SwamiLoopMatch *swami_loop_results_get_values(SwamiLoopResults *results,
+        guint *count);
 #endif

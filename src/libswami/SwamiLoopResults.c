@@ -26,34 +26,36 @@
 
 #include "SwamiLoopResults.h"
 
-static void swami_loop_results_init (SwamiLoopResults *results);
-static void swami_loop_results_finalize (GObject *object);
+static void swami_loop_results_init(SwamiLoopResults *results);
+static void swami_loop_results_finalize(GObject *object);
 
 
-G_DEFINE_TYPE (SwamiLoopResults, swami_loop_results, G_TYPE_OBJECT);
+G_DEFINE_TYPE(SwamiLoopResults, swami_loop_results, G_TYPE_OBJECT);
 
 
 static void
-swami_loop_results_class_init (SwamiLoopResultsClass *klass)
+swami_loop_results_class_init(SwamiLoopResultsClass *klass)
 {
-  GObjectClass *obj_class = G_OBJECT_CLASS (klass);
-  obj_class->finalize = swami_loop_results_finalize;
+    GObjectClass *obj_class = G_OBJECT_CLASS(klass);
+    obj_class->finalize = swami_loop_results_finalize;
 }
 
 static void
-swami_loop_results_init (SwamiLoopResults *results)
+swami_loop_results_init(SwamiLoopResults *results)
 {
 }
 
 static void
-swami_loop_results_finalize (GObject *object)
+swami_loop_results_finalize(GObject *object)
 {
-  SwamiLoopResults *results = SWAMI_LOOP_RESULTS (object);
+    SwamiLoopResults *results = SWAMI_LOOP_RESULTS(object);
 
-  g_free (results->values);
+    g_free(results->values);
 
-  if (G_OBJECT_CLASS (swami_loop_results_parent_class)->finalize)
-    G_OBJECT_CLASS (swami_loop_results_parent_class)->finalize (object);
+    if(G_OBJECT_CLASS(swami_loop_results_parent_class)->finalize)
+    {
+        G_OBJECT_CLASS(swami_loop_results_parent_class)->finalize(object);
+    }
 }
 
 /**
@@ -65,9 +67,9 @@ swami_loop_results_finalize (GObject *object)
  * Returns: New object of type #SwamiLoopResults
  */
 SwamiLoopResults *
-swami_loop_results_new (void)
+swami_loop_results_new(void)
 {
-  return (SWAMI_LOOP_RESULTS (g_object_new (SWAMI_TYPE_LOOP_RESULTS, NULL)));
+    return (SWAMI_LOOP_RESULTS(g_object_new(SWAMI_TYPE_LOOP_RESULTS, NULL)));
 }
 
 /**
@@ -82,12 +84,12 @@ swami_loop_results_new (void)
  *   where @results is destroyed (no more references held).
  */
 SwamiLoopMatch *
-swami_loop_results_get_values (SwamiLoopResults *results,
-			       guint *count)
+swami_loop_results_get_values(SwamiLoopResults *results,
+                              guint *count)
 {
-  g_return_val_if_fail (SWAMI_IS_LOOP_RESULTS (results), NULL);
-  g_return_val_if_fail (count != NULL, NULL);
+    g_return_val_if_fail(SWAMI_IS_LOOP_RESULTS(results), NULL);
+    g_return_val_if_fail(count != NULL, NULL);
 
-  *count = results->count;
-  return (results->values);
+    *count = results->count;
+    return (results->values);
 }

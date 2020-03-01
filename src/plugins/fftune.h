@@ -41,47 +41,47 @@
 /* FFT power spectrum object */
 typedef struct
 {
-  GObject parent;
+    GObject parent;
 
-  gboolean active;	/* if TRUE, then change of params will update spectrum */
-  IpatchSample *sample;	/* sample to calculate spectrum on */
-  int sample_mode;	/* FFTUNE_MODE_* */
-  guint sample_start;	/* start of selection (FFTUNE_MODE_SELECTION) */
-  guint sample_end;	/* end of selection (start/end=0 will use entire sample) */
-  guint limit;          /* maximum number of samples to process or 0 for unlimited */
+    gboolean active;	/* if TRUE, then change of params will update spectrum */
+    IpatchSample *sample;	/* sample to calculate spectrum on */
+    int sample_mode;	/* FFTUNE_MODE_* */
+    guint sample_start;	/* start of selection (FFTUNE_MODE_SELECTION) */
+    guint sample_end;	/* end of selection (start/end=0 will use entire sample) */
+    guint limit;          /* maximum number of samples to process or 0 for unlimited */
 
-  double *spectrum;	/* spectrum power data */
-  int spectrum_size;	/* size of spectrum array */
-  double freqres;	/* freq difference between consecutive spectrum indexes */
-  double max_index;	/* index in spectrum of maximum power */
+    double *spectrum;	/* spectrum power data */
+    int spectrum_size;	/* size of spectrum array */
+    double freqres;	/* freq difference between consecutive spectrum indexes */
+    double max_index;	/* index in spectrum of maximum power */
 
-  int *tunevals;	/* array of spectrum indexes for tuning suggestions */
-  int n_tunevals;	/* size of tunevals */
-  int tune_select;	/* selected index in tunevals */
+    int *tunevals;	/* array of spectrum indexes for tuning suggestions */
+    int n_tunevals;	/* size of tunevals */
+    int tune_select;	/* selected index in tunevals */
 
-  float threshold;	/* power threshold for potential tuning suggestions */
-  float separation;	/* min freq spread between suggestions */
-  float min_freq;	/* min freq for tuning suggestions */
-  float max_freq;	/* max freq for tuning suggestions */
-  int max_tunings;	/* maximum tuning suggestions to find */
-  int enable_window;    /* Enable Hann windowing of sample data */
-  float ellapsed_time;  /* Ellapsed time of last execution in seconds */
+    float threshold;	/* power threshold for potential tuning suggestions */
+    float separation;	/* min freq spread between suggestions */
+    float min_freq;	/* min freq for tuning suggestions */
+    float max_freq;	/* max freq for tuning suggestions */
+    int max_tunings;	/* maximum tuning suggestions to find */
+    int enable_window;    /* Enable Hann windowing of sample data */
+    float ellapsed_time;  /* Ellapsed time of last execution in seconds */
 } FFTuneSpectra;
 
 typedef struct
 {
-  GObjectClass parent_class;
+    GObjectClass parent_class;
 } FFTuneSpectraClass;
 
 /* sample calculation mode enum */
 enum
 {
-  FFTUNE_MODE_SELECTION,/* sample start/end selection (entire sample if 0/0) */
-  FFTUNE_MODE_LOOP	/* sample loop */
+    FFTUNE_MODE_SELECTION,/* sample start/end selection (entire sample if 0/0) */
+    FFTUNE_MODE_LOOP	/* sample loop */
 };
 
 
-GType fftune_spectra_get_type (void);
-FFTuneSpectra *fftune_spectra_new (void);
+GType fftune_spectra_get_type(void);
+FFTuneSpectra *fftune_spectra_new(void);
 
 #endif

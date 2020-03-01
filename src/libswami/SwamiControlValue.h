@@ -44,24 +44,24 @@ typedef struct _SwamiControlValueClass SwamiControlValueClass;
 /* Value control object */
 struct _SwamiControlValue
 {
-  SwamiControl parent_instance;	/* derived from SwamiControl */
+    SwamiControl parent_instance;	/* derived from SwamiControl */
 
-  GValue *value;		/* value being controlled */
-  GDestroyNotify destroy; /* function to call to destroy value or NULL */
-  GParamSpec *pspec;	 /* created param spec for controlled value */
+    GValue *value;		/* value being controlled */
+    GDestroyNotify destroy; /* function to call to destroy value or NULL */
+    GParamSpec *pspec;	 /* created param spec for controlled value */
 };
 
 /* Value control class */
 struct _SwamiControlValueClass
 {
-  SwamiControlClass parent_class;
+    SwamiControlClass parent_class;
 };
 
-GType swami_control_value_get_type (void);
+GType swami_control_value_get_type(void);
 
-SwamiControlValue *swami_control_value_new (void);
-void swami_control_value_assign_value (SwamiControlValue *ctrlvalue,
-				       GValue *value, GDestroyNotify destroy);
-void swami_control_value_alloc_value (SwamiControlValue *ctrlvalue);
+SwamiControlValue *swami_control_value_new(void);
+void swami_control_value_assign_value(SwamiControlValue *ctrlvalue,
+                                      GValue *value, GDestroyNotify destroy);
+void swami_control_value_alloc_value(SwamiControlValue *ctrlvalue);
 
 #endif

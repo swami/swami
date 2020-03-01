@@ -28,8 +28,8 @@
 #include <png.h>
 #include "util.h"
 
-static void cb_win_destroy (GtkWidget *win);
-static gboolean cb_button_press (GtkWidget *widg, GdkEventButton *ev);
+static void cb_win_destroy(GtkWidget *win);
+static gboolean cb_button_press(GtkWidget *widg, GdkEventButton *ev);
 
 static GtkWidget *splash_win = NULL;
 static gboolean splash_timeout_active = FALSE;
@@ -43,50 +43,54 @@ static guint splash_timeout_h;
  * splash image will be destroyed after a timeout period.
  */
 void
-swamigui_splash_display (guint timeout)
+swamigui_splash_display(guint timeout)
 {
-  GtkWidget *image;
-  GdkPixbuf *pixbuf;
-  gchar *resdir, *filename;
+    GtkWidget *image;
+    GdkPixbuf *pixbuf;
+    gchar *resdir, *filename;
 
-  if (splash_win)		/* Only one instance at a time :) */
+    if(splash_win)		/* Only one instance at a time :) */
     {
-      swamigui_splash_kill ();	/* Kill current instance of splash */
-      return;
+        swamigui_splash_kill();	/* Kill current instance of splash */
+        return;
     }
 
-  /* ++ alloc resdir */
-  resdir = swamigui_util_get_resource_path (SWAMIGUI_RESOURCE_PATH_IMAGES);
-  /* ++ alloc filename */
-  filename = g_build_filename (resdir, "splash.png", NULL);
-  g_free (resdir); /* -- free resdir */
-  pixbuf = gdk_pixbuf_new_from_file (filename, NULL); /* ++ ref new pixbuf */
-  g_free (filename); /* -- free filename */
-  if (!pixbuf) return;	/* fail silently if splash image load fails */
+    /* ++ alloc resdir */
+    resdir = swamigui_util_get_resource_path(SWAMIGUI_RESOURCE_PATH_IMAGES);
+    /* ++ alloc filename */
+    filename = g_build_filename(resdir, "splash.png", NULL);
+    g_free(resdir);  /* -- free resdir */
+    pixbuf = gdk_pixbuf_new_from_file(filename, NULL);  /* ++ ref new pixbuf */
+    g_free(filename);  /* -- free filename */
 
-  /* splash popup window */
-  splash_win = gtk_window_new (GTK_WINDOW_POPUP);
-  gtk_window_set_type_hint (GTK_WINDOW (splash_win), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
-  gtk_window_set_resizable (GTK_WINDOW (splash_win), FALSE);
-  gtk_signal_connect (GTK_OBJECT (splash_win), "destroy",
-		      GTK_SIGNAL_FUNC (cb_win_destroy), NULL);
-  gtk_signal_connect (GTK_OBJECT (splash_win), "button-press-event",
-		      GTK_SIGNAL_FUNC (cb_button_press), NULL);
-  gtk_widget_add_events (splash_win, GDK_BUTTON_PRESS_MASK);
-
-  image = gtk_image_new_from_pixbuf (pixbuf);
-  gtk_container_add (GTK_CONTAINER (splash_win), image);
-  gtk_widget_show (image);
-
-  gtk_window_set_position (GTK_WINDOW (splash_win), GTK_WIN_POS_CENTER);
-  gtk_widget_show (splash_win);
-
-  g_object_unref (pixbuf);	/* -- unref pixbuf creator's ref */
-
-  if (timeout)
+    if(!pixbuf)
     {
-      splash_timeout_active = TRUE;
-      splash_timeout_h = g_timeout_add (timeout, (GSourceFunc)swamigui_splash_kill, NULL);
+        return;    /* fail silently if splash image load fails */
+    }
+
+    /* splash popup window */
+    splash_win = gtk_window_new(GTK_WINDOW_POPUP);
+    gtk_window_set_type_hint(GTK_WINDOW(splash_win), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
+    gtk_window_set_resizable(GTK_WINDOW(splash_win), FALSE);
+    gtk_signal_connect(GTK_OBJECT(splash_win), "destroy",
+                       GTK_SIGNAL_FUNC(cb_win_destroy), NULL);
+    gtk_signal_connect(GTK_OBJECT(splash_win), "button-press-event",
+                       GTK_SIGNAL_FUNC(cb_button_press), NULL);
+    gtk_widget_add_events(splash_win, GDK_BUTTON_PRESS_MASK);
+
+    image = gtk_image_new_from_pixbuf(pixbuf);
+    gtk_container_add(GTK_CONTAINER(splash_win), image);
+    gtk_widget_show(image);
+
+    gtk_window_set_position(GTK_WINDOW(splash_win), GTK_WIN_POS_CENTER);
+    gtk_widget_show(splash_win);
+
+    g_object_unref(pixbuf);	/* -- unref pixbuf creator's ref */
+
+    if(timeout)
+    {
+        splash_timeout_active = TRUE;
+        splash_timeout_h = g_timeout_add(timeout, (GSourceFunc)swamigui_splash_kill, NULL);
     }
 }
 
@@ -99,30 +103,33 @@ swamigui_splash_display (guint timeout)
  * timeout.
  */
 gboolean			/* so it can be used as timeout GSourceFunc */
-swamigui_splash_kill (void)
+swamigui_splash_kill(void)
 {
-  if (splash_win)
+    if(splash_win)
     {
-      if (splash_timeout_active)
-	gtk_timeout_remove (splash_timeout_h);
-      gtk_widget_destroy (splash_win);
+        if(splash_timeout_active)
+        {
+            gtk_timeout_remove(splash_timeout_h);
+        }
+
+        gtk_widget_destroy(splash_win);
     }
 
-  splash_timeout_active = FALSE;
+    splash_timeout_active = FALSE;
 
-  return (FALSE);
+    return (FALSE);
 }
 
 static void
-cb_win_destroy (GtkWidget *win)
+cb_win_destroy(GtkWidget *win)
 {
-  splash_win = NULL;
+    splash_win = NULL;
 }
 
 static gboolean
-cb_button_press (GtkWidget *widg, GdkEventButton *ev)
+cb_button_press(GtkWidget *widg, GdkEventButton *ev)
 {
-  swamigui_splash_kill ();
+    swamigui_splash_kill();
 
-  return (FALSE);
+    return (FALSE);
 }

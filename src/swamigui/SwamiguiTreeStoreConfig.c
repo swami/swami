@@ -27,24 +27,24 @@
 #include "SwamiguiTreeStoreConfig.h"
 #include "i18n.h"
 
-static void swamigui_tree_store_config_item_add (SwamiguiTreeStore *store, GObject *item);
-static void swamigui_tree_store_config_item_changed (SwamiguiTreeStore *store, GObject *item);
+static void swamigui_tree_store_config_item_add(SwamiguiTreeStore *store, GObject *item);
+static void swamigui_tree_store_config_item_changed(SwamiguiTreeStore *store, GObject *item);
 
 
-G_DEFINE_TYPE (SwamiguiTreeStoreConfig, swamigui_tree_store_config, SWAMIGUI_TYPE_TREE_STORE);
+G_DEFINE_TYPE(SwamiguiTreeStoreConfig, swamigui_tree_store_config, SWAMIGUI_TYPE_TREE_STORE);
 
 
 static void
-swamigui_tree_store_config_class_init (SwamiguiTreeStoreConfigClass *klass)
+swamigui_tree_store_config_class_init(SwamiguiTreeStoreConfigClass *klass)
 {
-  SwamiguiTreeStoreClass *store_class = SWAMIGUI_TREE_STORE_CLASS (klass);
+    SwamiguiTreeStoreClass *store_class = SWAMIGUI_TREE_STORE_CLASS(klass);
 
-  store_class->item_add = swamigui_tree_store_config_item_add;
-  store_class->item_changed = swamigui_tree_store_config_item_changed;
+    store_class->item_add = swamigui_tree_store_config_item_add;
+    store_class->item_changed = swamigui_tree_store_config_item_changed;
 }
 
 static void
-swamigui_tree_store_config_init (SwamiguiTreeStoreConfig *store)
+swamigui_tree_store_config_init(SwamiguiTreeStoreConfig *store)
 {
 }
 
@@ -56,37 +56,41 @@ swamigui_tree_store_config_init (SwamiguiTreeStoreConfig *store)
  * Returns: New config tree store object with a ref count of 1.
  */
 SwamiguiTreeStore *
-swamigui_tree_store_config_new (void)
+swamigui_tree_store_config_new(void)
 {
-  return (SWAMIGUI_TREE_STORE
-	  (g_object_new (SWAMIGUI_TYPE_TREE_STORE_CONFIG, NULL)));
+    return (SWAMIGUI_TREE_STORE
+            (g_object_new(SWAMIGUI_TYPE_TREE_STORE_CONFIG, NULL)));
 }
 
 static void
-swamigui_tree_store_config_item_add (SwamiguiTreeStore *store, GObject *item)
+swamigui_tree_store_config_item_add(SwamiguiTreeStore *store, GObject *item)
 {
-  char *name;
+    char *name;
 
-  g_return_if_fail (SWAMIGUI_IS_TREE_STORE_CONFIG (store));
-  g_return_if_fail (G_IS_OBJECT (item));
+    g_return_if_fail(SWAMIGUI_IS_TREE_STORE_CONFIG(store));
+    g_return_if_fail(G_IS_OBJECT(item));
 
-  swami_object_get (item, "name", &name, NULL);
-  if (!name) name = g_strdup (_("Untitled"));
+    swami_object_get(item, "name", &name, NULL);
 
-  swamigui_tree_store_insert_before (store, item, name, NULL, NULL, NULL, NULL);
+    if(!name)
+    {
+        name = g_strdup(_("Untitled"));
+    }
 
-  g_free (name);
+    swamigui_tree_store_insert_before(store, item, name, NULL, NULL, NULL, NULL);
+
+    g_free(name);
 }
 
 static void
-swamigui_tree_store_config_item_changed (SwamiguiTreeStore *store, GObject *item)
+swamigui_tree_store_config_item_changed(SwamiguiTreeStore *store, GObject *item)
 {
-  char *title;
+    char *title;
 
-  /* get title of item */
-  g_object_get (item, "title", &title, NULL);
-  g_return_if_fail (title != NULL);
+    /* get title of item */
+    g_object_get(item, "title", &title, NULL);
+    g_return_if_fail(title != NULL);
 
-  swamigui_tree_store_change (store, item, title, NULL);
-  g_free (title);
+    swamigui_tree_store_change(store, item, title, NULL);
+    g_free(title);
 }

@@ -51,17 +51,17 @@ typedef struct _SwamiControlClass SwamiControlClass;
 /* Swami control object */
 struct _SwamiControl
 {
-  SwamiLock parent_instance;	/* derived from SwamiLock */
+    SwamiLock parent_instance;	/* derived from SwamiLock */
 
-  guint flags;			/* flags field (SwamiControlFlags) */
-  GList *active;		/* active event propagations */
-  SwamiControlQueue *queue;	/* event queue or NULL if no queuing */
-  SwamiControl *master;	/* control to slave parameter spec to or NULL */
-  GType value_type;	  /* control value type (or 0 for wildcard) */
+    guint flags;			/* flags field (SwamiControlFlags) */
+    GList *active;		/* active event propagations */
+    SwamiControlQueue *queue;	/* event queue or NULL if no queuing */
+    SwamiControl *master;	/* control to slave parameter spec to or NULL */
+    GType value_type;	  /* control value type (or 0 for wildcard) */
 
-  /* lists of SwamiControlConn structures (defined in SwamiControl.c) */
-  GSList *inputs;	    /* list of input connections (readable) */
-  GSList *outputs;	   /* list of output connections (writable) */
+    /* lists of SwamiControlConn structures (defined in SwamiControl.c) */
+    GSList *inputs;	    /* list of input connections (readable) */
+    GSList *outputs;	   /* list of output connections (writable) */
 };
 
 /**
@@ -89,7 +89,7 @@ typedef GParamSpec *(*SwamiControlGetSpecFunc)(SwamiControl *control);
  *
  * A #SwamiControlClass optional method type to set the parameter spec
  * for a control.  The method should call g_param_spec_ref() followed by
- * g_param_spec_sink () to take over the reference.  
+ * g_param_spec_sink () to take over the reference.
  * If a control has a specific value type and the
  * #SWAMI_CONTROL_SPEC_NO_CONV is not set then the parameter spec is
  * converted to the parameter spec type used for the given value type and the
@@ -102,8 +102,8 @@ typedef GParamSpec *(*SwamiControlGetSpecFunc)(SwamiControl *control);
  * Returns: Should return %TRUE if parameter spec change was allowed,
  * %FALSE otherwise.
  */
-typedef gboolean (*SwamiControlSetSpecFunc)(SwamiControl *control,
-					    GParamSpec *pspec);
+typedef gboolean(*SwamiControlSetSpecFunc)(SwamiControl *control,
+        GParamSpec *pspec);
 /**
  * SwamiControlGetValueFunc:
  * @control: Control to get value from
@@ -138,32 +138,32 @@ typedef void (*SwamiControlGetValueFunc)(SwamiControl *control, GValue *value);
  * Note: The control is not locked during this method call.
  */
 typedef void (*SwamiControlSetValueFunc)(SwamiControl *control,
-					 SwamiControlEvent *event,
-					 const GValue *value);
+        SwamiControlEvent *event,
+        const GValue *value);
 
 struct _SwamiControlClass
 {
-  SwamiLockClass parent_class;
+    SwamiLockClass parent_class;
 
-  /* signals */
-  void (*connect)(SwamiControl *c1, SwamiControl *c2, guint flags);
-  void (*disconnect)(SwamiControl *c1, SwamiControl *c2, guint flags);
+    /* signals */
+    void (*connect)(SwamiControl *c1, SwamiControl *c2, guint flags);
+    void (*disconnect)(SwamiControl *c1, SwamiControl *c2, guint flags);
 
-  /* methods */
-  SwamiControlGetSpecFunc get_spec;
-  SwamiControlSetSpecFunc set_spec;
-  SwamiControlGetValueFunc get_value;
-  SwamiControlSetValueFunc set_value;
+    /* methods */
+    SwamiControlGetSpecFunc get_spec;
+    SwamiControlSetSpecFunc set_spec;
+    SwamiControlGetValueFunc get_value;
+    SwamiControlSetValueFunc set_value;
 };
 
 typedef enum
 {
-  SWAMI_CONTROL_SENDS        = 1 << 0, /* control is readable/sends */
-  SWAMI_CONTROL_RECVS        = 1 << 1, /* control is writable/receives */
-  SWAMI_CONTROL_NO_CONV      = 1 << 2, /* don't convert incoming values */
-  SWAMI_CONTROL_NATIVE       = 1 << 3, /* values of native value type only */
-  SWAMI_CONTROL_VALUE        = 1 << 4, /* value control - queue optimization */
-  SWAMI_CONTROL_SPEC_NO_CONV = 1 << 5  /* don't convert parameter spec type */
+    SWAMI_CONTROL_SENDS        = 1 << 0, /* control is readable/sends */
+    SWAMI_CONTROL_RECVS        = 1 << 1, /* control is writable/receives */
+    SWAMI_CONTROL_NO_CONV      = 1 << 2, /* don't convert incoming values */
+    SWAMI_CONTROL_NATIVE       = 1 << 3, /* values of native value type only */
+    SWAMI_CONTROL_VALUE        = 1 << 4, /* value control - queue optimization */
+    SWAMI_CONTROL_SPEC_NO_CONV = 1 << 5  /* don't convert parameter spec type */
 } SwamiControlFlags;
 
 /* mask for user controlled flag bits */
@@ -178,10 +178,10 @@ typedef enum
 /* connection priority ranking (first 2 bits of flags field) */
 typedef enum
 {
-  SWAMI_CONTROL_CONN_PRIORITY_DEFAULT = 0,
-  SWAMI_CONTROL_CONN_PRIORITY_LOW     = 1,
-  SWAMI_CONTROL_CONN_PRIORITY_MEDIUM  = 2,
-  SWAMI_CONTROL_CONN_PRIORITY_HIGH    = 3
+    SWAMI_CONTROL_CONN_PRIORITY_DEFAULT = 0,
+    SWAMI_CONTROL_CONN_PRIORITY_LOW     = 1,
+    SWAMI_CONTROL_CONN_PRIORITY_MEDIUM  = 2,
+    SWAMI_CONTROL_CONN_PRIORITY_HIGH    = 3
 } SwamiControlConnPriority;
 
 #define SWAMI_CONTROL_CONN_PRIORITY_MASK  (0x2)
@@ -190,11 +190,11 @@ typedef enum
 
 typedef enum /*< flags >*/
 {
-  SWAMI_CONTROL_CONN_INPUT  = 1 << 2, /* set for inputs (used internally) */
-  SWAMI_CONTROL_CONN_OUTPUT = 1 << 3, /* set for outputs (used internally) */
-  SWAMI_CONTROL_CONN_INIT   = 1 << 4, /* update value on connect */
-  SWAMI_CONTROL_CONN_BIDIR  = 1 << 5, /* make a bi-directional connection */
-  SWAMI_CONTROL_CONN_SPEC   = 1 << 6  /* synchronize the parameter spec on connect */
+    SWAMI_CONTROL_CONN_INPUT  = 1 << 2, /* set for inputs (used internally) */
+    SWAMI_CONTROL_CONN_OUTPUT = 1 << 3, /* set for outputs (used internally) */
+    SWAMI_CONTROL_CONN_INIT   = 1 << 4, /* update value on connect */
+    SWAMI_CONTROL_CONN_BIDIR  = 1 << 5, /* make a bi-directional connection */
+    SWAMI_CONTROL_CONN_SPEC   = 1 << 6  /* synchronize the parameter spec on connect */
 } SwamiControlConnFlags;
 
 /* convenience combo flags */
@@ -209,59 +209,59 @@ typedef enum /*< flags >*/
   (SWAMI_CONTROL_CONN_BIDIR | SWAMI_CONTROL_CONN_SPEC | SWAMI_CONTROL_CONN_INIT)
 
 
-GType swami_control_get_type (void);
-SwamiControl *swami_control_new (void);
+GType swami_control_get_type(void);
+SwamiControl *swami_control_new(void);
 
-void swami_control_connect (SwamiControl *src, SwamiControl *dest,
-			    guint flags);
+void swami_control_connect(SwamiControl *src, SwamiControl *dest,
+                           guint flags);
 void swami_control_connect_transform
-  (SwamiControl *src, SwamiControl *dest, guint flags,
-   SwamiValueTransform trans1, SwamiValueTransform trans2,
-   gpointer data1, gpointer data2,
-   GDestroyNotify destroy1, GDestroyNotify destroy2);
-void swami_control_connect_item_prop (SwamiControl *dest, GObject *object,
-				      GParamSpec *pspec);
-void swami_control_disconnect (SwamiControl *src, SwamiControl *dest);
-void swami_control_disconnect_all (SwamiControl *control);
-void swami_control_disconnect_unref (SwamiControl *control);
-IpatchList *swami_control_get_connections (SwamiControl *control,
-					   SwamiControlConnFlags dir);
-void swami_control_set_transform (SwamiControl *src, SwamiControl *dest,
-				  SwamiValueTransform trans, gpointer data,
-				  GDestroyNotify destroy);
-void swami_control_get_transform (SwamiControl *src, SwamiControl *dest,
-				  SwamiValueTransform *trans);
+(SwamiControl *src, SwamiControl *dest, guint flags,
+ SwamiValueTransform trans1, SwamiValueTransform trans2,
+ gpointer data1, gpointer data2,
+ GDestroyNotify destroy1, GDestroyNotify destroy2);
+void swami_control_connect_item_prop(SwamiControl *dest, GObject *object,
+                                     GParamSpec *pspec);
+void swami_control_disconnect(SwamiControl *src, SwamiControl *dest);
+void swami_control_disconnect_all(SwamiControl *control);
+void swami_control_disconnect_unref(SwamiControl *control);
+IpatchList *swami_control_get_connections(SwamiControl *control,
+        SwamiControlConnFlags dir);
+void swami_control_set_transform(SwamiControl *src, SwamiControl *dest,
+                                 SwamiValueTransform trans, gpointer data,
+                                 GDestroyNotify destroy);
+void swami_control_get_transform(SwamiControl *src, SwamiControl *dest,
+                                 SwamiValueTransform *trans);
 
-void swami_control_set_flags (SwamiControl *control, int flags);
-int swami_control_get_flags (SwamiControl *control);
-void swami_control_set_queue (SwamiControl *control, SwamiControlQueue *queue);
-SwamiControlQueue *swami_control_get_queue (SwamiControl *control);
+void swami_control_set_flags(SwamiControl *control, int flags);
+int swami_control_get_flags(SwamiControl *control);
+void swami_control_set_queue(SwamiControl *control, SwamiControlQueue *queue);
+SwamiControlQueue *swami_control_get_queue(SwamiControl *control);
 
-GParamSpec *swami_control_get_spec (SwamiControl *control);
-gboolean swami_control_set_spec (SwamiControl *control, GParamSpec *pspec);
-gboolean swami_control_sync_spec (SwamiControl *control, SwamiControl *source,
-				  SwamiValueTransform trans, gpointer data);
+GParamSpec *swami_control_get_spec(SwamiControl *control);
+gboolean swami_control_set_spec(SwamiControl *control, GParamSpec *pspec);
+gboolean swami_control_sync_spec(SwamiControl *control, SwamiControl *source,
+                                 SwamiValueTransform trans, gpointer data);
 GParamSpec *
-swami_control_transform_spec (SwamiControl *control, SwamiControl *source,
-			      SwamiValueTransform trans, gpointer data);
-void swami_control_set_value_type (SwamiControl *control, GType type);
-void swami_control_get_value (SwamiControl *control, GValue *value);
-void swami_control_get_value_native (SwamiControl *control, GValue *value);
-void swami_control_set_value (SwamiControl *control, const GValue *value);
-void swami_control_set_value_no_queue (SwamiControl *control,
-				       const GValue *value);
-void swami_control_set_event (SwamiControl *control, SwamiControlEvent *event);
-void swami_control_set_event_no_queue (SwamiControl *control,
-				       SwamiControlEvent *event);
-void swami_control_set_event_no_queue_loop (SwamiControl *control,
-					    SwamiControlEvent *event);
-void swami_control_transmit_value (SwamiControl *control, const GValue *value);
-void swami_control_transmit_event (SwamiControl *control,
-				   SwamiControlEvent *event);
-void swami_control_transmit_event_loop (SwamiControl *control,
-					SwamiControlEvent *event);
-void swami_control_do_event_expiration (void);
-SwamiControlEvent *swami_control_new_event (SwamiControl *control,
-					    SwamiControlEvent *origin,
-					    const GValue *value);
+swami_control_transform_spec(SwamiControl *control, SwamiControl *source,
+                             SwamiValueTransform trans, gpointer data);
+void swami_control_set_value_type(SwamiControl *control, GType type);
+void swami_control_get_value(SwamiControl *control, GValue *value);
+void swami_control_get_value_native(SwamiControl *control, GValue *value);
+void swami_control_set_value(SwamiControl *control, const GValue *value);
+void swami_control_set_value_no_queue(SwamiControl *control,
+                                      const GValue *value);
+void swami_control_set_event(SwamiControl *control, SwamiControlEvent *event);
+void swami_control_set_event_no_queue(SwamiControl *control,
+                                      SwamiControlEvent *event);
+void swami_control_set_event_no_queue_loop(SwamiControl *control,
+        SwamiControlEvent *event);
+void swami_control_transmit_value(SwamiControl *control, const GValue *value);
+void swami_control_transmit_event(SwamiControl *control,
+                                  SwamiControlEvent *event);
+void swami_control_transmit_event_loop(SwamiControl *control,
+                                       SwamiControlEvent *event);
+void swami_control_do_event_expiration(void);
+SwamiControlEvent *swami_control_new_event(SwamiControl *control,
+        SwamiControlEvent *origin,
+        const GValue *value);
 #endif

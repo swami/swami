@@ -44,19 +44,19 @@ typedef struct _SwamiguiStatusbarClass SwamiguiStatusbarClass;
 /* Statusbar widget */
 struct _SwamiguiStatusbar
 {
-  GtkFrame parent;
+    GtkFrame parent;
 
-  /*< private >*/
-  GtkWidget *box;	/* the hbox within the statusbar frame */
-  GList *items;		/* active items (see StatusItem in .c) */
-  guint id_counter;	/* unique status item ID counter */
-  int default_timeout;	/* default timeout value in msecs */
+    /*< private >*/
+    GtkWidget *box;	/* the hbox within the statusbar frame */
+    GList *items;		/* active items (see StatusItem in .c) */
+    guint id_counter;	/* unique status item ID counter */
+    int default_timeout;	/* default timeout value in msecs */
 };
 
 /* Statusbar widget class */
 struct _SwamiguiStatusbarClass
 {
-  GtkFrameClass parent_class;
+    GtkFrameClass parent_class;
 };
 
 /**
@@ -70,40 +70,40 @@ struct _SwamiguiStatusbarClass
  * Returns: Should return %TRUE to remove the item from the status bar, %FALSE
  *   to keep it (useful if a confirmation dialog is popped for the user, etc).
  */
-typedef gboolean (*SwamiguiStatusbarCloseFunc)(SwamiguiStatusbar *statusbar,
-					       GtkWidget *widg);
+typedef gboolean(*SwamiguiStatusbarCloseFunc)(SwamiguiStatusbar *statusbar,
+        GtkWidget *widg);
 
 typedef enum
 {
-  SWAMIGUI_STATUSBAR_POS_LEFT,
-  SWAMIGUI_STATUSBAR_POS_RIGHT
+    SWAMIGUI_STATUSBAR_POS_LEFT,
+    SWAMIGUI_STATUSBAR_POS_RIGHT
 } SwamiguiStatusbarPos;
 
 /* some special timeout values for statusbar messages */
 typedef enum
 {
-  SWAMIGUI_STATUSBAR_TIMEOUT_DEFAULT = -1,  /* uses "default-timeout" property */
-  SWAMIGUI_STATUSBAR_TIMEOUT_FOREVER = 0    /* don't timeout */
+    SWAMIGUI_STATUSBAR_TIMEOUT_DEFAULT = -1,  /* uses "default-timeout" property */
+    SWAMIGUI_STATUSBAR_TIMEOUT_FOREVER = 0    /* don't timeout */
 } SwamiguiStatusbarTimeout;
 
-GType swamigui_statusbar_get_type (void);
-GtkWidget *swamigui_statusbar_new (void);
-guint swamigui_statusbar_add (SwamiguiStatusbar *statusbar, const char *group,
-			      int timeout, guint pos, GtkWidget *widg);
-void swamigui_statusbar_remove (SwamiguiStatusbar *statusbar, guint id,
-				const char *group);
-void swamigui_statusbar_printf (SwamiguiStatusbar *statusbar, const char *format,
-				...) G_GNUC_PRINTF (2, 3);
-GtkWidget *swamigui_statusbar_msg_label_new (const char *label, guint maxlen);
-GtkWidget *swamigui_statusbar_msg_progress_new (const char *label,
-					        SwamiguiStatusbarCloseFunc close);
+GType swamigui_statusbar_get_type(void);
+GtkWidget *swamigui_statusbar_new(void);
+guint swamigui_statusbar_add(SwamiguiStatusbar *statusbar, const char *group,
+                             int timeout, guint pos, GtkWidget *widg);
+void swamigui_statusbar_remove(SwamiguiStatusbar *statusbar, guint id,
+                               const char *group);
+void swamigui_statusbar_printf(SwamiguiStatusbar *statusbar, const char *format,
+                               ...) G_GNUC_PRINTF(2, 3);
+GtkWidget *swamigui_statusbar_msg_label_new(const char *label, guint maxlen);
+GtkWidget *swamigui_statusbar_msg_progress_new(const char *label,
+        SwamiguiStatusbarCloseFunc close);
 
-void swamigui_statusbar_msg_set_timeout (SwamiguiStatusbar *statusbar, guint id,
-					 const char *group, int timeout);
-void swamigui_statusbar_msg_set_label (SwamiguiStatusbar *statusbar,
-				       guint id, const char *group,
-				       const char *label);
-void swamigui_statusbar_msg_set_progress (SwamiguiStatusbar *statusbar,
-					  guint id, const char *group, double val);
+void swamigui_statusbar_msg_set_timeout(SwamiguiStatusbar *statusbar, guint id,
+                                        const char *group, int timeout);
+void swamigui_statusbar_msg_set_label(SwamiguiStatusbar *statusbar,
+                                      guint id, const char *group,
+                                      const char *label);
+void swamigui_statusbar_msg_set_progress(SwamiguiStatusbar *statusbar,
+        guint id, const char *group, double val);
 
 #endif

@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  * 02111-1307, USA or point your web browser to http://www.gnu.org.
  */
- 
+
 #ifndef __SWAMIGUI_KNOB_H__
 #define __SWAMIGUI_KNOB_H__
 
@@ -38,27 +38,27 @@ typedef struct _SwamiguiKnobClass	SwamiguiKnobClass;
 
 struct _SwamiguiKnob
 {
-  GtkDrawingArea parent;
-  GtkAdjustment *adj;
+    GtkDrawingArea parent;
+    GtkAdjustment *adj;
 
-  /* < private > */
-  gboolean rotation_active;		/* mouse rotation is active? */
-  double start_pos, end_pos;		/* start and end rotation in radians */
-  double rotation;			/* current rotation in radians */
-  double rotation_rate;			/* rotation rate in pixels/radians */
-  double rotation_rate_fine;		/* rotation rate (fine) in pixels/rads */
-  double xclick, yclick;		/* position of mouse click */
-  double click_rotation;		/* rotation of knob upon click */
+    /* < private > */
+    gboolean rotation_active;		/* mouse rotation is active? */
+    double start_pos, end_pos;		/* start and end rotation in radians */
+    double rotation;			/* current rotation in radians */
+    double rotation_rate;			/* rotation rate in pixels/radians */
+    double rotation_rate_fine;		/* rotation rate (fine) in pixels/rads */
+    double xclick, yclick;		/* position of mouse click */
+    double click_rotation;		/* rotation of knob upon click */
 };
 
 struct _SwamiguiKnobClass
 {
-  GtkDrawingAreaClass parent_class;
+    GtkDrawingAreaClass parent_class;
 };
 
-GType swamigui_knob_get_type (void);
-GtkWidget *swamigui_knob_new (void);
-GtkAdjustment *swamigui_knob_get_adjustment (SwamiguiKnob *knob);
+GType swamigui_knob_get_type(void);
+GtkWidget *swamigui_knob_new(void);
+GtkAdjustment *swamigui_knob_get_adjustment(SwamiguiKnob *knob);
 
 G_END_DECLS
 

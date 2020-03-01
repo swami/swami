@@ -45,16 +45,16 @@ typedef struct _SwamiControlHubClass SwamiControlHubClass;
 /* control hub object */
 struct _SwamiControlHub
 {
-  SwamiControl parent_instance;	/* derived from SwamiControl */
+    SwamiControl parent_instance;	/* derived from SwamiControl */
 };
 
 /* control hub class */
 struct _SwamiControlHubClass
 {
-  SwamiControlClass parent_class;
+    SwamiControlClass parent_class;
 };
 
-GType swami_control_hub_get_type (void);
-SwamiControlHub *swami_control_hub_new (void);
+GType swami_control_hub_get_type(void);
+SwamiControlHub *swami_control_hub_new(void);
 
 #endif

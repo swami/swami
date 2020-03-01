@@ -42,22 +42,22 @@ typedef struct _SwamiguiMultiSaveClass SwamiguiMultiSaveClass;
 /* multi item save dialog */
 struct _SwamiguiMultiSave
 {
-  GtkDialog parent_instance;
+    GtkDialog parent_instance;
 
-  GtkListStore *store;		/* list store */
-  guint flags;                  /* SwamiguiMultiSaveFlags */
+    GtkListStore *store;		/* list store */
+    guint flags;                  /* SwamiguiMultiSaveFlags */
 
-  GtkWidget *accept_btn;        /* Save/Close button */
-  GtkWidget *treeview;		/* tree view widget */
-  GtkWidget *icon;		/* the icon of the dialog */
-  GtkWidget *message;		/* message label at top of dialog */
-  GtkWidget *scroll_win;	/* scroll window to put list in */
+    GtkWidget *accept_btn;        /* Save/Close button */
+    GtkWidget *treeview;		/* tree view widget */
+    GtkWidget *icon;		/* the icon of the dialog */
+    GtkWidget *message;		/* message label at top of dialog */
+    GtkWidget *scroll_win;	/* scroll window to put list in */
 };
 
 /* multi item save dialog class */
 struct _SwamiguiMultiSaveClass
 {
-  GtkDialogClass parent_class;
+    GtkDialogClass parent_class;
 };
 
 /**
@@ -69,12 +69,12 @@ struct _SwamiguiMultiSaveClass
  */
 typedef enum
 {
-  SWAMIGUI_MULTI_SAVE_CLOSE_MODE = 1 << 0
+    SWAMIGUI_MULTI_SAVE_CLOSE_MODE = 1 << 0
 } SwamiguiMultiSaveFlags;
 
-GType swamigui_multi_save_get_type (void);
-GtkWidget *swamigui_multi_save_new (char *title, char *message, guint flags);
-void swamigui_multi_save_set_selection (SwamiguiMultiSave *multi,
-					IpatchList *selection);
+GType swamigui_multi_save_get_type(void);
+GtkWidget *swamigui_multi_save_new(char *title, char *message, guint flags);
+void swamigui_multi_save_set_selection(SwamiguiMultiSave *multi,
+                                       IpatchList *selection);
 
 #endif

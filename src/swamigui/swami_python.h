@@ -25,10 +25,10 @@
 #include <glib.h>
 
 typedef void (*SwamiguiPythonOutputFunc)(const char *output,
-					gboolean is_stderr);
+        gboolean is_stderr);
 
-void swamigui_python_set_output_func (SwamiguiPythonOutputFunc func);
-void swamigui_python_set_root (void);
-gboolean swamigui_python_is_initialized (void);
+void swamigui_python_set_output_func(SwamiguiPythonOutputFunc func);
+void swamigui_python_set_root(void);
+gboolean swamigui_python_is_initialized(void);
 
 #endif

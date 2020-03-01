@@ -50,25 +50,25 @@ typedef struct _SwamiguiPanelIface SwamiguiPanelIface;
  *
  * Returns: Should return %TRUE if item selection is valid, %FALSE otherwise
  */
-typedef gboolean (*SwamiguiPanelCheckFunc)(IpatchList *selection,
-					   GType *selection_types);
+typedef gboolean(*SwamiguiPanelCheckFunc)(IpatchList *selection,
+        GType *selection_types);
 
 struct _SwamiguiPanelIface
 {
-  GTypeInterface parent_class;
+    GTypeInterface parent_class;
 
-  char *label;			/* User label name for panel */
-  char *blurb;			/* more descriptive text about panel */
-  char *stockid;		/* stock ID of icon */
+    char *label;			/* User label name for panel */
+    char *blurb;			/* more descriptive text about panel */
+    char *stockid;		/* stock ID of icon */
 
-  SwamiguiPanelCheckFunc check_selection;
+    SwamiguiPanelCheckFunc check_selection;
 };
 
-GType swamigui_panel_get_type (void);
-void swamigui_panel_type_get_info (GType type, char **label, char **blurb,
-				   char **stockid);
-gboolean swamigui_panel_type_check_selection (GType type, IpatchList *selection,
-					      GType *selection_types);
-GType *swamigui_panel_get_types_in_selection (IpatchList *selection);
+GType swamigui_panel_get_type(void);
+void swamigui_panel_type_get_info(GType type, char **label, char **blurb,
+                                  char **stockid);
+gboolean swamigui_panel_type_check_selection(GType type, IpatchList *selection,
+        GType *selection_types);
+GType *swamigui_panel_get_types_in_selection(IpatchList *selection);
 
 #endif

@@ -42,20 +42,20 @@ typedef struct _SwamiguiTreeStorePatchClass SwamiguiTreeStorePatchClass;
 /* Patch tree store object */
 struct _SwamiguiTreeStorePatch
 {
-  SwamiguiTreeStore parent_instance;	/* derived from SwamiguiTreeStore */
+    SwamiguiTreeStore parent_instance;	/* derived from SwamiguiTreeStore */
 };
 
 /* Patch tree store class */
 struct _SwamiguiTreeStorePatchClass
 {
-  SwamiguiTreeStoreClass parent_class;
+    SwamiguiTreeStoreClass parent_class;
 };
 
-GType swamigui_tree_store_patch_get_type (void);
-SwamiguiTreeStorePatch *swamigui_tree_store_patch_new (void);
+GType swamigui_tree_store_patch_get_type(void);
+SwamiguiTreeStorePatch *swamigui_tree_store_patch_new(void);
 
-void swamigui_tree_store_patch_item_add (SwamiguiTreeStore *store,
-					 GObject *item);
-void swamigui_tree_store_patch_item_changed (SwamiguiTreeStore *store,
-					     GObject *item);
+void swamigui_tree_store_patch_item_add(SwamiguiTreeStore *store,
+                                        GObject *item);
+void swamigui_tree_store_patch_item_changed(SwamiguiTreeStore *store,
+        GObject *item);
 #endif

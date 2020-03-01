@@ -38,26 +38,26 @@ typedef struct _SwamiguiLoopFinderClass SwamiguiLoopFinderClass;
 /* Loop finder object */
 struct _SwamiguiLoopFinder
 {
-  GtkVBox parent_instance;		/* derived from GtkVBox */
+    GtkVBox parent_instance;		/* derived from GtkVBox */
 
-  GtkListStore *store;		/* list store for results */
-  GtkWidget *glade_widg;	/* the embedded glade widget */
-  guint orig_loop_start;	/* original loop start of current sample */
-  guint orig_loop_end;		/* original loop end of current sample */
-  float prev_progress;		/* progress value caching */
+    GtkListStore *store;		/* list store for results */
+    GtkWidget *glade_widg;	/* the embedded glade widget */
+    guint orig_loop_start;	/* original loop start of current sample */
+    guint orig_loop_end;		/* original loop end of current sample */
+    float prev_progress;		/* progress value caching */
 
-  /*< public >*/
-  SwamiLoopFinder *loop_finder;	/* loop finder object instance */
+    /*< public >*/
+    SwamiLoopFinder *loop_finder;	/* loop finder object instance */
 };
 
 /* Loop finder widget class */
 struct _SwamiguiLoopFinderClass
 {
-  GtkVBoxClass parent_class;
+    GtkVBoxClass parent_class;
 };
 
-GType swamigui_loop_finder_get_type (void);
-GtkWidget *swamigui_loop_finder_new (void);
-void swamigui_loop_finder_clear_results (SwamiguiLoopFinder *finder);
+GType swamigui_loop_finder_get_type(void);
+GtkWidget *swamigui_loop_finder_new(void);
+void swamigui_loop_finder_clear_results(SwamiguiLoopFinder *finder);
 
 #endif

@@ -22,10 +22,10 @@
 #ifndef __SWAMI_UTIL_H__
 #define __SWAMI_UTIL_H__
 
-GType *swami_util_get_child_types (GType type, guint *n_types);
-GValue *swami_util_new_value (void);
-void swami_util_free_value (GValue *value);
-void swami_util_midi_note_to_str (int note, char *str);
-int swami_util_midi_str_to_note (const char *str);
+GType *swami_util_get_child_types(GType type, guint *n_types);
+GValue *swami_util_new_value(void);
+void swami_util_free_value(GValue *value);
+void swami_util_midi_note_to_str(int note, char *str);
+int swami_util_midi_str_to_note(const char *str);
 
 #endif /* __SWAMI_UTIL_H__ */

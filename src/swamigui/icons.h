@@ -86,6 +86,6 @@
 
 extern int swamigui_icon_size_custom_large1;
 
-char *swamigui_icon_get_category_icon (int category);
+char *swamigui_icon_get_category_icon(int category);
 
 #endif

@@ -42,33 +42,33 @@ typedef struct _SwamiguiModEditClass SwamiguiModEditClass;
 
 struct _SwamiguiModEdit
 {
-  GtkScrolledWindow parent;
+    GtkScrolledWindow parent;
 
-  IpatchList *selection;	/* item selection or NULL (single item only) */
-  IpatchSF2ModList *mods;	/* modulator list being edited (copy) */
-  SwamiControl *modctrl;	/* "modulatos" property control */
+    IpatchList *selection;	/* item selection or NULL (single item only) */
+    IpatchSF2ModList *mods;	/* modulator list being edited (copy) */
+    SwamiControl *modctrl;	/* "modulatos" property control */
 
-  GtkWidget *tree_view;		/* tree view widget for modulator list */
-  GtkListStore *list_store;	/* GtkTreeModel list store of modulator list */
+    GtkWidget *tree_view;		/* tree view widget for modulator list */
+    GtkListStore *list_store;	/* GtkTreeModel list store of modulator list */
 
-  gboolean mod_selected;	/* modulator selected? (mod_iter is valid) */
-  GtkTreeIter mod_iter;		/* modulator list node being edited */
+    gboolean mod_selected;	/* modulator selected? (mod_iter is valid) */
+    GtkTreeIter mod_iter;		/* modulator list node being edited */
 
-  GtkWidget *glade_widg;	/* glade generated editor widget */
-  gboolean block_callbacks;	/* blocks modulator editor callbacks */
+    GtkWidget *glade_widg;	/* glade generated editor widget */
+    gboolean block_callbacks;	/* blocks modulator editor callbacks */
 
-  GtkTreeStore *dest_store;	/* destination combo box tree store */
+    GtkTreeStore *dest_store;	/* destination combo box tree store */
 
-  GtkListStore *src_store;      /* Source control list store */
+    GtkListStore *src_store;      /* Source control list store */
 };
 
 struct _SwamiguiModEditClass
 {
-  GtkScrolledWindowClass parent_class;
+    GtkScrolledWindowClass parent_class;
 };
 
-GType swamigui_mod_edit_get_type (void);
-GtkWidget *swamigui_mod_edit_new (void);
-void swamigui_mod_edit_set_selection (SwamiguiModEdit *modedit,
-				      IpatchList *selection);
+GType swamigui_mod_edit_get_type(void);
+GtkWidget *swamigui_mod_edit_new(void);
+void swamigui_mod_edit_set_selection(SwamiguiModEdit *modedit,
+                                     IpatchList *selection);
 #endif

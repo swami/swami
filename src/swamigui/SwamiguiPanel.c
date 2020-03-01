@@ -24,39 +24,39 @@
 
 #include "SwamiguiPanel.h"
 
-static void swamigui_panel_interface_init (SwamiguiPanelIface *panel_iface);
+static void swamigui_panel_interface_init(SwamiguiPanelIface *panel_iface);
 
 GType
-swamigui_panel_get_type (void)
+swamigui_panel_get_type(void)
 {
-  static GType itype = 0;
+    static GType itype = 0;
 
-  if (!itype)
+    if(!itype)
     {
-      static const GTypeInfo info =
-	{
-	  sizeof (SwamiguiPanelIface),
-	  NULL,			/* base_init */
-	  NULL,			/* base_finalize */
-	  (GClassInitFunc) swamigui_panel_interface_init,
-	  (GClassFinalizeFunc) NULL
-	};
+        static const GTypeInfo info =
+        {
+            sizeof(SwamiguiPanelIface),
+            NULL,			/* base_init */
+            NULL,			/* base_finalize */
+            (GClassInitFunc) swamigui_panel_interface_init,
+            (GClassFinalizeFunc) NULL
+        };
 
-      itype = g_type_register_static (G_TYPE_INTERFACE, "SwamiguiPanel",
-				      &info, 0);
+        itype = g_type_register_static(G_TYPE_INTERFACE, "SwamiguiPanel",
+                                       &info, 0);
     }
 
-  return (itype);
+    return (itype);
 }
 
 static void
-swamigui_panel_interface_init (SwamiguiPanelIface *panel_iface)
+swamigui_panel_interface_init(SwamiguiPanelIface *panel_iface)
 {
-  g_object_interface_install_property (panel_iface,
-		g_param_spec_object ("item-selection", "Item Selection",
-				     "Item selection list",
-				     IPATCH_TYPE_LIST,
-				     G_PARAM_READWRITE));
+    g_object_interface_install_property(panel_iface,
+                                        g_param_spec_object("item-selection", "Item Selection",
+                                                "Item selection list",
+                                                IPATCH_TYPE_LIST,
+                                                G_PARAM_READWRITE));
 }
 
 /**
@@ -72,27 +72,42 @@ swamigui_panel_interface_init (SwamiguiPanelIface *panel_iface)
  * internal and should not be modified or freed.
  */
 void
-swamigui_panel_type_get_info (GType type, char **label, char **blurb,
-			      char **stockid)
+swamigui_panel_type_get_info(GType type, char **label, char **blurb,
+                             char **stockid)
 {
-  SwamiguiPanelIface *panel_iface;
-  GObjectClass *klass;
+    SwamiguiPanelIface *panel_iface;
+    GObjectClass *klass;
 
-  g_return_if_fail (g_type_is_a (type, SWAMIGUI_TYPE_PANEL));
+    g_return_if_fail(g_type_is_a(type, SWAMIGUI_TYPE_PANEL));
 
-  klass = g_type_class_ref (type);	/* ++ ref class */
-  g_return_if_fail (klass != NULL);
+    klass = g_type_class_ref(type);	/* ++ ref class */
+    g_return_if_fail(klass != NULL);
 
-  panel_iface = g_type_interface_peek (klass, SWAMIGUI_TYPE_PANEL);
+    panel_iface = g_type_interface_peek(klass, SWAMIGUI_TYPE_PANEL);
 
-  if (!panel_iface) g_type_class_unref (klass);	/* -- unref class */
-  g_return_if_fail (panel_iface != NULL);
+    if(!panel_iface)
+    {
+        g_type_class_unref(klass);    /* -- unref class */
+    }
 
-  if (label) *label = panel_iface->label;
-  if (blurb) *blurb = panel_iface->blurb;
-  if (stockid) *stockid = panel_iface->stockid;
+    g_return_if_fail(panel_iface != NULL);
 
-  g_type_class_unref (klass);	/* -- unref class */
+    if(label)
+    {
+        *label = panel_iface->label;
+    }
+
+    if(blurb)
+    {
+        *blurb = panel_iface->blurb;
+    }
+
+    if(stockid)
+    {
+        *stockid = panel_iface->stockid;
+    }
+
+    g_type_class_unref(klass);	/* -- unref class */
 }
 
 /**
@@ -112,41 +127,48 @@ swamigui_panel_type_get_info (GType type, char **label, char **blurb,
  * Returns: %TRUE if panel supports selection, %FALSE otherwise
  */
 gboolean
-swamigui_panel_type_check_selection (GType type, IpatchList *selection,
-				     GType *selection_types)
+swamigui_panel_type_check_selection(GType type, IpatchList *selection,
+                                    GType *selection_types)
 {
-  SwamiguiPanelIface *panel_iface;
-  GType *free_selection_types = NULL;
-  GObjectClass *klass;
-  gboolean retval;
+    SwamiguiPanelIface *panel_iface;
+    GType *free_selection_types = NULL;
+    GObjectClass *klass;
+    gboolean retval;
 
-  g_return_val_if_fail (g_type_is_a (type, SWAMIGUI_TYPE_PANEL), FALSE);
-  g_return_val_if_fail (IPATCH_IS_LIST (selection), FALSE);
-  g_return_val_if_fail (selection->items != NULL, FALSE);
+    g_return_val_if_fail(g_type_is_a(type, SWAMIGUI_TYPE_PANEL), FALSE);
+    g_return_val_if_fail(IPATCH_IS_LIST(selection), FALSE);
+    g_return_val_if_fail(selection->items != NULL, FALSE);
 
-  klass = g_type_class_ref (type);	/* ++ ref class */
-  g_return_val_if_fail (klass != NULL, FALSE);
+    klass = g_type_class_ref(type);	/* ++ ref class */
+    g_return_val_if_fail(klass != NULL, FALSE);
 
-  panel_iface = g_type_interface_peek (klass, SWAMIGUI_TYPE_PANEL);
-  if (!panel_iface) g_type_class_unref (klass);	/* -- unref class */
-  g_return_val_if_fail (panel_iface != NULL, FALSE);
+    panel_iface = g_type_interface_peek(klass, SWAMIGUI_TYPE_PANEL);
 
-  if (!panel_iface->check_selection)
-  {
-    g_type_class_unref (klass);		/* -- unref class */
-    return (TRUE);
-  }
+    if(!panel_iface)
+    {
+        g_type_class_unref(klass);    /* -- unref class */
+    }
 
-  if (!selection_types)		/* ++ alloc */
-    free_selection_types = swamigui_panel_get_types_in_selection (selection);
+    g_return_val_if_fail(panel_iface != NULL, FALSE);
 
-  retval = panel_iface->check_selection (selection, selection_types);
+    if(!panel_iface->check_selection)
+    {
+        g_type_class_unref(klass);		/* -- unref class */
+        return (TRUE);
+    }
 
-  g_free (free_selection_types);	/* -- free */
+    if(!selection_types)		/* ++ alloc */
+    {
+        free_selection_types = swamigui_panel_get_types_in_selection(selection);
+    }
 
-  g_type_class_unref (klass);		/* -- unref class */
+    retval = panel_iface->check_selection(selection, selection_types);
 
-  return (retval);
+    g_free(free_selection_types);	/* -- free */
+
+    g_type_class_unref(klass);		/* -- unref class */
+
+    return (retval);
 }
 
 /**
@@ -159,28 +181,33 @@ swamigui_panel_type_check_selection (GType type, IpatchList *selection,
  * in @selection.
  */
 GType *
-swamigui_panel_get_types_in_selection (IpatchList *selection)
+swamigui_panel_get_types_in_selection(IpatchList *selection)
 {
-  GArray *typearray;
-  GType type;
-  GList *p;
-  guint i;
+    GArray *typearray;
+    GType type;
+    GList *p;
+    guint i;
 
-  typearray = g_array_new (TRUE, FALSE, sizeof (GType));	/* ++ alloc */
+    typearray = g_array_new(TRUE, FALSE, sizeof(GType));	/* ++ alloc */
 
-  if (selection)
-  {
-    for (p = selection->items; p; p = p->next)
+    if(selection)
     {
-      type = G_OBJECT_TYPE (p->data);
+        for(p = selection->items; p; p = p->next)
+        {
+            type = G_OBJECT_TYPE(p->data);
 
-      for (i = 0; i < typearray->len; i++)
-	if (g_array_index (typearray, GType, i) == type) break;
+            for(i = 0; i < typearray->len; i++)
+                if(g_array_index(typearray, GType, i) == type)
+                {
+                    break;
+                }
 
-      if (i == typearray->len)
-	g_array_append_val (typearray, type);
+            if(i == typearray->len)
+            {
+                g_array_append_val(typearray, type);
+            }
+        }
     }
-  }
 
-  return ((GType *)g_array_free (typearray, FALSE));	/* !! caller takes over allocation */
+    return ((GType *)g_array_free(typearray, FALSE));	/* !! caller takes over allocation */
 }

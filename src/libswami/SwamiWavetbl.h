@@ -47,55 +47,55 @@ typedef struct _SwamiWavetblClass SwamiWavetblClass;
 /* Swami Wavetbl object */
 struct _SwamiWavetbl
 {
-  SwamiLock parent_instance;
+    SwamiLock parent_instance;
 
-  IpatchVBank *vbank;		/* Virtual bank of available instruments */
+    IpatchVBank *vbank;		/* Virtual bank of available instruments */
 
-  /*< private >*/
+    /*< private >*/
 
-  gboolean active;		/* driver is active? */
-  guint16 active_bank;		/* active (focused) audible MIDI bank number */
-  guint16 active_program;	/* active (focused) audible MIDI program number */
+    gboolean active;		/* driver is active? */
+    guint16 active_bank;		/* active (focused) audible MIDI bank number */
+    guint16 active_program;	/* active (focused) audible MIDI program number */
 };
 
 struct _SwamiWavetblClass
 {
-  SwamiLockClass parent_class;
+    SwamiLockClass parent_class;
 
-  /*< public >*/
+    /*< public >*/
 
-  gboolean (*open)(SwamiWavetbl *wavetbl, GError **err);
-  void (*close)(SwamiWavetbl *wavetbl);
-  SwamiControlMidi * (*get_control) (SwamiWavetbl *wavetbl, int index);
-  gboolean (*load_patch)(SwamiWavetbl *wavetbl, IpatchItem *patch,
-			 GError **err);
-  gboolean (*load_active_item)(SwamiWavetbl *wavetbl, IpatchItem *item,
-			       GError **err);
-  gboolean (*check_update_item)(SwamiWavetbl *wavetbl, IpatchItem *item,
-			        GParamSpec *prop);
-  void (*update_item)(SwamiWavetbl *wavetbl, IpatchItem *item);
-  void (*realtime_effect)(SwamiWavetbl *wavetbl, IpatchItem *item,
-			  GParamSpec *prop, GValue *value);
+    gboolean(*open)(SwamiWavetbl *wavetbl, GError **err);
+    void (*close)(SwamiWavetbl *wavetbl);
+    SwamiControlMidi *(*get_control)(SwamiWavetbl *wavetbl, int index);
+    gboolean(*load_patch)(SwamiWavetbl *wavetbl, IpatchItem *patch,
+                          GError **err);
+    gboolean(*load_active_item)(SwamiWavetbl *wavetbl, IpatchItem *item,
+                                GError **err);
+    gboolean(*check_update_item)(SwamiWavetbl *wavetbl, IpatchItem *item,
+                                 GParamSpec *prop);
+    void (*update_item)(SwamiWavetbl *wavetbl, IpatchItem *item);
+    void (*realtime_effect)(SwamiWavetbl *wavetbl, IpatchItem *item,
+                            GParamSpec *prop, GValue *value);
 };
 
 
-GType swami_wavetbl_get_type (void);
+GType swami_wavetbl_get_type(void);
 
-IpatchVBank *swami_wavetbl_get_virtual_bank (SwamiWavetbl *wavetbl);
-void swami_wavetbl_set_active_item_locale (SwamiWavetbl *wavetbl,
-					   int bank, int program);
-void swami_wavetbl_get_active_item_locale (SwamiWavetbl *wavetbl,
-					   int *bank, int *program);
+IpatchVBank *swami_wavetbl_get_virtual_bank(SwamiWavetbl *wavetbl);
+void swami_wavetbl_set_active_item_locale(SwamiWavetbl *wavetbl,
+        int bank, int program);
+void swami_wavetbl_get_active_item_locale(SwamiWavetbl *wavetbl,
+        int *bank, int *program);
 
-gboolean swami_wavetbl_open (SwamiWavetbl *wavetbl, GError **err);
-void swami_wavetbl_close (SwamiWavetbl *wavetbl);
-SwamiControlMidi *swami_wavetbl_get_control (SwamiWavetbl *wavetbl, int index);
-gboolean swami_wavetbl_load_patch (SwamiWavetbl *wavetbl, IpatchItem *patch,
-				   GError **err);
-gboolean swami_wavetbl_load_active_item (SwamiWavetbl *wavetbl,
-					 IpatchItem *item, GError **err);
-gboolean swami_wavetbl_check_update_item (SwamiWavetbl *wavetbl, IpatchItem *item,
-					  GParamSpec *prop);
-void swami_wavetbl_update_item (SwamiWavetbl *wavetbl, IpatchItem *item);
+gboolean swami_wavetbl_open(SwamiWavetbl *wavetbl, GError **err);
+void swami_wavetbl_close(SwamiWavetbl *wavetbl);
+SwamiControlMidi *swami_wavetbl_get_control(SwamiWavetbl *wavetbl, int index);
+gboolean swami_wavetbl_load_patch(SwamiWavetbl *wavetbl, IpatchItem *patch,
+                                  GError **err);
+gboolean swami_wavetbl_load_active_item(SwamiWavetbl *wavetbl,
+                                        IpatchItem *item, GError **err);
+gboolean swami_wavetbl_check_update_item(SwamiWavetbl *wavetbl, IpatchItem *item,
+        GParamSpec *prop);
+void swami_wavetbl_update_item(SwamiWavetbl *wavetbl, IpatchItem *item);
 
 #endif

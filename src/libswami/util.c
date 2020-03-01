@@ -28,49 +28,52 @@
 #include "util.h"
 #include "swami_priv.h"
 
-static void recurse_types (GType type, GArray *array);
+static void recurse_types(GType type, GArray *array);
 
 
 /**
  * swami_util_get_child_types:
  * @type: Type to get all children from
  * @n_types: Location to store count of types or %NULL to ignore
- * 
+ *
  * Recursively get all child types of a @type.
- * 
+ *
  * Returns: Newly allocated and 0 terminated array of types
  */
 GType *
-swami_util_get_child_types (GType type, guint *n_types)
+swami_util_get_child_types(GType type, guint *n_types)
 {
-  GArray *array;
-  GType *types;
+    GArray *array;
+    GType *types;
 
-  array = g_array_new (TRUE, FALSE, sizeof (GType));
-  recurse_types (type, array);
+    array = g_array_new(TRUE, FALSE, sizeof(GType));
+    recurse_types(type, array);
 
-  if (n_types) *n_types = array->len;
+    if(n_types)
+    {
+        *n_types = array->len;
+    }
 
-  types = (GType *)(array->data);
-  g_array_free (array, FALSE);
+    types = (GType *)(array->data);
+    g_array_free(array, FALSE);
 
-  return (types);
+    return (types);
 }
 
 static void
-recurse_types (GType type, GArray *array)
+recurse_types(GType type, GArray *array)
 {
-  GType *child_types, *ptype;
+    GType *child_types, *ptype;
 
-  child_types = g_type_children (type, NULL);
+    child_types = g_type_children(type, NULL);
 
-  for (ptype = child_types; *ptype; ptype++)
+    for(ptype = child_types; *ptype; ptype++)
     {
-      g_array_append_val (array, *ptype);
-      recurse_types (*ptype, array);
+        g_array_append_val(array, *ptype);
+        recurse_types(*ptype, array);
     }
 
-  g_free (child_types);
+    g_free(child_types);
 }
 
 /**
@@ -81,9 +84,9 @@ recurse_types (GType type, GArray *array)
  * Returns: New uninitialized (zero) GValue
  */
 GValue *
-swami_util_new_value (void)
+swami_util_new_value(void)
 {
-  return (g_slice_new0 (GValue));
+    return (g_slice_new0(GValue));
 }
 
 /**
@@ -93,10 +96,10 @@ swami_util_new_value (void)
  * Free a GValue that was allocated with swami_util_new_value().
  */
 void
-swami_util_free_value (GValue *value)
+swami_util_free_value(GValue *value)
 {
-  g_value_unset (value);
-  g_slice_free (GValue, value);
+    g_value_unset(value);
+    g_slice_free(GValue, value);
 }
 
 /**
@@ -105,17 +108,17 @@ swami_util_free_value (GValue *value)
  * @str: Buffer to store string to (at least 5 bytes in length)
  */
 void
-swami_util_midi_note_to_str (int note, char *str)
+swami_util_midi_note_to_str(int note, char *str)
 {
-  static const char *notes[]
-    = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
-  char octavestr[3];
+    static const char *notes[]
+        = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+    char octavestr[3];
 
-  g_return_if_fail (note >= 0 && note <= 127);
+    g_return_if_fail(note >= 0 && note <= 127);
 
-  strcpy (str, notes[note % 12]);
-  sprintf (octavestr, "%d", note / 12 - 2);	/* C0 is actually note 24 */
-  strcat (str, octavestr);
+    strcpy(str, notes[note % 12]);
+    sprintf(octavestr, "%d", note / 12 - 2);	/* C0 is actually note 24 */
+    strcat(str, octavestr);
 }
 
 /**
@@ -131,50 +134,90 @@ swami_util_midi_note_to_str (int note, char *str)
  * Returns: The MIDI note # or -1 on error (str is malformed).
  */
 int
-swami_util_midi_str_to_note (const char *str)
+swami_util_midi_str_to_note(const char *str)
 {
-  guint8 octofs[7] = { 9, 11, 0, 2, 4, 5, 7 };	/* octave offset for A-G */
-  char *endptr;
-  long int l;
-  int note;
-  char c;
+    guint8 octofs[7] = { 9, 11, 0, 2, 4, 5, 7 };	/* octave offset for A-G */
+    char *endptr;
+    long int l;
+    int note;
+    char c;
 
-  g_return_val_if_fail (str != NULL, -1);
-  if (!*str) return (-1);
+    g_return_val_if_fail(str != NULL, -1);
 
-  /* try converting as a decimal string */
-  l = strtol (str, &endptr, 10);
-  if (!*endptr && l >= 0 && l <= 127) return (l);
-
-  /* get first char (should be a note character */
-  c = *str++;
-  if (c >= 'A' && c <= 'G') note = octofs[c - 'A'];
-  else if (c >= 'a' && c <= 'g') note = octofs[c - 'a'];
-  else return (-1);
-
-  c = *str++;
-  if (c == '#')
+    if(!*str)
     {
-      note++;
-      c = *str++;
+        return (-1);
     }
-  else if (c == 'b')
-    {
-      note--;
-      c = *str++;
-    }
-  else if (c == 0) return (-1);
 
-  if (c == '-')
-    {
-      c = *str++;
-      if (c == '1') note += 12;
-      else if (c != '2') return (-1);
-    }
-  else if ((c >= '0' && c <= '8'))	/* Only 1 digit? */
-    note += (c - '0') * 12 + 24;
-  else return (-1);
+    /* try converting as a decimal string */
+    l = strtol(str, &endptr, 10);
 
-  if (note >= 0 && note <= 127) return (note);
-  else return (-1);
+    if(!*endptr && l >= 0 && l <= 127)
+    {
+        return (l);
+    }
+
+    /* get first char (should be a note character */
+    c = *str++;
+
+    if(c >= 'A' && c <= 'G')
+    {
+        note = octofs[c - 'A'];
+    }
+    else if(c >= 'a' && c <= 'g')
+    {
+        note = octofs[c - 'a'];
+    }
+    else
+    {
+        return (-1);
+    }
+
+    c = *str++;
+
+    if(c == '#')
+    {
+        note++;
+        c = *str++;
+    }
+    else if(c == 'b')
+    {
+        note--;
+        c = *str++;
+    }
+    else if(c == 0)
+    {
+        return (-1);
+    }
+
+    if(c == '-')
+    {
+        c = *str++;
+
+        if(c == '1')
+        {
+            note += 12;
+        }
+        else if(c != '2')
+        {
+            return (-1);
+        }
+    }
+    else if((c >= '0' && c <= '8'))	/* Only 1 digit? */
+    {
+        note += (c - '0') * 12 + 24;
+    }
+    else
+    {
+        return (-1);
+    }
+
+    if(note >= 0 && note <= 127)
+    {
+        return (note);
+    }
+    else
+    {
+        return (-1);
+    }
 }

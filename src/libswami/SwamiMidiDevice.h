@@ -46,29 +46,29 @@ typedef struct _SwamiMidiDeviceClass SwamiMidiDeviceClass;
 /* Swami MIDI device object */
 struct _SwamiMidiDevice
 {
-  SwamiLock parent_instance;	/* derived from GObject */
+    SwamiLock parent_instance;	/* derived from GObject */
 
-  /*< private >*/
-  gboolean active;		/* driver is active? */
+    /*< private >*/
+    gboolean active;		/* driver is active? */
 };
 
 /* Swami MIDI device class */
 struct _SwamiMidiDeviceClass
 {
-  SwamiLockClass parent_class;
+    SwamiLockClass parent_class;
 
-  /*< public >*/
+    /*< public >*/
 
-  /* methods */
-  gboolean (*open) (SwamiMidiDevice *device, GError **err);
-  void (*close) (SwamiMidiDevice *device);
-  SwamiControl * (*get_control) (SwamiMidiDevice *device, int index);
+    /* methods */
+    gboolean(*open)(SwamiMidiDevice *device, GError **err);
+    void (*close)(SwamiMidiDevice *device);
+    SwamiControl *(*get_control)(SwamiMidiDevice *device, int index);
 };
 
-GType swami_midi_device_get_type (void);
+GType swami_midi_device_get_type(void);
 
-gboolean swami_midi_device_open (SwamiMidiDevice *device, GError **err);
-void swami_midi_device_close (SwamiMidiDevice *device);
-SwamiControl *swami_midi_device_get_control (SwamiMidiDevice *device,
-					     int index);
+gboolean swami_midi_device_open(SwamiMidiDevice *device, GError **err);
+void swami_midi_device_close(SwamiMidiDevice *device);
+SwamiControl *swami_midi_device_get_control(SwamiMidiDevice *device,
+        int index);
 #endif

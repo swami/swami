@@ -25,7 +25,7 @@
 #include <gtk/gtk.h>
 #include "SwamiguiRoot.h"
 
-void swamigui_help_about (void);
-void swamigui_help_swamitips_create (SwamiguiRoot *root);
+void swamigui_help_about(void);
+void swamigui_help_swamitips_create(SwamiguiRoot *root);
 
 #endif /* __HELP_H__ */

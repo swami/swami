@@ -44,34 +44,34 @@ typedef struct _SwamiguiBarClass SwamiguiBarClass;
 /* Bar Object */
 struct _SwamiguiBar
 {
-  GnomeCanvasGroup parent_instance; /* derived from GnomeCanvasGroup */
+    GnomeCanvasGroup parent_instance; /* derived from GnomeCanvasGroup */
 
-  /*< private >*/
+    /*< private >*/
 
-  int min_height;		/* minimum height of pointer items (top) */
-  int max_height;		/* maximum height of pointer items (bottom) */
-  GList *ptrlist;		/* list of PtrInfo structs (SwamiguiBar.c) */  
+    int min_height;		/* minimum height of pointer items (top) */
+    int max_height;		/* maximum height of pointer items (bottom) */
+    GList *ptrlist;		/* list of PtrInfo structs (SwamiguiBar.c) */
 };
 
 struct _SwamiguiBarClass
 {
-  GnomeCanvasGroupClass parent_class;
+    GnomeCanvasGroupClass parent_class;
 };
 
 
-GType swamigui_bar_get_type (void);
-void swamigui_bar_create_pointer (SwamiguiBar *bar, const char *id,
-				  const char *first_property_name, ...);
-void swamigui_bar_add_pointer (SwamiguiBar *bar, SwamiguiBarPtr *barptr,
-			       const char *id);
-GnomeCanvasItem *swamigui_bar_get_pointer (SwamiguiBar *bar, const char *id);
-void swamigui_bar_set_pointer_position (SwamiguiBar *bar, const char *id,
-					int position);
-void swamigui_bar_set_pointer_range (SwamiguiBar *bar, const char *id,
-				     int start, int end);
-int swamigui_bar_get_pointer_order (SwamiguiBar *bar, const char *id);
-void swamigui_bar_set_pointer_order (SwamiguiBar *bar, const char *id, int pos);
-void swamigui_bar_raise_pointer_to_top (SwamiguiBar *bar, const char *id);
-void swamigui_bar_lower_pointer_to_bottom (SwamiguiBar *bar, const char *id);
+GType swamigui_bar_get_type(void);
+void swamigui_bar_create_pointer(SwamiguiBar *bar, const char *id,
+                                 const char *first_property_name, ...);
+void swamigui_bar_add_pointer(SwamiguiBar *bar, SwamiguiBarPtr *barptr,
+                              const char *id);
+GnomeCanvasItem *swamigui_bar_get_pointer(SwamiguiBar *bar, const char *id);
+void swamigui_bar_set_pointer_position(SwamiguiBar *bar, const char *id,
+                                       int position);
+void swamigui_bar_set_pointer_range(SwamiguiBar *bar, const char *id,
+                                    int start, int end);
+int swamigui_bar_get_pointer_order(SwamiguiBar *bar, const char *id);
+void swamigui_bar_set_pointer_order(SwamiguiBar *bar, const char *id, int pos);
+void swamigui_bar_raise_pointer_to_top(SwamiguiBar *bar, const char *id);
+void swamigui_bar_lower_pointer_to_bottom(SwamiguiBar *bar, const char *id);
 
 #endif

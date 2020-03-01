@@ -39,42 +39,42 @@ typedef struct _SwamiLoopFinderClass SwamiLoopFinderClass;
 /* Loop finder object */
 struct _SwamiLoopFinder
 {
-  SwamiLock parent_instance;
+    SwamiLock parent_instance;
 
-  IpatchSample *sample;	        /* sample assigned to loop finder */
-  IpatchSampleHandle *sample_handle;    /* Open handle to cached sample data (allocated) */
-  guint sample_size;		/* size of sample */
-  float *sample_data;		/* converted sample data */
+    IpatchSample *sample;	        /* sample assigned to loop finder */
+    IpatchSampleHandle *sample_handle;    /* Open handle to cached sample data (allocated) */
+    guint sample_size;		/* size of sample */
+    float *sample_data;		/* converted sample data */
 
-  gboolean active;		/* TRUE if find is currently active */
-  gboolean cancel;		/* set to TRUE to cancel current find */
-  float progress;		/* if active is TRUE, progress 0.0 - 1.0 */
-  int max_results;		/* max SwamiLoopMatch result entries */
-  int analysis_window;		/* width in samples of analysis window */
-  int min_loop_size;		/* minimum loop size */
-  int window1_start;            /* sample start position of window1 search */
-  int window1_end;	        /* sample end position of window1 search */
-  int window2_start;		/* sample start position of window1 search */
-  int window2_end;		/* sample end position of window1 search */
-  int group_pos_diff;		/* min pos diff of loops for separate groups */
-  int group_size_diff;		/* min size diff of loops for separate groups */
-  guint exectime;		/* execution time in milliseconds */
+    gboolean active;		/* TRUE if find is currently active */
+    gboolean cancel;		/* set to TRUE to cancel current find */
+    float progress;		/* if active is TRUE, progress 0.0 - 1.0 */
+    int max_results;		/* max SwamiLoopMatch result entries */
+    int analysis_window;		/* width in samples of analysis window */
+    int min_loop_size;		/* minimum loop size */
+    int window1_start;            /* sample start position of window1 search */
+    int window1_end;	        /* sample end position of window1 search */
+    int window2_start;		/* sample start position of window1 search */
+    int window2_end;		/* sample end position of window1 search */
+    int group_pos_diff;		/* min pos diff of loops for separate groups */
+    int group_size_diff;		/* min size diff of loops for separate groups */
+    guint exectime;		/* execution time in milliseconds */
 
-  SwamiLoopResults *results;	/* results object */
+    SwamiLoopResults *results;	/* results object */
 };
 
 /* Loop finder class */
 struct _SwamiLoopFinderClass
 {
-  SwamiLockClass parent_class;
+    SwamiLockClass parent_class;
 };
 
-GType swami_loop_finder_get_type (void);
-SwamiLoopFinder *swami_loop_finder_new (void);
-void swami_loop_finder_full_search (SwamiLoopFinder *finder);
-gboolean swami_loop_finder_verify_params (SwamiLoopFinder *finder,
-					  gboolean nudge, GError **err);
-gboolean swami_loop_finder_find (SwamiLoopFinder *finder, GError **err);
-SwamiLoopResults *swami_loop_finder_get_results (SwamiLoopFinder *finder);
+GType swami_loop_finder_get_type(void);
+SwamiLoopFinder *swami_loop_finder_new(void);
+void swami_loop_finder_full_search(SwamiLoopFinder *finder);
+gboolean swami_loop_finder_verify_params(SwamiLoopFinder *finder,
+        gboolean nudge, GError **err);
+gboolean swami_loop_finder_find(SwamiLoopFinder *finder, GError **err);
+SwamiLoopResults *swami_loop_finder_get_results(SwamiLoopFinder *finder);
 
 #endif

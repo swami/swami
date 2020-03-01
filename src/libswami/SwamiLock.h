@@ -40,13 +40,13 @@ typedef struct _SwamiLockClass SwamiLockClass;
 
 struct _SwamiLock
 {
-  GObject parent_instance;
-  GStaticRecMutex mutex;
+    GObject parent_instance;
+    GStaticRecMutex mutex;
 };
 
 struct _SwamiLockClass
 {
-  GObjectClass parent_class;
+    GObjectClass parent_class;
 };
 
 /* Multi-thread locking macros. For now there is no distinction between
@@ -58,10 +58,10 @@ struct _SwamiLockClass
 #define SWAMI_LOCK_READ(lock)	SWAMI_LOCK_WRITE(lock)
 #define SWAMI_UNLOCK_READ(lock)	SWAMI_UNLOCK_WRITE(lock)
 
-GType swami_lock_get_type (void);
-void swami_lock_set_atomic (gpointer lock,
-			    const char *first_property_name, ...);
-void swami_lock_get_atomic (gpointer lock,
-			    const char *first_property_name, ...);
+GType swami_lock_get_type(void);
+void swami_lock_set_atomic(gpointer lock,
+                           const char *first_property_name, ...);
+void swami_lock_get_atomic(gpointer lock,
+                           const char *first_property_name, ...);
 
 #endif

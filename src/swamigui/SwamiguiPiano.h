@@ -48,59 +48,59 @@ typedef struct _SwamiguiPianoClass SwamiguiPianoClass;
 /* Swami Piano Object */
 struct _SwamiguiPiano
 {
-  GnomeCanvasGroup parent_instance; /* derived from GnomeCanvasGroup */
+    GnomeCanvasGroup parent_instance; /* derived from GnomeCanvasGroup */
 
-  SwamiControl *midi_ctrl;	/* MIDI control object */
-  SwamiControl *express_ctrl;	/* expression control object */
-  int midi_chan;		/* MIDI channel to send events on */
-  int velocity;			/* default MIDI note on velocity to use */
+    SwamiControl *midi_ctrl;	/* MIDI control object */
+    SwamiControl *express_ctrl;	/* expression control object */
+    int midi_chan;		/* MIDI channel to send events on */
+    int velocity;			/* default MIDI note on velocity to use */
 
-  int width, height;		/* width and height in pixels */
-  gpointer key_info; /* array of KeyInfo structures (see SwamiguiPiano.c) */
-  GnomeCanvasItem *bg;		/* black background (outline/separators) */
-  guint8 key_count;		/* number of keys */
-  guint8 start_note;		/* note piano starts on (always note C) */
-  guint8 lower_octave;		/* lower computer keyboard octave # */
-  guint8 upper_octave;		/* upper computer keyboard octave # */
-  guint8 lower_velocity;	/* lower keyboard velocity */
-  guint8 upper_velocity;	/* upper keyboard velocity */
-  guint8 mouse_note;		/* mouse selected note >127 = none */
-  guint8 reserved;
+    int width, height;		/* width and height in pixels */
+    gpointer key_info; /* array of KeyInfo structures (see SwamiguiPiano.c) */
+    GnomeCanvasItem *bg;		/* black background (outline/separators) */
+    guint8 key_count;		/* number of keys */
+    guint8 start_note;		/* note piano starts on (always note C) */
+    guint8 lower_octave;		/* lower computer keyboard octave # */
+    guint8 upper_octave;		/* upper computer keyboard octave # */
+    guint8 lower_velocity;	/* lower keyboard velocity */
+    guint8 upper_velocity;	/* upper keyboard velocity */
+    guint8 mouse_note;		/* mouse selected note >127 = none */
+    guint8 reserved;
 
-  /* cached values */
-  int white_count;
-  gboolean up2date;		/* are variables below up to date? */
-  double world_width, world_height;
-  double key_width, key_width_half;
-  double shadow_top;
-  double black_height;
-  double vline_width, hline_width;
-  double black_vel_ofs, black_vel_range;
-  double white_vel_ofs, white_vel_range;
+    /* cached values */
+    int white_count;
+    gboolean up2date;		/* are variables below up to date? */
+    double world_width, world_height;
+    double key_width, key_width_half;
+    double shadow_top;
+    double black_height;
+    double vline_width, hline_width;
+    double black_vel_ofs, black_vel_range;
+    double white_vel_ofs, white_vel_range;
 
-  guint32 bg_color;
-  guint32 white_key_color;
-  guint32 black_key_color;
-  guint32 shadow_edge_color;
-  guint32 white_key_play_color;
-  guint32 black_key_play_color;
+    guint32 bg_color;
+    guint32 white_key_color;
+    guint32 black_key_color;
+    guint32 shadow_edge_color;
+    guint32 white_key_play_color;
+    guint32 black_key_play_color;
 };
 
 struct _SwamiguiPianoClass
 {
-  GnomeCanvasGroupClass parent_class;
+    GnomeCanvasGroupClass parent_class;
 
-  void (*note_on) (SwamiguiPiano *piano, guint keynum);
-  void (*note_off) (SwamiguiPiano *piano, guint keynum);
+    void (*note_on)(SwamiguiPiano *piano, guint keynum);
+    void (*note_off)(SwamiguiPiano *piano, guint keynum);
 };
 
-GType swamigui_piano_get_type (void);
+GType swamigui_piano_get_type(void);
 
-void swamigui_piano_note_on (SwamiguiPiano *piano, int note, int velocity);
-void swamigui_piano_note_off (SwamiguiPiano *piano, int note, int velocity);
-int swamigui_piano_pos_to_note (SwamiguiPiano *piano, double x, double y,
-				int *velocity, gboolean *isblack);
-double swamigui_piano_note_to_pos (SwamiguiPiano *piano, int note, int edge,
-				   gboolean realnote, gboolean *isblack);
+void swamigui_piano_note_on(SwamiguiPiano *piano, int note, int velocity);
+void swamigui_piano_note_off(SwamiguiPiano *piano, int note, int velocity);
+int swamigui_piano_pos_to_note(SwamiguiPiano *piano, double x, double y,
+                               int *velocity, gboolean *isblack);
+double swamigui_piano_note_to_pos(SwamiguiPiano *piano, int note, int edge,
+                                  gboolean realnote, gboolean *isblack);
 
 #endif

@@ -43,25 +43,25 @@ typedef struct _SwamiguiSpinScaleClass SwamiguiSpinScaleClass;
 /* Swami SpinScale widget */
 struct _SwamiguiSpinScale
 {
-  GtkHBox parent;
-  GtkWidget *spinbtn;		/* spin button widget */
-  GtkWidget *hscale;		/* horizontal scale widget */
-  gboolean scale_first;		/* indicates order of widgets */
-  guint16 adj_units;            // Adjustment units (#IpatchUnitType)
-  guint16 disp_units;           // Spin button display units (#IpatchUnitType)
+    GtkHBox parent;
+    GtkWidget *spinbtn;		/* spin button widget */
+    GtkWidget *hscale;		/* horizontal scale widget */
+    gboolean scale_first;		/* indicates order of widgets */
+    guint16 adj_units;            // Adjustment units (#IpatchUnitType)
+    guint16 disp_units;           // Spin button display units (#IpatchUnitType)
 };
 
 /* Swami SpinScale widget class */
 struct _SwamiguiSpinScaleClass
 {
-  GtkHBoxClass parent_class;
+    GtkHBoxClass parent_class;
 };
 
-GType swamigui_spin_scale_get_type (void);
-GtkWidget *swamigui_spin_scale_new (void);
-void swamigui_spin_scale_set_order (SwamiguiSpinScale *spin_scale,
-				    gboolean scale_first);
-void swamigui_spin_scale_set_transform (SwamiguiSpinScale *spin_scale,
-                                        guint16 adj_units, guint16 disp_units);
+GType swamigui_spin_scale_get_type(void);
+GtkWidget *swamigui_spin_scale_new(void);
+void swamigui_spin_scale_set_order(SwamiguiSpinScale *spin_scale,
+                                   gboolean scale_first);
+void swamigui_spin_scale_set_transform(SwamiguiSpinScale *spin_scale,
+                                       guint16 adj_units, guint16 disp_units);
 #endif
 

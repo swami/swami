@@ -49,56 +49,56 @@ typedef struct _SwamiPropTreeValue SwamiPropTreeValue;
 /* Swami property tree */
 struct _SwamiPropTree
 {
-  SwamiLock parent_instance;	/* derived from SwamiLock */
-  GNode *tree;		    /* tree of SwamiPropTreeNode structures */
-  GHashTable *object_hash;	/* object->node hash */
+    SwamiLock parent_instance;	/* derived from SwamiLock */
+    GNode *tree;		    /* tree of SwamiPropTreeNode structures */
+    GHashTable *object_hash;	/* object->node hash */
 };
 
 struct _SwamiPropTreeClass
 {
-  SwamiLockClass parent_class;
+    SwamiLockClass parent_class;
 };
 
 /* defines a node of a property tree - an object with a list of node
    property values and cached object property values */
 struct _SwamiPropTreeNode
 {
-  GObject *object;	  /* pointer to the object the node manages */
-  GSList *values;	/* list of SwamiPropTreeValue for this node */
-  GSList *cache; /* cached values for object (struct in SwamiPropTree.c) */
-  guint16 flags;
-  guint16 reserved;
+    GObject *object;	  /* pointer to the object the node manages */
+    GSList *values;	/* list of SwamiPropTreeValue for this node */
+    GSList *cache; /* cached values for object (struct in SwamiPropTree.c) */
+    guint16 flags;
+    guint16 reserved;
 };
 
 /* defines an active value in a property tree */
 struct _SwamiPropTreeValue
 {
-  GType prop_type; /* instance type owning property to match (0 = wildcard) */
-  char *prop_name;		/* name of property to match */
-  SwamiControl *control; /* source value control (defines the value) */
+    GType prop_type; /* instance type owning property to match (0 = wildcard) */
+    char *prop_name;		/* name of property to match */
+    SwamiControl *control; /* source value control (defines the value) */
 };
 
-GType swami_prop_tree_get_type (void);
-SwamiPropTree *swami_prop_tree_new (void);
+GType swami_prop_tree_get_type(void);
+SwamiPropTree *swami_prop_tree_new(void);
 
-void swami_prop_tree_set_root (SwamiPropTree *proptree, GObject *root);
-void swami_prop_tree_prepend (SwamiPropTree *proptree, GObject *parent,
-			      GObject *obj);
+void swami_prop_tree_set_root(SwamiPropTree *proptree, GObject *root);
+void swami_prop_tree_prepend(SwamiPropTree *proptree, GObject *parent,
+                             GObject *obj);
 #define swami_prop_tree_append(proptree, parent, obj) \
   swami_prop_tree_insert_before (proptree, parent, NULL, obj)
-void swami_prop_tree_insert_before (SwamiPropTree *proptree, GObject *parent,
-				    GObject *sibling, GObject *obj);
-void swami_prop_tree_remove (SwamiPropTree *proptree, GObject *obj);
-void swami_prop_tree_remove_recursive (SwamiPropTree *proptree, GObject *obj);
-void swami_prop_tree_replace (SwamiPropTree *proptree, GObject *old,
-			      GObject *new);
-IpatchList *swami_prop_tree_get_children (SwamiPropTree *proptree,
-					  GObject *obj);
-GNode *swami_prop_tree_object_get_node (SwamiPropTree *proptree, GObject *obj);
+void swami_prop_tree_insert_before(SwamiPropTree *proptree, GObject *parent,
+                                   GObject *sibling, GObject *obj);
+void swami_prop_tree_remove(SwamiPropTree *proptree, GObject *obj);
+void swami_prop_tree_remove_recursive(SwamiPropTree *proptree, GObject *obj);
+void swami_prop_tree_replace(SwamiPropTree *proptree, GObject *old,
+                             GObject *new);
+IpatchList *swami_prop_tree_get_children(SwamiPropTree *proptree,
+        GObject *obj);
+GNode *swami_prop_tree_object_get_node(SwamiPropTree *proptree, GObject *obj);
 
-void swami_prop_tree_add_value (SwamiPropTree *proptree, GObject *obj,
-				GType prop_type, const char *prop_name,
-				SwamiControl *control);
-void swami_prop_tree_remove_value (SwamiPropTree *proptree, GObject *obj,
-				   GType prop_type, const char *prop_name);
+void swami_prop_tree_add_value(SwamiPropTree *proptree, GObject *obj,
+                               GType prop_type, const char *prop_name,
+                               SwamiControl *control);
+void swami_prop_tree_remove_value(SwamiPropTree *proptree, GObject *obj,
+                                  GType prop_type, const char *prop_name);
 #endif

@@ -61,81 +61,81 @@ typedef void (*SwamiguiItemMenuCallback)(IpatchList *selection, gpointer data);
  * given selection and add one or more menu items if so.
  */
 typedef void (*SwamiguiItemMenuHandler)(SwamiguiItemMenu *menu,
-					const char *action_id);
+                                        const char *action_id);
 
 typedef enum  /*< flags >*/
 {
-  SWAMIGUI_ITEM_MENU_INACTIVE = 1 << 0,	/* set if menu item should be inactive */
-  SWAMIGUI_ITEM_MENU_PLUGIN   = 1 << 1	/* set if menu item is for a plugin */
+    SWAMIGUI_ITEM_MENU_INACTIVE = 1 << 0,	/* set if menu item should be inactive */
+    SWAMIGUI_ITEM_MENU_PLUGIN   = 1 << 1	/* set if menu item is for a plugin */
 } SwamiguiItemMenuFlags;
 
 /* menu item info */
 struct _SwamiguiItemMenuInfo
 {
-  guint order; /* an integer used to sort items (lower values first) */
-  char *label;			/* menu label text */
-  char *accel;			/* key accelerator */
-  char *icon;			/* stock ID of icon */
-  guint flags;			/* SwamiguiItemMenuFlags */
-  SwamiguiItemMenuCallback func; /* function to call when item is activated */
-  gpointer data;		/* data to pass to callback function */
+    guint order; /* an integer used to sort items (lower values first) */
+    char *label;			/* menu label text */
+    char *accel;			/* key accelerator */
+    char *icon;			/* stock ID of icon */
+    guint flags;			/* SwamiguiItemMenuFlags */
+    SwamiguiItemMenuCallback func; /* function to call when item is activated */
+    gpointer data;		/* data to pass to callback function */
 };
 
 struct _SwamiguiItemMenu
 {
-  GtkMenu parent_instance;
+    GtkMenu parent_instance;
 
-  IpatchList *selection;	/* current item selection or NULL */
-  GObject *rclick;		/* current right click item or NULL */
-  GObject *creator; /* object that created menu (SwamiguiTree for example) */
+    IpatchList *selection;	/* current item selection or NULL */
+    GObject *rclick;		/* current right click item or NULL */
+    GObject *creator; /* object that created menu (SwamiguiTree for example) */
 };
 
 struct _SwamiguiItemMenuClass
 {
-  GtkMenuClass parent_class;
+    GtkMenuClass parent_class;
 };
 
 
 extern GtkAccelGroup *swamigui_item_menu_accel_group;
 
 
-GType swamigui_item_menu_get_type ();
-SwamiguiItemMenu *swamigui_item_menu_new ();
-GtkWidget *swamigui_item_menu_add (SwamiguiItemMenu *menu,
-				   const SwamiguiItemMenuInfo *info,
-				   const char *action_id);
-GtkWidget *swamigui_item_menu_add_registered_info (SwamiguiItemMenu *menu,
-						   const char *action_id);
-GtkWidget *swamigui_item_menu_add_registered_info_inactive (SwamiguiItemMenu *menu,
-                                                            const char *action_id);
+GType swamigui_item_menu_get_type();
+SwamiguiItemMenu *swamigui_item_menu_new();
+GtkWidget *swamigui_item_menu_add(SwamiguiItemMenu *menu,
+                                  const SwamiguiItemMenuInfo *info,
+                                  const char *action_id);
+GtkWidget *swamigui_item_menu_add_registered_info(SwamiguiItemMenu *menu,
+        const char *action_id);
+GtkWidget *swamigui_item_menu_add_registered_info_inactive(SwamiguiItemMenu *menu,
+        const char *action_id);
 
-void swamigui_item_menu_generate (SwamiguiItemMenu *menu);
+void swamigui_item_menu_generate(SwamiguiItemMenu *menu);
 
-void swamigui_register_item_menu_action (char *action_id,
-				         SwamiguiItemMenuInfo *info,
-				         SwamiguiItemMenuHandler handler);
-gboolean swamigui_lookup_item_menu_action (const char *action_id,
-					   SwamiguiItemMenuInfo **info,
-					   SwamiguiItemMenuHandler *handler);
-void swamigui_register_item_menu_include_type (const char *action_id,
-					       GType type, gboolean derived);
-void swamigui_register_item_menu_exclude_type (const char *action_id,
-					       GType type, gboolean derived);
-gboolean swamigui_test_item_menu_type (const char *action_id, GType type);
-gboolean swamigui_test_item_menu_include_type (const char *action_id,
-					       GType type);
-gboolean swamigui_test_item_menu_exclude_type (const char *action_id,
-					       GType type);
-GObject *swamigui_item_menu_get_selection_single (SwamiguiItemMenu *menu);
-IpatchList *swamigui_item_menu_get_selection (SwamiguiItemMenu *menu);
+void swamigui_register_item_menu_action(char *action_id,
+                                        SwamiguiItemMenuInfo *info,
+                                        SwamiguiItemMenuHandler handler);
+gboolean swamigui_lookup_item_menu_action(const char *action_id,
+        SwamiguiItemMenuInfo **info,
+        SwamiguiItemMenuHandler *handler);
+void swamigui_register_item_menu_include_type(const char *action_id,
+        GType type, gboolean derived);
+void swamigui_register_item_menu_exclude_type(const char *action_id,
+        GType type, gboolean derived);
+gboolean swamigui_test_item_menu_type(const char *action_id, GType type);
+gboolean swamigui_test_item_menu_include_type(const char *action_id,
+        GType type);
+gboolean swamigui_test_item_menu_exclude_type(const char *action_id,
+        GType type);
+GObject *swamigui_item_menu_get_selection_single(SwamiguiItemMenu *menu);
+IpatchList *swamigui_item_menu_get_selection(SwamiguiItemMenu *menu);
 
-void swamigui_item_menu_handler_single (SwamiguiItemMenu *menu,
-					const char *action_id);
-void swamigui_item_menu_handler_multi (SwamiguiItemMenu *menu,
-				       const char *action_id);
-void swamigui_item_menu_handler_single_all (SwamiguiItemMenu *menu,
-					    const char *action_id);
-void swamigui_item_menu_handler_multi_all (SwamiguiItemMenu *menu,
-					   const char *action_id);
+void swamigui_item_menu_handler_single(SwamiguiItemMenu *menu,
+                                       const char *action_id);
+void swamigui_item_menu_handler_multi(SwamiguiItemMenu *menu,
+                                      const char *action_id);
+void swamigui_item_menu_handler_single_all(SwamiguiItemMenu *menu,
+        const char *action_id);
+void swamigui_item_menu_handler_multi_all(SwamiguiItemMenu *menu,
+        const char *action_id);
 
 #endif

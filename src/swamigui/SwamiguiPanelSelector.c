@@ -29,39 +29,39 @@
 
 enum
 {
-  PROP_0,
-  PROP_ITEM_SELECTION
+    PROP_0,
+    PROP_ITEM_SELECTION
 };
 
 /* Stores information on a registered panel interface */
 typedef struct
 {
-  GType type;		/* Panel type */
-  int order;		/* Sort order for this panel type */
+    GType type;		/* Panel type */
+    int order;		/* Sort order for this panel type */
 } PanelInfo;
 
 
-static void swamigui_panel_selector_set_property (GObject *object,
-						  guint property_id,
-						  const GValue *value,
-						  GParamSpec *pspec);
-static void swamigui_panel_selector_get_property (GObject *object,
-						  guint property_id,
-						  GValue *value,
-						  GParamSpec *pspec);
-static void swamigui_panel_selector_finalize (GObject *object);
-static gboolean swamigui_panel_selector_button_press (GtkWidget *widget,
-                                                      GdkEventButton *event);
-static void swamigui_panel_selector_switch_page (GtkNotebook *notebook,
-						 GtkNotebookPage *page,
-						 guint page_num);
-static gboolean swamigui_panel_selector_real_set_selection (SwamiguiPanelSelector *selector,
-							    IpatchList *items);
-static gint sort_panel_info_by_order (gconstpointer a, gconstpointer b);
-static void swamigui_panel_selector_insert_panel (SwamiguiPanelSelector *selector,
-						  PanelInfo *info, int pos);
+static void swamigui_panel_selector_set_property(GObject *object,
+        guint property_id,
+        const GValue *value,
+        GParamSpec *pspec);
+static void swamigui_panel_selector_get_property(GObject *object,
+        guint property_id,
+        GValue *value,
+        GParamSpec *pspec);
+static void swamigui_panel_selector_finalize(GObject *object);
+static gboolean swamigui_panel_selector_button_press(GtkWidget *widget,
+        GdkEventButton *event);
+static void swamigui_panel_selector_switch_page(GtkNotebook *notebook,
+        GtkNotebookPage *page,
+        guint page_num);
+static gboolean swamigui_panel_selector_real_set_selection(SwamiguiPanelSelector *selector,
+        IpatchList *items);
+static gint sort_panel_info_by_order(gconstpointer a, gconstpointer b);
+static void swamigui_panel_selector_insert_panel(SwamiguiPanelSelector *selector,
+        PanelInfo *info, int pos);
 
-G_DEFINE_TYPE (SwamiguiPanelSelector, swamigui_panel_selector, GTK_TYPE_NOTEBOOK);
+G_DEFINE_TYPE(SwamiguiPanelSelector, swamigui_panel_selector, GTK_TYPE_NOTEBOOK);
 
 static GList *panel_list = NULL;	/* list of registered panels (PanelInfo *) */
 static guint panel_count = 0;		/* count of items in panel_list */
@@ -79,30 +79,37 @@ static guint panel_count = 0;		/* count of items in panel_list */
  *   when finished, can be %NULL if empty list.
  */
 GType *
-swamigui_get_panel_selector_types (void)
+swamigui_get_panel_selector_types(void)
 {
-  GType *types = NULL;
-  PanelInfo *info;
-  GList *p;
-  guint len, i;
+    GType *types = NULL;
+    PanelInfo *info;
+    GList *p;
+    guint len, i;
 
-  if (!panel_list) return (NULL);
+    if(!panel_list)
+    {
+        return (NULL);
+    }
 
-  len = panel_count;	/* atomic integer read, value increases only */
-  if (len == 0) return (NULL);
+    len = panel_count;	/* atomic integer read, value increases only */
 
-  types = g_new (GType, len + 1);			/* ++ alloc */
+    if(len == 0)
+    {
+        return (NULL);
+    }
 
-  /* copy types */
-  for (i = 0, p = panel_list; i < len; i++, p = p->next)
-  {
-    info = (PanelInfo *)(p->data);
-    types[i] = info->type;
-  }
+    types = g_new(GType, len + 1);			/* ++ alloc */
 
-  types[len] = 0;
+    /* copy types */
+    for(i = 0, p = panel_list; i < len; i++, p = p->next)
+    {
+        info = (PanelInfo *)(p->data);
+        types[i] = info->type;
+    }
 
-  return (types);	/* !! caller takes over allocation */
+    types[len] = 0;
+
+    return (types);	/* !! caller takes over allocation */
 }
 
 /**
@@ -114,91 +121,98 @@ swamigui_get_panel_selector_types (void)
  * Register a panel interface for use in the panel selector notebook widget.
  */
 void
-swamigui_register_panel_selector_type (GType panel_type, int order)
+swamigui_register_panel_selector_type(GType panel_type, int order)
 {
-  PanelInfo *info;
+    PanelInfo *info;
 
-  g_return_if_fail (g_type_is_a (panel_type, SWAMIGUI_TYPE_PANEL));
+    g_return_if_fail(g_type_is_a(panel_type, SWAMIGUI_TYPE_PANEL));
 
-  info = swamigui_panel_selector_info_new ();
-  info->type = panel_type;
-  info->order = order;
+    info = swamigui_panel_selector_info_new();
+    info->type = panel_type;
+    info->order = order;
 
-  panel_list = g_list_append (panel_list, info);
-  panel_count++;
+    panel_list = g_list_append(panel_list, info);
+    panel_count++;
 }
 
 static void
-swamigui_panel_selector_class_init (SwamiguiPanelSelectorClass *klass)
+swamigui_panel_selector_class_init(SwamiguiPanelSelectorClass *klass)
 {
-  GObjectClass *obj_class = G_OBJECT_CLASS (klass);
-  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
-  GtkNotebookClass *notebook_class = GTK_NOTEBOOK_CLASS (klass);
+    GObjectClass *obj_class = G_OBJECT_CLASS(klass);
+    GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
+    GtkNotebookClass *notebook_class = GTK_NOTEBOOK_CLASS(klass);
 
-  obj_class->set_property = swamigui_panel_selector_set_property;
-  obj_class->get_property = swamigui_panel_selector_get_property;
-  obj_class->finalize = swamigui_panel_selector_finalize;
+    obj_class->set_property = swamigui_panel_selector_set_property;
+    obj_class->get_property = swamigui_panel_selector_get_property;
+    obj_class->finalize = swamigui_panel_selector_finalize;
 
-  widget_class->button_press_event = swamigui_panel_selector_button_press;
+    widget_class->button_press_event = swamigui_panel_selector_button_press;
 
-  notebook_class->switch_page = swamigui_panel_selector_switch_page;
+    notebook_class->switch_page = swamigui_panel_selector_switch_page;
 
-  g_object_class_install_property (obj_class, PROP_ITEM_SELECTION,
-		g_param_spec_object ("item-selection", _("Item selection"),
-				     _("Item selection"),
-				     IPATCH_TYPE_LIST, G_PARAM_READWRITE));
+    g_object_class_install_property(obj_class, PROP_ITEM_SELECTION,
+                                    g_param_spec_object("item-selection", _("Item selection"),
+                                            _("Item selection"),
+                                            IPATCH_TYPE_LIST, G_PARAM_READWRITE));
 }
 
 static void
-swamigui_panel_selector_set_property (GObject *object, guint property_id,
-				      const GValue *value, GParamSpec *pspec)
+swamigui_panel_selector_set_property(GObject *object, guint property_id,
+                                     const GValue *value, GParamSpec *pspec)
 {
-  SwamiguiPanelSelector *selector = SWAMIGUI_PANEL_SELECTOR (object);
+    SwamiguiPanelSelector *selector = SWAMIGUI_PANEL_SELECTOR(object);
 
-  switch (property_id)
-  {
-  case PROP_ITEM_SELECTION:
-    swamigui_panel_selector_real_set_selection (selector,
-						g_value_get_object (value));
-    break;
-  default:
-    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    break;
-  }
+    switch(property_id)
+    {
+    case PROP_ITEM_SELECTION:
+        swamigui_panel_selector_real_set_selection(selector,
+                g_value_get_object(value));
+        break;
+
+    default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+        break;
+    }
 }
 
 static void
-swamigui_panel_selector_get_property (GObject *object, guint property_id,
-				      GValue *value, GParamSpec *pspec)
+swamigui_panel_selector_get_property(GObject *object, guint property_id,
+                                     GValue *value, GParamSpec *pspec)
 {
-  SwamiguiPanelSelector *selector = SWAMIGUI_PANEL_SELECTOR (object);
+    SwamiguiPanelSelector *selector = SWAMIGUI_PANEL_SELECTOR(object);
 
-  switch (property_id)
-  {
-  case PROP_ITEM_SELECTION:
-    g_value_set_object (value, selector->selection);
-    break;
-  default:
-    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    break;
-  }
+    switch(property_id)
+    {
+    case PROP_ITEM_SELECTION:
+        g_value_set_object(value, selector->selection);
+        break;
+
+    default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+        break;
+    }
 }
 
 static void
-swamigui_panel_selector_finalize (GObject *object)
+swamigui_panel_selector_finalize(GObject *object)
 {
-  SwamiguiPanelSelector *selector = SWAMIGUI_PANEL_SELECTOR (object);
+    SwamiguiPanelSelector *selector = SWAMIGUI_PANEL_SELECTOR(object);
 
-  g_list_free (selector->active_panels);
+    g_list_free(selector->active_panels);
 
-  if (selector->selection) g_object_unref (selector->selection);
+    if(selector->selection)
+    {
+        g_object_unref(selector->selection);
+    }
 
-  if (G_OBJECT_CLASS (swamigui_panel_selector_parent_class)->finalize)
-    G_OBJECT_CLASS (swamigui_panel_selector_parent_class)->finalize (object);
+    if(G_OBJECT_CLASS(swamigui_panel_selector_parent_class)->finalize)
+    {
+        G_OBJECT_CLASS(swamigui_panel_selector_parent_class)->finalize(object);
+    }
 }
 
 static void
-swamigui_panel_selector_init (SwamiguiPanelSelector *selector)
+swamigui_panel_selector_init(SwamiguiPanelSelector *selector)
 {
 }
 
@@ -207,37 +221,43 @@ swamigui_panel_selector_init (SwamiguiPanelSelector *selector)
  * keyboard after switching notebook tabs causes the first entry widget to get
  * changed. */
 static gboolean
-swamigui_panel_selector_button_press (GtkWidget *widget, GdkEventButton *event)
+swamigui_panel_selector_button_press(GtkWidget *widget, GdkEventButton *event)
 {
-  gtk_widget_grab_focus (widget);
+    gtk_widget_grab_focus(widget);
 
-  if (GTK_WIDGET_CLASS (swamigui_panel_selector_parent_class)->button_press_event)
-    return (GTK_WIDGET_CLASS (swamigui_panel_selector_parent_class)->button_press_event
-            (widget, event));
-  else return (FALSE);
+    if(GTK_WIDGET_CLASS(swamigui_panel_selector_parent_class)->button_press_event)
+        return (GTK_WIDGET_CLASS(swamigui_panel_selector_parent_class)->button_press_event
+                (widget, event));
+    else
+    {
+        return (FALSE);
+    }
 }
 
 /* Switch page method which gets called when page is switched.
  * Sets the item selection of the panel for the new page. */
 static void
-swamigui_panel_selector_switch_page (GtkNotebook *notebook,
-				     GtkNotebookPage *page, guint page_num)
+swamigui_panel_selector_switch_page(GtkNotebook *notebook,
+                                    GtkNotebookPage *page, guint page_num)
 {
-  SwamiguiPanelSelector *selector = SWAMIGUI_PANEL_SELECTOR (notebook);
-  SwamiguiPanel *panel;
-  GList *children;
+    SwamiguiPanelSelector *selector = SWAMIGUI_PANEL_SELECTOR(notebook);
+    SwamiguiPanel *panel;
+    GList *children;
 
-  if (GTK_NOTEBOOK_CLASS (swamigui_panel_selector_parent_class)->switch_page)
-    GTK_NOTEBOOK_CLASS (swamigui_panel_selector_parent_class)->switch_page
-      (notebook, page, page_num);
+    if(GTK_NOTEBOOK_CLASS(swamigui_panel_selector_parent_class)->switch_page)
+        GTK_NOTEBOOK_CLASS(swamigui_panel_selector_parent_class)->switch_page
+        (notebook, page, page_num);
 
-  children = gtk_container_get_children (GTK_CONTAINER (notebook));	/* ++ alloc */
+    children = gtk_container_get_children(GTK_CONTAINER(notebook));	/* ++ alloc */
 
-  panel = (SwamiguiPanel *)g_list_nth_data (children, page_num);
+    panel = (SwamiguiPanel *)g_list_nth_data(children, page_num);
 
-  if (panel) g_object_set (panel, "item-selection", selector->selection, NULL);
+    if(panel)
+    {
+        g_object_set(panel, "item-selection", selector->selection, NULL);
+    }
 
-  g_list_free (children);	/* -- free */
+    g_list_free(children);	/* -- free */
 }
 
 /**
@@ -248,14 +268,14 @@ swamigui_panel_selector_switch_page (GtkNotebook *notebook,
  * Returns: New panel selector widget.
  */
 GtkWidget *
-swamigui_panel_selector_new (SwamiguiRoot *root)
+swamigui_panel_selector_new(SwamiguiRoot *root)
 {
-  GtkWidget *widg;
+    GtkWidget *widg;
 
-  widg = (GtkWidget *)g_object_new (SWAMIGUI_TYPE_PANEL_SELECTOR, NULL);
-  ((SwamiguiPanelSelector *)widg)->root = root;
+    widg = (GtkWidget *)g_object_new(SWAMIGUI_TYPE_PANEL_SELECTOR, NULL);
+    ((SwamiguiPanelSelector *)widg)->root = root;
 
-  return (widg);
+    return (widg);
 }
 
 /**
@@ -266,176 +286,208 @@ swamigui_panel_selector_new (SwamiguiRoot *root)
  * Set the item selection of a panel selector widget.
  */
 void
-swamigui_panel_selector_set_selection (SwamiguiPanelSelector *selector,
-				       IpatchList *items)
+swamigui_panel_selector_set_selection(SwamiguiPanelSelector *selector,
+                                      IpatchList *items)
 {
-  if (swamigui_panel_selector_real_set_selection (selector, items))
-    g_object_notify (G_OBJECT (selector), "item-selection");
+    if(swamigui_panel_selector_real_set_selection(selector, items))
+    {
+        g_object_notify(G_OBJECT(selector), "item-selection");
+    }
 }
 
 static gboolean
-swamigui_panel_selector_real_set_selection (SwamiguiPanelSelector *selector,
-					    IpatchList *selection)
+swamigui_panel_selector_real_set_selection(SwamiguiPanelSelector *selector,
+        IpatchList *selection)
 {
-  GList *old_panels;
-  GtkWidget *panel;
-  GType *item_types;
-  PanelInfo *info;
-  GList *children;
-  GList *p;
-  guint i;
+    GList *old_panels;
+    GtkWidget *panel;
+    GType *item_types;
+    PanelInfo *info;
+    GList *children;
+    GList *p;
+    guint i;
 
-  g_return_val_if_fail (SWAMIGUI_IS_PANEL_SELECTOR (selector), FALSE);
+    g_return_val_if_fail(SWAMIGUI_IS_PANEL_SELECTOR(selector), FALSE);
 
-  /* treat empty list as if NULL had been passed */
-  if (selection && !selection->items) selection = NULL;
-
-  if (!selection && !selector->selection) return (FALSE);
-
-  if (selector->selection) g_object_unref (selector->selection);
-
-  if (selection) selector->selection = ipatch_list_duplicate (selection);
-  else selector->selection = NULL;
-
-  old_panels = selector->active_panels;
-  selector->active_panels = NULL;
-
-  /* ++ alloc list - get list of current notebook children */
-  children = gtk_container_get_children (GTK_CONTAINER (selector));
-
-  if (selection)
-  {
-    /* get unique item types in items list (for optimization purposes) */
-    item_types = swamigui_panel_get_types_in_selection (selection);	/* ++ alloc */
-
-    /* loop over registered panel info */
-    for (i = 0, p = panel_list; i < panel_count; i++, p = p->next)
+    /* treat empty list as if NULL had been passed */
+    if(selection && !selection->items)
     {
-      info = (PanelInfo *)(p->data);
-
-      /* add panel types to list for those which selection is valid */
-      if (swamigui_panel_type_check_selection (info->type, selection, item_types))
-	selector->active_panels = g_list_prepend (selector->active_panels, p->data);
+        selection = NULL;
     }
 
-    g_free (item_types);	/* -- free */
-
-    /* sort the list of active panel types (by their order value) */
-    selector->active_panels = g_list_sort (selector->active_panels,
-					   sort_panel_info_by_order);
-
-    /* Add new panels (if any), may get pulled from cache instead of created */
-    for (p = selector->active_panels, i = 0; p; p = p->next, i++)
+    if(!selection && !selector->selection)
     {
-      info = (PanelInfo *)(p->data);
-
-      /* panel not in old list - create a new panel or use cached one */
-      if (!g_list_find (old_panels, info))
-	swamigui_panel_selector_insert_panel (selector, info, i);
+        return (FALSE);
     }
-  }
 
-  /* Remove old unneeded panels and cache them */
-  for (p = old_panels, i = 0; p; p = p->next, i++)
-  {
-    if (!g_list_find (selector->active_panels, p->data))
+    if(selector->selection)
     {
-      panel = g_list_nth_data (children, i);
-      g_object_ref (panel);	/* ++ ref for cache */
-      gtk_container_remove (GTK_CONTAINER (selector), GTK_WIDGET (panel));
-
-      g_object_set (panel, "item-selection", NULL, NULL);
-
-      if (selector->root)
-        selector->root->panel_cache = g_list_prepend (selector->root->panel_cache, panel);
-      else g_object_unref (panel);
+        g_object_unref(selector->selection);
     }
-  }
 
-  /* update "item-selection" for currently selected page */
-  i = gtk_notebook_get_current_page (GTK_NOTEBOOK (selector));
+    if(selection)
+    {
+        selector->selection = ipatch_list_duplicate(selection);
+    }
+    else
+    {
+        selector->selection = NULL;
+    }
 
-  if (i != -1)
-  {
-    panel = gtk_notebook_get_nth_page (GTK_NOTEBOOK (selector), i);
-    g_object_set (panel, "item-selection", selector->selection, NULL);
-  }
+    old_panels = selector->active_panels;
+    selector->active_panels = NULL;
 
-  g_list_free (children);	/* -- free */
-  g_list_free (old_panels);	/* -- free old panel info list */
+    /* ++ alloc list - get list of current notebook children */
+    children = gtk_container_get_children(GTK_CONTAINER(selector));
 
-  return (TRUE);
+    if(selection)
+    {
+        /* get unique item types in items list (for optimization purposes) */
+        item_types = swamigui_panel_get_types_in_selection(selection);	/* ++ alloc */
+
+        /* loop over registered panel info */
+        for(i = 0, p = panel_list; i < panel_count; i++, p = p->next)
+        {
+            info = (PanelInfo *)(p->data);
+
+            /* add panel types to list for those which selection is valid */
+            if(swamigui_panel_type_check_selection(info->type, selection, item_types))
+            {
+                selector->active_panels = g_list_prepend(selector->active_panels, p->data);
+            }
+        }
+
+        g_free(item_types);	/* -- free */
+
+        /* sort the list of active panel types (by their order value) */
+        selector->active_panels = g_list_sort(selector->active_panels,
+                                              sort_panel_info_by_order);
+
+        /* Add new panels (if any), may get pulled from cache instead of created */
+        for(p = selector->active_panels, i = 0; p; p = p->next, i++)
+        {
+            info = (PanelInfo *)(p->data);
+
+            /* panel not in old list - create a new panel or use cached one */
+            if(!g_list_find(old_panels, info))
+            {
+                swamigui_panel_selector_insert_panel(selector, info, i);
+            }
+        }
+    }
+
+    /* Remove old unneeded panels and cache them */
+    for(p = old_panels, i = 0; p; p = p->next, i++)
+    {
+        if(!g_list_find(selector->active_panels, p->data))
+        {
+            panel = g_list_nth_data(children, i);
+            g_object_ref(panel);	/* ++ ref for cache */
+            gtk_container_remove(GTK_CONTAINER(selector), GTK_WIDGET(panel));
+
+            g_object_set(panel, "item-selection", NULL, NULL);
+
+            if(selector->root)
+            {
+                selector->root->panel_cache = g_list_prepend(selector->root->panel_cache, panel);
+            }
+            else
+            {
+                g_object_unref(panel);
+            }
+        }
+    }
+
+    /* update "item-selection" for currently selected page */
+    i = gtk_notebook_get_current_page(GTK_NOTEBOOK(selector));
+
+    if(i != -1)
+    {
+        panel = gtk_notebook_get_nth_page(GTK_NOTEBOOK(selector), i);
+        g_object_set(panel, "item-selection", selector->selection, NULL);
+    }
+
+    g_list_free(children);	/* -- free */
+    g_list_free(old_panels);	/* -- free old panel info list */
+
+    return (TRUE);
 }
 
 /* GCompareFunc for sorting list items by panel 'order' values */
 static gint
-sort_panel_info_by_order (gconstpointer a, gconstpointer b)
+sort_panel_info_by_order(gconstpointer a, gconstpointer b)
 {
-  PanelInfo *ainfo = (PanelInfo *)a, *binfo = (PanelInfo *)b;
-  return (ainfo->order - binfo->order);
+    PanelInfo *ainfo = (PanelInfo *)a, *binfo = (PanelInfo *)b;
+    return (ainfo->order - binfo->order);
 }
 
 /* create a new panel (or use existing identical panel from cache) and add to
  * panel selector notebook at a given position */
 static void
-swamigui_panel_selector_insert_panel (SwamiguiPanelSelector *selector,
-				      PanelInfo *info, int pos)
+swamigui_panel_selector_insert_panel(SwamiguiPanelSelector *selector,
+                                     PanelInfo *info, int pos)
 {
-  GtkWidget *hbox, *widg;
-  GtkWidget *panel = NULL;
-  GtkWidget *cachepanel;
-  char *label, *blurb, *stockid;
-  PanelInfo *cacheinfo = NULL;
-  GList *p;
+    GtkWidget *hbox, *widg;
+    GtkWidget *panel = NULL;
+    GtkWidget *cachepanel;
+    char *label, *blurb, *stockid;
+    PanelInfo *cacheinfo = NULL;
+    GList *p;
 
-  /* Check if there is already a panel of the requested type in the cache */
-  if (selector->root)
-  {
-    for (p = selector->root->panel_cache; p; p = p->next)
+    /* Check if there is already a panel of the requested type in the cache */
+    if(selector->root)
     {
-      cachepanel = (GtkWidget *)(p->data);
-      cacheinfo = g_object_get_data (G_OBJECT (cachepanel), "_SwamiguiPanelInfo");
+        for(p = selector->root->panel_cache; p; p = p->next)
+        {
+            cachepanel = (GtkWidget *)(p->data);
+            cacheinfo = g_object_get_data(G_OBJECT(cachepanel), "_SwamiguiPanelInfo");
 
-      if (cacheinfo == info)
-      {
-        panel = cachepanel;
-        selector->root->panel_cache = g_list_delete_link (selector->root->panel_cache, p);
-        break;
-      }
+            if(cacheinfo == info)
+            {
+                panel = cachepanel;
+                selector->root->panel_cache = g_list_delete_link(selector->root->panel_cache, p);
+                break;
+            }
+        }
     }
-  }
 
-  if (!panel)	/* Not found in cache? - Create it and associate with info. */
-  {
-    panel = GTK_WIDGET (g_object_new (info->type, NULL));
-    g_object_set_data (G_OBJECT (panel), "_SwamiguiPanelInfo", info);
-  }
+    if(!panel)	/* Not found in cache? - Create it and associate with info. */
+    {
+        panel = GTK_WIDGET(g_object_new(info->type, NULL));
+        g_object_set_data(G_OBJECT(panel), "_SwamiguiPanelInfo", info);
+    }
 
-  gtk_widget_show (panel);
+    gtk_widget_show(panel);
 
-  hbox = gtk_hbox_new (FALSE, 0);
+    hbox = gtk_hbox_new(FALSE, 0);
 
-  swamigui_panel_type_get_info (info->type, &label, &blurb, &stockid);
+    swamigui_panel_type_get_info(info->type, &label, &blurb, &stockid);
 
-  if (stockid)
-  {
-    widg = gtk_image_new_from_stock (stockid, GTK_ICON_SIZE_SMALL_TOOLBAR);
-    gtk_box_pack_start (GTK_BOX (hbox), widg, FALSE, FALSE, 0);
-  }
+    if(stockid)
+    {
+        widg = gtk_image_new_from_stock(stockid, GTK_ICON_SIZE_SMALL_TOOLBAR);
+        gtk_box_pack_start(GTK_BOX(hbox), widg, FALSE, FALSE, 0);
+    }
 
-  if (label)
-  {
-    widg = gtk_label_new (label);
-    gtk_box_pack_start (GTK_BOX (hbox), widg, FALSE, FALSE, 0);
-  }
+    if(label)
+    {
+        widg = gtk_label_new(label);
+        gtk_box_pack_start(GTK_BOX(hbox), widg, FALSE, FALSE, 0);
+    }
 
-  if (blurb) gtk_widget_set_tooltip_text (GTK_WIDGET (hbox), blurb);
+    if(blurb)
+    {
+        gtk_widget_set_tooltip_text(GTK_WIDGET(hbox), blurb);
+    }
 
-  gtk_widget_show_all (hbox);
-  gtk_notebook_insert_page (GTK_NOTEBOOK (selector), panel, hbox, pos);
+    gtk_widget_show_all(hbox);
+    gtk_notebook_insert_page(GTK_NOTEBOOK(selector), panel, hbox, pos);
 
-  /* -- unref the panel if it was taken from the cache */
-  if (cacheinfo == info) g_object_unref (panel);
+    /* -- unref the panel if it was taken from the cache */
+    if(cacheinfo == info)
+    {
+        g_object_unref(panel);
+    }
 }
 
 /**
@@ -449,11 +501,16 @@ swamigui_panel_selector_insert_panel (SwamiguiPanelSelector *selector,
  *   reference when finished with it.
  */
 IpatchList *
-swamigui_panel_selector_get_selection (SwamiguiPanelSelector *selector)
+swamigui_panel_selector_get_selection(SwamiguiPanelSelector *selector)
 {
-  g_return_val_if_fail (SWAMIGUI_IS_PANEL_SELECTOR (selector), NULL);
+    g_return_val_if_fail(SWAMIGUI_IS_PANEL_SELECTOR(selector), NULL);
 
-  if (selector->selection && selector->selection->items)
-    return (ipatch_list_duplicate (selector->selection));
-  else return (NULL);
+    if(selector->selection && selector->selection->items)
+    {
+        return (ipatch_list_duplicate(selector->selection));
+    }
+    else
+    {
+        return (NULL);
+    }
 }

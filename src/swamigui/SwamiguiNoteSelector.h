@@ -42,16 +42,16 @@ typedef struct _SwamiguiNoteSelectorClass SwamiguiNoteSelectorClass;
 /* MIDI note selector widget */
 struct _SwamiguiNoteSelector
 {
-  GtkSpinButton parent_instance;
+    GtkSpinButton parent_instance;
 };
 
 /* MIDI note selector class */
 struct _SwamiguiNoteSelectorClass
 {
-  GtkSpinButtonClass parent_class;
+    GtkSpinButtonClass parent_class;
 };
 
-GType swamigui_note_selector_get_type (void);
-GtkWidget *swamigui_note_selector_new ();
+GType swamigui_note_selector_get_type(void);
+GtkWidget *swamigui_note_selector_new();
 
 #endif

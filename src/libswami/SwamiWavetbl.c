@@ -27,29 +27,31 @@
 
 /* --- signals and properties --- */
 
-enum {
-  ACTIVE,
-  LAST_SIGNAL
+enum
+{
+    ACTIVE,
+    LAST_SIGNAL
 };
 
-enum {
-  PROP_0,
-  PROP_VBANK,
-  PROP_ACTIVE,
-  PROP_ACTIVE_BANK,
-  PROP_ACTIVE_PROGRAM
+enum
+{
+    PROP_0,
+    PROP_VBANK,
+    PROP_ACTIVE,
+    PROP_ACTIVE_BANK,
+    PROP_ACTIVE_PROGRAM
 };
 
 /* --- private function prototypes --- */
 
-static void swami_wavetbl_class_init (SwamiWavetblClass *klass);
-static void swami_wavetbl_set_property (GObject *object, guint property_id,
-					const GValue *value,
-					GParamSpec *pspec);
-static void swami_wavetbl_get_property (GObject *object, guint property_id,
-					GValue *value, GParamSpec *pspec);
-static void swami_wavetbl_init (SwamiWavetbl *wavetbl);
-static void swami_wavetbl_finalize (GObject *object);
+static void swami_wavetbl_class_init(SwamiWavetblClass *klass);
+static void swami_wavetbl_set_property(GObject *object, guint property_id,
+                                       const GValue *value,
+                                       GParamSpec *pspec);
+static void swami_wavetbl_get_property(GObject *object, guint property_id,
+                                       GValue *value, GParamSpec *pspec);
+static void swami_wavetbl_init(SwamiWavetbl *wavetbl);
+static void swami_wavetbl_finalize(GObject *object);
 
 /* --- private data --- */
 
@@ -61,131 +63,141 @@ static GObjectClass *parent_class = NULL;
 /* --- functions --- */
 
 GType
-swami_wavetbl_get_type (void)
+swami_wavetbl_get_type(void)
 {
-  static GType item_type = 0;
+    static GType item_type = 0;
 
-  if (!item_type) {
-    static const GTypeInfo item_info = {
-      sizeof (SwamiWavetblClass), NULL, NULL,
-      (GClassInitFunc) swami_wavetbl_class_init, NULL, NULL,
-      sizeof (SwamiWavetbl), 0,
-      (GInstanceInitFunc) swami_wavetbl_init,
-    };
+    if(!item_type)
+    {
+        static const GTypeInfo item_info =
+        {
+            sizeof(SwamiWavetblClass), NULL, NULL,
+            (GClassInitFunc) swami_wavetbl_class_init, NULL, NULL,
+            sizeof(SwamiWavetbl), 0,
+            (GInstanceInitFunc) swami_wavetbl_init,
+        };
 
-    item_type = g_type_register_static (SWAMI_TYPE_LOCK, "SwamiWavetbl",
-					&item_info, G_TYPE_FLAG_ABSTRACT);
-  }
+        item_type = g_type_register_static(SWAMI_TYPE_LOCK, "SwamiWavetbl",
+                                           &item_info, G_TYPE_FLAG_ABSTRACT);
+    }
 
-  return (item_type);
+    return (item_type);
 }
 
 static void
-swami_wavetbl_class_init (SwamiWavetblClass *klass)
+swami_wavetbl_class_init(SwamiWavetblClass *klass)
 {
-  GObjectClass *objclass = G_OBJECT_CLASS (klass);
+    GObjectClass *objclass = G_OBJECT_CLASS(klass);
 
-  parent_class = g_type_class_peek_parent (klass);
+    parent_class = g_type_class_peek_parent(klass);
 
-  objclass->set_property = swami_wavetbl_set_property;
-  objclass->get_property = swami_wavetbl_get_property;
-  objclass->finalize = swami_wavetbl_finalize;
+    objclass->set_property = swami_wavetbl_set_property;
+    objclass->get_property = swami_wavetbl_get_property;
+    objclass->finalize = swami_wavetbl_finalize;
 
-  wavetbl_signals[ACTIVE] =
-    g_signal_new ("active", G_TYPE_FROM_CLASS (klass),
-		  G_SIGNAL_RUN_FIRST,
-		  0, NULL, NULL,
-		  g_cclosure_marshal_VOID__BOOLEAN, G_TYPE_NONE, 1,
-		  G_TYPE_BOOLEAN);
+    wavetbl_signals[ACTIVE] =
+        g_signal_new("active", G_TYPE_FROM_CLASS(klass),
+                     G_SIGNAL_RUN_FIRST,
+                     0, NULL, NULL,
+                     g_cclosure_marshal_VOID__BOOLEAN, G_TYPE_NONE, 1,
+                     G_TYPE_BOOLEAN);
 
-  g_object_class_install_property (objclass, PROP_VBANK,
-		g_param_spec_object ("vbank", _("Virtual bank"), _("Virtual bank"),
-				     IPATCH_TYPE_VBANK, G_PARAM_READABLE));
-  g_object_class_install_property (objclass, PROP_ACTIVE,
-		g_param_spec_boolean ("active", _("Active"), _("State of driver"),
-				      FALSE, G_PARAM_READABLE));
-  g_object_class_install_property (objclass, PROP_ACTIVE_BANK,
-		g_param_spec_int ("active-bank", _("Active bank"),
-				  _("Active (focused) MIDI bank number"),
-				  0, 128, 127,
-				  G_PARAM_READWRITE));
-  g_object_class_install_property (objclass, PROP_ACTIVE_PROGRAM,
-		g_param_spec_int ("active-program", _("Active program"),
-				  _("Active (focused) MIDI program number"),
-				  0, 127, 127,
-				  G_PARAM_READWRITE));
+    g_object_class_install_property(objclass, PROP_VBANK,
+                                    g_param_spec_object("vbank", _("Virtual bank"), _("Virtual bank"),
+                                            IPATCH_TYPE_VBANK, G_PARAM_READABLE));
+    g_object_class_install_property(objclass, PROP_ACTIVE,
+                                    g_param_spec_boolean("active", _("Active"), _("State of driver"),
+                                            FALSE, G_PARAM_READABLE));
+    g_object_class_install_property(objclass, PROP_ACTIVE_BANK,
+                                    g_param_spec_int("active-bank", _("Active bank"),
+                                            _("Active (focused) MIDI bank number"),
+                                            0, 128, 127,
+                                            G_PARAM_READWRITE));
+    g_object_class_install_property(objclass, PROP_ACTIVE_PROGRAM,
+                                    g_param_spec_int("active-program", _("Active program"),
+                                            _("Active (focused) MIDI program number"),
+                                            0, 127, 127,
+                                            G_PARAM_READWRITE));
 }
 
 static void
-swami_wavetbl_set_property (GObject *object, guint property_id,
-			    const GValue *value, GParamSpec *pspec)
+swami_wavetbl_set_property(GObject *object, guint property_id,
+                           const GValue *value, GParamSpec *pspec)
 {
-  SwamiWavetbl *wavetbl = SWAMI_WAVETBL (object);
+    SwamiWavetbl *wavetbl = SWAMI_WAVETBL(object);
 
-  switch (property_id)
+    switch(property_id)
     {
     case PROP_ACTIVE_BANK:
-      wavetbl->active_bank = g_value_get_int (value);
-      break;
+        wavetbl->active_bank = g_value_get_int(value);
+        break;
+
     case PROP_ACTIVE_PROGRAM:
-      wavetbl->active_program = g_value_get_int (value);
-      break;
+        wavetbl->active_program = g_value_get_int(value);
+        break;
+
     default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-      break;
+        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+        break;
     }
 }
 
 static void
-swami_wavetbl_get_property (GObject *object, guint property_id, GValue *value,
-			    GParamSpec *pspec)
+swami_wavetbl_get_property(GObject *object, guint property_id, GValue *value,
+                           GParamSpec *pspec)
 {
-  SwamiWavetbl *wavetbl;
+    SwamiWavetbl *wavetbl;
 
-  g_return_if_fail (SWAMI_IS_WAVETBL (object));
+    g_return_if_fail(SWAMI_IS_WAVETBL(object));
 
-  wavetbl = SWAMI_WAVETBL (object);
+    wavetbl = SWAMI_WAVETBL(object);
 
-  switch (property_id)
+    switch(property_id)
     {
     case PROP_VBANK:
-      g_value_set_object (value, G_OBJECT (wavetbl->vbank));
-      break;
+        g_value_set_object(value, G_OBJECT(wavetbl->vbank));
+        break;
+
     case PROP_ACTIVE:
-      g_value_set_boolean (value, wavetbl->active);
-      break;
+        g_value_set_boolean(value, wavetbl->active);
+        break;
+
     case PROP_ACTIVE_BANK:
-      g_value_set_int (value, wavetbl->active_bank);
-      break;
+        g_value_set_int(value, wavetbl->active_bank);
+        break;
+
     case PROP_ACTIVE_PROGRAM:
-      g_value_set_int (value, wavetbl->active_program);
-      break;
+        g_value_set_int(value, wavetbl->active_program);
+        break;
+
     default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-      break;
+        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+        break;
     }
 }
 
 static void
-swami_wavetbl_init (SwamiWavetbl *wavetbl)
+swami_wavetbl_init(SwamiWavetbl *wavetbl)
 {
-  wavetbl->vbank = ipatch_vbank_new ();
-  wavetbl->active = FALSE;
-  wavetbl->active_bank = 127;
-  wavetbl->active_program = 127;
+    wavetbl->vbank = ipatch_vbank_new();
+    wavetbl->active = FALSE;
+    wavetbl->active_bank = 127;
+    wavetbl->active_program = 127;
 }
 
 static void
-swami_wavetbl_finalize (GObject *object)
+swami_wavetbl_finalize(GObject *object)
 {
-  SwamiWavetbl *wavetbl = SWAMI_WAVETBL (object);
+    SwamiWavetbl *wavetbl = SWAMI_WAVETBL(object);
 
-  swami_wavetbl_close (wavetbl);
+    swami_wavetbl_close(wavetbl);
 
-  g_object_unref (wavetbl->vbank);
+    g_object_unref(wavetbl->vbank);
 
-  if (parent_class->finalize)
-      parent_class->finalize (object);
+    if(parent_class->finalize)
+    {
+        parent_class->finalize(object);
+    }
 }
 
 /**
@@ -200,9 +212,9 @@ swami_wavetbl_finalize (GObject *object)
  *   added for the caller.
  */
 IpatchVBank *
-swami_wavetbl_get_virtual_bank (SwamiWavetbl *wavetbl)
+swami_wavetbl_get_virtual_bank(SwamiWavetbl *wavetbl)
 {
-  return (g_object_ref (wavetbl->vbank));
+    return (g_object_ref(wavetbl->vbank));
 }
 
 /**
@@ -220,17 +232,17 @@ swami_wavetbl_get_virtual_bank (SwamiWavetbl *wavetbl)
  * <function>g_object_set()</function> routine.
  */
 void
-swami_wavetbl_set_active_item_locale (SwamiWavetbl *wavetbl,
-				      int bank, int program)
+swami_wavetbl_set_active_item_locale(SwamiWavetbl *wavetbl,
+                                     int bank, int program)
 {
-  g_return_if_fail (SWAMI_IS_WAVETBL (wavetbl));
-  g_return_if_fail (bank >= 0 && bank <= 128);
-  g_return_if_fail (program >= 0 && program <= 127);
+    g_return_if_fail(SWAMI_IS_WAVETBL(wavetbl));
+    g_return_if_fail(bank >= 0 && bank <= 128);
+    g_return_if_fail(program >= 0 && program <= 127);
 
-  SWAMI_LOCK_WRITE (wavetbl);
-  wavetbl->active_bank = bank;
-  wavetbl->active_program = program;
-  SWAMI_UNLOCK_WRITE (wavetbl);
+    SWAMI_LOCK_WRITE(wavetbl);
+    wavetbl->active_bank = bank;
+    wavetbl->active_program = program;
+    SWAMI_UNLOCK_WRITE(wavetbl);
 }
 
 /**
@@ -243,15 +255,24 @@ swami_wavetbl_set_active_item_locale (SwamiWavetbl *wavetbl,
  * item. See swami_wavetbl_set_active_item_locale() for more info.
  */
 void
-swami_wavetbl_get_active_item_locale (SwamiWavetbl *wavetbl,
-				      int *bank, int *program)
+swami_wavetbl_get_active_item_locale(SwamiWavetbl *wavetbl,
+                                     int *bank, int *program)
 {
-  g_return_if_fail (SWAMI_IS_WAVETBL (wavetbl));
+    g_return_if_fail(SWAMI_IS_WAVETBL(wavetbl));
 
-  SWAMI_LOCK_READ (wavetbl);
-  if (bank) *bank = wavetbl->active_bank;
-  if (program) *program = wavetbl->active_program;
-  SWAMI_UNLOCK_READ (wavetbl);
+    SWAMI_LOCK_READ(wavetbl);
+
+    if(bank)
+    {
+        *bank = wavetbl->active_bank;
+    }
+
+    if(program)
+    {
+        *program = wavetbl->active_program;
+    }
+
+    SWAMI_UNLOCK_READ(wavetbl);
 }
 
 /**
@@ -264,23 +285,28 @@ swami_wavetbl_get_active_item_locale (SwamiWavetbl *wavetbl,
  * Returns: %TRUE on success, %FALSE otherwise
  */
 gboolean
-swami_wavetbl_open (SwamiWavetbl *wavetbl, GError **err)
+swami_wavetbl_open(SwamiWavetbl *wavetbl, GError **err)
 {
-  SwamiWavetblClass *wavetbl_class;
-  gboolean retval = TRUE;
+    SwamiWavetblClass *wavetbl_class;
+    gboolean retval = TRUE;
 
-  g_return_val_if_fail (SWAMI_IS_WAVETBL (wavetbl), FALSE);
-  wavetbl_class = SWAMI_WAVETBL_GET_CLASS (wavetbl);
-  g_return_val_if_fail (wavetbl_class->open != NULL, FALSE);
+    g_return_val_if_fail(SWAMI_IS_WAVETBL(wavetbl), FALSE);
+    wavetbl_class = SWAMI_WAVETBL_GET_CLASS(wavetbl);
+    g_return_val_if_fail(wavetbl_class->open != NULL, FALSE);
 
-  if (wavetbl->active) return (TRUE);
+    if(wavetbl->active)
+    {
+        return (TRUE);
+    }
 
-  retval = wavetbl_class->open (wavetbl, err);
+    retval = wavetbl_class->open(wavetbl, err);
 
-  if (retval)
-    g_signal_emit (G_OBJECT (wavetbl), wavetbl_signals[ACTIVE], 0, TRUE);
+    if(retval)
+    {
+        g_signal_emit(G_OBJECT(wavetbl), wavetbl_signals[ACTIVE], 0, TRUE);
+    }
 
-  return (retval);
+    return (retval);
 }
 
 /**
@@ -290,19 +316,22 @@ swami_wavetbl_open (SwamiWavetbl *wavetbl, GError **err)
  * Close driver, has no effect if already closed.  Emits the "active" signal.
  */
 void
-swami_wavetbl_close (SwamiWavetbl *wavetbl)
+swami_wavetbl_close(SwamiWavetbl *wavetbl)
 {
-  SwamiWavetblClass *oclass;
+    SwamiWavetblClass *oclass;
 
-  g_return_if_fail (SWAMI_IS_WAVETBL (wavetbl));
-  oclass = SWAMI_WAVETBL_GET_CLASS (wavetbl);
-  g_return_if_fail (oclass->close != NULL);
+    g_return_if_fail(SWAMI_IS_WAVETBL(wavetbl));
+    oclass = SWAMI_WAVETBL_GET_CLASS(wavetbl);
+    g_return_if_fail(oclass->close != NULL);
 
-  if (!wavetbl->active) return;
+    if(!wavetbl->active)
+    {
+        return;
+    }
 
-  (*oclass->close)(wavetbl);
+    (*oclass->close)(wavetbl);
 
-  g_signal_emit (G_OBJECT (wavetbl), wavetbl_signals[ACTIVE], 0, FALSE);
+    g_signal_emit(G_OBJECT(wavetbl), wavetbl_signals[ACTIVE], 0, FALSE);
 }
 
 /**
@@ -321,21 +350,25 @@ swami_wavetbl_close (SwamiWavetbl *wavetbl)
  * when finished.
  */
 SwamiControlMidi *
-swami_wavetbl_get_control (SwamiWavetbl *wavetbl, int index)
+swami_wavetbl_get_control(SwamiWavetbl *wavetbl, int index)
 {
-  SwamiWavetblClass *wavetbl_class;
-  SwamiControlMidi *control = NULL;
+    SwamiWavetblClass *wavetbl_class;
+    SwamiControlMidi *control = NULL;
 
-  g_return_val_if_fail (SWAMI_IS_WAVETBL (wavetbl), NULL);
-  wavetbl_class = SWAMI_WAVETBL_GET_CLASS (wavetbl);
+    g_return_val_if_fail(SWAMI_IS_WAVETBL(wavetbl), NULL);
+    wavetbl_class = SWAMI_WAVETBL_GET_CLASS(wavetbl);
 
-  if (wavetbl_class->get_control)
+    if(wavetbl_class->get_control)
     {
-      control = (*wavetbl_class->get_control)(wavetbl, index);
-      if (control) g_object_ref (control); /* ++ ref control for caller */
+        control = (*wavetbl_class->get_control)(wavetbl, index);
+
+        if(control)
+        {
+            g_object_ref(control);    /* ++ ref control for caller */
+        }
     }
 
-  return (control);
+    return (control);
 }
 
 /**
@@ -349,18 +382,18 @@ swami_wavetbl_get_control (SwamiWavetbl *wavetbl, int index)
  * Returns: %TRUE on success, %FALSE otherwise
  */
 gboolean
-swami_wavetbl_load_patch (SwamiWavetbl *wavetbl, IpatchItem *patch,
-			  GError **err)
+swami_wavetbl_load_patch(SwamiWavetbl *wavetbl, IpatchItem *patch,
+                         GError **err)
 {
-  SwamiWavetblClass *wavetbl_class;
+    SwamiWavetblClass *wavetbl_class;
 
-  g_return_val_if_fail (SWAMI_IS_WAVETBL (wavetbl), FALSE);
-  g_return_val_if_fail (IPATCH_IS_ITEM (patch), FALSE);
+    g_return_val_if_fail(SWAMI_IS_WAVETBL(wavetbl), FALSE);
+    g_return_val_if_fail(IPATCH_IS_ITEM(patch), FALSE);
 
-  wavetbl_class = SWAMI_WAVETBL_GET_CLASS (wavetbl);
-  g_return_val_if_fail (wavetbl_class->load_patch != NULL, FALSE);
+    wavetbl_class = SWAMI_WAVETBL_GET_CLASS(wavetbl);
+    g_return_val_if_fail(wavetbl_class->load_patch != NULL, FALSE);
 
-  return ((*wavetbl_class->load_patch)(wavetbl, patch, err));
+    return ((*wavetbl_class->load_patch)(wavetbl, patch, err));
 }
 
 /**
@@ -374,21 +407,21 @@ swami_wavetbl_load_patch (SwamiWavetbl *wavetbl, IpatchItem *patch,
  * Returns: %TRUE on success, %FALSE otherwise
  */
 gboolean
-swami_wavetbl_load_active_item (SwamiWavetbl *wavetbl, IpatchItem *item,
-				GError **err)
+swami_wavetbl_load_active_item(SwamiWavetbl *wavetbl, IpatchItem *item,
+                               GError **err)
 {
-  SwamiWavetblClass *wavetbl_class;
-  gboolean retval;
+    SwamiWavetblClass *wavetbl_class;
+    gboolean retval;
 
-  g_return_val_if_fail (SWAMI_IS_WAVETBL (wavetbl), FALSE);
-  g_return_val_if_fail (IPATCH_IS_ITEM (item), FALSE);
+    g_return_val_if_fail(SWAMI_IS_WAVETBL(wavetbl), FALSE);
+    g_return_val_if_fail(IPATCH_IS_ITEM(item), FALSE);
 
-  wavetbl_class = SWAMI_WAVETBL_GET_CLASS (wavetbl);
-  g_return_val_if_fail (wavetbl_class->load_active_item != NULL, FALSE);
+    wavetbl_class = SWAMI_WAVETBL_GET_CLASS(wavetbl);
+    g_return_val_if_fail(wavetbl_class->load_active_item != NULL, FALSE);
 
-  retval = (*wavetbl_class->load_active_item)(wavetbl, item, err);
+    retval = (*wavetbl_class->load_active_item)(wavetbl, item, err);
 
-  return (retval);
+    return (retval);
 }
 
 /**
@@ -404,22 +437,26 @@ swami_wavetbl_load_active_item (SwamiWavetbl *wavetbl, IpatchItem *item,
  * a synthesis property or @item is not currently loaded in @wavetbl).
  */
 gboolean
-swami_wavetbl_check_update_item (SwamiWavetbl *wavetbl, IpatchItem *item,
-				 GParamSpec *prop)
+swami_wavetbl_check_update_item(SwamiWavetbl *wavetbl, IpatchItem *item,
+                                GParamSpec *prop)
 {
-  SwamiWavetblClass *oclass;
-  gboolean retval;
+    SwamiWavetblClass *oclass;
+    gboolean retval;
 
-  g_return_val_if_fail (SWAMI_IS_WAVETBL (wavetbl), FALSE);
-  g_return_val_if_fail (IPATCH_IS_ITEM (item), FALSE);
-  g_return_val_if_fail (G_IS_PARAM_SPEC (prop), FALSE);
+    g_return_val_if_fail(SWAMI_IS_WAVETBL(wavetbl), FALSE);
+    g_return_val_if_fail(IPATCH_IS_ITEM(item), FALSE);
+    g_return_val_if_fail(G_IS_PARAM_SPEC(prop), FALSE);
 
-  oclass = SWAMI_WAVETBL_GET_CLASS (wavetbl);
-  if (!oclass->update_item) return (FALSE);
+    oclass = SWAMI_WAVETBL_GET_CLASS(wavetbl);
 
-  retval = (*oclass->check_update_item)(wavetbl, item, prop);
+    if(!oclass->update_item)
+    {
+        return (FALSE);
+    }
 
-  return (retval);
+    retval = (*oclass->check_update_item)(wavetbl, item, prop);
+
+    return (retval);
 }
 
 /**
@@ -432,15 +469,19 @@ swami_wavetbl_check_update_item (SwamiWavetbl *wavetbl, IpatchItem *item,
  * with swami_wavetbl_check_update_item().
  */
 void
-swami_wavetbl_update_item (SwamiWavetbl *wavetbl, IpatchItem *item)
+swami_wavetbl_update_item(SwamiWavetbl *wavetbl, IpatchItem *item)
 {
-  SwamiWavetblClass *oclass;
+    SwamiWavetblClass *oclass;
 
-  g_return_if_fail (SWAMI_IS_WAVETBL (wavetbl));
-  g_return_if_fail (IPATCH_IS_ITEM (item));
+    g_return_if_fail(SWAMI_IS_WAVETBL(wavetbl));
+    g_return_if_fail(IPATCH_IS_ITEM(item));
 
-  oclass = SWAMI_WAVETBL_GET_CLASS (wavetbl);
-  if (!oclass->update_item) return;
+    oclass = SWAMI_WAVETBL_GET_CLASS(wavetbl);
 
-  (*oclass->update_item)(wavetbl, item);
+    if(!oclass->update_item)
+    {
+        return;
+    }
+
+    (*oclass->update_item)(wavetbl, item);
 }

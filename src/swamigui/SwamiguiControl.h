@@ -28,11 +28,11 @@
 /* some defined rank values for registered handlers */
 typedef enum
 {
-  SWAMIGUI_CONTROL_RANK_LOWEST  = 1,
-  SWAMIGUI_CONTROL_RANK_LOW     = 16,
-  SWAMIGUI_CONTROL_RANK_NORMAL  = 32,
-  SWAMIGUI_CONTROL_RANK_HIGH    = 48,
-  SWAMIGUI_CONTROL_RANK_HIGHEST = 63
+    SWAMIGUI_CONTROL_RANK_LOWEST  = 1,
+    SWAMIGUI_CONTROL_RANK_LOW     = 16,
+    SWAMIGUI_CONTROL_RANK_NORMAL  = 32,
+    SWAMIGUI_CONTROL_RANK_HIGH    = 48,
+    SWAMIGUI_CONTROL_RANK_HIGHEST = 63
 } SwamiguiControlRank;
 
 /* value to use for 0 (default) */
@@ -43,9 +43,9 @@ typedef enum
 
 typedef enum
 {
-  SWAMIGUI_CONTROL_CTRL      =  0x40, /* controls values */
-  SWAMIGUI_CONTROL_VIEW      =  0x80, /* displays values */
-  SWAMIGUI_CONTROL_NO_CREATE = 0x100 /* don't create control, cfg UI obj only */
+    SWAMIGUI_CONTROL_CTRL      =  0x40, /* controls values */
+    SWAMIGUI_CONTROL_VIEW      =  0x80, /* displays values */
+    SWAMIGUI_CONTROL_NO_CREATE = 0x100 /* don't create control, cfg UI obj only */
 } SwamiguiControlFlags;
 
 /* convenience for control/view controls */
@@ -53,9 +53,9 @@ typedef enum
 
 typedef enum  /*< flags >*/
 {
-  SWAMIGUI_CONTROL_OBJECT_NO_LABELS   = 1 << 0,
-  SWAMIGUI_CONTROL_OBJECT_NO_SORT     = 1 << 1,
-  SWAMIGUI_CONTROL_OBJECT_PROP_LABELS = 1 << 2
+    SWAMIGUI_CONTROL_OBJECT_NO_LABELS   = 1 << 0,
+    SWAMIGUI_CONTROL_OBJECT_NO_SORT     = 1 << 1,
+    SWAMIGUI_CONTROL_OBJECT_PROP_LABELS = 1 << 2
 } SwamiguiControlObjectFlags;
 
 /**
@@ -83,32 +83,32 @@ typedef enum  /*< flags >*/
  * Returns: Should return the new control which is controlling the
  *   GUI interface @widget.
  */
-typedef SwamiControl * (*SwamiguiControlHandler)(GObject *widget,
-						 GType value_type,
-						 GParamSpec *pspec,
-						 SwamiguiControlFlags flags);
+typedef SwamiControl *(*SwamiguiControlHandler)(GObject *widget,
+        GType value_type,
+        GParamSpec *pspec,
+        SwamiguiControlFlags flags);
 
 /* quark used in associating a control to a controlled object */
 extern GQuark swamigui_control_quark;
 
-SwamiControl *swamigui_control_new (GType type);
-SwamiControl *swamigui_control_new_for_widget (GObject *widget);
-SwamiControl *swamigui_control_new_for_widget_full (GObject *widget,
-						    GType value_type,
-						    GParamSpec *pspec,
-						    SwamiguiControlFlags flags);
-SwamiControl *swamigui_control_lookup (GObject *widget);
-void swamigui_control_prop_connect_widget (GObject *object, const char *propname,
-					   GObject *widget);
-GObject *swamigui_control_create_widget (GType widg_type, GType value_type,
-					 GParamSpec *pspec,
-					 SwamiguiControlFlags flags);
-void swamigui_control_set_queue (SwamiControl *control);
-void swamigui_control_register (GType widg_type, GType value_type,
-				SwamiguiControlHandler handler, guint flags);
-void swamigui_control_unregister (GType widg_type, GType value_type);
+SwamiControl *swamigui_control_new(GType type);
+SwamiControl *swamigui_control_new_for_widget(GObject *widget);
+SwamiControl *swamigui_control_new_for_widget_full(GObject *widget,
+        GType value_type,
+        GParamSpec *pspec,
+        SwamiguiControlFlags flags);
+SwamiControl *swamigui_control_lookup(GObject *widget);
+void swamigui_control_prop_connect_widget(GObject *object, const char *propname,
+        GObject *widget);
+GObject *swamigui_control_create_widget(GType widg_type, GType value_type,
+                                        GParamSpec *pspec,
+                                        SwamiguiControlFlags flags);
+void swamigui_control_set_queue(SwamiControl *control);
+void swamigui_control_register(GType widg_type, GType value_type,
+                               SwamiguiControlHandler handler, guint flags);
+void swamigui_control_unregister(GType widg_type, GType value_type);
 
-void swamigui_control_glade_prop_connect (GtkWidget *widget, GObject *obj);
-GType swamigui_control_get_alias_value_type (GType type);
+void swamigui_control_glade_prop_connect(GtkWidget *widget, GObject *obj);
+GType swamigui_control_get_alias_value_type(GType type);
 
 #endif

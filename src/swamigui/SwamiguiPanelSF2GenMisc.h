@@ -20,8 +20,8 @@
 /**
  * SECTION: SwamiguiPanelSF2GenMisc
  * @short_description: SoundFont envelope generator control panel
- * @see_also: 
- * @stability: 
+ * @see_also:
+ * @stability:
  */
 #ifndef __SWAMIGUI_PANEL_SF2_GEN_MISC_H__
 #define __SWAMIGUI_PANEL_SF2_GEN_MISC_H__
@@ -48,15 +48,15 @@ typedef struct _SwamiguiPanelSF2GenMiscClass SwamiguiPanelSF2GenMiscClass;
 
 struct _SwamiguiPanelSF2GenMisc
 {
-  SwamiguiPanelSF2Gen parent_instance;
+    SwamiguiPanelSF2Gen parent_instance;
 };
 
 struct _SwamiguiPanelSF2GenMiscClass
 {
-  SwamiguiPanelSF2GenClass parent_class;
+    SwamiguiPanelSF2GenClass parent_class;
 };
 
-GType swamigui_panel_sf2_gen_misc_get_type (void);
-GtkWidget *swamigui_panel_sf2_gen_misc_new (void);
+GType swamigui_panel_sf2_gen_misc_get_type(void);
+GtkWidget *swamigui_panel_sf2_gen_misc_new(void);
 
 #endif

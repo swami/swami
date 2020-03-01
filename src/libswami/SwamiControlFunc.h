@@ -57,30 +57,30 @@ typedef void (*SwamiControlFuncDestroy)(SwamiControlFunc *control);
 /* function control object */
 struct _SwamiControlFunc
 {
-  SwamiControl parent_instance;	/* derived from SwamiControl */
-  SwamiControlGetValueFunc get_func; /* callback function to get value */
-  SwamiControlSetValueFunc set_func; /* callback function to set value */
-  SwamiControlFuncDestroy destroy_func;	/* destroy function */
-  gpointer user_data;		/* user data for callback functions */
-  GParamSpec *pspec; /* optional parameter specification for this control */
+    SwamiControl parent_instance;	/* derived from SwamiControl */
+    SwamiControlGetValueFunc get_func; /* callback function to get value */
+    SwamiControlSetValueFunc set_func; /* callback function to set value */
+    SwamiControlFuncDestroy destroy_func;	/* destroy function */
+    gpointer user_data;		/* user data for callback functions */
+    GParamSpec *pspec; /* optional parameter specification for this control */
 };
 
 /* function control class */
 struct _SwamiControlFuncClass
 {
-  SwamiControlClass parent_class;
+    SwamiControlClass parent_class;
 };
 
 /* macro to get user data field from a SwamiControlFunc */
 #define SWAMI_CONTROL_FUNC_DATA(ctrl)  (SWAMI_CONTROL_FUNC (ctrl)->user_data)
 
 
-GType swami_control_func_get_type (void);
+GType swami_control_func_get_type(void);
 
-SwamiControlFunc *swami_control_func_new (void);
-void swami_control_func_assign_funcs (SwamiControlFunc *ctrlfunc,
-				      SwamiControlGetValueFunc get_func,
-				      SwamiControlSetValueFunc set_func,
-				      SwamiControlFuncDestroy destroy_func,
-				      gpointer user_data);
+SwamiControlFunc *swami_control_func_new(void);
+void swami_control_func_assign_funcs(SwamiControlFunc *ctrlfunc,
+                                     SwamiControlGetValueFunc get_func,
+                                     SwamiControlSetValueFunc set_func,
+                                     SwamiControlFuncDestroy destroy_func,
+                                     gpointer user_data);
 #endif

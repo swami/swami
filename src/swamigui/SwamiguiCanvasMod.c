@@ -29,10 +29,10 @@
 
 enum
 {
-  PROP_0,
-  PROP_TIMEOUT_INTERVAL,	/* timeout interval in msecs */
-  PROP_ABS_MIN_ZOOM,		/* absolute minimum zoom value */
-  PROP_SNAP
+    PROP_0,
+    PROP_TIMEOUT_INTERVAL,	/* timeout interval in msecs */
+    PROP_ABS_MIN_ZOOM,		/* absolute minimum zoom value */
+    PROP_SNAP
 };
 
 /* Equation used for zoom/scroll operations:
@@ -102,83 +102,84 @@ enum
 
 
 static const SwamiguiCanvasModVars
-  default_vars[SWAMIGUI_CANVAS_MOD_AXIS_COUNT][SWAMIGUI_CANVAS_MOD_TYPE_COUNT] =
-{ /* { mult, power, ofs } */
-  { /* { X } */
-    { 0.5, 4.0, 1.0 },		/* MOD_SNAP_ZOOM */
-    { 1.0, 2.2, 5.0 },		/* MOD_WHEEL_ZOOM */
-    { 10.0, 1.8, 200.0 },	/* MOD_SNAP_SCROLL */
-    { 0.6, 1.6, 400.0 }		/* MOD_WHEEL_SCROLL */
-  },
-  { /* { Y } */
-    { 0.5, 4.0, 1.0 },		/* MOD_SNAP_ZOOM */
-    { 1.0, 2.2, 5.0 },		/* MOD_WHEEL_ZOOM */
-    { 10.0, 1.8, 200.0 },	/* MOD_SNAP_SCROLL */
-    { 0.6, 1.6, 400.0 }		/* MOD_WHEEL_SCROLL */
-  }
+default_vars[SWAMIGUI_CANVAS_MOD_AXIS_COUNT][SWAMIGUI_CANVAS_MOD_TYPE_COUNT] =
+{
+    /* { mult, power, ofs } */
+    { /* { X } */
+        { 0.5, 4.0, 1.0 },		/* MOD_SNAP_ZOOM */
+        { 1.0, 2.2, 5.0 },		/* MOD_WHEEL_ZOOM */
+        { 10.0, 1.8, 200.0 },	/* MOD_SNAP_SCROLL */
+        { 0.6, 1.6, 400.0 }		/* MOD_WHEEL_SCROLL */
+    },
+    { /* { Y } */
+        { 0.5, 4.0, 1.0 },		/* MOD_SNAP_ZOOM */
+        { 1.0, 2.2, 5.0 },		/* MOD_WHEEL_ZOOM */
+        { 10.0, 1.8, 200.0 },	/* MOD_SNAP_SCROLL */
+        { 0.6, 1.6, 400.0 }		/* MOD_WHEEL_SCROLL */
+    }
 };
 
 enum
 {
-  UPDATE_SIGNAL,
-  SNAP_SIGNAL,
-  SIGNAL_COUNT
+    UPDATE_SIGNAL,
+    SNAP_SIGNAL,
+    SIGNAL_COUNT
 };
 
 
 /* an undefined scroll direction for last_wheel_dir field */
 #define WHEEL_INACTIVE 0xFF
 
-static guint swamigui_canvas_mod_get_actions (SwamiguiCanvasMod *mod,
-					      guint state);
-static gboolean swamigui_canvas_mod_timeout (gpointer data);
+static guint swamigui_canvas_mod_get_actions(SwamiguiCanvasMod *mod,
+        guint state);
+static gboolean swamigui_canvas_mod_timeout(gpointer data);
 
 
-G_DEFINE_TYPE (SwamiguiCanvasMod, swamigui_canvas_mod, G_TYPE_OBJECT);
+G_DEFINE_TYPE(SwamiguiCanvasMod, swamigui_canvas_mod, G_TYPE_OBJECT);
 
 static guint signals[SIGNAL_COUNT] = { 0 };
 
 
 static void
-swamigui_canvas_mod_class_init (SwamiguiCanvasModClass *klass)
+swamigui_canvas_mod_class_init(SwamiguiCanvasModClass *klass)
 {
-  signals[UPDATE_SIGNAL] =
-    g_signal_new ("update", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_FIRST,
-                  G_STRUCT_OFFSET (SwamiguiCanvasModClass, update), NULL, NULL,
-                  swamigui_marshal_VOID__DOUBLE_DOUBLE_DOUBLE_DOUBLE_DOUBLE_DOUBLE,
-		  G_TYPE_NONE,
-                  6, G_TYPE_DOUBLE, G_TYPE_DOUBLE, G_TYPE_DOUBLE, G_TYPE_DOUBLE,
-		  G_TYPE_DOUBLE, G_TYPE_DOUBLE);
-  signals[SNAP_SIGNAL] =
-    g_signal_new ("snap", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_FIRST,
-                  G_STRUCT_OFFSET (SwamiguiCanvasModClass, snap), NULL, NULL,
-                  swamigui_marshal_VOID__UINT_DOUBLE_DOUBLE, G_TYPE_NONE,
-                  3, G_TYPE_UINT, G_TYPE_DOUBLE, G_TYPE_DOUBLE);
+    signals[UPDATE_SIGNAL] =
+        g_signal_new("update", G_TYPE_FROM_CLASS(klass), G_SIGNAL_RUN_FIRST,
+                     G_STRUCT_OFFSET(SwamiguiCanvasModClass, update), NULL, NULL,
+                     swamigui_marshal_VOID__DOUBLE_DOUBLE_DOUBLE_DOUBLE_DOUBLE_DOUBLE,
+                     G_TYPE_NONE,
+                     6, G_TYPE_DOUBLE, G_TYPE_DOUBLE, G_TYPE_DOUBLE, G_TYPE_DOUBLE,
+                     G_TYPE_DOUBLE, G_TYPE_DOUBLE);
+    signals[SNAP_SIGNAL] =
+        g_signal_new("snap", G_TYPE_FROM_CLASS(klass), G_SIGNAL_RUN_FIRST,
+                     G_STRUCT_OFFSET(SwamiguiCanvasModClass, snap), NULL, NULL,
+                     swamigui_marshal_VOID__UINT_DOUBLE_DOUBLE, G_TYPE_NONE,
+                     3, G_TYPE_UINT, G_TYPE_DOUBLE, G_TYPE_DOUBLE);
 }
 
 static void
-swamigui_canvas_mod_init (SwamiguiCanvasMod *mod)
+swamigui_canvas_mod_init(SwamiguiCanvasMod *mod)
 {
-  mod->zoom_modifier = DEFAULT_ZOOM_MODIFIER;
-  mod->scroll_modifier = DEFAULT_SCROLL_MODIFIER;
-  mod->axis_modifier = DEFAULT_AXIS_MODIFIER;
-  mod->snap_button = DEFAULT_SNAP_BUTTON;
-  mod->def_action_zoom = DEFAULT_ACTION_ZOOM;
-  mod->def_zoom_axis = DEFAULT_ZOOM_DEF_AXIS;
-  mod->def_scroll_axis = DEFAULT_SCROLL_DEF_AXIS;
+    mod->zoom_modifier = DEFAULT_ZOOM_MODIFIER;
+    mod->scroll_modifier = DEFAULT_SCROLL_MODIFIER;
+    mod->axis_modifier = DEFAULT_AXIS_MODIFIER;
+    mod->snap_button = DEFAULT_SNAP_BUTTON;
+    mod->def_action_zoom = DEFAULT_ACTION_ZOOM;
+    mod->def_zoom_axis = DEFAULT_ZOOM_DEF_AXIS;
+    mod->def_scroll_axis = DEFAULT_SCROLL_DEF_AXIS;
 
-  mod->one_wheel_time = DEFAULT_ONE_WHEEL_TIME;
-  mod->min_zoom = DEFAULT_MIN_ZOOM;
-  mod->max_zoom = DEFAULT_MAX_ZOOM;
-  mod->min_scroll = DEFAULT_MIN_SCROLL;
-  mod->max_scroll = DEFAULT_MAX_SCROLL;
+    mod->one_wheel_time = DEFAULT_ONE_WHEEL_TIME;
+    mod->min_zoom = DEFAULT_MIN_ZOOM;
+    mod->max_zoom = DEFAULT_MAX_ZOOM;
+    mod->min_scroll = DEFAULT_MIN_SCROLL;
+    mod->max_scroll = DEFAULT_MAX_SCROLL;
 
-  mod->timeout_interval = DEFAULT_TIMEOUT_INTERVAL;
-  mod->wheel_timeout = DEFAULT_WHEEL_TIMEOUT;
-  mod->last_wheel_dir = WHEEL_INACTIVE;
+    mod->timeout_interval = DEFAULT_TIMEOUT_INTERVAL;
+    mod->wheel_timeout = DEFAULT_WHEEL_TIMEOUT;
+    mod->last_wheel_dir = WHEEL_INACTIVE;
 
-  memcpy (mod->vars, default_vars, sizeof (SwamiguiCanvasModVars)
-	  * SWAMIGUI_CANVAS_MOD_AXIS_COUNT * SWAMIGUI_CANVAS_MOD_TYPE_COUNT);
+    memcpy(mod->vars, default_vars, sizeof(SwamiguiCanvasModVars)
+           * SWAMIGUI_CANVAS_MOD_AXIS_COUNT * SWAMIGUI_CANVAS_MOD_TYPE_COUNT);
 }
 
 /**
@@ -192,9 +193,9 @@ swamigui_canvas_mod_init (SwamiguiCanvasMod *mod)
  *   owns.
  */
 SwamiguiCanvasMod *
-swamigui_canvas_mod_new (void)
+swamigui_canvas_mod_new(void)
 {
-  return (SWAMIGUI_CANVAS_MOD (g_object_new (SWAMIGUI_TYPE_CANVAS_MOD, NULL)));
+    return (SWAMIGUI_CANVAS_MOD(g_object_new(SWAMIGUI_TYPE_CANVAS_MOD, NULL)));
 }
 
 /**
@@ -210,17 +211,17 @@ swamigui_canvas_mod_new (void)
  * Assigns equation variables for a specific modulator and axis.
  */
 void
-swamigui_canvas_mod_set_vars (SwamiguiCanvasMod *mod, SwamiguiCanvasModAxis axis,
-			      SwamiguiCanvasModType type, double mult,
-			      double power, double ofs)
+swamigui_canvas_mod_set_vars(SwamiguiCanvasMod *mod, SwamiguiCanvasModAxis axis,
+                             SwamiguiCanvasModType type, double mult,
+                             double power, double ofs)
 {
-  g_return_if_fail (SWAMIGUI_IS_CANVAS_MOD (mod));
-  g_return_if_fail (axis >= 0 && axis < SWAMIGUI_CANVAS_MOD_AXIS_COUNT);
-  g_return_if_fail (type >= 0 && type < SWAMIGUI_CANVAS_MOD_TYPE_COUNT);
+    g_return_if_fail(SWAMIGUI_IS_CANVAS_MOD(mod));
+    g_return_if_fail(axis >= 0 && axis < SWAMIGUI_CANVAS_MOD_AXIS_COUNT);
+    g_return_if_fail(type >= 0 && type < SWAMIGUI_CANVAS_MOD_TYPE_COUNT);
 
-  mod->vars[axis][type].mult = mult;
-  mod->vars[axis][type].power = power;
-  mod->vars[axis][type].ofs = ofs;
+    mod->vars[axis][type].mult = mult;
+    mod->vars[axis][type].power = power;
+    mod->vars[axis][type].ofs = ofs;
 }
 
 /**
@@ -236,17 +237,28 @@ swamigui_canvas_mod_set_vars (SwamiguiCanvasMod *mod, SwamiguiCanvasModAxis axis
  * Gets equation variables for a specific modulator and axis.
  */
 void
-swamigui_canvas_mod_get_vars (SwamiguiCanvasMod *mod, SwamiguiCanvasModAxis axis,
-			      SwamiguiCanvasModType type, double *mult,
-			      double *power, double *ofs)
+swamigui_canvas_mod_get_vars(SwamiguiCanvasMod *mod, SwamiguiCanvasModAxis axis,
+                             SwamiguiCanvasModType type, double *mult,
+                             double *power, double *ofs)
 {
-  g_return_if_fail (SWAMIGUI_IS_CANVAS_MOD (mod));
-  g_return_if_fail (axis >= 0 && axis < SWAMIGUI_CANVAS_MOD_AXIS_COUNT);
-  g_return_if_fail (type >= 0 && type < SWAMIGUI_CANVAS_MOD_TYPE_COUNT);
+    g_return_if_fail(SWAMIGUI_IS_CANVAS_MOD(mod));
+    g_return_if_fail(axis >= 0 && axis < SWAMIGUI_CANVAS_MOD_AXIS_COUNT);
+    g_return_if_fail(type >= 0 && type < SWAMIGUI_CANVAS_MOD_TYPE_COUNT);
 
-  if (mult) *mult = mod->vars[axis][type].mult;
-  if (power) *power = mod->vars[axis][type].power;
-  if (ofs) *ofs = mod->vars[axis][type].ofs;
+    if(mult)
+    {
+        *mult = mod->vars[axis][type].mult;
+    }
+
+    if(power)
+    {
+        *power = mod->vars[axis][type].power;
+    }
+
+    if(ofs)
+    {
+        *ofs = mod->vars[axis][type].ofs;
+    }
 }
 
 /**
@@ -261,333 +273,379 @@ swamigui_canvas_mod_get_vars (SwamiguiCanvasMod *mod, SwamiguiCanvasModAxis axis
  *   %FALSE otherwise
  */
 gboolean
-swamigui_canvas_mod_handle_event (SwamiguiCanvasMod *mod, GdkEvent *event)
+swamigui_canvas_mod_handle_event(SwamiguiCanvasMod *mod, GdkEvent *event)
 {
-  GdkEventMotion *motion_event;
-  GdkEventButton *btn_event;
-  GdkEventScroll *scroll_event;
-  guint actions;
+    GdkEventMotion *motion_event;
+    GdkEventButton *btn_event;
+    GdkEventScroll *scroll_event;
+    guint actions;
 
-  switch (event->type)
-  {
-  case GDK_BUTTON_PRESS:	/* button press only applies to snap */
-    btn_event = (GdkEventButton *)event;
-
-    if (btn_event->button != mod->snap_button) return (FALSE);
-
-    mod->snap_active = TRUE;
-
-    mod->xsnap = (int)btn_event->x;
-    mod->cur_xsnap = (int)btn_event->x;
-    mod->cur_xchange = TRUE;
-
-    mod->ysnap = (int)btn_event->y;
-    mod->cur_ysnap = (int)btn_event->y;
-    mod->cur_ychange = TRUE;
-
-    /* add a timeout callback for zoom/scroll if not already added */
-    if (!mod->timeout_handler)
+    switch(event->type)
     {
-      mod->timeout_handler
-	= g_timeout_add_full (TIMEOUT_PRIORITY,
-			      mod->timeout_interval,
-			      swamigui_canvas_mod_timeout,
-			      mod, NULL);
+    case GDK_BUTTON_PRESS:	/* button press only applies to snap */
+        btn_event = (GdkEventButton *)event;
+
+        if(btn_event->button != mod->snap_button)
+        {
+            return (FALSE);
+        }
+
+        mod->snap_active = TRUE;
+
+        mod->xsnap = (int)btn_event->x;
+        mod->cur_xsnap = (int)btn_event->x;
+        mod->cur_xchange = TRUE;
+
+        mod->ysnap = (int)btn_event->y;
+        mod->cur_ysnap = (int)btn_event->y;
+        mod->cur_ychange = TRUE;
+
+        /* add a timeout callback for zoom/scroll if not already added */
+        if(!mod->timeout_handler)
+        {
+            mod->timeout_handler
+                = g_timeout_add_full(TIMEOUT_PRIORITY,
+                                     mod->timeout_interval,
+                                     swamigui_canvas_mod_timeout,
+                                     mod, NULL);
+        }
+
+        actions = swamigui_canvas_mod_get_actions(mod, btn_event->state);
+        g_signal_emit(mod, signals[SNAP_SIGNAL], 0, actions, (double)(mod->xsnap),
+                      (double)(mod->ysnap));
+        break;
+
+    case GDK_MOTION_NOTIFY:	/* motion applies only to snap */
+        if(!mod->snap_active)
+        {
+            return (FALSE);
+        }
+
+        motion_event = (GdkEventMotion *)event;
+
+        if(mod->cur_xsnap != motion_event->x)
+        {
+            mod->cur_xsnap = (int)motion_event->x;
+            mod->cur_xchange = TRUE;
+        }
+
+        if(mod->cur_ysnap != motion_event->y)
+        {
+            mod->cur_ysnap = (int)motion_event->y;
+            mod->cur_ychange = TRUE;
+        }
+
+        break;
+
+    case GDK_BUTTON_RELEASE:	/* button release only applies to snap */
+        if(!mod->snap_active
+                || ((GdkEventButton *)event)->button != mod->snap_button)
+        {
+            return (FALSE);
+        }
+
+        mod->snap_active = FALSE;
+
+        /* remove timeout if wheel not active */
+        if(mod->last_wheel_dir == WHEEL_INACTIVE && mod->timeout_handler)
+        {
+            g_source_remove(mod->timeout_handler);
+            mod->timeout_handler = 0;
+        }
+
+        g_signal_emit(mod, signals[SNAP_SIGNAL], 0, 0, mod->xsnap, mod->ysnap);
+        break;
+
+    case GDK_SCROLL:		/* mouse wheel zooming */
+        scroll_event = (GdkEventScroll *)event;
+
+        if(scroll_event->direction != GDK_SCROLL_UP
+                && scroll_event->direction != GDK_SCROLL_DOWN)
+        {
+            return (FALSE);
+        }
+
+        /* wheel was previously scrolled in the other direction? - Stop immediately */
+        if(mod->last_wheel_dir != WHEEL_INACTIVE
+                && mod->last_wheel_dir != scroll_event->direction)
+        {
+            /* remove timeout handler if snap is not also active */
+            if(!mod->snap_active && mod->timeout_handler)
+            {
+                g_source_remove(mod->timeout_handler);
+                mod->timeout_handler = 0;
+            }
+
+            mod->last_wheel_dir = WHEEL_INACTIVE;
+
+            return (TRUE);
+        }
+
+        /* wheel not yet scrolled? */
+        if(mod->last_wheel_dir == WHEEL_INACTIVE)
+        {
+            mod->last_wheel_dir = scroll_event->direction;
+            mod->wheel_time = mod->one_wheel_time;
+            mod->xwheel = (int)scroll_event->x;
+            mod->ywheel = (int)scroll_event->y;
+
+            if(!mod->timeout_handler)
+            {
+                mod->timeout_handler
+                    = g_timeout_add_full(TIMEOUT_PRIORITY,
+                                         mod->timeout_interval,
+                                         swamigui_canvas_mod_timeout,
+                                         mod, NULL);
+            }
+        }	/* wheel previously scrolled in the same direction */
+        else
+        {
+            mod->wheel_time = scroll_event->time - mod->last_wheel_time;
+        }
+
+        /* get current time for wheel timeout tapering (can't use GDK event time
+         * since there doesn't seem to be a way to arbitrarily get current value) */
+        g_get_current_time(&mod->last_wheel_real_time);
+
+        mod->last_wheel_time = scroll_event->time;
+        break;
+
+    default:
+        return (FALSE);
     }
 
-    actions = swamigui_canvas_mod_get_actions (mod, btn_event->state);
-    g_signal_emit (mod, signals[SNAP_SIGNAL], 0, actions, (double)(mod->xsnap),
-		   (double)(mod->ysnap));
-    break;
-
-  case GDK_MOTION_NOTIFY:	/* motion applies only to snap */
-    if (!mod->snap_active) return (FALSE);
-
-    motion_event = (GdkEventMotion *)event;
-
-    if (mod->cur_xsnap != motion_event->x)
-    {
-      mod->cur_xsnap = (int)motion_event->x;
-      mod->cur_xchange = TRUE;
-    }
-
-    if (mod->cur_ysnap != motion_event->y)
-    {
-      mod->cur_ysnap = (int)motion_event->y;
-      mod->cur_ychange = TRUE;
-    }
-    break;
-
-  case GDK_BUTTON_RELEASE:	/* button release only applies to snap */
-    if (!mod->snap_active
-	|| ((GdkEventButton *)event)->button != mod->snap_button)
-      return (FALSE);
-
-    mod->snap_active = FALSE;
-
-    /* remove timeout if wheel not active */
-    if (mod->last_wheel_dir == WHEEL_INACTIVE && mod->timeout_handler)
-    {
-      g_source_remove (mod->timeout_handler);
-      mod->timeout_handler = 0;
-    }
-
-    g_signal_emit (mod, signals[SNAP_SIGNAL], 0, 0, mod->xsnap, mod->ysnap);
-    break;
-
-  case GDK_SCROLL:		/* mouse wheel zooming */
-    scroll_event = (GdkEventScroll *)event;
-
-    if (scroll_event->direction != GDK_SCROLL_UP
-	&& scroll_event->direction != GDK_SCROLL_DOWN)
-      return (FALSE);
-
-    /* wheel was previously scrolled in the other direction? - Stop immediately */
-    if (mod->last_wheel_dir != WHEEL_INACTIVE
-	&& mod->last_wheel_dir != scroll_event->direction)
-    {	/* remove timeout handler if snap is not also active */
-      if (!mod->snap_active && mod->timeout_handler)
-      {
-	g_source_remove (mod->timeout_handler);
-	mod->timeout_handler = 0;
-      }
-
-      mod->last_wheel_dir = WHEEL_INACTIVE;
-
-      return (TRUE);
-    }
-
-    /* wheel not yet scrolled? */
-    if (mod->last_wheel_dir == WHEEL_INACTIVE)
-    {
-      mod->last_wheel_dir = scroll_event->direction;
-      mod->wheel_time = mod->one_wheel_time;
-      mod->xwheel = (int)scroll_event->x;
-      mod->ywheel = (int)scroll_event->y;
-
-      if (!mod->timeout_handler)
-      {
-	mod->timeout_handler
-	  = g_timeout_add_full (TIMEOUT_PRIORITY,
-				mod->timeout_interval,
-				swamigui_canvas_mod_timeout,
-				mod, NULL);
-      }
-    }	/* wheel previously scrolled in the same direction */
-    else mod->wheel_time = scroll_event->time - mod->last_wheel_time;
-
-    /* get current time for wheel timeout tapering (can't use GDK event time
-     * since there doesn't seem to be a way to arbitrarily get current value) */
-    g_get_current_time (&mod->last_wheel_real_time);
-
-    mod->last_wheel_time = scroll_event->time;
-    break;
-
-  default:
-    return (FALSE);
-  }
-
-  return (TRUE);
+    return (TRUE);
 }
 
 static guint
-swamigui_canvas_mod_get_actions (SwamiguiCanvasMod *mod, guint state)
+swamigui_canvas_mod_get_actions(SwamiguiCanvasMod *mod, guint state)
 {
-  gboolean zoom_mod, scroll_mod, axis_mod;
-  guint actions = 0;
+    gboolean zoom_mod, scroll_mod, axis_mod;
+    guint actions = 0;
 
-  zoom_mod = (state & mod->zoom_modifier) != 0;
-  scroll_mod = (state & mod->scroll_modifier) != 0;
-  axis_mod = (state & mod->axis_modifier) != 0;
+    zoom_mod = (state & mod->zoom_modifier) != 0;
+    scroll_mod = (state & mod->scroll_modifier) != 0;
+    axis_mod = (state & mod->axis_modifier) != 0;
 
-  /* if ZOOM and SCROLL modifier not active - use default action */
-  if (!zoom_mod && !scroll_mod)
-  {
-    if (mod->def_action_zoom) zoom_mod = TRUE;
-    else scroll_mod = TRUE;
-  }
+    /* if ZOOM and SCROLL modifier not active - use default action */
+    if(!zoom_mod && !scroll_mod)
+    {
+        if(mod->def_action_zoom)
+        {
+            zoom_mod = TRUE;
+        }
+        else
+        {
+            scroll_mod = TRUE;
+        }
+    }
 
-  if (zoom_mod) actions |= 1 << (mod->def_zoom_axis ^ axis_mod);
-  if (scroll_mod) actions |= 1 << ((mod->def_scroll_axis ^ axis_mod) + 2);
+    if(zoom_mod)
+    {
+        actions |= 1 << (mod->def_zoom_axis ^ axis_mod);
+    }
 
-  return (actions);
+    if(scroll_mod)
+    {
+        actions |= 1 << ((mod->def_scroll_axis ^ axis_mod) + 2);
+    }
+
+    return (actions);
 }
 
 /* equation calculation for the zoom/scroll operation */
 static double
-calc_val (SwamiguiCanvasMod *mod, double inp, SwamiguiCanvasModAxis axis,
-	  SwamiguiCanvasModType type)
+calc_val(SwamiguiCanvasMod *mod, double inp, SwamiguiCanvasModAxis axis,
+         SwamiguiCanvasModType type)
 {
-  SwamiguiCanvasModVars *vars;
-  double val;
+    SwamiguiCanvasModVars *vars;
+    double val;
 
-  vars = &mod->vars[axis][type];
-  val = vars->mult * pow (inp, vars->power) + vars->ofs;
+    vars = &mod->vars[axis][type];
+    val = vars->mult * pow(inp, vars->power) + vars->ofs;
 
-  return (val);
+    return (val);
 }
 
 /* timeout handler which is called at regular intervals to update active
  * zoom and or scroll */
 static gboolean
-swamigui_canvas_mod_timeout (gpointer data)
+swamigui_canvas_mod_timeout(gpointer data)
 {
-  SwamiguiCanvasMod *mod = SWAMIGUI_CANVAS_MOD (data);
-  GdkModifierType state;
-  GTimeVal curtime;
-  int lastwheel;	/* last wheel event time in milliseconds */
-  double wheeltaper;	/* taper value for wheel timeout */
-  double val, inp, inpy;
-  double xpos, ypos;
-  guint actions;
-  int wheel_timeout = mod->wheel_timeout;
+    SwamiguiCanvasMod *mod = SWAMIGUI_CANVAS_MOD(data);
+    GdkModifierType state;
+    GTimeVal curtime;
+    int lastwheel;	/* last wheel event time in milliseconds */
+    double wheeltaper;	/* taper value for wheel timeout */
+    double val, inp, inpy;
+    double xpos, ypos;
+    guint actions;
+    int wheel_timeout = mod->wheel_timeout;
 
-  /* get current keyboard modifier state and resulting actions */
-  gdk_display_get_pointer (gdk_display_get_default (), NULL, NULL, NULL, &state);
-  actions = swamigui_canvas_mod_get_actions (mod, state);
+    /* get current keyboard modifier state and resulting actions */
+    gdk_display_get_pointer(gdk_display_get_default(), NULL, NULL, NULL, &state);
+    actions = swamigui_canvas_mod_get_actions(mod, state);
 
-  mod->xzoom_amt = 1.0;
-  mod->yzoom_amt = 1.0;
-  mod->xscroll_amt = 0.0;
-  mod->yscroll_amt = 0.0;
+    mod->xzoom_amt = 1.0;
+    mod->yzoom_amt = 1.0;
+    mod->xscroll_amt = 0.0;
+    mod->yscroll_amt = 0.0;
 
-  /* mouse wheel operation is active */
-  if (mod->last_wheel_dir != WHEEL_INACTIVE)
-  {
-    inp = wheel_timeout - mod->wheel_time;
-    inp = CLAMP (inp, 0.0, wheel_timeout);
-
-    /* calculate the last wheel event time in milliseconds, unfortunately I
-     * don't think we can get the current GDK event time, so we have to use
-     * g_get_current_time(). */
-    g_get_current_time (&curtime);
-
-    lastwheel = (curtime.tv_sec - mod->last_wheel_real_time.tv_sec) * 1000;
-
-    if (curtime.tv_usec > mod->last_wheel_real_time.tv_usec)
-      lastwheel += (curtime.tv_usec
-		    - mod->last_wheel_real_time.tv_usec + 500) / 1000;
-    else lastwheel -= (mod->last_wheel_real_time.tv_usec
-		       - curtime.tv_usec + 500) / 1000;
-
-    /* At end of wheel activity timeout? */
-    if (lastwheel >= wheel_timeout)
+    /* mouse wheel operation is active */
+    if(mod->last_wheel_dir != WHEEL_INACTIVE)
     {
-      mod->last_wheel_dir = WHEEL_INACTIVE;
+        inp = wheel_timeout - mod->wheel_time;
+        inp = CLAMP(inp, 0.0, wheel_timeout);
 
-      if (mod->snap_active) return (TRUE);	/* keep timeout if snap active */
+        /* calculate the last wheel event time in milliseconds, unfortunately I
+         * don't think we can get the current GDK event time, so we have to use
+         * g_get_current_time(). */
+        g_get_current_time(&curtime);
 
-      mod->timeout_handler = 0;
-      return (FALSE);
+        lastwheel = (curtime.tv_sec - mod->last_wheel_real_time.tv_sec) * 1000;
+
+        if(curtime.tv_usec > mod->last_wheel_real_time.tv_usec)
+            lastwheel += (curtime.tv_usec
+                          - mod->last_wheel_real_time.tv_usec + 500) / 1000;
+        else
+            lastwheel -= (mod->last_wheel_real_time.tv_usec
+                          - curtime.tv_usec + 500) / 1000;
+
+        /* At end of wheel activity timeout? */
+        if(lastwheel >= wheel_timeout)
+        {
+            mod->last_wheel_dir = WHEEL_INACTIVE;
+
+            if(mod->snap_active)
+            {
+                return (TRUE);    /* keep timeout if snap active */
+            }
+
+            mod->timeout_handler = 0;
+            return (FALSE);
+        }
+
+        /* wheel timeout taper multiplier (1.0 to 0.0) */
+        wheeltaper = 1.0 - (wheel_timeout - lastwheel)
+                     / (double)(wheel_timeout);
+
+        if(actions & SWAMIGUI_CANVAS_MOD_ZOOM_X)
+        {
+            val = calc_val(mod, inp, SWAMIGUI_CANVAS_MOD_X,
+                           SWAMIGUI_CANVAS_MOD_WHEEL_ZOOM);
+            mod->xzoom_amt = 1.0 + (val - 1.0) * wheeltaper;
+        }
+
+        if(actions & SWAMIGUI_CANVAS_MOD_ZOOM_Y)
+        {
+            val = calc_val(mod, inp, SWAMIGUI_CANVAS_MOD_Y,
+                           SWAMIGUI_CANVAS_MOD_WHEEL_ZOOM);
+            mod->yzoom_amt = 1.0 + (val - 1.0) * wheeltaper;
+        }
+
+        if(actions & SWAMIGUI_CANVAS_MOD_SCROLL_X)
+        {
+            val = calc_val(mod, inp, SWAMIGUI_CANVAS_MOD_X,
+                           SWAMIGUI_CANVAS_MOD_WHEEL_SCROLL);
+            mod->xscroll_amt = val * wheeltaper;
+        }
+
+        if(actions & SWAMIGUI_CANVAS_MOD_SCROLL_Y)
+        {
+            val = calc_val(mod, inp, SWAMIGUI_CANVAS_MOD_Y,
+                           SWAMIGUI_CANVAS_MOD_WHEEL_SCROLL);
+            mod->yscroll_amt = val * wheeltaper;
+        }
+
+        /* set "direction" of values depending on wheel direction */
+        if(mod->last_wheel_dir == GDK_SCROLL_DOWN)
+        {
+            mod->xzoom_amt = 1.0 / mod->xzoom_amt;
+            mod->yzoom_amt = 1.0 / mod->yzoom_amt;
+            mod->xscroll_amt = -mod->xscroll_amt;
+            /* y scroll is already inverted */
+        }
+        else
+        {
+            mod->yscroll_amt = -mod->yscroll_amt;    /* yscroll is inverted */
+        }
+
+        xpos = mod->xwheel;
+        ypos = mod->ywheel;
+    }
+    else		/* snap is active */
+    {
+        inp = ABS(mod->cur_xsnap - mod->xsnap);
+        inpy = ABS(mod->cur_ysnap - mod->ysnap);
+
+        /* short circuit 0 case (but keep timeout) */
+        if(inp == 0 && inpy == 0)
+        {
+            return (TRUE);
+        }
+
+        if(actions & SWAMIGUI_CANVAS_MOD_ZOOM_X)
+            mod->xzoom_amt = calc_val(mod, inp, SWAMIGUI_CANVAS_MOD_X,
+                                      SWAMIGUI_CANVAS_MOD_SNAP_ZOOM);
+
+        if(actions & SWAMIGUI_CANVAS_MOD_ZOOM_Y)
+            mod->yzoom_amt = calc_val(mod, inpy, SWAMIGUI_CANVAS_MOD_Y,
+                                      SWAMIGUI_CANVAS_MOD_SNAP_ZOOM);
+
+        if(actions & SWAMIGUI_CANVAS_MOD_SCROLL_X)
+            mod->xscroll_amt = calc_val(mod, inp, SWAMIGUI_CANVAS_MOD_X,
+                                        SWAMIGUI_CANVAS_MOD_SNAP_SCROLL);
+
+        if(actions & SWAMIGUI_CANVAS_MOD_SCROLL_Y)
+            mod->yscroll_amt = calc_val(mod, inpy, SWAMIGUI_CANVAS_MOD_Y,
+                                        SWAMIGUI_CANVAS_MOD_SNAP_SCROLL);
+
+        /* set "direction" of values depending on snap  */
+        if(mod->cur_xsnap < mod->xsnap)
+        {
+            mod->xzoom_amt = 1.0 / mod->xzoom_amt;
+            mod->yzoom_amt = 1.0 / mod->yzoom_amt;
+            mod->xscroll_amt = -mod->xscroll_amt;
+            /* y scroll is already inverted */
+        }
+        else
+        {
+            mod->yscroll_amt = -mod->yscroll_amt;    /* yscroll is inverted */
+        }
+
+        xpos = mod->xsnap;
+        ypos = mod->ysnap;
     }
 
-    /* wheel timeout taper multiplier (1.0 to 0.0) */
-    wheeltaper = 1.0 - (wheel_timeout - lastwheel)
-      / (double)(wheel_timeout);
-
-    if (actions & SWAMIGUI_CANVAS_MOD_ZOOM_X)
+    if(mod->xzoom_amt != 1.0 || mod->yzoom_amt != 1.0
+            || mod->xscroll_amt != 0.0 || mod->yscroll_amt != 0.0)
     {
-      val = calc_val (mod, inp, SWAMIGUI_CANVAS_MOD_X,
-		      SWAMIGUI_CANVAS_MOD_WHEEL_ZOOM);
-      mod->xzoom_amt = 1.0 + (val - 1.0) * wheeltaper;
+        double interval = mod->timeout_interval / 1000.0;
+
+        /* factor in interval so that zoom/scroll amounts are the same rate
+         * regardless of timeout interval */
+        mod->xzoom_amt = pow(mod->xzoom_amt, interval);
+        mod->yzoom_amt = pow(mod->yzoom_amt, interval);
+        mod->xscroll_amt *= interval;
+        mod->yscroll_amt *= interval;
+
+        /*
+            printf ("Update: xzoom:%f yzoom:%f xscroll:%f yscroll:%f xpos:%f ypos:%f\n",
+        	    mod->xzoom_amt, mod->yzoom_amt, mod->xscroll_amt, mod->yscroll_amt,
+        	    xpos, ypos);
+        */
+
+        g_signal_emit(mod, signals[UPDATE_SIGNAL], 0, mod->xzoom_amt,
+                      mod->yzoom_amt, mod->xscroll_amt, mod->yscroll_amt,
+                      xpos, ypos);
     }
 
-    if (actions & SWAMIGUI_CANVAS_MOD_ZOOM_Y)
+    /* keep timeout if wheel is active or snap is active */
+    if(mod->last_wheel_dir != WHEEL_INACTIVE || mod->snap_active)
     {
-      val = calc_val (mod, inp, SWAMIGUI_CANVAS_MOD_Y,
-		      SWAMIGUI_CANVAS_MOD_WHEEL_ZOOM);
-      mod->yzoom_amt = 1.0 + (val - 1.0) * wheeltaper;
+        return (TRUE);
     }
 
-    if (actions & SWAMIGUI_CANVAS_MOD_SCROLL_X)
-    {
-      val = calc_val (mod, inp, SWAMIGUI_CANVAS_MOD_X,
-		      SWAMIGUI_CANVAS_MOD_WHEEL_SCROLL);
-      mod->xscroll_amt = val * wheeltaper;
-    }
-
-    if (actions & SWAMIGUI_CANVAS_MOD_SCROLL_Y)
-    {
-      val = calc_val (mod, inp, SWAMIGUI_CANVAS_MOD_Y,
-		      SWAMIGUI_CANVAS_MOD_WHEEL_SCROLL);
-      mod->yscroll_amt = val * wheeltaper;
-    }
-
-    /* set "direction" of values depending on wheel direction */
-    if (mod->last_wheel_dir == GDK_SCROLL_DOWN)
-    {
-      mod->xzoom_amt = 1.0 / mod->xzoom_amt;
-      mod->yzoom_amt = 1.0 / mod->yzoom_amt;
-      mod->xscroll_amt = -mod->xscroll_amt;
-      /* y scroll is already inverted */
-    }
-    else mod->yscroll_amt = -mod->yscroll_amt;	/* yscroll is inverted */
-
-    xpos = mod->xwheel;
-    ypos = mod->ywheel;
-  }
-  else		/* snap is active */
-  {
-    inp = ABS (mod->cur_xsnap - mod->xsnap);
-    inpy = ABS (mod->cur_ysnap - mod->ysnap);
-
-    /* short circuit 0 case (but keep timeout) */
-    if (inp == 0 && inpy == 0) return (TRUE);
-
-    if (actions & SWAMIGUI_CANVAS_MOD_ZOOM_X)
-      mod->xzoom_amt = calc_val (mod, inp, SWAMIGUI_CANVAS_MOD_X,
-				 SWAMIGUI_CANVAS_MOD_SNAP_ZOOM);
-    if (actions & SWAMIGUI_CANVAS_MOD_ZOOM_Y)
-      mod->yzoom_amt = calc_val (mod, inpy, SWAMIGUI_CANVAS_MOD_Y,
-				 SWAMIGUI_CANVAS_MOD_SNAP_ZOOM);
-    if (actions & SWAMIGUI_CANVAS_MOD_SCROLL_X)
-      mod->xscroll_amt = calc_val (mod, inp, SWAMIGUI_CANVAS_MOD_X,
-				   SWAMIGUI_CANVAS_MOD_SNAP_SCROLL);
-    if (actions & SWAMIGUI_CANVAS_MOD_SCROLL_Y)
-      mod->yscroll_amt = calc_val (mod, inpy, SWAMIGUI_CANVAS_MOD_Y,
-				   SWAMIGUI_CANVAS_MOD_SNAP_SCROLL);
-
-    /* set "direction" of values depending on snap  */
-    if (mod->cur_xsnap < mod->xsnap)
-    {
-      mod->xzoom_amt = 1.0 / mod->xzoom_amt;
-      mod->yzoom_amt = 1.0 / mod->yzoom_amt;
-      mod->xscroll_amt = -mod->xscroll_amt;
-      /* y scroll is already inverted */
-    }
-    else mod->yscroll_amt = -mod->yscroll_amt;	/* yscroll is inverted */
-
-    xpos = mod->xsnap;
-    ypos = mod->ysnap;
-  }
-
-  if (mod->xzoom_amt != 1.0 || mod->yzoom_amt != 1.0
-      || mod->xscroll_amt != 0.0 || mod->yscroll_amt != 0.0)
-  {
-    double interval = mod->timeout_interval / 1000.0;
-
-    /* factor in interval so that zoom/scroll amounts are the same rate
-     * regardless of timeout interval */
-    mod->xzoom_amt = pow (mod->xzoom_amt, interval);
-    mod->yzoom_amt = pow (mod->yzoom_amt, interval);
-    mod->xscroll_amt *= interval;
-    mod->yscroll_amt *= interval;
-
-/*
-    printf ("Update: xzoom:%f yzoom:%f xscroll:%f yscroll:%f xpos:%f ypos:%f\n",
-	    mod->xzoom_amt, mod->yzoom_amt, mod->xscroll_amt, mod->yscroll_amt,
-	    xpos, ypos);
-*/
-
-    g_signal_emit (mod, signals[UPDATE_SIGNAL], 0, mod->xzoom_amt,
-		   mod->yzoom_amt, mod->xscroll_amt, mod->yscroll_amt,
-		   xpos, ypos);
-  }
-
-  /* keep timeout if wheel is active or snap is active */
-  if (mod->last_wheel_dir != WHEEL_INACTIVE || mod->snap_active)
-    return (TRUE);
-
-  mod->timeout_handler = 0;
-  return (FALSE);
+    mod->timeout_handler = 0;
+    return (FALSE);
 }

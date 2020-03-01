@@ -24,7 +24,7 @@
 
 #include <glib.h>
 
-void swamigui_splash_display (guint timeout);
-gboolean swamigui_splash_kill (void);
+void swamigui_splash_display(guint timeout);
+gboolean swamigui_splash_kill(void);
 
 #endif

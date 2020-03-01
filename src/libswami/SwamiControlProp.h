@@ -44,36 +44,36 @@ typedef struct _SwamiControlPropClass SwamiControlPropClass;
 /* Property control object */
 struct _SwamiControlProp
 {
-  SwamiControl parent_instance;	/* derived from SwamiControl */
+    SwamiControl parent_instance;	/* derived from SwamiControl */
 
-  GObject *object;		/* object being controlled */
-  GParamSpec *spec; /* parameter spec of the property being controlled */
-  gulong notify_handler_id; /* ID of object "notify" signal handler */
-  guint item_handler_id; /* IpatchItem property callback handler ID */
-  gboolean send_events;	/* when TRUE control uses SwamiEventPropChange events */
+    GObject *object;		/* object being controlled */
+    GParamSpec *spec; /* parameter spec of the property being controlled */
+    gulong notify_handler_id; /* ID of object "notify" signal handler */
+    guint item_handler_id; /* IpatchItem property callback handler ID */
+    gboolean send_events;	/* when TRUE control uses SwamiEventPropChange events */
 };
 
 /* Property control class */
 struct _SwamiControlPropClass
 {
-  SwamiControlClass parent_class;
+    SwamiControlClass parent_class;
 };
 
-SwamiControl *swami_get_control_prop (GObject *object, GParamSpec *pspec);
-SwamiControl *swami_get_control_prop_by_name (GObject *object,
-						  const char *name);
-void swami_control_prop_connect_objects (GObject *src, const char *propname1,
-					 GObject *dest, const char *propname2,
-					 guint flags);
-void swami_control_prop_connect_to_control (GObject *src, const char *propname,
-					    SwamiControl *dest, guint flags);
-void swami_control_prop_connect_from_control (SwamiControl *src, GObject *dest,
-					      const char *propname, guint flags);
-GType swami_control_prop_get_type (void);
+SwamiControl *swami_get_control_prop(GObject *object, GParamSpec *pspec);
+SwamiControl *swami_get_control_prop_by_name(GObject *object,
+        const char *name);
+void swami_control_prop_connect_objects(GObject *src, const char *propname1,
+                                        GObject *dest, const char *propname2,
+                                        guint flags);
+void swami_control_prop_connect_to_control(GObject *src, const char *propname,
+        SwamiControl *dest, guint flags);
+void swami_control_prop_connect_from_control(SwamiControl *src, GObject *dest,
+        const char *propname, guint flags);
+GType swami_control_prop_get_type(void);
 
-SwamiControlProp *swami_control_prop_new (GObject *object, GParamSpec *pspec);
-void swami_control_prop_assign (SwamiControlProp *ctrlprop, GObject *object,
-				GParamSpec *pspec, gboolean send_events);
-void swami_control_prop_assign_by_name (SwamiControlProp *ctrlprop,
-				        GObject *object, const char *prop_name);
+SwamiControlProp *swami_control_prop_new(GObject *object, GParamSpec *pspec);
+void swami_control_prop_assign(SwamiControlProp *ctrlprop, GObject *object,
+                               GParamSpec *pspec, gboolean send_events);
+void swami_control_prop_assign_by_name(SwamiControlProp *ctrlprop,
+                                       GObject *object, const char *prop_name);
 #endif

@@ -35,24 +35,24 @@
  * handle any value conversions required.
  */
 typedef void (*SwamiValueTransform)(const GValue *src, GValue *dest,
-				    gpointer user_data);
+                                    gpointer user_data);
 
-gboolean swami_param_get_limits (GParamSpec *pspec, gdouble *min,
-				 gdouble *max, gdouble *def,
-				 gboolean *integer);
-gboolean swami_param_set_limits (GParamSpec *pspec, gdouble min,
-				 gdouble max, gdouble def);
-gboolean swami_param_type_has_limits (GType param_type);
-gboolean swami_param_convert (GParamSpec *dest, GParamSpec *src);
-GParamSpec *swami_param_convert_new (GParamSpec *pspec, GType value_type);
-gboolean swami_param_type_transformable (GType src_type, GType dest_type);
-gboolean swami_param_type_transformable_value (GType src_valtype,
-					       GType dest_valtype);
-gboolean swami_param_transform (GParamSpec *dest, GParamSpec *src,
-				SwamiValueTransform trans, gpointer user_data);
-GParamSpec *swami_param_transform_new (GParamSpec *dest, GType value_type,
-				       SwamiValueTransform trans,
-				       gpointer user_data);
-GType swami_param_type_from_value_type (GType value_type);
+gboolean swami_param_get_limits(GParamSpec *pspec, gdouble *min,
+                                gdouble *max, gdouble *def,
+                                gboolean *integer);
+gboolean swami_param_set_limits(GParamSpec *pspec, gdouble min,
+                                gdouble max, gdouble def);
+gboolean swami_param_type_has_limits(GType param_type);
+gboolean swami_param_convert(GParamSpec *dest, GParamSpec *src);
+GParamSpec *swami_param_convert_new(GParamSpec *pspec, GType value_type);
+gboolean swami_param_type_transformable(GType src_type, GType dest_type);
+gboolean swami_param_type_transformable_value(GType src_valtype,
+        GType dest_valtype);
+gboolean swami_param_transform(GParamSpec *dest, GParamSpec *src,
+                               SwamiValueTransform trans, gpointer user_data);
+GParamSpec *swami_param_transform_new(GParamSpec *dest, GType value_type,
+                                      SwamiValueTransform trans,
+                                      gpointer user_data);
+GType swami_param_type_from_value_type(GType value_type);
 
 #endif

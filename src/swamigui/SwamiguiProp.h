@@ -41,15 +41,15 @@ typedef struct _SwamiguiPropClass SwamiguiPropClass;
 /* Swami Properties Object (all fields private) */
 struct _SwamiguiProp
 {
-  GtkScrolledWindow parent;
-  GtkWidget *viewport;		/* viewport for child interface widget */
-  IpatchList *selection;	/* Selection list or NULL (one item only) */
+    GtkScrolledWindow parent;
+    GtkWidget *viewport;		/* viewport for child interface widget */
+    IpatchList *selection;	/* Selection list or NULL (one item only) */
 };
 
 /* Swami Properties Object class (all fields private) */
 struct _SwamiguiPropClass
 {
-  GtkScrolledWindowClass parent_class;
+    GtkScrolledWindowClass parent_class;
 };
 
 /**
@@ -62,13 +62,13 @@ struct _SwamiguiPropClass
  *
  * Returns: The toplevel widget of the interface which controls @obj.
  */
-typedef GtkWidget * (*SwamiguiPropHandler)(GtkWidget *widg, GObject *obj);
+typedef GtkWidget *(*SwamiguiPropHandler)(GtkWidget *widg, GObject *obj);
 
-void swamigui_register_prop_glade_widg (GType objtype, const char *name);
-void swamigui_register_prop_handler (GType objtype, SwamiguiPropHandler handler);
+void swamigui_register_prop_glade_widg(GType objtype, const char *name);
+void swamigui_register_prop_handler(GType objtype, SwamiguiPropHandler handler);
 
-GType swamigui_prop_get_type (void);
-GtkWidget *swamigui_prop_new (void);
-void swamigui_prop_set_selection (SwamiguiProp *prop, IpatchList *selection);
+GType swamigui_prop_get_type(void);
+GtkWidget *swamigui_prop_new(void);
+void swamigui_prop_set_selection(SwamiguiProp *prop, IpatchList *selection);
 
 #endif

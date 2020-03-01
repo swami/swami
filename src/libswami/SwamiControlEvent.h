@@ -40,11 +40,11 @@ typedef struct _SwamiControlEvent SwamiControlEvent;
 
 struct _SwamiControlEvent
 {
-  struct timeval tick;		/* tick time */
-  SwamiControlEvent *origin;	/* origin event or %NULL if is origin */
-  GValue value;			/* value for this event */
-  int active;			/* active propagation count */
-  int refcount;			/* reference count */
+    struct timeval tick;		/* tick time */
+    SwamiControlEvent *origin;	/* origin event or %NULL if is origin */
+    GValue value;			/* value for this event */
+    int active;			/* active propagation count */
+    int refcount;			/* reference count */
 };
 
 /* an accessor macro for the value field of an event */
@@ -52,20 +52,20 @@ struct _SwamiControlEvent
 
 #include <libswami/SwamiControl.h>
 
-GType swami_control_event_get_type (void);
-SwamiControlEvent *swami_control_event_new (gboolean stamp);
-void swami_control_event_free (SwamiControlEvent *event);
+GType swami_control_event_get_type(void);
+SwamiControlEvent *swami_control_event_new(gboolean stamp);
+void swami_control_event_free(SwamiControlEvent *event);
 SwamiControlEvent *
-swami_control_event_duplicate (const SwamiControlEvent *event);
+swami_control_event_duplicate(const SwamiControlEvent *event);
 SwamiControlEvent *swami_control_event_transform
-  (SwamiControlEvent *event, GType valtype, SwamiValueTransform trans,
-   gpointer data);
-void swami_control_event_stamp (SwamiControlEvent *event);
-void swami_control_event_set_origin (SwamiControlEvent *event,
-				     SwamiControlEvent *origin);
-SwamiControlEvent *swami_control_event_ref (SwamiControlEvent *event);
-void swami_control_event_unref (SwamiControlEvent *event);
-void swami_control_event_active_ref (SwamiControlEvent *event);
-void swami_control_event_active_unref (SwamiControlEvent *event);
+(SwamiControlEvent *event, GType valtype, SwamiValueTransform trans,
+ gpointer data);
+void swami_control_event_stamp(SwamiControlEvent *event);
+void swami_control_event_set_origin(SwamiControlEvent *event,
+                                    SwamiControlEvent *origin);
+SwamiControlEvent *swami_control_event_ref(SwamiControlEvent *event);
+void swami_control_event_unref(SwamiControlEvent *event);
+void swami_control_event_active_ref(SwamiControlEvent *event);
+void swami_control_event_active_unref(SwamiControlEvent *event);
 
 #endif

@@ -51,30 +51,30 @@ typedef struct _SwamiguiPanelSelectorClass SwamiguiPanelSelectorClass;
 /* Panel user interface selection object */
 struct _SwamiguiPanelSelector
 {
-  GtkNotebook parent;		/* derived from GtkNotebook */
+    GtkNotebook parent;		/* derived from GtkNotebook */
 
-  /*< private >*/
-  IpatchList *selection;	/* Item selection */
+    /*< private >*/
+    IpatchList *selection;	/* Item selection */
 
-  /* Active panel for each page (SwamiguiPanelInfo *), list does not own allocation */
-  GList *active_panels;
+    /* Active panel for each page (SwamiguiPanelInfo *), list does not own allocation */
+    GList *active_panels;
 
-  SwamiguiRoot *root;           /* Root object containing panel cache */
+    SwamiguiRoot *root;           /* Root object containing panel cache */
 };
 
 /* Panel selector object class */
 struct _SwamiguiPanelSelectorClass
 {
-  GtkNotebookClass parent_class;
+    GtkNotebookClass parent_class;
 };
 
-GType *swamigui_get_panel_selector_types (void);
-void swamigui_register_panel_selector_type (GType panel_type, int order);
+GType *swamigui_get_panel_selector_types(void);
+void swamigui_register_panel_selector_type(GType panel_type, int order);
 
-GType swamigui_panel_selector_get_type (void);
-GtkWidget *swamigui_panel_selector_new (SwamiguiRoot *root);
-void swamigui_panel_selector_set_selection (SwamiguiPanelSelector *selector,
-					    IpatchList *items);
-IpatchList *swamigui_panel_selector_get_selection (SwamiguiPanelSelector *selector);
+GType swamigui_panel_selector_get_type(void);
+GtkWidget *swamigui_panel_selector_new(SwamiguiRoot *root);
+void swamigui_panel_selector_set_selection(SwamiguiPanelSelector *selector,
+        IpatchList *items);
+IpatchList *swamigui_panel_selector_get_selection(SwamiguiPanelSelector *selector);
 
 #endif

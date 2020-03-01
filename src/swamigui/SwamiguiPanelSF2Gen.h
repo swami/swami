@@ -43,19 +43,19 @@ typedef struct _SwamiguiPanelSF2GenCtrlInfo SwamiguiPanelSF2GenCtrlInfo;
 
 struct _SwamiguiPanelSF2Gen
 {
-  GtkScrolledWindow parent_instance; /* derived from GtkScrolledWindow */
+    GtkScrolledWindow parent_instance; /* derived from GtkScrolledWindow */
 
-  IpatchList *selection;	/* item selection */
-  int seltype;			/* current selection type (see SelType in $.c) */
+    IpatchList *selection;	/* item selection */
+    int seltype;			/* current selection type (see SelType in $.c) */
 
-  SwamiguiPanelSF2GenCtrlInfo *ctrlinfo;        /* Array of control info */
-  gpointer genwidgets;		/* GenWidget array (see GenWidget in $.c) */
-  int genwidget_count;          /* Count of widgets in genwidgets array */
+    SwamiguiPanelSF2GenCtrlInfo *ctrlinfo;        /* Array of control info */
+    gpointer genwidgets;		/* GenWidget array (see GenWidget in $.c) */
+    int genwidget_count;          /* Count of widgets in genwidgets array */
 };
 
 struct _SwamiguiPanelSF2GenClass
 {
-  GtkScrolledWindowClass parent_class;
+    GtkScrolledWindowClass parent_class;
 };
 
 /**
@@ -65,8 +65,8 @@ struct _SwamiguiPanelSF2GenClass
  */
 struct _SwamiguiPanelSF2GenCtrlInfo
 {
-  guint8 genid;
-  char *icon;
+    guint8 genid;
+    char *icon;
 };
 
 /**
@@ -79,17 +79,17 @@ struct _SwamiguiPanelSF2GenCtrlInfo
  */
 typedef enum
 {
-  SWAMIGUI_PANEL_SF2_GEN_LABEL = 200,
-  SWAMIGUI_PANEL_SF2_GEN_COLUMN,
-  SWAMIGUI_PANEL_SF2_GEN_END                 /* End of list */
+    SWAMIGUI_PANEL_SF2_GEN_LABEL = 200,
+    SWAMIGUI_PANEL_SF2_GEN_COLUMN,
+    SWAMIGUI_PANEL_SF2_GEN_END                 /* End of list */
 } SwamiguiPanelSF2GenOp;
 
 
-GType swamigui_panel_sf2_gen_get_type (void);
-GtkWidget *swamigui_panel_sf2_gen_new (void);
+GType swamigui_panel_sf2_gen_get_type(void);
+GtkWidget *swamigui_panel_sf2_gen_new(void);
 
 void
-swamigui_panel_sf2_gen_set_controls (SwamiguiPanelSF2Gen *genpanel,
-                                     SwamiguiPanelSF2GenCtrlInfo *ctrlinfo);
+swamigui_panel_sf2_gen_set_controls(SwamiguiPanelSF2Gen *genpanel,
+                                    SwamiguiPanelSF2GenCtrlInfo *ctrlinfo);
 
 #endif

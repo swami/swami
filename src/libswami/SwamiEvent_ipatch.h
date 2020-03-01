@@ -43,32 +43,32 @@ typedef IpatchItem SwamiEventItemAdd;
 
 typedef struct _SwamiEventItemRemove
 {
-  IpatchItem *item;		/* item removed or to be removed */
-  IpatchItem *parent;		/* parent of item */
+    IpatchItem *item;		/* item removed or to be removed */
+    IpatchItem *parent;		/* parent of item */
 } SwamiEventItemRemove;
 
 typedef struct _SwamiEventPropChange
 {
-  GObject *object;		/* object whose property changed */
-  GParamSpec *pspec;		/* property parameter spec */
-  GValue value;			/* new value */
+    GObject *object;		/* object whose property changed */
+    GParamSpec *pspec;		/* property parameter spec */
+    GValue value;			/* new value */
 } SwamiEventPropChange;
 
 
-GType swami_event_item_add_get_type (void);
-GType swami_event_item_remove_get_type (void);
-GType swami_event_prop_change_get_type (void);
+GType swami_event_item_add_get_type(void);
+GType swami_event_item_remove_get_type(void);
+GType swami_event_prop_change_get_type(void);
 
-SwamiEventItemAdd *swami_event_item_add_copy (SwamiEventItemAdd *item_add);
-void swami_event_item_add_free (SwamiEventItemAdd *item_add);
-SwamiEventItemRemove *swami_event_item_remove_new (void);
+SwamiEventItemAdd *swami_event_item_add_copy(SwamiEventItemAdd *item_add);
+void swami_event_item_add_free(SwamiEventItemAdd *item_add);
+SwamiEventItemRemove *swami_event_item_remove_new(void);
 SwamiEventItemRemove *
-swami_event_item_remove_copy (SwamiEventItemRemove *item_remove);
-void swami_event_item_remove_free (SwamiEventItemRemove *item_remove);
-SwamiEventPropChange *swami_event_prop_change_new (void);
+swami_event_item_remove_copy(SwamiEventItemRemove *item_remove);
+void swami_event_item_remove_free(SwamiEventItemRemove *item_remove);
+SwamiEventPropChange *swami_event_prop_change_new(void);
 SwamiEventPropChange *
-swami_event_prop_change_copy (SwamiEventPropChange *prop_change);
-void swami_event_prop_change_free (SwamiEventPropChange *prop_change);
+swami_event_prop_change_copy(SwamiEventPropChange *prop_change);
+void swami_event_prop_change_free(SwamiEventPropChange *prop_change);
 
 
 #endif

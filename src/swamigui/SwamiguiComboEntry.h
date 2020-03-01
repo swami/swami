@@ -44,9 +44,9 @@ typedef struct _SwamiguiComboEntryClass SwamiguiComboEntryClass;
 struct _SwamiguiComboEntry
 {
 #if GTK_COMBO_HAS_ENTRY
-  GtkComboBoxText parent_instance;
+    GtkComboBoxText parent_instance;
 #else
-  GtkComboBoxEntry parent_instance;
+    GtkComboBoxEntry parent_instance;
 #endif
 };
 
@@ -54,14 +54,14 @@ struct _SwamiguiComboEntry
 struct _SwamiguiComboEntryClass
 {
 #if GTK_COMBO_HAS_ENTRY
-  GtkComboBoxTextClass parent_class;
+    GtkComboBoxTextClass parent_class;
 #else
-  GtkComboBoxEntryClass parent_class;
+    GtkComboBoxEntryClass parent_class;
 #endif
 };
 
-GType swamigui_combo_entry_get_type (void);
-GtkWidget *swamigui_combo_entry_new ();
+GType swamigui_combo_entry_get_type(void);
+GtkWidget *swamigui_combo_entry_new();
 
 #endif
 

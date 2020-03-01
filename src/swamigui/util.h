@@ -27,42 +27,43 @@
 /* size in bytes of buffers used for converting audio formats */
 #define SWAMIGUI_SAMPLE_TRANSFORM_SIZE  (64 * 1024)
 
-typedef void (*UtilQuickFunc) (gpointer userdata, GtkWidget *popup);
+typedef void (*UtilQuickFunc)(gpointer userdata, GtkWidget *popup);
 
 /** A guint RGBA color unit type for GParamSpec "unit-type" IpatchParamProp */
 #define SWAMIGUI_UNIT_RGBA_COLOR  swamigui_util_unit_rgba_color_get_type()
 
-typedef enum {
-  SWAMIGUI_RESOURCE_PATH_ROOT,
-  SWAMIGUI_RESOURCE_PATH_UIXML,
-  SWAMIGUI_RESOURCE_PATH_IMAGES
+typedef enum
+{
+    SWAMIGUI_RESOURCE_PATH_ROOT,
+    SWAMIGUI_RESOURCE_PATH_UIXML,
+    SWAMIGUI_RESOURCE_PATH_IMAGES
 } SwamiResourcePath;
 
-void swamigui_util_init (void);
-guint swamigui_util_unit_rgba_color_get_type (void);
-void swamigui_util_canvas_line_set (GnomeCanvasItem *item, double x1, double y1,
-				    double x2, double y2);
-GtkWidget *swamigui_util_quick_popup (gchar * msg, gchar * btn1, ...);
-GtkWidget *swamigui_util_lookup_unique_dialog (gchar *strkey, gint key2);
-gboolean swamigui_util_register_unique_dialog (GtkWidget *dialog, gchar *strkey,
-					       gint key2);
-void swamigui_util_unregister_unique_dialog (GtkWidget *dialog);
-gboolean swamigui_util_activate_unique_dialog (gchar *strkey, gint key2);
+void swamigui_util_init(void);
+guint swamigui_util_unit_rgba_color_get_type(void);
+void swamigui_util_canvas_line_set(GnomeCanvasItem *item, double x1, double y1,
+                                   double x2, double y2);
+GtkWidget *swamigui_util_quick_popup(gchar *msg, gchar *btn1, ...);
+GtkWidget *swamigui_util_lookup_unique_dialog(gchar *strkey, gint key2);
+gboolean swamigui_util_register_unique_dialog(GtkWidget *dialog, gchar *strkey,
+        gint key2);
+void swamigui_util_unregister_unique_dialog(GtkWidget *dialog);
+gboolean swamigui_util_activate_unique_dialog(gchar *strkey, gint key2);
 
-gpointer swamigui_util_waitfor_widget_action (GtkWidget *widg);
-void swamigui_util_widget_action (GtkWidget *cbwidg, gpointer value);
-GtkWidget *swamigui_util_glade_create (const char *name);
-GtkWidget *swamigui_util_glade_lookup (GtkWidget *widget, const char *name);
-GtkWidget *swamigui_util_glade_lookup_nowarn (GtkWidget *widget, const char *name);
+gpointer swamigui_util_waitfor_widget_action(GtkWidget *widg);
+void swamigui_util_widget_action(GtkWidget *cbwidg, gpointer value);
+GtkWidget *swamigui_util_glade_create(const char *name);
+GtkWidget *swamigui_util_glade_lookup(GtkWidget *widget, const char *name);
+GtkWidget *swamigui_util_glade_lookup_nowarn(GtkWidget *widget, const char *name);
 
-int swamigui_util_option_menu_index (GtkWidget *opmenu);
+int swamigui_util_option_menu_index(GtkWidget *opmenu);
 
 // void log_view (gchar * title);
 
-char *swamigui_util_str_crlf2lf (char *str);
-char *swamigui_util_str_lf2crlf (char *str);
-int swamigui_util_substrcmp (char *sub, char *str);
+char *swamigui_util_str_crlf2lf(char *str);
+char *swamigui_util_str_lf2crlf(char *str);
+int swamigui_util_substrcmp(char *sub, char *str);
 
-gchar *swamigui_util_get_resource_path (SwamiResourcePath kind);
+gchar *swamigui_util_get_resource_path(SwamiResourcePath kind);
 
 #endif

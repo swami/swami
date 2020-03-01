@@ -21,72 +21,72 @@
  */
 #include "SwamiContainer.h"
 
-static void swami_container_class_init (SwamiContainerClass *klass);
-static const GType *swami_container_child_types (void);
-static gboolean swami_container_init_iter (IpatchContainer *container,
-					   IpatchIter *iter, GType type);
+static void swami_container_class_init(SwamiContainerClass *klass);
+static const GType *swami_container_child_types(void);
+static gboolean swami_container_init_iter(IpatchContainer *container,
+        IpatchIter *iter, GType type);
 
 static GType container_child_types[2] = { 0 };
 
 
 GType
-swami_container_get_type (void)
+swami_container_get_type(void)
 {
-  static GType item_type = 0;
+    static GType item_type = 0;
 
-  if (!item_type)
+    if(!item_type)
     {
-      static const GTypeInfo item_info =
-	{
-	  sizeof (SwamiContainerClass),
-	  (GBaseInitFunc) NULL,
-	  (GBaseFinalizeFunc) NULL,
-	  (GClassInitFunc) swami_container_class_init, NULL, NULL,
-	  sizeof (SwamiContainer), 0,
-	  (GInstanceInitFunc) NULL,
-	};
+        static const GTypeInfo item_info =
+        {
+            sizeof(SwamiContainerClass),
+            (GBaseInitFunc) NULL,
+            (GBaseFinalizeFunc) NULL,
+            (GClassInitFunc) swami_container_class_init, NULL, NULL,
+            sizeof(SwamiContainer), 0,
+            (GInstanceInitFunc) NULL,
+        };
 
-      item_type = g_type_register_static (IPATCH_TYPE_CONTAINER,
-					  "SwamiContainer", &item_info, 0);
+        item_type = g_type_register_static(IPATCH_TYPE_CONTAINER,
+                                           "SwamiContainer", &item_info, 0);
     }
 
-  return (item_type);
+    return (item_type);
 }
 
 static void
-swami_container_class_init (SwamiContainerClass *klass)
+swami_container_class_init(SwamiContainerClass *klass)
 {
-  IpatchContainerClass *container_class = IPATCH_CONTAINER_CLASS (klass);
+    IpatchContainerClass *container_class = IPATCH_CONTAINER_CLASS(klass);
 
-  container_class->child_types = swami_container_child_types;
-  container_class->init_iter = swami_container_init_iter;
+    container_class->child_types = swami_container_child_types;
+    container_class->init_iter = swami_container_init_iter;
 
-  container_child_types[0] = IPATCH_TYPE_BASE;
+    container_child_types[0] = IPATCH_TYPE_BASE;
 }
 
 static const GType *
-swami_container_child_types (void)
+swami_container_child_types(void)
 {
-  return (container_child_types);
+    return (container_child_types);
 }
 
 /* container is locked by caller */
 static gboolean
-swami_container_init_iter (IpatchContainer *container,
-			   IpatchIter *iter, GType type)
+swami_container_init_iter(IpatchContainer *container,
+                          IpatchIter *iter, GType type)
 {
-  SwamiContainer *scontainer = SWAMI_CONTAINER (container);
+    SwamiContainer *scontainer = SWAMI_CONTAINER(container);
 
-  if (type != IPATCH_TYPE_BASE)
+    if(type != IPATCH_TYPE_BASE)
     {
-      g_critical ("Invalid child type '%s' for parent of type '%s'",
-		  g_type_name (type), g_type_name (G_OBJECT_TYPE (container)));
-      return (FALSE);
+        g_critical("Invalid child type '%s' for parent of type '%s'",
+                   g_type_name(type), g_type_name(G_OBJECT_TYPE(container)));
+        return (FALSE);
     }
 
-  ipatch_iter_GSList_init (iter, &scontainer->patch_list);
+    ipatch_iter_GSList_init(iter, &scontainer->patch_list);
 
-  return (TRUE);
+    return (TRUE);
 }
 
 /**
@@ -98,7 +98,7 @@ swami_container_init_iter (IpatchContainer *container,
  * Returns: New Swami container object
  */
 SwamiContainer *
-swami_container_new (void)
+swami_container_new(void)
 {
-  return SWAMI_CONTAINER (g_object_new (SWAMI_TYPE_CONTAINER, NULL));
+    return SWAMI_CONTAINER(g_object_new(SWAMI_TYPE_CONTAINER, NULL));
 }

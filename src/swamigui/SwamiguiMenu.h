@@ -42,17 +42,17 @@ typedef struct _SwamiguiMenuClass SwamiguiMenuClass;
 /* Swami Menu object */
 struct _SwamiguiMenu
 {
-  GtkVBox parent_instance;
+    GtkVBox parent_instance;
 
-  GtkUIManager *ui;
+    GtkUIManager *ui;
 };
 
 struct _SwamiguiMenuClass
 {
-  GtkVBoxClass parent_class;
+    GtkVBoxClass parent_class;
 };
 
-GType swamigui_menu_get_type (void);
-GtkWidget *swamigui_menu_new (void);
+GType swamigui_menu_get_type(void);
+GtkWidget *swamigui_menu_new(void);
 
 #endif

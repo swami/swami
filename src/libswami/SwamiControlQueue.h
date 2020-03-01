@@ -58,35 +58,35 @@ typedef struct _SwamiControlQueueClass SwamiControlQueueClass;
  * Returns: Function should return %TRUE if event should be queued, %FALSE to
  *   send event immediately.
  */
-typedef gboolean (* SwamiControlQueueTestFunc)(SwamiControlQueue *queue,
-					       SwamiControl *control,
-					       SwamiControlEvent *event);
+typedef gboolean(* SwamiControlQueueTestFunc)(SwamiControlQueue *queue,
+        SwamiControl *control,
+        SwamiControlEvent *event);
 
 /* control event queue */
 struct _SwamiControlQueue
 {
-  SwamiLock parent_instance;	/* derived from SwamiLock */
+    SwamiLock parent_instance;	/* derived from SwamiLock */
 
-  SwamiControlQueueTestFunc test_func;
+    SwamiControlQueueTestFunc test_func;
 
-  GList *list; /* list of queued events (struct in SwamiControlQueue.c) */
-  GList *tail;			/* tail of the list */
+    GList *list; /* list of queued events (struct in SwamiControlQueue.c) */
+    GList *tail;			/* tail of the list */
 };
 
 /* control value change queue class */
 struct _SwamiControlQueueClass
 {
-  SwamiLockClass parent_class;
+    SwamiLockClass parent_class;
 };
 
-GType swami_control_queue_get_type (void);
+GType swami_control_queue_get_type(void);
 
-SwamiControlQueue *swami_control_queue_new (void);
-void swami_control_queue_add_event (SwamiControlQueue *queue,
-				    SwamiControl *control,
-				    SwamiControlEvent *event);
-void swami_control_queue_run (SwamiControlQueue *queue);
-void swami_control_queue_set_test_func (SwamiControlQueue *queue,
-					SwamiControlQueueTestFunc test_func);
+SwamiControlQueue *swami_control_queue_new(void);
+void swami_control_queue_add_event(SwamiControlQueue *queue,
+                                   SwamiControl *control,
+                                   SwamiControlEvent *event);
+void swami_control_queue_run(SwamiControlQueue *queue);
+void swami_control_queue_set_test_func(SwamiControlQueue *queue,
+                                       SwamiControlQueueTestFunc test_func);
 
 #endif

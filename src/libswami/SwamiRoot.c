@@ -47,40 +47,40 @@
 /* Swami root object properties */
 enum
 {
-  PROP_0,
-  PROP_PATCH_SEARCH_PATH,
-  PROP_PATCH_PATH,
-  PROP_SAMPLE_PATH,
-  PROP_SAMPLE_FORMAT,
-  PROP_SWAP_MAX_WASTE,
-  PROP_SWAP_RAM_SIZE,
-  PROP_SAMPLE_CACHE_MAX_WASTE,
-  PROP_SAMPLE_CACHE_MAX_AGE,
-  PROP_SAMPLE_MAX_SIZE,
-  PROP_PATCH_ROOT
+    PROP_0,
+    PROP_PATCH_SEARCH_PATH,
+    PROP_PATCH_PATH,
+    PROP_SAMPLE_PATH,
+    PROP_SAMPLE_FORMAT,
+    PROP_SWAP_MAX_WASTE,
+    PROP_SWAP_RAM_SIZE,
+    PROP_SAMPLE_CACHE_MAX_WASTE,
+    PROP_SAMPLE_CACHE_MAX_AGE,
+    PROP_SAMPLE_MAX_SIZE,
+    PROP_PATCH_ROOT
 };
 
 /* Swami root object signals */
 enum
 {
-  SWAMI_PROP_NOTIFY,
-  OBJECT_ADD,			/* add object */
-  LAST_SIGNAL
+    SWAMI_PROP_NOTIFY,
+    OBJECT_ADD,			/* add object */
+    LAST_SIGNAL
 };
 
 /* --- private function prototypes --- */
 
-static gboolean swami_root_sample_waste_checks (gpointer user_data);
-static void swami_root_set_property (GObject *object, guint property_id,
-				     const GValue *value, GParamSpec *pspec);
-static void swami_root_get_property (GObject *object, guint property_id,
-				     GValue *value, GParamSpec *pspec);
-static void swami_root_finalize (GObject *object);
+static gboolean swami_root_sample_waste_checks(gpointer user_data);
+static void swami_root_set_property(GObject *object, guint property_id,
+                                    const GValue *value, GParamSpec *pspec);
+static void swami_root_get_property(GObject *object, guint property_id,
+                                    GValue *value, GParamSpec *pspec);
+static void swami_root_finalize(GObject *object);
 
 guint root_signals[LAST_SIGNAL] = { 0 };
 
 
-G_DEFINE_TYPE (SwamiRoot, swami_root, SWAMI_TYPE_LOCK);
+G_DEFINE_TYPE(SwamiRoot, swami_root, SWAMI_TYPE_LOCK);
 
 static int swami_root_swap_max_waste = DEFAULT_SWAP_MAX_WASTE;
 static int swami_root_sample_cache_max_waste = DEFAULT_SAMPLE_CACHE_MAX_WASTE;     /* max sample cache unused size in megabytes */
@@ -88,225 +88,262 @@ static int swami_root_sample_cache_max_age = DEFAULT_SAMPLE_CACHE_MAX_AGE;      
 
 
 static void
-swami_root_class_init (SwamiRootClass *klass)
+swami_root_class_init(SwamiRootClass *klass)
 {
-  GObjectClass *obj_class = G_OBJECT_CLASS (klass);
+    GObjectClass *obj_class = G_OBJECT_CLASS(klass);
 
-  root_signals[SWAMI_PROP_NOTIFY] =
-    g_signal_new ("swami-prop-notify", G_TYPE_FROM_CLASS (klass),
-		  G_SIGNAL_RUN_FIRST | G_SIGNAL_NO_RECURSE | G_SIGNAL_DETAILED
-		  | G_SIGNAL_NO_HOOKS,
-		  0, NULL, NULL,
-		  g_cclosure_marshal_VOID__PARAM,
-		  G_TYPE_NONE, 1, G_TYPE_PARAM);
+    root_signals[SWAMI_PROP_NOTIFY] =
+        g_signal_new("swami-prop-notify", G_TYPE_FROM_CLASS(klass),
+                     G_SIGNAL_RUN_FIRST | G_SIGNAL_NO_RECURSE | G_SIGNAL_DETAILED
+                     | G_SIGNAL_NO_HOOKS,
+                     0, NULL, NULL,
+                     g_cclosure_marshal_VOID__PARAM,
+                     G_TYPE_NONE, 1, G_TYPE_PARAM);
 
-  root_signals[OBJECT_ADD] =
-    g_signal_new ("object-add", G_TYPE_FROM_CLASS (klass),
-		  G_SIGNAL_RUN_FIRST,
-		  G_STRUCT_OFFSET (SwamiRootClass, object_add), NULL, NULL,
-		  g_cclosure_marshal_VOID__OBJECT,
-		  G_TYPE_NONE, 1, G_TYPE_OBJECT);
+    root_signals[OBJECT_ADD] =
+        g_signal_new("object-add", G_TYPE_FROM_CLASS(klass),
+                     G_SIGNAL_RUN_FIRST,
+                     G_STRUCT_OFFSET(SwamiRootClass, object_add), NULL, NULL,
+                     g_cclosure_marshal_VOID__OBJECT,
+                     G_TYPE_NONE, 1, G_TYPE_OBJECT);
 
-  obj_class->finalize = swami_root_finalize;
-  obj_class->set_property = swami_root_set_property;
-  obj_class->get_property = swami_root_get_property;
+    obj_class->finalize = swami_root_finalize;
+    obj_class->set_property = swami_root_set_property;
+    obj_class->get_property = swami_root_get_property;
 
-  g_object_class_install_property (obj_class, PROP_PATCH_SEARCH_PATH,
-			g_param_spec_string ("patch-search-path",
-					     N_("Patch search path"),
-					     N_("Patch search path"),
-					     NULL, G_PARAM_READWRITE));
-  g_object_class_install_property (obj_class, PROP_PATCH_PATH,
-			g_param_spec_string ("patch-path",
-					     N_("Patch path"),
-					     N_("Default patch path"),
-					     NULL, G_PARAM_READWRITE));
-  g_object_class_install_property (obj_class, PROP_SAMPLE_PATH,
-			g_param_spec_string ("sample-path",
-					     N_("Sample path"),
-					     N_("Default sample path"),
-					     NULL, G_PARAM_READWRITE));
-  g_object_class_install_property (obj_class, PROP_SAMPLE_FORMAT,
-			g_param_spec_string ("sample-format",
-					     N_("Sample format"),
-					     N_("Default sample format"),
-					     NULL, G_PARAM_READWRITE));
-  g_object_class_install_property (obj_class, PROP_SWAP_MAX_WASTE,
-		g_param_spec_int ("swap-max-waste",
-				  N_("Swap max waste"),
-				  N_("Max waste of sample swap in megabytes"),
-				  0, G_MAXINT, DEFAULT_SWAP_MAX_WASTE, G_PARAM_READWRITE));
-  g_object_class_install_property (obj_class, PROP_SWAP_RAM_SIZE,
-		g_param_spec_int ("swap-ram-size",
-				  N_("Swap RAM size"),
-				  N_("Size of RAM sample swap in megabytes"),
-				  0, G_MAXINT, DEFAULT_SWAP_RAM_SIZE, G_PARAM_READWRITE));
-  g_object_class_install_property (obj_class, PROP_SAMPLE_CACHE_MAX_WASTE,
-		g_param_spec_int ("sample-cache-max-waste",
-				  N_("Sample cache max waste"),
-				  N_("Max unused sample cache in megabytes"),
-				  0, G_MAXINT, DEFAULT_SAMPLE_CACHE_MAX_WASTE, G_PARAM_READWRITE));
-  g_object_class_install_property (obj_class, PROP_SAMPLE_CACHE_MAX_AGE,
-		g_param_spec_int ("sample-cache-max-age",
-				  N_("Sample cache max age"),
-				  N_("Max unused age of cached samples in seconds (0 disables)"),
-				  0, G_MAXINT, DEFAULT_SAMPLE_CACHE_MAX_AGE, G_PARAM_READWRITE));
-  g_object_class_install_property (obj_class, PROP_SAMPLE_MAX_SIZE,
-		g_param_spec_int ("sample-max-size",
-				  N_("Sample max size"),
-				  N_("Max sample size in megabytes"),
-				  0, G_MAXINT, DEFAULT_SAMPLE_MAX_SIZE, G_PARAM_READWRITE));
-  g_object_class_install_property (obj_class, PROP_PATCH_ROOT,
-		g_param_spec_object ("patch-root", N_("Patch root"),
-				     N_("Root container of instrument patch tree"),
-				     SWAMI_TYPE_CONTAINER, G_PARAM_READABLE | IPATCH_PARAM_NO_SAVE));
+    g_object_class_install_property(obj_class, PROP_PATCH_SEARCH_PATH,
+                                    g_param_spec_string("patch-search-path",
+                                            N_("Patch search path"),
+                                            N_("Patch search path"),
+                                            NULL, G_PARAM_READWRITE));
+    g_object_class_install_property(obj_class, PROP_PATCH_PATH,
+                                    g_param_spec_string("patch-path",
+                                            N_("Patch path"),
+                                            N_("Default patch path"),
+                                            NULL, G_PARAM_READWRITE));
+    g_object_class_install_property(obj_class, PROP_SAMPLE_PATH,
+                                    g_param_spec_string("sample-path",
+                                            N_("Sample path"),
+                                            N_("Default sample path"),
+                                            NULL, G_PARAM_READWRITE));
+    g_object_class_install_property(obj_class, PROP_SAMPLE_FORMAT,
+                                    g_param_spec_string("sample-format",
+                                            N_("Sample format"),
+                                            N_("Default sample format"),
+                                            NULL, G_PARAM_READWRITE));
+    g_object_class_install_property(obj_class, PROP_SWAP_MAX_WASTE,
+                                    g_param_spec_int("swap-max-waste",
+                                            N_("Swap max waste"),
+                                            N_("Max waste of sample swap in megabytes"),
+                                            0, G_MAXINT, DEFAULT_SWAP_MAX_WASTE, G_PARAM_READWRITE));
+    g_object_class_install_property(obj_class, PROP_SWAP_RAM_SIZE,
+                                    g_param_spec_int("swap-ram-size",
+                                            N_("Swap RAM size"),
+                                            N_("Size of RAM sample swap in megabytes"),
+                                            0, G_MAXINT, DEFAULT_SWAP_RAM_SIZE, G_PARAM_READWRITE));
+    g_object_class_install_property(obj_class, PROP_SAMPLE_CACHE_MAX_WASTE,
+                                    g_param_spec_int("sample-cache-max-waste",
+                                            N_("Sample cache max waste"),
+                                            N_("Max unused sample cache in megabytes"),
+                                            0, G_MAXINT, DEFAULT_SAMPLE_CACHE_MAX_WASTE, G_PARAM_READWRITE));
+    g_object_class_install_property(obj_class, PROP_SAMPLE_CACHE_MAX_AGE,
+                                    g_param_spec_int("sample-cache-max-age",
+                                            N_("Sample cache max age"),
+                                            N_("Max unused age of cached samples in seconds (0 disables)"),
+                                            0, G_MAXINT, DEFAULT_SAMPLE_CACHE_MAX_AGE, G_PARAM_READWRITE));
+    g_object_class_install_property(obj_class, PROP_SAMPLE_MAX_SIZE,
+                                    g_param_spec_int("sample-max-size",
+                                            N_("Sample max size"),
+                                            N_("Max sample size in megabytes"),
+                                            0, G_MAXINT, DEFAULT_SAMPLE_MAX_SIZE, G_PARAM_READWRITE));
+    g_object_class_install_property(obj_class, PROP_PATCH_ROOT,
+                                    g_param_spec_object("patch-root", N_("Patch root"),
+                                            N_("Root container of instrument patch tree"),
+                                            SWAMI_TYPE_CONTAINER, G_PARAM_READABLE | IPATCH_PARAM_NO_SAVE));
 
-  g_timeout_add_seconds (SWAP_MAX_WASTE_INTERVAL, swami_root_sample_waste_checks, NULL);
+    g_timeout_add_seconds(SWAP_MAX_WASTE_INTERVAL, swami_root_sample_waste_checks, NULL);
 }
 
 /* Periodically check if max swap or sample cache waste has been exceeded and compact them if so */
 static gboolean
-swami_root_sample_waste_checks (gpointer user_data)
+swami_root_sample_waste_checks(gpointer user_data)
 {
-  GError *err = NULL;
+    GError *err = NULL;
 
-  if (ipatch_get_sample_store_swap_unused_size () > swami_root_swap_max_waste * 1024 * 1024)
-  {
-    if (!ipatch_compact_sample_store_swap (&err))
+    if(ipatch_get_sample_store_swap_unused_size() > swami_root_swap_max_waste * 1024 * 1024)
     {
-      g_warning (_("Error compacting swap file: %s"), ipatch_gerror_message (err));
-      g_clear_error (&err);
+        if(!ipatch_compact_sample_store_swap(&err))
+        {
+            g_warning(_("Error compacting swap file: %s"), ipatch_gerror_message(err));
+            g_clear_error(&err);
+        }
     }
-  }
 
-  ipatch_sample_cache_clean ((guint64)swami_root_sample_cache_max_waste * (1024 * 1024),
-                             swami_root_sample_cache_max_age);
+    ipatch_sample_cache_clean((guint64)swami_root_sample_cache_max_waste * (1024 * 1024),
+                              swami_root_sample_cache_max_age);
 
-  return (TRUE);
+    return (TRUE);
 }
 
 static void
-swami_root_set_property (GObject *object, guint property_id,
-			 const GValue *value, GParamSpec *pspec)
+swami_root_set_property(GObject *object, guint property_id,
+                        const GValue *value, GParamSpec *pspec)
 {
-  SwamiRoot *root = SWAMI_ROOT (object);
+    SwamiRoot *root = SWAMI_ROOT(object);
 
-  switch (property_id)
+    switch(property_id)
     {
     case PROP_PATCH_SEARCH_PATH:
-      if (root->patch_search_path) g_free (root->patch_search_path);
-      root->patch_search_path = g_value_dup_string (value);
-      break;
+        if(root->patch_search_path)
+        {
+            g_free(root->patch_search_path);
+        }
+
+        root->patch_search_path = g_value_dup_string(value);
+        break;
+
     case PROP_PATCH_PATH:
-      if (root->patch_path) g_free (root->patch_path);
-      root->patch_path = g_value_dup_string (value);
-      break;
+        if(root->patch_path)
+        {
+            g_free(root->patch_path);
+        }
+
+        root->patch_path = g_value_dup_string(value);
+        break;
+
     case PROP_SAMPLE_PATH:
-      if (root->sample_path) g_free (root->sample_path);
-      root->sample_path = g_value_dup_string (value);
-      break;
+        if(root->sample_path)
+        {
+            g_free(root->sample_path);
+        }
+
+        root->sample_path = g_value_dup_string(value);
+        break;
+
     case PROP_SAMPLE_FORMAT:
-      if (root->sample_format) g_free (root->sample_format);
-      root->sample_format = g_value_dup_string (value);
-      break;
+        if(root->sample_format)
+        {
+            g_free(root->sample_format);
+        }
+
+        root->sample_format = g_value_dup_string(value);
+        break;
+
     case PROP_SWAP_MAX_WASTE:
-      swami_root_swap_max_waste = g_value_get_int (value);
-      break;
+        swami_root_swap_max_waste = g_value_get_int(value);
+        break;
+
     case PROP_SWAP_RAM_SIZE:
-      root->swap_ram_size = g_value_get_int (value);
-      ipatch_set_sample_store_swap_max_memory (root->swap_ram_size * 1024 * 1024);
-      break;
+        root->swap_ram_size = g_value_get_int(value);
+        ipatch_set_sample_store_swap_max_memory(root->swap_ram_size * 1024 * 1024);
+        break;
+
     case PROP_SAMPLE_CACHE_MAX_WASTE:
-      swami_root_sample_cache_max_waste = g_value_get_int (value);
-      break;
+        swami_root_sample_cache_max_waste = g_value_get_int(value);
+        break;
+
     case PROP_SAMPLE_CACHE_MAX_AGE:
-      swami_root_sample_cache_max_age = g_value_get_int (value);
-      break;
+        swami_root_sample_cache_max_age = g_value_get_int(value);
+        break;
+
     case PROP_SAMPLE_MAX_SIZE:
-      root->sample_max_size = g_value_get_int (value);
-      break;
+        root->sample_max_size = g_value_get_int(value);
+        break;
+
     default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-      break;
+        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+        break;
     }
 }
 
 static void
-swami_root_get_property (GObject *object, guint property_id,
-			 GValue *value, GParamSpec *pspec)
+swami_root_get_property(GObject *object, guint property_id,
+                        GValue *value, GParamSpec *pspec)
 {
-  SwamiRoot *root = SWAMI_ROOT (object);
+    SwamiRoot *root = SWAMI_ROOT(object);
 
-  switch (property_id)
+    switch(property_id)
     {
     case PROP_PATCH_SEARCH_PATH:
-      g_value_set_string (value, root->patch_search_path);
-      break;
+        g_value_set_string(value, root->patch_search_path);
+        break;
+
     case PROP_PATCH_PATH:
-      g_value_set_string (value, root->patch_path);
-      break;
+        g_value_set_string(value, root->patch_path);
+        break;
+
     case PROP_SAMPLE_PATH:
-      g_value_set_string (value, root->sample_path);
-      break;
+        g_value_set_string(value, root->sample_path);
+        break;
+
     case PROP_SAMPLE_FORMAT:
-      g_value_set_string (value, root->sample_format);
-      break;
+        g_value_set_string(value, root->sample_format);
+        break;
+
     case PROP_SWAP_MAX_WASTE:
-      g_value_set_int (value, swami_root_swap_max_waste);
-      break;
+        g_value_set_int(value, swami_root_swap_max_waste);
+        break;
+
     case PROP_SWAP_RAM_SIZE:
-      g_value_set_int (value, root->swap_ram_size);
-      break;
+        g_value_set_int(value, root->swap_ram_size);
+        break;
+
     case PROP_SAMPLE_CACHE_MAX_WASTE:
-      g_value_set_int (value, swami_root_sample_cache_max_waste);
-      break;
+        g_value_set_int(value, swami_root_sample_cache_max_waste);
+        break;
+
     case PROP_SAMPLE_CACHE_MAX_AGE:
-      g_value_set_int (value, swami_root_sample_cache_max_age);
-      break;
+        g_value_set_int(value, swami_root_sample_cache_max_age);
+        break;
+
     case PROP_SAMPLE_MAX_SIZE:
-      g_value_set_int (value, root->sample_max_size);
-      break;
+        g_value_set_int(value, root->sample_max_size);
+        break;
+
     case PROP_PATCH_ROOT:
-      g_value_set_object (value, root->patch_root);
-      break;
+        g_value_set_object(value, root->patch_root);
+        break;
+
     default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-      break;
+        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+        break;
     }
 }
 
 static void
-swami_root_init (SwamiRoot *root)
+swami_root_init(SwamiRoot *root)
 {
-  root->swap_ram_size = DEFAULT_SWAP_RAM_SIZE;
-  root->sample_max_size = DEFAULT_SAMPLE_MAX_SIZE;
-  root->patch_root = swami_container_new ();
-  root->patch_root->root = root;
+    root->swap_ram_size = DEFAULT_SWAP_RAM_SIZE;
+    root->sample_max_size = DEFAULT_SAMPLE_MAX_SIZE;
+    root->patch_root = swami_container_new();
+    root->patch_root->root = root;
 
-  /* set the IpatchItem hooks active flag to make all children items execute
-     hook callback functions (once added to root) */
-  ipatch_item_set_flags (IPATCH_ITEM (root->patch_root),
-			 IPATCH_ITEM_HOOKS_ACTIVE);
-  root->proptree = swami_prop_tree_new (); /* ++ ref property tree */
-  swami_prop_tree_set_root (root->proptree, G_OBJECT (root));
+    /* set the IpatchItem hooks active flag to make all children items execute
+       hook callback functions (once added to root) */
+    ipatch_item_set_flags(IPATCH_ITEM(root->patch_root),
+                          IPATCH_ITEM_HOOKS_ACTIVE);
+    root->proptree = swami_prop_tree_new();  /* ++ ref property tree */
+    swami_prop_tree_set_root(root->proptree, G_OBJECT(root));
 
-  ipatch_set_sample_store_swap_max_memory (root->swap_ram_size * 1024 * 1024);
+    ipatch_set_sample_store_swap_max_memory(root->swap_ram_size * 1024 * 1024);
 }
 
 static void
-swami_root_finalize (GObject *object)
+swami_root_finalize(GObject *object)
 {
-  SwamiRoot *root = SWAMI_ROOT (object);
+    SwamiRoot *root = SWAMI_ROOT(object);
 
-  g_object_unref (root->patch_root);
-  g_object_unref (root->proptree);
-  g_free (root->patch_search_path);
-  g_free (root->patch_path);
-  g_free (root->sample_path);
-  g_free (root->sample_format);
+    g_object_unref(root->patch_root);
+    g_object_unref(root->proptree);
+    g_free(root->patch_search_path);
+    g_free(root->patch_path);
+    g_free(root->sample_path);
+    g_free(root->sample_format);
 
-  if (G_OBJECT_CLASS (swami_root_parent_class)->finalize)
-    G_OBJECT_CLASS (swami_root_parent_class)->finalize (object);
+    if(G_OBJECT_CLASS(swami_root_parent_class)->finalize)
+    {
+        G_OBJECT_CLASS(swami_root_parent_class)->finalize(object);
+    }
 }
 
 /**
@@ -318,9 +355,9 @@ swami_root_finalize (GObject *object)
  * Returns: New Swami root object
  */
 SwamiRoot *
-swami_root_new (void)
+swami_root_new(void)
 {
-  return SWAMI_ROOT (g_object_new (SWAMI_TYPE_ROOT, NULL));
+    return SWAMI_ROOT(g_object_new(SWAMI_TYPE_ROOT, NULL));
 }
 
 /**
@@ -335,29 +372,36 @@ swami_root_new (void)
  *   destroyed.
  */
 SwamiRoot *
-swami_get_root (gpointer object)
+swami_get_root(gpointer object)
 {
-  SwamiContainer *container;
-  SwamiRoot *root = NULL;
-  SwamiObjectPropBag *propbag;
+    SwamiContainer *container;
+    SwamiRoot *root = NULL;
+    SwamiObjectPropBag *propbag;
 
-  g_return_val_if_fail (G_IS_OBJECT (object), NULL);
+    g_return_val_if_fail(G_IS_OBJECT(object), NULL);
 
-  if (SWAMI_IS_ROOT (object)) root = (SwamiRoot *)object;
-  else if (IPATCH_IS_ITEM (object))
+    if(SWAMI_IS_ROOT(object))
     {
-      container = (SwamiContainer *)ipatch_item_peek_ancestor_by_type
-	(object, SWAMI_TYPE_CONTAINER);
-      root = container->root;
+        root = (SwamiRoot *)object;
     }
-  else
+    else if(IPATCH_IS_ITEM(object))
     {
-      propbag = g_object_get_qdata (G_OBJECT (object),
-				    swami_object_propbag_quark);
-      if (propbag) root = propbag->root;
+        container = (SwamiContainer *)ipatch_item_peek_ancestor_by_type
+                    (object, SWAMI_TYPE_CONTAINER);
+        root = container->root;
+    }
+    else
+    {
+        propbag = g_object_get_qdata(G_OBJECT(object),
+                                     swami_object_propbag_quark);
+
+        if(propbag)
+        {
+            root = propbag->root;
+        }
     }
 
-  return (root);
+    return (root);
 }
 
 /**
@@ -371,26 +415,28 @@ swami_get_root (gpointer object)
  *   remember to unref it when finished.
  */
 IpatchList *
-swami_root_get_objects (SwamiRoot *root)
+swami_root_get_objects(SwamiRoot *root)
 {
-  GNode *node;
-  IpatchList *list;
+    GNode *node;
+    IpatchList *list;
 
-  g_return_val_if_fail (SWAMI_IS_ROOT (root), NULL);
+    g_return_val_if_fail(SWAMI_IS_ROOT(root), NULL);
 
-  list = ipatch_list_new ();	/* ++ ref new list */
+    list = ipatch_list_new();	/* ++ ref new list */
 
-  SWAMI_LOCK_READ (root->proptree);
-  node = root->proptree->tree->children;
-  while (node)
+    SWAMI_LOCK_READ(root->proptree);
+    node = root->proptree->tree->children;
+
+    while(node)
     {
-      g_object_ref (node->data);
-      list->items = g_list_prepend (list->items, node->data);
-      node = node->next;
+        g_object_ref(node->data);
+        list->items = g_list_prepend(list->items, node->data);
+        node = node->next;
     }
-  SWAMI_UNLOCK_READ (root->proptree);
 
-  return (list);
+    SWAMI_UNLOCK_READ(root->proptree);
+
+    return (list);
 }
 
 /**
@@ -402,15 +448,15 @@ swami_root_get_objects (SwamiRoot *root)
  * the object for the @root object.
  */
 void
-swami_root_add_object (SwamiRoot *root, GObject *object)
+swami_root_add_object(SwamiRoot *root, GObject *object)
 {
-  g_return_if_fail (SWAMI_IS_ROOT (root));
-  g_return_if_fail (G_IS_OBJECT (object));
+    g_return_if_fail(SWAMI_IS_ROOT(root));
+    g_return_if_fail(G_IS_OBJECT(object));
 
-  swami_object_set (object, "root", root, NULL);
-  swami_prop_tree_prepend (root->proptree, G_OBJECT (root), object);
+    swami_object_set(object, "root", root, NULL);
+    swami_prop_tree_prepend(root->proptree, G_OBJECT(root), object);
 
-  g_signal_emit (root, root_signals[OBJECT_ADD], 0, object);
+    g_signal_emit(root, root_signals[OBJECT_ADD], 0, object);
 }
 
 /**
@@ -427,21 +473,25 @@ swami_root_add_object (SwamiRoot *root, GObject *object)
  * also owns a reference, until swami_root_remove_object() is called on it.
  */
 GObject *
-swami_root_new_object (SwamiRoot *root, const char *type_name)
+swami_root_new_object(SwamiRoot *root, const char *type_name)
 {
-  GObject *obj;
-  GType type;
+    GObject *obj;
+    GType type;
 
-  g_return_val_if_fail (SWAMI_IS_ROOT (root), NULL);
-  g_return_val_if_fail (g_type_from_name (type_name) != 0, NULL);
+    g_return_val_if_fail(SWAMI_IS_ROOT(root), NULL);
+    g_return_val_if_fail(g_type_from_name(type_name) != 0, NULL);
 
-  type = g_type_from_name (type_name);
-  g_return_val_if_fail (g_type_is_a (type, G_TYPE_OBJECT), NULL);
+    type = g_type_from_name(type_name);
+    g_return_val_if_fail(g_type_is_a(type, G_TYPE_OBJECT), NULL);
 
-  if (!(obj = g_object_new (type, NULL))) return (NULL); /* ++ ref new item */
-  swami_root_add_object (root, obj);
+    if(!(obj = g_object_new(type, NULL)))
+    {
+        return (NULL);    /* ++ ref new item */
+    }
 
-  return (obj);			/* !! caller takes over creator's ref */
+    swami_root_add_object(root, obj);
+
+    return (obj);			/* !! caller takes over creator's ref */
 }
 
 /**
@@ -455,16 +505,16 @@ swami_root_new_object (SwamiRoot *root, const char *type_name)
  * to specified (rather than using the @root as the parent).
  */
 void
-swami_root_prepend_object (SwamiRoot *root, GObject *parent, GObject *object)
+swami_root_prepend_object(SwamiRoot *root, GObject *parent, GObject *object)
 {
-  g_return_if_fail (SWAMI_IS_ROOT (root));
-  g_return_if_fail (G_IS_OBJECT (parent));
-  g_return_if_fail (G_IS_OBJECT (object));
+    g_return_if_fail(SWAMI_IS_ROOT(root));
+    g_return_if_fail(G_IS_OBJECT(parent));
+    g_return_if_fail(G_IS_OBJECT(object));
 
-  swami_object_set (object, "root", root, NULL);
-  swami_prop_tree_prepend (root->proptree, parent, object);
+    swami_object_set(object, "root", root, NULL);
+    swami_prop_tree_prepend(root->proptree, parent, object);
 
-  g_signal_emit (root, root_signals[OBJECT_ADD], 0, object);
+    g_signal_emit(root, root_signals[OBJECT_ADD], 0, object);
 }
 
 /**
@@ -478,18 +528,18 @@ swami_root_prepend_object (SwamiRoot *root, GObject *parent, GObject *object)
  * a child of @parent and before @sibling.
  */
 void
-swami_root_insert_object_before (SwamiRoot *root, GObject *parent,
-				 GObject *sibling, GObject *object)
+swami_root_insert_object_before(SwamiRoot *root, GObject *parent,
+                                GObject *sibling, GObject *object)
 {
-  g_return_if_fail (SWAMI_IS_ROOT (root));
-  g_return_if_fail (G_IS_OBJECT (parent));
-  g_return_if_fail (!sibling || G_IS_OBJECT (sibling));
-  g_return_if_fail (G_IS_OBJECT (object));
+    g_return_if_fail(SWAMI_IS_ROOT(root));
+    g_return_if_fail(G_IS_OBJECT(parent));
+    g_return_if_fail(!sibling || G_IS_OBJECT(sibling));
+    g_return_if_fail(G_IS_OBJECT(object));
 
-  swami_object_set (object, "root", root, NULL);
-  swami_prop_tree_insert_before (root->proptree, parent, sibling, object);
+    swami_object_set(object, "root", root, NULL);
+    swami_prop_tree_insert_before(root->proptree, parent, sibling, object);
 
-  g_signal_emit (root, root_signals[OBJECT_ADD], 0, object);
+    g_signal_emit(root, root_signals[OBJECT_ADD], 0, object);
 }
 
 /**
@@ -508,36 +558,46 @@ swami_root_insert_object_before (SwamiRoot *root, GObject *parent,
  * Returns: %TRUE on success, %FALSE otherwise
  */
 gboolean
-swami_root_patch_load (SwamiRoot *root, const char *filename, IpatchItem **item,
-		       GError **err)
+swami_root_patch_load(SwamiRoot *root, const char *filename, IpatchItem **item,
+                      GError **err)
 {
-  IpatchFileHandle *handle;
-  GObject *obj;
+    IpatchFileHandle *handle;
+    GObject *obj;
 
-  g_return_val_if_fail (SWAMI_IS_ROOT (root), FALSE);
-  g_return_val_if_fail (filename != NULL, FALSE);
-  g_return_val_if_fail (!err || !*err, FALSE);
+    g_return_val_if_fail(SWAMI_IS_ROOT(root), FALSE);
+    g_return_val_if_fail(filename != NULL, FALSE);
+    g_return_val_if_fail(!err || !*err, FALSE);
 
-  handle = ipatch_file_identify_open (filename, err);   /* ++ open file handle */
-  if (!handle) return (FALSE);
+    handle = ipatch_file_identify_open(filename, err);    /* ++ open file handle */
 
-  if (!(obj = ipatch_convert_object_to_type (G_OBJECT (handle->file),
-					     IPATCH_TYPE_BASE, err)))
-  {
-    ipatch_file_close (handle);  /* -- close file handle */
-    return (FALSE);
-  }
+    if(!handle)
+    {
+        return (FALSE);
+    }
 
-  ipatch_file_close (handle);  /* -- close file handle */
+    if(!(obj = ipatch_convert_object_to_type(G_OBJECT(handle->file),
+               IPATCH_TYPE_BASE, err)))
+    {
+        ipatch_file_close(handle);   /* -- close file handle */
+        return (FALSE);
+    }
 
-  ipatch_container_append (IPATCH_CONTAINER (root->patch_root),
-			   IPATCH_ITEM (obj));
+    ipatch_file_close(handle);   /* -- close file handle */
 
-  /* !! if @item field was passed, then caller takes over ref */
-  if (item) *item = IPATCH_ITEM (obj);
-  else g_object_unref (obj);
+    ipatch_container_append(IPATCH_CONTAINER(root->patch_root),
+                            IPATCH_ITEM(obj));
 
-  return (TRUE);
+    /* !! if @item field was passed, then caller takes over ref */
+    if(item)
+    {
+        *item = IPATCH_ITEM(obj);
+    }
+    else
+    {
+        g_object_unref(obj);
+    }
+
+    return (TRUE);
 }
 
 /**
@@ -551,8 +611,8 @@ swami_root_patch_load (SwamiRoot *root, const char *filename, IpatchItem **item,
  * Returns: %TRUE on success, %FALSE otherwise
  */
 gboolean
-swami_root_patch_save (IpatchItem *item, const char *filename, GError **err)
+swami_root_patch_save(IpatchItem *item, const char *filename, GError **err)
 {
-  return (ipatch_base_save_to_filename (IPATCH_BASE (item), filename, err));
+    return (ipatch_base_save_to_filename(IPATCH_BASE(item), filename, err));
 }
 

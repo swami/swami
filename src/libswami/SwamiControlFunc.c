@@ -30,111 +30,127 @@
 #include "swami_priv.h"
 #include "util.h"
 
-static void swami_control_func_class_init (SwamiControlFuncClass *klass);
-static void swami_control_func_finalize (GObject *object);
-static GParamSpec *control_func_get_spec_method (SwamiControl *control);
-static gboolean control_func_set_spec_method (SwamiControl *control,
-					      GParamSpec *spec);
-static void control_func_get_value_method (SwamiControl *control,
-					   GValue *value);
-static void control_func_set_value_method (SwamiControl *control,
-					   SwamiControlEvent *event,
-					   const GValue *value);
+static void swami_control_func_class_init(SwamiControlFuncClass *klass);
+static void swami_control_func_finalize(GObject *object);
+static GParamSpec *control_func_get_spec_method(SwamiControl *control);
+static gboolean control_func_set_spec_method(SwamiControl *control,
+        GParamSpec *spec);
+static void control_func_get_value_method(SwamiControl *control,
+        GValue *value);
+static void control_func_set_value_method(SwamiControl *control,
+        SwamiControlEvent *event,
+        const GValue *value);
 
 static GObjectClass *parent_class = NULL;
 
 GType
-swami_control_func_get_type (void)
+swami_control_func_get_type(void)
 {
-  static GType otype = 0;
+    static GType otype = 0;
 
-  if (!otype)
+    if(!otype)
     {
-      static const GTypeInfo type_info =
-	{
-	  sizeof (SwamiControlFuncClass), NULL, NULL,
-	  (GClassInitFunc) swami_control_func_class_init,
-	  (GClassFinalizeFunc) NULL, NULL,
-	  sizeof (SwamiControlFunc), 0,
-	  (GInstanceInitFunc) NULL
-	};
+        static const GTypeInfo type_info =
+        {
+            sizeof(SwamiControlFuncClass), NULL, NULL,
+            (GClassInitFunc) swami_control_func_class_init,
+            (GClassFinalizeFunc) NULL, NULL,
+            sizeof(SwamiControlFunc), 0,
+            (GInstanceInitFunc) NULL
+        };
 
-      otype = g_type_register_static (SWAMI_TYPE_CONTROL, "SwamiControlFunc",
-				      &type_info, 0);
+        otype = g_type_register_static(SWAMI_TYPE_CONTROL, "SwamiControlFunc",
+                                       &type_info, 0);
     }
 
-  return (otype);
+    return (otype);
 }
 
 static void
-swami_control_func_class_init (SwamiControlFuncClass *klass)
+swami_control_func_class_init(SwamiControlFuncClass *klass)
 {
-  GObjectClass *obj_class = G_OBJECT_CLASS (klass);
-  SwamiControlClass *control_class = SWAMI_CONTROL_CLASS (klass);
+    GObjectClass *obj_class = G_OBJECT_CLASS(klass);
+    SwamiControlClass *control_class = SWAMI_CONTROL_CLASS(klass);
 
-  parent_class = g_type_class_peek_parent (klass);
-  obj_class->finalize = swami_control_func_finalize;
+    parent_class = g_type_class_peek_parent(klass);
+    obj_class->finalize = swami_control_func_finalize;
 
-  control_class->get_spec = control_func_get_spec_method;
-  control_class->set_spec = control_func_set_spec_method;
-  control_class->get_value = control_func_get_value_method;
-  control_class->set_value = control_func_set_value_method;
+    control_class->get_spec = control_func_get_spec_method;
+    control_class->set_spec = control_func_set_spec_method;
+    control_class->get_value = control_func_get_value_method;
+    control_class->set_value = control_func_set_value_method;
 }
 
 static void
-swami_control_func_finalize (GObject *object)
+swami_control_func_finalize(GObject *object)
 {
-  SwamiControlFunc *ctrlfunc = SWAMI_CONTROL_FUNC (object);
+    SwamiControlFunc *ctrlfunc = SWAMI_CONTROL_FUNC(object);
 
-  SWAMI_LOCK_WRITE (ctrlfunc);
+    SWAMI_LOCK_WRITE(ctrlfunc);
 
-  if (ctrlfunc->pspec) g_param_spec_unref (ctrlfunc->pspec);
-  if (ctrlfunc->destroy_func) (*ctrlfunc->destroy_func)(ctrlfunc);
+    if(ctrlfunc->pspec)
+    {
+        g_param_spec_unref(ctrlfunc->pspec);
+    }
 
-  ctrlfunc->get_func = NULL;
-  ctrlfunc->set_func = NULL;
-  ctrlfunc->destroy_func = NULL;
+    if(ctrlfunc->destroy_func)
+    {
+        (*ctrlfunc->destroy_func)(ctrlfunc);
+    }
 
-  SWAMI_UNLOCK_WRITE (ctrlfunc);
+    ctrlfunc->get_func = NULL;
+    ctrlfunc->set_func = NULL;
+    ctrlfunc->destroy_func = NULL;
 
-  parent_class->finalize (object);
+    SWAMI_UNLOCK_WRITE(ctrlfunc);
+
+    parent_class->finalize(object);
 }
 
 /* control is locked by caller */
 static GParamSpec *
-control_func_get_spec_method (SwamiControl *control)
+control_func_get_spec_method(SwamiControl *control)
 {
-  SwamiControlFunc *ctrlfunc = SWAMI_CONTROL_FUNC (control);
-  return (ctrlfunc->pspec);
+    SwamiControlFunc *ctrlfunc = SWAMI_CONTROL_FUNC(control);
+    return (ctrlfunc->pspec);
 }
 
 /* control is locked by caller */
 static gboolean
-control_func_set_spec_method (SwamiControl *control, GParamSpec *spec)
+control_func_set_spec_method(SwamiControl *control, GParamSpec *spec)
 {
-  SwamiControlFunc *ctrlfunc = SWAMI_CONTROL_FUNC (control);
-  if (ctrlfunc->pspec) g_param_spec_unref (ctrlfunc->pspec);
-  ctrlfunc->pspec = g_param_spec_ref (spec);
-  g_param_spec_sink (spec);	/* take ownership of the parameter spec */
+    SwamiControlFunc *ctrlfunc = SWAMI_CONTROL_FUNC(control);
 
-  return (TRUE);
+    if(ctrlfunc->pspec)
+    {
+        g_param_spec_unref(ctrlfunc->pspec);
+    }
+
+    ctrlfunc->pspec = g_param_spec_ref(spec);
+    g_param_spec_sink(spec);	/* take ownership of the parameter spec */
+
+    return (TRUE);
 }
 
 /* locking is up to user (not locked) */
 static void
-control_func_get_value_method (SwamiControl *control, GValue *value)
+control_func_get_value_method(SwamiControl *control, GValue *value)
 {
-  SwamiControlGetValueFunc func = SWAMI_CONTROL_FUNC (control)->get_func;
-  if (func) (*func)(control, value);
+    SwamiControlGetValueFunc func = SWAMI_CONTROL_FUNC(control)->get_func;
+
+    if(func)
+    {
+        (*func)(control, value);
+    }
 }
 
 /* locking is up to user (not locked) */
 static void
-control_func_set_value_method (SwamiControl *control, SwamiControlEvent *event,
-			       const GValue *value)
+control_func_set_value_method(SwamiControl *control, SwamiControlEvent *event,
+                              const GValue *value)
 {
-  SwamiControlSetValueFunc func = SWAMI_CONTROL_FUNC (control)->set_func;
-  (*func)(control, event, value);
+    SwamiControlSetValueFunc func = SWAMI_CONTROL_FUNC(control)->set_func;
+    (*func)(control, event, value);
 }
 
 /**
@@ -146,9 +162,9 @@ control_func_set_value_method (SwamiControl *control, SwamiControlEvent *event,
  * Returns: New function control with a refcount of 1 which the caller owns.
  */
 SwamiControlFunc *
-swami_control_func_new (void)
+swami_control_func_new(void)
 {
-  return (SWAMI_CONTROL_FUNC (g_object_new (SWAMI_TYPE_CONTROL_FUNC, NULL)));
+    return (SWAMI_CONTROL_FUNC(g_object_new(SWAMI_TYPE_CONTROL_FUNC, NULL)));
 }
 
 /**
@@ -172,36 +188,39 @@ swami_control_func_new (void)
  * in the callback if there are any thread sensitive operations.
  */
 void
-swami_control_func_assign_funcs (SwamiControlFunc *ctrlfunc,
-				 SwamiControlGetValueFunc get_func,
-				 SwamiControlSetValueFunc set_func,
-				 SwamiControlFuncDestroy destroy_func,
-				 gpointer user_data)
+swami_control_func_assign_funcs(SwamiControlFunc *ctrlfunc,
+                                SwamiControlGetValueFunc get_func,
+                                SwamiControlSetValueFunc set_func,
+                                SwamiControlFuncDestroy destroy_func,
+                                gpointer user_data)
 {
-  SwamiControl *control;
+    SwamiControl *control;
 
-  g_return_if_fail (SWAMI_IS_CONTROL_FUNC (ctrlfunc));
-  control = SWAMI_CONTROL (ctrlfunc);
+    g_return_if_fail(SWAMI_IS_CONTROL_FUNC(ctrlfunc));
+    control = SWAMI_CONTROL(ctrlfunc);
 
-  SWAMI_LOCK_WRITE (ctrlfunc);
+    SWAMI_LOCK_WRITE(ctrlfunc);
 
-  /* ensure input/output connections are still valid if changing functions */
-  if (control->inputs && !set_func)
+    /* ensure input/output connections are still valid if changing functions */
+    if(control->inputs && !set_func)
     {
-      g_critical ("%s: Invalid writable function control function change",
-		  G_STRLOC);
-      SWAMI_UNLOCK_WRITE (ctrlfunc);
-      return;
+        g_critical("%s: Invalid writable function control function change",
+                   G_STRLOC);
+        SWAMI_UNLOCK_WRITE(ctrlfunc);
+        return;
     }
 
-  if (ctrlfunc->destroy_func) (*ctrlfunc->destroy_func)(ctrlfunc);
+    if(ctrlfunc->destroy_func)
+    {
+        (*ctrlfunc->destroy_func)(ctrlfunc);
+    }
 
-  control->flags = SWAMI_CONTROL_SENDS | (set_func ? SWAMI_CONTROL_RECVS : 0);
+    control->flags = SWAMI_CONTROL_SENDS | (set_func ? SWAMI_CONTROL_RECVS : 0);
 
-  ctrlfunc->get_func = get_func;
-  ctrlfunc->set_func = set_func;
-  ctrlfunc->destroy_func = destroy_func;
-  ctrlfunc->user_data = user_data;
+    ctrlfunc->get_func = get_func;
+    ctrlfunc->set_func = set_func;
+    ctrlfunc->destroy_func = destroy_func;
+    ctrlfunc->user_data = user_data;
 
-  SWAMI_UNLOCK_WRITE (ctrlfunc);
+    SWAMI_UNLOCK_WRITE(ctrlfunc);
 }

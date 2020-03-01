@@ -42,21 +42,21 @@ typedef struct _SwamiguiControlAdjClass SwamiguiControlAdjClass;
 
 struct _SwamiguiControlAdj
 {
-  SwamiControl parent_instance;
-  GtkAdjustment *adj;		/* GTK adjustment of control */
-  GParamSpec *pspec;		/* parameter spec */
-  gulong value_change_id; /* GtkAdjustment value-changed handler ID */
+    SwamiControl parent_instance;
+    GtkAdjustment *adj;		/* GTK adjustment of control */
+    GParamSpec *pspec;		/* parameter spec */
+    gulong value_change_id; /* GtkAdjustment value-changed handler ID */
 };
 
 struct _SwamiguiControlAdjClass
 {
-  SwamiControlClass parent_class;
+    SwamiControlClass parent_class;
 };
 
-GType swamigui_control_adj_get_type (void);
-SwamiguiControlAdj *swamigui_control_adj_new (GtkAdjustment *adj);
-void swamigui_control_adj_set (SwamiguiControlAdj *ctrladj, GtkAdjustment *adj);
-void swamigui_control_adj_block_changes (SwamiguiControlAdj *ctrladj);
-void swamigui_control_adj_unblock_changes (SwamiguiControlAdj *ctrladj);
+GType swamigui_control_adj_get_type(void);
+SwamiguiControlAdj *swamigui_control_adj_new(GtkAdjustment *adj);
+void swamigui_control_adj_set(SwamiguiControlAdj *ctrladj, GtkAdjustment *adj);
+void swamigui_control_adj_block_changes(SwamiguiControlAdj *ctrladj);
+void swamigui_control_adj_unblock_changes(SwamiguiControlAdj *ctrladj);
 
 #endif

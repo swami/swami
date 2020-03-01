@@ -33,15 +33,16 @@
 
 
 GType
-swami_control_event_get_type (void)
+swami_control_event_get_type(void)
 {
-  static GType type = 0;
+    static GType type = 0;
 
-  if (!type)
-    type = g_boxed_type_register_static ("SwamiControlEvent",
-                                (GBoxedCopyFunc)swami_control_event_duplicate,
-                                (GBoxedFreeFunc)swami_control_event_unref);
-  return (type);
+    if(!type)
+        type = g_boxed_type_register_static("SwamiControlEvent",
+                                            (GBoxedCopyFunc)swami_control_event_duplicate,
+                                            (GBoxedFreeFunc)swami_control_event_unref);
+
+    return (type);
 }
 
 /**
@@ -57,26 +58,26 @@ swami_control_event_get_type (void)
  *   swami_control_event_unref().
  */
 SwamiControlEvent *
-swami_control_event_new (gboolean stamp)
+swami_control_event_new(gboolean stamp)
 {
-  SwamiControlEvent *event;
+    SwamiControlEvent *event;
 
-  event = g_slice_new0 (SwamiControlEvent);
-  event->refcount = 1;
+    event = g_slice_new0(SwamiControlEvent);
+    event->refcount = 1;
 
-  if (stamp)
+    if(stamp)
     {
 #ifndef WIN32
-      gettimeofday (&event->tick, NULL);
+        gettimeofday(&event->tick, NULL);
 #else
-      static DWORD tick_start ;
-      tick_start = GetTickCount();
-      event->tick.tv_sec = tick_start / 1000;
-      event->tick.tv_usec = ( tick_start % 1000 ) * 1000;
+        static DWORD tick_start ;
+        tick_start = GetTickCount();
+        event->tick.tv_sec = tick_start / 1000;
+        event->tick.tv_usec = (tick_start % 1000) * 1000;
 #endif
     }
 
-  return (event);
+    return (event);
 }
 
 /**
@@ -90,13 +91,17 @@ swami_control_event_new (gboolean stamp)
  * this.
  */
 void
-swami_control_event_free (SwamiControlEvent *event)
+swami_control_event_free(SwamiControlEvent *event)
 {
-  g_return_if_fail (event != NULL);
+    g_return_if_fail(event != NULL);
 
-  if (event->origin) swami_control_event_unref (event->origin);
-  g_value_unset (&event->value);
-  g_slice_free (SwamiControlEvent, event);
+    if(event->origin)
+    {
+        swami_control_event_unref(event->origin);
+    }
+
+    g_value_unset(&event->value);
+    g_slice_free(SwamiControlEvent, event);
 }
 
 /**
@@ -109,19 +114,24 @@ swami_control_event_free (SwamiControlEvent *event)
  * Returns: New duplicate control event
  */
 SwamiControlEvent *
-swami_control_event_duplicate (const SwamiControlEvent *event)
+swami_control_event_duplicate(const SwamiControlEvent *event)
 {
-  SwamiControlEvent *dup;
+    SwamiControlEvent *dup;
 
-  g_return_val_if_fail (event != NULL, NULL);
+    g_return_val_if_fail(event != NULL, NULL);
 
-  dup = g_slice_new0 (SwamiControlEvent);
-  dup->refcount = 1;
-  dup->tick = event->tick;
-  if (event->origin) dup->origin = swami_control_event_ref (event->origin);
-  g_value_copy (&event->value, &dup->value);
+    dup = g_slice_new0(SwamiControlEvent);
+    dup->refcount = 1;
+    dup->tick = event->tick;
 
-  return (dup);
+    if(event->origin)
+    {
+        dup->origin = swami_control_event_ref(event->origin);
+    }
+
+    g_value_copy(&event->value, &dup->value);
+
+    return (dup);
 }
 
 /**
@@ -137,25 +147,25 @@ swami_control_event_duplicate (const SwamiControlEvent *event)
  * Returns: New transformed control event (caller owns creator's reference)
  */
 SwamiControlEvent *
-swami_control_event_transform (SwamiControlEvent *event, GType valtype,
-			       SwamiValueTransform trans, gpointer data)
+swami_control_event_transform(SwamiControlEvent *event, GType valtype,
+                              SwamiValueTransform trans, gpointer data)
 {
-  SwamiControlEvent *dup;
+    SwamiControlEvent *dup;
 
-  g_return_val_if_fail (event != NULL, NULL);
-  g_return_val_if_fail (trans != NULL, NULL);
+    g_return_val_if_fail(event != NULL, NULL);
+    g_return_val_if_fail(trans != NULL, NULL);
 
-  dup = g_slice_new0 (SwamiControlEvent);
-  dup->refcount = 1;
-  dup->tick = event->tick;
+    dup = g_slice_new0(SwamiControlEvent);
+    dup->refcount = 1;
+    dup->tick = event->tick;
 
-  dup->origin = event->origin ? event->origin : event;
-  swami_control_event_ref (dup->origin);
+    dup->origin = event->origin ? event->origin : event;
+    swami_control_event_ref(dup->origin);
 
-  g_value_init (&dup->value, valtype ? valtype : G_VALUE_TYPE (&event->value));
-  trans (&event->value, &dup->value, data);
+    g_value_init(&dup->value, valtype ? valtype : G_VALUE_TYPE(&event->value));
+    trans(&event->value, &dup->value, data);
 
-  return (dup);
+    return (dup);
 }
 
 /**
@@ -165,19 +175,19 @@ swami_control_event_transform (SwamiControlEvent *event, GType valtype,
  * Stamps an event with the current tick count.
  */
 void
-swami_control_event_stamp (SwamiControlEvent *event)
+swami_control_event_stamp(SwamiControlEvent *event)
 {
-  g_return_if_fail (event != NULL);
+    g_return_if_fail(event != NULL);
 
 #ifndef WIN32
-  gettimeofday (&event->tick, NULL);
+    gettimeofday(&event->tick, NULL);
 #else
-  {
-    static DWORD tick_start ;
-    tick_start = GetTickCount();
-    event->tick.tv_sec = tick_start / 1000;
-    event->tick.tv_usec = ( tick_start % 1000 ) * 1000;
-  }
+    {
+        static DWORD tick_start ;
+        tick_start = GetTickCount();
+        event->tick.tv_sec = tick_start / 1000;
+        event->tick.tv_usec = (tick_start % 1000) * 1000;
+    }
 #endif
 }
 
@@ -190,14 +200,18 @@ swami_control_event_stamp (SwamiControlEvent *event)
  * not multi-thread locked.
  */
 void
-swami_control_event_set_origin (SwamiControlEvent *event,
-				SwamiControlEvent *origin)
+swami_control_event_set_origin(SwamiControlEvent *event,
+                               SwamiControlEvent *origin)
 {
-  g_return_if_fail (event != NULL);
-  g_return_if_fail (event->origin == NULL);
+    g_return_if_fail(event != NULL);
+    g_return_if_fail(event->origin == NULL);
 
-  if (origin) swami_control_event_ref (origin);
-  event->origin = origin;
+    if(origin)
+    {
+        swami_control_event_ref(origin);
+    }
+
+    event->origin = origin;
 }
 
 /**
@@ -209,12 +223,12 @@ swami_control_event_set_origin (SwamiControlEvent *event,
  * Returns: The same referenced @event as a convenience.
  */
 SwamiControlEvent *
-swami_control_event_ref (SwamiControlEvent *event)
+swami_control_event_ref(SwamiControlEvent *event)
 {
-  g_return_val_if_fail (event != NULL, NULL);
-  event->refcount++;
+    g_return_val_if_fail(event != NULL, NULL);
+    event->refcount++;
 
-  return (event);
+    return (event);
 }
 
 /**
@@ -225,13 +239,15 @@ swami_control_event_ref (SwamiControlEvent *event)
  * reaches 0 the event will be freed.
  */
 void
-swami_control_event_unref (SwamiControlEvent *event)
+swami_control_event_unref(SwamiControlEvent *event)
 {
-  g_return_if_fail (event != NULL);
-  g_return_if_fail (event->refcount > 0);
+    g_return_if_fail(event != NULL);
+    g_return_if_fail(event->refcount > 0);
 
-  if (--event->refcount == 0)
-    swami_control_event_free (event);
+    if(--event->refcount == 0)
+    {
+        swami_control_event_free(event);
+    }
 }
 
 /**
@@ -241,10 +257,10 @@ swami_control_event_unref (SwamiControlEvent *event)
  * Increment the active propagation reference count.
  */
 void
-swami_control_event_active_ref (SwamiControlEvent *event)
+swami_control_event_active_ref(SwamiControlEvent *event)
 {
-  g_return_if_fail (event != NULL);
-  event->active++;
+    g_return_if_fail(event != NULL);
+    event->active++;
 }
 
 /**
@@ -254,10 +270,10 @@ swami_control_event_active_ref (SwamiControlEvent *event)
  * Decrement the active propagation reference count.
  */
 void
-swami_control_event_active_unref (SwamiControlEvent *event)
+swami_control_event_active_unref(SwamiControlEvent *event)
 {
-  g_return_if_fail (event != NULL);
-  g_return_if_fail (event->active > 0);
+    g_return_if_fail(event != NULL);
+    g_return_if_fail(event->active > 0);
 
-  event->active--;
+    event->active--;
 }

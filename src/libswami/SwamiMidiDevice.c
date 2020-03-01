@@ -30,18 +30,20 @@
 
 /* --- signals and properties --- */
 
-enum {
-  LAST_SIGNAL
+enum
+{
+    LAST_SIGNAL
 };
 
-enum {
-  PROP_0,
+enum
+{
+    PROP_0,
 };
 
 /* --- private function prototypes --- */
 
-static void swami_midi_device_class_init (SwamiMidiDeviceClass *klass);
-static void swami_midi_device_init (SwamiMidiDevice *device);
+static void swami_midi_device_class_init(SwamiMidiDeviceClass *klass);
+static void swami_midi_device_init(SwamiMidiDevice *device);
 
 
 /* --- private data --- */
@@ -54,40 +56,42 @@ static void swami_midi_device_init (SwamiMidiDevice *device);
 
 
 GType
-swami_midi_device_get_type (void)
+swami_midi_device_get_type(void)
 {
-  static GType item_type = 0;
+    static GType item_type = 0;
 
-  if (!item_type) {
-    static const GTypeInfo item_info = {
-      sizeof (SwamiMidiDeviceClass), NULL, NULL,
-      (GClassInitFunc) swami_midi_device_class_init, NULL, NULL,
-      sizeof (SwamiMidiDevice), 0,
-      (GInstanceInitFunc) swami_midi_device_init,
-    };
+    if(!item_type)
+    {
+        static const GTypeInfo item_info =
+        {
+            sizeof(SwamiMidiDeviceClass), NULL, NULL,
+            (GClassInitFunc) swami_midi_device_class_init, NULL, NULL,
+            sizeof(SwamiMidiDevice), 0,
+            (GInstanceInitFunc) swami_midi_device_init,
+        };
 
-    item_type = g_type_register_static (SWAMI_TYPE_LOCK, "SwamiMidiDevice",
-					&item_info, G_TYPE_FLAG_ABSTRACT);
-  }
+        item_type = g_type_register_static(SWAMI_TYPE_LOCK, "SwamiMidiDevice",
+                                           &item_info, G_TYPE_FLAG_ABSTRACT);
+    }
 
-  return (item_type);
+    return (item_type);
 }
 
 static void
-swami_midi_device_class_init (SwamiMidiDeviceClass *klass)
+swami_midi_device_class_init(SwamiMidiDeviceClass *klass)
 {
 }
 
 static void
-swami_midi_device_init (SwamiMidiDevice *midi)
+swami_midi_device_init(SwamiMidiDevice *midi)
 {
-  midi->active = FALSE;
+    midi->active = FALSE;
 }
 
 SwamiMidiDevice *
-swami_midi_device_new (void)
+swami_midi_device_new(void)
 {
-  return SWAMI_MIDI_DEVICE (g_object_new (SWAMI_TYPE_MIDI_DEVICE, NULL));
+    return SWAMI_MIDI_DEVICE(g_object_new(SWAMI_TYPE_MIDI_DEVICE, NULL));
 }
 
 /**
@@ -100,28 +104,34 @@ swami_midi_device_new (void)
  * Returns: %TRUE on success, %FALSE otherwise
  */
 gboolean
-swami_midi_device_open (SwamiMidiDevice *device, GError **err)
+swami_midi_device_open(SwamiMidiDevice *device, GError **err)
 {
-  SwamiMidiDeviceClass *oclass;
-  int retval = TRUE;
+    SwamiMidiDeviceClass *oclass;
+    int retval = TRUE;
 
-  g_return_val_if_fail (SWAMI_IS_MIDI_DEVICE (device), FALSE);
-  g_return_val_if_fail (!err || !*err, FALSE);
+    g_return_val_if_fail(SWAMI_IS_MIDI_DEVICE(device), FALSE);
+    g_return_val_if_fail(!err || !*err, FALSE);
 
-  oclass = SWAMI_MIDI_DEVICE_CLASS (G_OBJECT_GET_CLASS (device));
+    oclass = SWAMI_MIDI_DEVICE_CLASS(G_OBJECT_GET_CLASS(device));
 
-  SWAMI_LOCK_WRITE (device);
+    SWAMI_LOCK_WRITE(device);
 
-  if (!device->active)
+    if(!device->active)
     {
-      if (oclass->open)
-	retval = (*oclass->open) (device, err);
-      if (retval) device->active = TRUE;
+        if(oclass->open)
+        {
+            retval = (*oclass->open)(device, err);
+        }
+
+        if(retval)
+        {
+            device->active = TRUE;
+        }
     }
 
-  SWAMI_UNLOCK_WRITE (device);
+    SWAMI_UNLOCK_WRITE(device);
 
-  return (retval);
+    return (retval);
 }
 
 /**
@@ -131,24 +141,27 @@ swami_midi_device_open (SwamiMidiDevice *device, GError **err)
  * Close an active MIDI device.
  */
 void
-swami_midi_device_close (SwamiMidiDevice *device)
+swami_midi_device_close(SwamiMidiDevice *device)
 {
-  SwamiMidiDeviceClass *oclass;
+    SwamiMidiDeviceClass *oclass;
 
-  g_return_if_fail (SWAMI_IS_MIDI_DEVICE (device));
+    g_return_if_fail(SWAMI_IS_MIDI_DEVICE(device));
 
-  oclass = SWAMI_MIDI_DEVICE_CLASS (G_OBJECT_GET_CLASS (device));
+    oclass = SWAMI_MIDI_DEVICE_CLASS(G_OBJECT_GET_CLASS(device));
 
-  SWAMI_LOCK_WRITE (device);
+    SWAMI_LOCK_WRITE(device);
 
-  if (device->active)
+    if(device->active)
     {
-      if (oclass->close)
-	(*oclass->close) (device);
-      device->active = FALSE;
+        if(oclass->close)
+        {
+            (*oclass->close)(device);
+        }
+
+        device->active = FALSE;
     }
 
-  SWAMI_UNLOCK_WRITE (device);
+    SWAMI_UNLOCK_WRITE(device);
 }
 
 /**
@@ -166,19 +179,24 @@ swami_midi_device_close (SwamiMidiDevice *device)
  * incremented and is owned by the caller, remember to unref it when finished.
  */
 SwamiControl *
-swami_midi_device_get_control (SwamiMidiDevice *device, int index)
+swami_midi_device_get_control(SwamiMidiDevice *device, int index)
 {
-  SwamiMidiDeviceClass *oclass;
-  SwamiControl *control = NULL;
+    SwamiMidiDeviceClass *oclass;
+    SwamiControl *control = NULL;
 
-  g_return_val_if_fail (SWAMI_IS_MIDI_DEVICE (device), NULL);
+    g_return_val_if_fail(SWAMI_IS_MIDI_DEVICE(device), NULL);
 
-  oclass = SWAMI_MIDI_DEVICE_CLASS (G_OBJECT_GET_CLASS (device));
-  if (oclass->get_control)
+    oclass = SWAMI_MIDI_DEVICE_CLASS(G_OBJECT_GET_CLASS(device));
+
+    if(oclass->get_control)
     {
-      control = (*oclass->get_control)(device, index);
-      if (control) g_object_ref (control); /* ++ ref for caller */
+        control = (*oclass->get_control)(device, index);
+
+        if(control)
+        {
+            g_object_ref(control);    /* ++ ref for caller */
+        }
     }
 
-  return (control);
+    return (control);
 }

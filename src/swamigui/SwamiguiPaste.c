@@ -29,81 +29,84 @@
 #include "SwamiguiRoot.h"	/* for state history */
 #include "i18n.h"
 
-static void swamigui_paste_class_init (SwamiguiPasteClass *klass);
-static void swamigui_paste_init (SwamiguiPaste *paste);
-static void swamigui_paste_finalize (GObject *obj);
+static void swamigui_paste_class_init(SwamiguiPasteClass *klass);
+static void swamigui_paste_init(SwamiguiPaste *paste);
+static void swamigui_paste_finalize(GObject *obj);
 
 static GObjectClass *parent_class = NULL;
 
 
 GType
-swamigui_paste_get_type (void)
+swamigui_paste_get_type(void)
 {
-  static GType obj_type = 0;
+    static GType obj_type = 0;
 
-  if (!obj_type)
+    if(!obj_type)
     {
-      static const GTypeInfo obj_info =
-	{
-	  sizeof (SwamiguiPasteClass), NULL, NULL,
-	  (GClassInitFunc) swamigui_paste_class_init, NULL, NULL,
-	  sizeof (SwamiguiPaste), 0,
-	  (GInstanceInitFunc) swamigui_paste_init
-	};
+        static const GTypeInfo obj_info =
+        {
+            sizeof(SwamiguiPasteClass), NULL, NULL,
+            (GClassInitFunc) swamigui_paste_class_init, NULL, NULL,
+            sizeof(SwamiguiPaste), 0,
+            (GInstanceInitFunc) swamigui_paste_init
+        };
 
-      obj_type = g_type_register_static (G_TYPE_OBJECT, "SwamiguiPaste",
-					&obj_info, 0);
+        obj_type = g_type_register_static(G_TYPE_OBJECT, "SwamiguiPaste",
+                                          &obj_info, 0);
     }
 
-  return (obj_type);
+    return (obj_type);
 }
 
 static void
-swamigui_paste_class_init (SwamiguiPasteClass *klass)
+swamigui_paste_class_init(SwamiguiPasteClass *klass)
 {
-  GObjectClass *obj_class = G_OBJECT_CLASS (klass);
+    GObjectClass *obj_class = G_OBJECT_CLASS(klass);
 
-  parent_class = g_type_class_peek_parent (klass);
+    parent_class = g_type_class_peek_parent(klass);
 
-  obj_class->finalize = swamigui_paste_finalize;
+    obj_class->finalize = swamigui_paste_finalize;
 }
 
 static void
-swamigui_paste_init (SwamiguiPaste *paste)
+swamigui_paste_init(SwamiguiPaste *paste)
 {
-  paste->status = SWAMIGUI_PASTE_NORMAL;
-  paste->item_hash =
-    g_hash_table_new_full (NULL, NULL,
-			   g_object_unref, /* key destroy func */
-			   g_object_unref);	/* value destroy func */
+    paste->status = SWAMIGUI_PASTE_NORMAL;
+    paste->item_hash =
+        g_hash_table_new_full(NULL, NULL,
+                              g_object_unref, /* key destroy func */
+                              g_object_unref);	/* value destroy func */
 
-  /* don't want paste objects to be saved for session */
-  swami_object_clear_flags (G_OBJECT (paste), SWAMI_OBJECT_SAVE);
+    /* don't want paste objects to be saved for session */
+    swami_object_clear_flags(G_OBJECT(paste), SWAMI_OBJECT_SAVE);
 }
 
 static void
-swamigui_paste_finalize (GObject *obj)
+swamigui_paste_finalize(GObject *obj)
 {
-  SwamiguiPaste *paste = SWAMIGUI_PASTE (obj);
+    SwamiguiPaste *paste = SWAMIGUI_PASTE(obj);
 
-  if (paste->curitem)		/* paste not finished? Then cancel it. */
+    if(paste->curitem)		/* paste not finished? Then cancel it. */
     {
-      paste->status = SWAMIGUI_PASTE_CANCEL;
-      swamigui_paste_process (paste);
+        paste->status = SWAMIGUI_PASTE_CANCEL;
+        swamigui_paste_process(paste);
     }
 
-  if (paste->dstitem) g_object_unref (paste->dstitem); /* -- unref dest item */
-
-  if (paste->srcitems)		/* -- unref source items */
+    if(paste->dstitem)
     {
-      g_list_foreach (paste->srcitems, (GFunc)g_object_unref, NULL);
-      g_list_free (paste->srcitems);
+        g_object_unref(paste->dstitem);    /* -- unref dest item */
     }
 
-  g_hash_table_destroy (paste->item_hash);
+    if(paste->srcitems)		/* -- unref source items */
+    {
+        g_list_foreach(paste->srcitems, (GFunc)g_object_unref, NULL);
+        g_list_free(paste->srcitems);
+    }
 
-  /* clear conflict items to unref them */
-  swamigui_paste_set_conflict_items (paste, NULL, NULL);
+    g_hash_table_destroy(paste->item_hash);
+
+    /* clear conflict items to unref them */
+    swamigui_paste_set_conflict_items(paste, NULL, NULL);
 }
 
 /**
@@ -114,9 +117,9 @@ swamigui_paste_finalize (GObject *obj)
  * Returns: New paste object with a ref count of 1.
  */
 SwamiguiPaste *
-swamigui_paste_new (void)
+swamigui_paste_new(void)
 {
-  return (SWAMIGUI_PASTE (g_object_new (SWAMIGUI_TYPE_PASTE, NULL)));
+    return (SWAMIGUI_PASTE(g_object_new(SWAMIGUI_TYPE_PASTE, NULL)));
 }
 
 /**
@@ -134,33 +137,33 @@ swamigui_paste_new (void)
  * required or an error occured.
  */
 gboolean
-swamigui_paste_process (SwamiguiPaste *paste)
+swamigui_paste_process(SwamiguiPaste *paste)
 {
 //  IpatchItemIface *iface;
-  gboolean retval = TRUE;
+    gboolean retval = TRUE;
 
-  g_return_val_if_fail (SWAMIGUI_IS_PASTE (paste), FALSE);
-  g_return_val_if_fail (paste->dstitem != NULL, FALSE);
-  g_return_val_if_fail (paste->srcitems != NULL, FALSE);
-  g_return_val_if_fail (paste->status != SWAMIGUI_PASTE_ERROR, FALSE);
+    g_return_val_if_fail(SWAMIGUI_IS_PASTE(paste), FALSE);
+    g_return_val_if_fail(paste->dstitem != NULL, FALSE);
+    g_return_val_if_fail(paste->srcitems != NULL, FALSE);
+    g_return_val_if_fail(paste->status != SWAMIGUI_PASTE_ERROR, FALSE);
 
-  /* skip unhandled types if requested */
-  if (paste->status == SWAMIGUI_PASTE_UNHANDLED
-      && paste->decision == SWAMIGUI_PASTE_SKIP && paste->curitem)
+    /* skip unhandled types if requested */
+    if(paste->status == SWAMIGUI_PASTE_UNHANDLED
+            && paste->decision == SWAMIGUI_PASTE_SKIP && paste->curitem)
     {
-      paste->curitem = g_list_next (paste->curitem);
-      paste->decision = SWAMIGUI_PASTE_NO_DECISION;
+        paste->curitem = g_list_next(paste->curitem);
+        paste->decision = SWAMIGUI_PASTE_NO_DECISION;
     }
 
-  paste->status = SWAMIGUI_PASTE_NORMAL;	/* set status to normal */
-  paste->decision_mask = SWAMIGUI_PASTE_SKIP | SWAMIGUI_PASTE_CHANGED
-    | SWAMIGUI_PASTE_REPLACE;	/* set decision mask to all */
+    paste->status = SWAMIGUI_PASTE_NORMAL;	/* set status to normal */
+    paste->decision_mask = SWAMIGUI_PASTE_SKIP | SWAMIGUI_PASTE_CHANGED
+                           | SWAMIGUI_PASTE_REPLACE;	/* set decision mask to all */
 
 //  retval = ((*iface->paste)(paste->dstitem, paste));
 
-  paste->decision = SWAMIGUI_PASTE_NO_DECISION; /* clear previous decision */
+    paste->decision = SWAMIGUI_PASTE_NO_DECISION; /* clear previous decision */
 
-  return (retval);
+    return (retval);
 }
 
 /**
@@ -174,29 +177,29 @@ swamigui_paste_process (SwamiguiPaste *paste)
  * object.
  */
 void
-swamigui_paste_set_items (SwamiguiPaste *paste, IpatchItem *dstitem,
-			  GList *srcitems)
+swamigui_paste_set_items(SwamiguiPaste *paste, IpatchItem *dstitem,
+                         GList *srcitems)
 {
 //  IpatchItemIface *dstitem_iface;
 
-  g_return_if_fail (SWAMIGUI_IS_PASTE (paste));
-  g_return_if_fail (IPATCH_IS_ITEM (dstitem));
-  g_return_if_fail (srcitems != NULL);
+    g_return_if_fail(SWAMIGUI_IS_PASTE(paste));
+    g_return_if_fail(IPATCH_IS_ITEM(dstitem));
+    g_return_if_fail(srcitems != NULL);
 
-  g_return_if_fail (paste->dstitem == NULL);
-  g_return_if_fail (paste->srcitems == NULL);
+    g_return_if_fail(paste->dstitem == NULL);
+    g_return_if_fail(paste->srcitems == NULL);
 
-  /* make sure we have a paste method for the destination item */
+    /* make sure we have a paste method for the destination item */
 //  dstitem_iface = IPATCH_ITEM_GET_IFACE (dstitem);
 //  g_return_if_fail (dstitem_iface->paste != NULL);
 
-  g_object_ref (dstitem);	/* ++ ref destination item */
-  paste->dstitem = dstitem;
+    g_object_ref(dstitem);	/* ++ ref destination item */
+    paste->dstitem = dstitem;
 
-  /* copy and reference source item list */
-  paste->srcitems = g_list_copy (srcitems);
-  g_list_foreach (paste->srcitems, (GFunc)g_object_ref, NULL); /* ++ ref */
-  paste->curitem = paste->srcitems; /* set current item to first source item */
+    /* copy and reference source item list */
+    paste->srcitems = g_list_copy(srcitems);
+    g_list_foreach(paste->srcitems, (GFunc)g_object_ref, NULL);  /* ++ ref */
+    paste->curitem = paste->srcitems; /* set current item to first source item */
 }
 
 /**
@@ -214,20 +217,31 @@ swamigui_paste_set_items (SwamiguiPaste *paste, IpatchItem *dstitem,
  * them.
  */
 void
-swamigui_paste_get_conflict_items (SwamiguiPaste *paste, IpatchItem **src,
-				  IpatchItem **dest)
+swamigui_paste_get_conflict_items(SwamiguiPaste *paste, IpatchItem **src,
+                                  IpatchItem **dest)
 {
-  g_return_if_fail (SWAMIGUI_IS_PASTE (paste));
+    g_return_if_fail(SWAMIGUI_IS_PASTE(paste));
 
-  if (src)
-    {				/* ++ ref returned src item */
-      if (paste->conflict_src) g_object_ref (paste->conflict_src);
-      *src = paste->conflict_src;
+    if(src)
+    {
+        /* ++ ref returned src item */
+        if(paste->conflict_src)
+        {
+            g_object_ref(paste->conflict_src);
+        }
+
+        *src = paste->conflict_src;
     }
-  if (dest)
-    {				/* ++ ref returned dest item */
-      if (paste->conflict_dst) g_object_ref (paste->conflict_dst);
-      *dest = paste->conflict_dst;
+
+    if(dest)
+    {
+        /* ++ ref returned dest item */
+        if(paste->conflict_dst)
+        {
+            g_object_ref(paste->conflict_dst);
+        }
+
+        *dest = paste->conflict_dst;
     }
 }
 
@@ -243,27 +257,37 @@ swamigui_paste_get_conflict_items (SwamiguiPaste *paste, IpatchItem **src,
  * #SWAMIGUI_PASTE_NORMAL status and the conflict items will be cleared.
  */
 void
-swamigui_paste_set_conflict_items (SwamiguiPaste *paste, IpatchItem *src,
-				  IpatchItem *dest)
+swamigui_paste_set_conflict_items(SwamiguiPaste *paste, IpatchItem *src,
+                                  IpatchItem *dest)
 {
-  g_return_if_fail (SWAMIGUI_IS_PASTE (paste));
-  g_return_if_fail (!src || IPATCH_IS_ITEM (src));
-  g_return_if_fail (!dest || IPATCH_IS_ITEM (dest));
+    g_return_if_fail(SWAMIGUI_IS_PASTE(paste));
+    g_return_if_fail(!src || IPATCH_IS_ITEM(src));
+    g_return_if_fail(!dest || IPATCH_IS_ITEM(dest));
 
-  /* unref old items if set */
-  if (paste->conflict_src) g_object_unref (paste->conflict_src);
-  if (paste->conflict_dst) g_object_unref (paste->conflict_dst);
-
-  if (src && dest)
+    /* unref old items if set */
+    if(paste->conflict_src)
     {
-      paste->status = SWAMIGUI_PASTE_CONFLICT;
-      g_object_ref (src);	/* ++ ref new src conflict item */
-      g_object_ref (dest);	/* ++ ref new dest conflict item */
+        g_object_unref(paste->conflict_src);
     }
-  else paste->status = SWAMIGUI_PASTE_NORMAL;
 
-  paste->conflict_src = src;
-  paste->conflict_dst = dest;
+    if(paste->conflict_dst)
+    {
+        g_object_unref(paste->conflict_dst);
+    }
+
+    if(src && dest)
+    {
+        paste->status = SWAMIGUI_PASTE_CONFLICT;
+        g_object_ref(src);	/* ++ ref new src conflict item */
+        g_object_ref(dest);	/* ++ ref new dest conflict item */
+    }
+    else
+    {
+        paste->status = SWAMIGUI_PASTE_NORMAL;
+    }
+
+    paste->conflict_src = src;
+    paste->conflict_dst = dest;
 }
 
 /**
@@ -280,12 +304,12 @@ swamigui_paste_set_conflict_items (SwamiguiPaste *paste, IpatchItem *src,
  * can be accomplished properly.
  */
 void
-swamigui_paste_push_state (SwamiguiPaste *paste, gpointer state)
+swamigui_paste_push_state(SwamiguiPaste *paste, gpointer state)
 {
-  g_return_if_fail (SWAMIGUI_IS_PASTE (paste));
-  g_return_if_fail (state != NULL);
+    g_return_if_fail(SWAMIGUI_IS_PASTE(paste));
+    g_return_if_fail(state != NULL);
 
-  paste->states = g_list_prepend (paste->states, state);
+    paste->states = g_list_prepend(paste->states, state);
 }
 
 /**
@@ -303,15 +327,15 @@ swamigui_paste_push_state (SwamiguiPaste *paste, gpointer state)
  * Returns: Pointer to state data which was on the top of the stack.
  */
 gpointer
-swamigui_paste_pop_state (SwamiguiPaste *paste)
+swamigui_paste_pop_state(SwamiguiPaste *paste)
 {
-  gpointer state;
+    gpointer state;
 
-  g_return_val_if_fail (SWAMIGUI_IS_PASTE (paste), NULL);
-  g_return_val_if_fail (paste->states != NULL, NULL);
+    g_return_val_if_fail(SWAMIGUI_IS_PASTE(paste), NULL);
+    g_return_val_if_fail(paste->states != NULL, NULL);
 
-  state = paste->states->data;
-  paste->states = g_list_delete_link (paste->states, paste->states);
+    state = paste->states->data;
+    paste->states = g_list_delete_link(paste->states, paste->states);
 
-  return (state);
+    return (state);
 }

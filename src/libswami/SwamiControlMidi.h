@@ -46,25 +46,25 @@ typedef struct _SwamiControlMidiClass SwamiControlMidiClass;
 /* MIDI control object */
 struct _SwamiControlMidi
 {
-  SwamiControlFunc parent_instance; /* derived from SwamiControlFunc */
+    SwamiControlFunc parent_instance; /* derived from SwamiControlFunc */
 };
 
 /* MIDI control class */
 struct _SwamiControlMidiClass
 {
-  SwamiControlFuncClass parent_class;
+    SwamiControlFuncClass parent_class;
 };
 
-GType swami_control_midi_get_type (void);
-SwamiControlMidi *swami_control_midi_new (void);
-void swami_control_midi_set_callback (SwamiControlMidi *midi,
-				      SwamiControlSetValueFunc callback,
-				      gpointer data);
-void swami_control_midi_send (SwamiControlMidi *midi,
-			      SwamiMidiEventType type,
-			      int channel, int param1, int param2);
-void swami_control_midi_transmit (SwamiControlMidi *midi,
-				  SwamiMidiEventType type,
-				  int channel, int param1, int param2);
+GType swami_control_midi_get_type(void);
+SwamiControlMidi *swami_control_midi_new(void);
+void swami_control_midi_set_callback(SwamiControlMidi *midi,
+                                     SwamiControlSetValueFunc callback,
+                                     gpointer data);
+void swami_control_midi_send(SwamiControlMidi *midi,
+                             SwamiMidiEventType type,
+                             int channel, int param1, int param2);
+void swami_control_midi_transmit(SwamiControlMidi *midi,
+                                 SwamiMidiEventType type,
+                                 int channel, int param1, int param2);
 
 #endif

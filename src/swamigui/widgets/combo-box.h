@@ -1,4 +1,4 @@
-/* 
+/*
  * Ripped and slightly modified for Swami from libgal-0.19.2
  *
  * gtk-combo-box.h - a customizable combobox
@@ -41,45 +41,47 @@ typedef struct _ComboBox	ComboBox;
 typedef struct _ComboBoxPrivate ComboBoxPrivate;
 typedef struct _ComboBoxClass   ComboBoxClass;
 
-struct _ComboBox {
-  GtkHBox hbox;
-  ComboBoxPrivate *priv;
+struct _ComboBox
+{
+    GtkHBox hbox;
+    ComboBoxPrivate *priv;
 };
 
-struct _ComboBoxClass {
-  GtkHBoxClass parent_class;
+struct _ComboBoxClass
+{
+    GtkHBoxClass parent_class;
 
-  GtkWidget *(*pop_down_widget) (ComboBox *cbox);
+    GtkWidget *(*pop_down_widget)(ComboBox *cbox);
 
-  /*
-   * invoked when the popup has been hidden, if the signal
-   * returns TRUE, it means it should be killed from the
-   */ 
-  gboolean  *(*pop_down_done)   (ComboBox *cbox, GtkWidget *);
+    /*
+     * invoked when the popup has been hidden, if the signal
+     * returns TRUE, it means it should be killed from the
+     */
+    gboolean  *(*pop_down_done)(ComboBox *cbox, GtkWidget *);
 
-  /*
-   * Notification signals.
-   */
-  void      (*pre_pop_down)     (ComboBox *cbox);
-  void      (*post_pop_hide)    (ComboBox *cbox);
+    /*
+     * Notification signals.
+     */
+    void (*pre_pop_down)(ComboBox *cbox);
+    void (*post_pop_hide)(ComboBox *cbox);
 };
 
-GtkType combo_box_get_type (void);
-void combo_box_construct (ComboBox *combo_box, GtkWidget *display_widget,
-			  GtkWidget *optional_pop_down_widget);
-void combo_box_get_pos (ComboBox *combo_box, int *x, int *y);
+GtkType combo_box_get_type(void);
+void combo_box_construct(ComboBox *combo_box, GtkWidget *display_widget,
+                         GtkWidget *optional_pop_down_widget);
+void combo_box_get_pos(ComboBox *combo_box, int *x, int *y);
 
-GtkWidget *combo_box_new (GtkWidget *display_widget,
-			  GtkWidget *optional_pop_down_widget);
-void combo_box_popup_hide (ComboBox *combo_box);
+GtkWidget *combo_box_new(GtkWidget *display_widget,
+                         GtkWidget *optional_pop_down_widget);
+void combo_box_popup_hide(ComboBox *combo_box);
 
-void combo_box_set_display (ComboBox *combo_box, GtkWidget *display_widget);
+void combo_box_set_display(ComboBox *combo_box, GtkWidget *display_widget);
 
-void combo_box_set_title (ComboBox *combo, const gchar *title);
+void combo_box_set_title(ComboBox *combo, const gchar *title);
 
-void combo_box_set_tearable (ComboBox *combo, gboolean tearable);
-void combo_box_set_arrow_sensitive (ComboBox *combo, gboolean sensitive);
-void combo_box_set_arrow_relief    (ComboBox *cc, GtkReliefStyle relief);
+void combo_box_set_tearable(ComboBox *combo, gboolean tearable);
+void combo_box_set_arrow_sensitive(ComboBox *combo, gboolean sensitive);
+void combo_box_set_arrow_relief(ComboBox *cc, GtkReliefStyle relief);
 #ifdef __cplusplus
 };
 #endif /* __cplusplus */

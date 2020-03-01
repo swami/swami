@@ -42,24 +42,24 @@ typedef struct _SwamiguiPythonViewClass SwamiguiPythonViewClass;
 /* Swami Python view/shell object */
 struct _SwamiguiPythonView
 {
-  GtkVBox parent_instance;
+    GtkVBox parent_instance;
 
-  GtkWidget *glade_widg;	/* toplevel glade widget for python editor */
-  GtkTextBuffer *srcbuf; /* source editor buffer (GtkSourceBuffer
+    GtkWidget *glade_widg;	/* toplevel glade widget for python editor */
+    GtkTextBuffer *srcbuf; /* source editor buffer (GtkSourceBuffer
 			    or GtkTextBuffer depending on support libs) */
-  GtkWidget *srcview;		/* source editor GtkSourceView */
-  GtkTextBuffer *conbuf;	/* python output text buffer */
-  GtkWidget *conview;		/* python console GtkTextBuffer */
-  GtkWidget *comboscripts;	/* scripts combo box */
+    GtkWidget *srcview;		/* source editor GtkSourceView */
+    GtkTextBuffer *conbuf;	/* python output text buffer */
+    GtkWidget *conview;		/* python console GtkTextBuffer */
+    GtkWidget *comboscripts;	/* scripts combo box */
 };
 
 /* Swami Python view/shell class */
 struct _SwamiguiPythonViewClass
 {
-  GtkVBoxClass parent_class;
+    GtkVBoxClass parent_class;
 };
 
-GType swamigui_python_view_get_type (void);
-GtkWidget *swamigui_python_view_new ();
+GType swamigui_python_view_get_type(void);
+GtkWidget *swamigui_python_view_new();
 
 #endif

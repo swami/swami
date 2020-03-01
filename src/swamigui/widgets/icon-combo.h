@@ -1,4 +1,4 @@
-/* 
+/*
  * Ripped and modified for Swami from libgal-0.19.2
  *
  * widget-pixmap-combo.h - A icon selector combo box
@@ -38,41 +38,41 @@
 
 typedef struct
 {
-  char const *untranslated_tooltip;
-  char *stock_id;		/* icon stock ID */
-  int id;
+    char const *untranslated_tooltip;
+    char *stock_id;		/* icon stock ID */
+    int id;
 } IconComboElement;
 
 typedef struct
 {
-  ComboBox     combo_box;
+    ComboBox     combo_box;
 
-  /* Static information */
-  IconComboElement const *elements;
-  int cols, rows;
-  int num_elements;
+    /* Static information */
+    IconComboElement const *elements;
+    int cols, rows;
+    int num_elements;
 
-  /* State info */
-  int last_index;
+    /* State info */
+    int last_index;
 
-  /* Interface elements */
-  GtkWidget    *combo_table, *preview_button;
-  GtkWidget    *preview_icon;
-  GtkTooltips  *tool_tip;
-  GtkWidget **icons;		/* icon widgets */
+    /* Interface elements */
+    GtkWidget    *combo_table, *preview_button;
+    GtkWidget    *preview_icon;
+    GtkTooltips  *tool_tip;
+    GtkWidget **icons;		/* icon widgets */
 } IconCombo;
 
-GType icon_combo_get_type (void);
-GtkWidget *icon_combo_new (IconComboElement const *elements,
-			   int ncols, int nrows);
-void icon_combo_select_icon (IconCombo *combo, int id);
+GType icon_combo_get_type(void);
+GtkWidget *icon_combo_new(IconComboElement const *elements,
+                          int ncols, int nrows);
+void icon_combo_select_icon(IconCombo *combo, int id);
 
 typedef struct
 {
-  ComboBoxClass parent_class;
+    ComboBoxClass parent_class;
 
-  /* Signals emited by this widget */
-  void (* changed) (IconCombo *icon_combo, int id);
+    /* Signals emited by this widget */
+    void (* changed)(IconCombo *icon_combo, int id);
 } IconComboClass;
 
 #endif /* __ICON_COMBO_H__ */

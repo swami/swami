@@ -33,16 +33,16 @@
 
 /* Local Prototypes */
 
-static void swamigui_tree_store_class_init (SwamiguiTreeStoreClass *klass);
-static void swamigui_tree_store_init (SwamiguiTreeStore *store);
-static void swamigui_tree_store_finalize (GObject *object);
-static inline void swamigui_tree_finish_insert (SwamiguiTreeStore *store,
-						GObject *item,
-						const char *label,
-						char *icon,
-						GtkTreeIter *iter);
-static void tree_store_recursive_remove (SwamiguiTreeStore *store,
-					 GtkTreeIter *iter);
+static void swamigui_tree_store_class_init(SwamiguiTreeStoreClass *klass);
+static void swamigui_tree_store_init(SwamiguiTreeStore *store);
+static void swamigui_tree_store_finalize(GObject *object);
+static inline void swamigui_tree_finish_insert(SwamiguiTreeStore *store,
+        GObject *item,
+        const char *label,
+        char *icon,
+        GtkTreeIter *iter);
+static void tree_store_recursive_remove(SwamiguiTreeStore *store,
+                                        GtkTreeIter *iter);
 
 static GObjectClass *parent_class = NULL;
 
@@ -50,69 +50,72 @@ static GObjectClass *parent_class = NULL;
 static GHashTable *icon_name_cache = NULL;
 
 GType
-swamigui_tree_store_get_type (void)
+swamigui_tree_store_get_type(void)
 {
-  static GType obj_type = 0;
+    static GType obj_type = 0;
 
-  if (!obj_type) {
-    static const GTypeInfo obj_info =
-      {
-	sizeof (SwamiguiTreeStoreClass), NULL, NULL,
-	(GClassInitFunc) swamigui_tree_store_class_init, NULL, NULL,
-	sizeof (SwamiguiTreeStore), 0,
-	(GInstanceInitFunc) swamigui_tree_store_init,
-      };
+    if(!obj_type)
+    {
+        static const GTypeInfo obj_info =
+        {
+            sizeof(SwamiguiTreeStoreClass), NULL, NULL,
+            (GClassInitFunc) swamigui_tree_store_class_init, NULL, NULL,
+            sizeof(SwamiguiTreeStore), 0,
+            (GInstanceInitFunc) swamigui_tree_store_init,
+        };
 
-    obj_type = g_type_register_static (GTK_TYPE_TREE_STORE, "SwamiguiTreeStore",
-				       &obj_info, G_TYPE_FLAG_ABSTRACT);
-  }
+        obj_type = g_type_register_static(GTK_TYPE_TREE_STORE, "SwamiguiTreeStore",
+                                          &obj_info, G_TYPE_FLAG_ABSTRACT);
+    }
 
-  return (obj_type);
+    return (obj_type);
 }
 
 static void
-swamigui_tree_store_class_init (SwamiguiTreeStoreClass *klass)
+swamigui_tree_store_class_init(SwamiguiTreeStoreClass *klass)
 {
-  GObjectClass *obj_class = G_OBJECT_CLASS (klass);
+    GObjectClass *obj_class = G_OBJECT_CLASS(klass);
 
-  parent_class = g_type_class_peek_parent (klass);
+    parent_class = g_type_class_peek_parent(klass);
 
-  obj_class->finalize = swamigui_tree_store_finalize;
+    obj_class->finalize = swamigui_tree_store_finalize;
 
-  icon_name_cache = g_hash_table_new_full (NULL, NULL,
-					   (GDestroyNotify)g_free, NULL);
+    icon_name_cache = g_hash_table_new_full(NULL, NULL,
+                                            (GDestroyNotify)g_free, NULL);
 }
 
 static void
-swamigui_tree_store_init (SwamiguiTreeStore *store)
+swamigui_tree_store_init(SwamiguiTreeStore *store)
 {
-  GType types[SWAMIGUI_TREE_STORE_NUM_COLUMNS] =
+    GType types[SWAMIGUI_TREE_STORE_NUM_COLUMNS] =
     { G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_OBJECT };
 
-  /* we use pointer type for icon since its a static string and we don't want
-     it getting duplicated */
+    /* we use pointer type for icon since its a static string and we don't want
+       it getting duplicated */
 
-  /* set up the tree store */
-  gtk_tree_store_set_column_types (GTK_TREE_STORE (store),
-				   SWAMIGUI_TREE_STORE_NUM_COLUMNS, types);
+    /* set up the tree store */
+    gtk_tree_store_set_column_types(GTK_TREE_STORE(store),
+                                    SWAMIGUI_TREE_STORE_NUM_COLUMNS, types);
 
-  /* create a item->tree_node hash with a destroy notify on the item key to
-     unref it, and a destroy on the tree iterator to free it */
-  store->item_hash =
-    g_hash_table_new_full (NULL, NULL,
-			   (GDestroyNotify)g_object_unref,
-			   (GDestroyNotify)gtk_tree_iter_free);
+    /* create a item->tree_node hash with a destroy notify on the item key to
+       unref it, and a destroy on the tree iterator to free it */
+    store->item_hash =
+        g_hash_table_new_full(NULL, NULL,
+                              (GDestroyNotify)g_object_unref,
+                              (GDestroyNotify)gtk_tree_iter_free);
 }
 
 static void
-swamigui_tree_store_finalize (GObject *object)
+swamigui_tree_store_finalize(GObject *object)
 {
-  SwamiguiTreeStore *store = SWAMIGUI_TREE_STORE (object);
+    SwamiguiTreeStore *store = SWAMIGUI_TREE_STORE(object);
 
-  g_hash_table_destroy (store->item_hash);
+    g_hash_table_destroy(store->item_hash);
 
-  if (parent_class->finalize)
-    parent_class->finalize (object);
+    if(parent_class->finalize)
+    {
+        parent_class->finalize(object);
+    }
 }
 
 /**
@@ -133,19 +136,22 @@ swamigui_tree_store_finalize (GObject *object)
  * it obtains the information via other methods.
  */
 void
-swamigui_tree_store_insert (SwamiguiTreeStore *store, GObject *item,
-			    const char *label, char *icon,
-			    GtkTreeIter *parent, int pos, GtkTreeIter *out_iter)
+swamigui_tree_store_insert(SwamiguiTreeStore *store, GObject *item,
+                           const char *label, char *icon,
+                           GtkTreeIter *parent, int pos, GtkTreeIter *out_iter)
 {
-  GtkTreeIter iter;
+    GtkTreeIter iter;
 
-  g_return_if_fail (SWAMIGUI_IS_TREE_STORE (store));
-  g_return_if_fail (!item || G_IS_OBJECT (item));
+    g_return_if_fail(SWAMIGUI_IS_TREE_STORE(store));
+    g_return_if_fail(!item || G_IS_OBJECT(item));
 
-  gtk_tree_store_insert (GTK_TREE_STORE (store), &iter, parent, pos);
-  swamigui_tree_finish_insert (store, item, label, icon, &iter);
+    gtk_tree_store_insert(GTK_TREE_STORE(store), &iter, parent, pos);
+    swamigui_tree_finish_insert(store, item, label, icon, &iter);
 
-  if (out_iter) *out_iter = iter;
+    if(out_iter)
+    {
+        *out_iter = iter;
+    }
 }
 
 /**
@@ -163,21 +169,24 @@ swamigui_tree_store_insert (SwamiguiTreeStore *store, GObject *item,
  * specified @sibling instead.
  */
 void
-swamigui_tree_store_insert_before (SwamiguiTreeStore *store, GObject *item,
-				   const char *label, char *icon,
-				   GtkTreeIter *parent, GtkTreeIter *sibling,
-				   GtkTreeIter *out_iter)
+swamigui_tree_store_insert_before(SwamiguiTreeStore *store, GObject *item,
+                                  const char *label, char *icon,
+                                  GtkTreeIter *parent, GtkTreeIter *sibling,
+                                  GtkTreeIter *out_iter)
 {
-  GtkTreeIter iter;
+    GtkTreeIter iter;
 
-  g_return_if_fail (SWAMIGUI_IS_TREE_STORE (store));
-  g_return_if_fail (!item || G_IS_OBJECT (item));
+    g_return_if_fail(SWAMIGUI_IS_TREE_STORE(store));
+    g_return_if_fail(!item || G_IS_OBJECT(item));
 
-  gtk_tree_store_insert_before (GTK_TREE_STORE (store), &iter,
-				parent, sibling);
-  swamigui_tree_finish_insert (store, item, label, icon, &iter);
+    gtk_tree_store_insert_before(GTK_TREE_STORE(store), &iter,
+                                 parent, sibling);
+    swamigui_tree_finish_insert(store, item, label, icon, &iter);
 
-  if (out_iter) *out_iter = iter;
+    if(out_iter)
+    {
+        *out_iter = iter;
+    }
 }
 
 /**
@@ -195,76 +204,104 @@ swamigui_tree_store_insert_before (SwamiguiTreeStore *store, GObject *item,
  * specified @sibling instead.
  */
 void
-swamigui_tree_store_insert_after (SwamiguiTreeStore *store, GObject *item,
-				  const char *label, char *icon,
-				  GtkTreeIter *parent, GtkTreeIter *sibling,
-				  GtkTreeIter *out_iter)
+swamigui_tree_store_insert_after(SwamiguiTreeStore *store, GObject *item,
+                                 const char *label, char *icon,
+                                 GtkTreeIter *parent, GtkTreeIter *sibling,
+                                 GtkTreeIter *out_iter)
 {
-  GtkTreeIter iter;
+    GtkTreeIter iter;
 
-  g_return_if_fail (SWAMIGUI_IS_TREE_STORE (store));
-  g_return_if_fail (!item || G_IS_OBJECT (item));
+    g_return_if_fail(SWAMIGUI_IS_TREE_STORE(store));
+    g_return_if_fail(!item || G_IS_OBJECT(item));
 
-  gtk_tree_store_insert_after (GTK_TREE_STORE (store), &iter, parent, sibling);
-  swamigui_tree_finish_insert (store, item, label, icon, &iter);
+    gtk_tree_store_insert_after(GTK_TREE_STORE(store), &iter, parent, sibling);
+    swamigui_tree_finish_insert(store, item, label, icon, &iter);
 
-  if (out_iter) *out_iter = iter;
+    if(out_iter)
+    {
+        *out_iter = iter;
+    }
 }
 
 static inline void
-swamigui_tree_finish_insert (SwamiguiTreeStore *store, GObject *item,
-			     const char *label, char *icon,
-			     GtkTreeIter *iter)
+swamigui_tree_finish_insert(SwamiguiTreeStore *store, GObject *item,
+                            const char *label, char *icon,
+                            GtkTreeIter *iter)
 {
-  char *item_label = NULL;
-  char *item_icon = NULL;
-  GtkTreeIter *copy;
-  gint category;
+    char *item_label = NULL;
+    char *item_icon = NULL;
+    GtkTreeIter *copy;
+    gint category;
 
-  if (!label)
+    if(!label)
     {
-      if (IPATCH_IS_ITEM (item)) g_object_get (item, "title", &item_label, NULL);
-      else swami_object_get (item, "name", &item_label, NULL);
+        if(IPATCH_IS_ITEM(item))
+        {
+            g_object_get(item, "title", &item_label, NULL);
+        }
+        else
+        {
+            swami_object_get(item, "name", &item_label, NULL);
+        }
 
-      if (!item_label) ipatch_type_object_get (item, "name", &item_label, NULL);
-      if (!item_label) item_label = g_strdup (_("Untitled"));
-      label = item_label;
+        if(!item_label)
+        {
+            ipatch_type_object_get(item, "name", &item_label, NULL);
+        }
+
+        if(!item_label)
+        {
+            item_label = g_strdup(_("Untitled"));
+        }
+
+        label = item_label;
     }
 
-  if (!icon)
-    { /* get item icon from type property */
-      ipatch_type_object_get (G_OBJECT (item), "icon", &item_icon,
-			      "category", &category,
-			      NULL);
-      if (item_icon)
-	{ /* lookup icon name in hash (no need to store name for every icon) */
-	  icon = g_hash_table_lookup (icon_name_cache, item_icon);
-	  if (!icon)
-	    {
-	      icon = g_strdup (item_icon);
-	      g_hash_table_insert (icon_name_cache, icon, icon);
-	    }
-
-	  g_free (item_icon);
-	}
-
-      /* if no type icon get category icon, gets default if category not set */
-      if (!icon) icon = swamigui_icon_get_category_icon (category);
-    }
-
-  gtk_tree_store_set (GTK_TREE_STORE (store), iter,
-		      SWAMIGUI_TREE_STORE_LABEL_COLUMN, label,
-		      SWAMIGUI_TREE_STORE_ICON_COLUMN, icon,
-		      SWAMIGUI_TREE_STORE_OBJECT_COLUMN, item,
-		      -1);
-  if (item)
+    if(!icon)
     {
-      copy = gtk_tree_iter_copy (iter);
-      g_object_ref (item);		/* ++ ref item for item_hash */
-      g_hash_table_insert (store->item_hash, item, copy);
+        /* get item icon from type property */
+        ipatch_type_object_get(G_OBJECT(item), "icon", &item_icon,
+                               "category", &category,
+                               NULL);
+
+        if(item_icon)
+        {
+            /* lookup icon name in hash (no need to store name for every icon) */
+            icon = g_hash_table_lookup(icon_name_cache, item_icon);
+
+            if(!icon)
+            {
+                icon = g_strdup(item_icon);
+                g_hash_table_insert(icon_name_cache, icon, icon);
+            }
+
+            g_free(item_icon);
+        }
+
+        /* if no type icon get category icon, gets default if category not set */
+        if(!icon)
+        {
+            icon = swamigui_icon_get_category_icon(category);
+        }
     }
 
-  if (item_label) g_free (item_label);
+    gtk_tree_store_set(GTK_TREE_STORE(store), iter,
+                       SWAMIGUI_TREE_STORE_LABEL_COLUMN, label,
+                       SWAMIGUI_TREE_STORE_ICON_COLUMN, icon,
+                       SWAMIGUI_TREE_STORE_OBJECT_COLUMN, item,
+                       -1);
+
+    if(item)
+    {
+        copy = gtk_tree_iter_copy(iter);
+        g_object_ref(item);		/* ++ ref item for item_hash */
+        g_hash_table_insert(store->item_hash, item, copy);
+    }
+
+    if(item_label)
+    {
+        g_free(item_label);
+    }
 }
 
 /**
@@ -277,22 +314,26 @@ swamigui_tree_finish_insert (SwamiguiTreeStore *store, GObject *item,
  * Changes a row in a Swami tree store.
  */
 void
-swamigui_tree_store_change (SwamiguiTreeStore *store, GObject *item,
-			    const char *label, char *icon)
+swamigui_tree_store_change(SwamiguiTreeStore *store, GObject *item,
+                           const char *label, char *icon)
 {
-  GtkTreeIter iter;
+    GtkTreeIter iter;
 
-  g_return_if_fail (SWAMIGUI_IS_TREE_STORE (store));
-  g_return_if_fail (G_IS_OBJECT (item));
+    g_return_if_fail(SWAMIGUI_IS_TREE_STORE(store));
+    g_return_if_fail(G_IS_OBJECT(item));
 
-  if (!swamigui_tree_store_item_get_node (store, item, &iter)) return;
+    if(!swamigui_tree_store_item_get_node(store, item, &iter))
+    {
+        return;
+    }
 
-  if (label)
-    gtk_tree_store_set (GTK_TREE_STORE (store), &iter,
-			SWAMIGUI_TREE_STORE_LABEL_COLUMN, label, -1);
-  if (icon)
-    gtk_tree_store_set (GTK_TREE_STORE (store), &iter,
-			SWAMIGUI_TREE_STORE_ICON_COLUMN, icon, -1);
+    if(label)
+        gtk_tree_store_set(GTK_TREE_STORE(store), &iter,
+                           SWAMIGUI_TREE_STORE_LABEL_COLUMN, label, -1);
+
+    if(icon)
+        gtk_tree_store_set(GTK_TREE_STORE(store), &iter,
+                           SWAMIGUI_TREE_STORE_ICON_COLUMN, icon, -1);
 }
 
 /**
@@ -303,48 +344,53 @@ swamigui_tree_store_change (SwamiguiTreeStore *store, GObject *item,
  * Removes a node (and all its children) from a Swami tree store.
  */
 void
-swamigui_tree_store_remove (SwamiguiTreeStore *store, GObject *item)
+swamigui_tree_store_remove(SwamiguiTreeStore *store, GObject *item)
 {
-  GtkTreeIter iter;
+    GtkTreeIter iter;
 
-  g_return_if_fail (SWAMIGUI_IS_TREE_STORE (store));
-  g_return_if_fail (G_IS_OBJECT (item));
+    g_return_if_fail(SWAMIGUI_IS_TREE_STORE(store));
+    g_return_if_fail(G_IS_OBJECT(item));
 
-  if (swamigui_tree_store_item_get_node (store, item, &iter))
+    if(swamigui_tree_store_item_get_node(store, item, &iter))
     {
-      if (gtk_tree_model_iter_has_child (GTK_TREE_MODEL (store), &iter))
-	tree_store_recursive_remove (store, &iter);
-      else
-	{ // !! Remove item from hash before GtkTree to prevent callbacks thinking item still exists
-	  g_hash_table_remove (store->item_hash, item);
-	  gtk_tree_store_remove (GTK_TREE_STORE (store), &iter);
-	}
+        if(gtk_tree_model_iter_has_child(GTK_TREE_MODEL(store), &iter))
+        {
+            tree_store_recursive_remove(store, &iter);
+        }
+        else
+        {
+            // !! Remove item from hash before GtkTree to prevent callbacks thinking item still exists
+            g_hash_table_remove(store->item_hash, item);
+            gtk_tree_store_remove(GTK_TREE_STORE(store), &iter);
+        }
     }
 }
 
 /* recursively remove tree nodes from a Swami tree store and remove the
    item->node links in item_hash table */
 static void
-tree_store_recursive_remove (SwamiguiTreeStore *store, GtkTreeIter *iter)
+tree_store_recursive_remove(SwamiguiTreeStore *store, GtkTreeIter *iter)
 {
-  GtkTreeIter children, remove;
-  gboolean retval;
-  register GObject *item; /* register to conserve recursive stack */
+    GtkTreeIter children, remove;
+    gboolean retval;
+    register GObject *item; /* register to conserve recursive stack */
 
-  if (gtk_tree_model_iter_children ((GtkTreeModel *)store, &children, iter))
+    if(gtk_tree_model_iter_children((GtkTreeModel *)store, &children, iter))
     {
-      do {
-	remove = children;
-	retval = gtk_tree_model_iter_next ((GtkTreeModel *)store, &children);
-	tree_store_recursive_remove (store, &remove);
-      } while (retval);
+        do
+        {
+            remove = children;
+            retval = gtk_tree_model_iter_next((GtkTreeModel *)store, &children);
+            tree_store_recursive_remove(store, &remove);
+        }
+        while(retval);
     }
 
-  // !! Remove item from hash before GtkTree to prevent callbacks thinking item still exists
-  item = swamigui_tree_store_node_get_item (store, iter);
-  g_hash_table_remove (store->item_hash, item);
+    // !! Remove item from hash before GtkTree to prevent callbacks thinking item still exists
+    item = swamigui_tree_store_node_get_item(store, iter);
+    g_hash_table_remove(store->item_hash, item);
 
-  gtk_tree_store_remove ((GtkTreeStore *)store, iter);
+    gtk_tree_store_remove((GtkTreeStore *)store, iter);
 }
 
 /**
@@ -352,21 +398,23 @@ tree_store_recursive_remove (SwamiguiTreeStore *store, GtkTreeIter *iter)
  * @store: Swami tree store
  * @item: Item to move
  * @position: Location to move item before or %NULL for last position
- * 
+ *
  * Move an item from its current location to before @position.  @position
  * must be at the same level as @item in the tree.
  */
 void
-swamigui_tree_store_move_before (SwamiguiTreeStore *store, GObject *item,
-				 GtkTreeIter *position)
+swamigui_tree_store_move_before(SwamiguiTreeStore *store, GObject *item,
+                                GtkTreeIter *position)
 {
-  GtkTreeIter iter;
+    GtkTreeIter iter;
 
-  g_return_if_fail (SWAMIGUI_IS_TREE_STORE (store));
-  g_return_if_fail (G_IS_OBJECT (item));
+    g_return_if_fail(SWAMIGUI_IS_TREE_STORE(store));
+    g_return_if_fail(G_IS_OBJECT(item));
 
-  if (swamigui_tree_store_item_get_node (store, item, &iter))
-    gtk_tree_store_move_before (GTK_TREE_STORE (store), &iter, position);
+    if(swamigui_tree_store_item_get_node(store, item, &iter))
+    {
+        gtk_tree_store_move_before(GTK_TREE_STORE(store), &iter, position);
+    }
 }
 
 /**
@@ -374,21 +422,23 @@ swamigui_tree_store_move_before (SwamiguiTreeStore *store, GObject *item,
  * @store: Swami tree store
  * @item: Item to move
  * @position: Location to move item after or %NULL for first position
- * 
+ *
  * Move an item from its current location to after @position.  @position
  * must be at the same level as @item in the tree.
  */
 void
-swamigui_tree_store_move_after (SwamiguiTreeStore *store, GObject *item,
-				GtkTreeIter *position)
+swamigui_tree_store_move_after(SwamiguiTreeStore *store, GObject *item,
+                               GtkTreeIter *position)
 {
-  GtkTreeIter iter;
+    GtkTreeIter iter;
 
-  g_return_if_fail (SWAMIGUI_IS_TREE_STORE (store));
-  g_return_if_fail (G_IS_OBJECT (item));
+    g_return_if_fail(SWAMIGUI_IS_TREE_STORE(store));
+    g_return_if_fail(G_IS_OBJECT(item));
 
-  if (swamigui_tree_store_item_get_node (store, item, &iter))
-    gtk_tree_store_move_after (GTK_TREE_STORE (store), &iter, position);
+    if(swamigui_tree_store_item_get_node(store, item, &iter))
+    {
+        gtk_tree_store_move_after(GTK_TREE_STORE(store), &iter, position);
+    }
 }
 
 /**
@@ -404,19 +454,27 @@ swamigui_tree_store_move_after (SwamiguiTreeStore *store, GObject *item,
  *   otherwise
  */
 gboolean
-swamigui_tree_store_item_get_node (SwamiguiTreeStore *store, GObject *item,
-				   GtkTreeIter *iter)
+swamigui_tree_store_item_get_node(SwamiguiTreeStore *store, GObject *item,
+                                  GtkTreeIter *iter)
 {
-  GtkTreeIter *lookup_iter;
+    GtkTreeIter *lookup_iter;
 
-  g_return_val_if_fail (SWAMIGUI_IS_TREE_STORE (store), FALSE);
-  g_return_val_if_fail (G_IS_OBJECT (item), FALSE);
+    g_return_val_if_fail(SWAMIGUI_IS_TREE_STORE(store), FALSE);
+    g_return_val_if_fail(G_IS_OBJECT(item), FALSE);
 
-  lookup_iter = g_hash_table_lookup (store->item_hash, item);
-  if (!lookup_iter) return (FALSE);
+    lookup_iter = g_hash_table_lookup(store->item_hash, item);
 
-  if (iter) *iter = *lookup_iter;
-  return (TRUE);
+    if(!lookup_iter)
+    {
+        return (FALSE);
+    }
+
+    if(iter)
+    {
+        *iter = *lookup_iter;
+    }
+
+    return (TRUE);
 }
 
 /**
@@ -433,21 +491,23 @@ swamigui_tree_store_item_get_node (SwamiguiTreeStore *store, GObject *item,
  *   Item has NOT been referenced, see note above.
  */
 GObject *
-swamigui_tree_store_node_get_item (SwamiguiTreeStore *store, GtkTreeIter *iter)
+swamigui_tree_store_node_get_item(SwamiguiTreeStore *store, GtkTreeIter *iter)
 {
-  GObject *item;
+    GObject *item;
 
-  g_return_val_if_fail (SWAMIGUI_IS_TREE_STORE (store), NULL);
-  g_return_val_if_fail (iter != NULL, NULL);
+    g_return_val_if_fail(SWAMIGUI_IS_TREE_STORE(store), NULL);
+    g_return_val_if_fail(iter != NULL, NULL);
 
-  gtk_tree_model_get (GTK_TREE_MODEL (store), iter,
-		      SWAMIGUI_TREE_STORE_OBJECT_COLUMN, &item,         // ++ ref item
-		      -1);
+    gtk_tree_model_get(GTK_TREE_MODEL(store), iter,
+                       SWAMIGUI_TREE_STORE_OBJECT_COLUMN, &item,         // ++ ref item
+                       -1);
 
-  if (item)
-    g_object_unref (item);                                              // -- unref item
+    if(item)
+    {
+        g_object_unref(item);    // -- unref item
+    }
 
-  return (item);
+    return (item);
 }
 
 /**
@@ -459,17 +519,17 @@ swamigui_tree_store_node_get_item (SwamiguiTreeStore *store, GtkTreeIter *iter)
  * tree store types).
  */
 void
-swamigui_tree_store_add (SwamiguiTreeStore *store, GObject *item)
+swamigui_tree_store_add(SwamiguiTreeStore *store, GObject *item)
 {
-  SwamiguiTreeStoreClass *klass;
+    SwamiguiTreeStoreClass *klass;
 
-  g_return_if_fail (SWAMIGUI_IS_TREE_STORE (store));
-  g_return_if_fail (G_IS_OBJECT (item));
+    g_return_if_fail(SWAMIGUI_IS_TREE_STORE(store));
+    g_return_if_fail(G_IS_OBJECT(item));
 
-  klass = SWAMIGUI_TREE_STORE_GET_CLASS (store);
-  g_return_if_fail (klass->item_add != NULL);
+    klass = SWAMIGUI_TREE_STORE_GET_CLASS(store);
+    g_return_if_fail(klass->item_add != NULL);
 
-  klass->item_add (store, item);
+    klass->item_add(store, item);
 }
 
 /**
@@ -483,15 +543,15 @@ swamigui_tree_store_add (SwamiguiTreeStore *store, GObject *item)
  * a delayed fashion, to prevent delays while user is typing a name for example.
  */
 void
-swamigui_tree_store_changed (SwamiguiTreeStore *store, GObject *item)
+swamigui_tree_store_changed(SwamiguiTreeStore *store, GObject *item)
 {
-  SwamiguiTreeStoreClass *klass;
+    SwamiguiTreeStoreClass *klass;
 
-  g_return_if_fail (SWAMIGUI_IS_TREE_STORE (store));
-  g_return_if_fail (G_IS_OBJECT (item));
+    g_return_if_fail(SWAMIGUI_IS_TREE_STORE(store));
+    g_return_if_fail(G_IS_OBJECT(item));
 
-  klass = SWAMIGUI_TREE_STORE_GET_CLASS (store);
-  g_return_if_fail (klass->item_changed != NULL);
+    klass = SWAMIGUI_TREE_STORE_GET_CLASS(store);
+    g_return_if_fail(klass->item_changed != NULL);
 
-  klass->item_changed (store, item);
+    klass->item_changed(store, item);
 }
