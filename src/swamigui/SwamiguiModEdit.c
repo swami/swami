@@ -537,18 +537,87 @@ swamigui_mod_edit_finalize(GObject *object)
     }
 }
 
+/*
+  Create widget for controller source if source_idx is 0
+  Create widget for controller source amount if source_idx is 1
+*/
+static
+void swamigui_mod_create_ctrl_source_widget(SwamiguiModEdit *modedit,
+                                            guint8 source_idx)
+{
+    GtkWidget *pixcombo;
+	GtkWidget *widg, *glade_widg = modedit->glade_widg;
+    int i;
+    char *descr;
+    int ctrlnum;
+    GtkTreeIter iter;
+	GtkListStore **store;
+    GtkCellRenderer *renderer;
+
+    static const char * name_pix_src[2] = {"PIXSrc", "PIXAmtSrc"};
+    static const char * name_hbx_box[2] = {"HBXSrc", "HBXAmtSrc"};
+    static const char * name_com_src_ctrl[2] = {"COMSrcCtrl", "COMAmtCtrl"};
+
+    store = source_idx ? &modedit->amt_store : &modedit->src_store;
+
+    /* create source modulator icon combo */
+    pixcombo = icon_combo_new(modtransform_elements, 4, 4);
+    gtk_widget_show(pixcombo);
+    g_object_set_data(G_OBJECT(glade_widg), name_pix_src[source_idx], pixcombo);
+
+    widg = swamigui_util_glade_lookup(glade_widg, name_hbx_box[source_idx]);
+    gtk_box_pack_start(GTK_BOX (widg), pixcombo, FALSE, 0, 0);
+    gtk_box_reorder_child(GTK_BOX (widg), pixcombo, 0);
+
+    g_signal_connect(pixcombo, "changed",
+                      G_CALLBACK (swamigui_mod_edit_cb_pixcombo_changed),
+                      modedit);
+
+    *store = gtk_list_store_new(SRC_STORE_NUM_FIELDS,
+                                G_TYPE_STRING, G_TYPE_INT);
+
+    /* add controls to the source control list store */
+    for (i = 0; i < MODCTRL_DESCR_COUNT + 120; i++)
+    {
+        if (source_idx && (i == MODCTRL_LINK_DESCR))
+        {
+		    continue;
+        }
+
+        ctrlnum = i < MODCTRL_DESCR_COUNT ? modctrl_descr[i].ctrlnum
+                  : (i - MODCTRL_DESCR_COUNT) | IPATCH_SF2_MOD_CC_MIDI;
+
+        descr = swamigui_mod_edit_get_control_name(ctrlnum);
+        if (!descr) continue;
+
+        gtk_list_store_append(*store, &iter);
+        gtk_list_store_set(*store, &iter,
+                            SRC_STORE_LABEL, descr,
+                            SRC_STORE_CTRLNUM, ctrlnum,
+                           -1);
+        g_free (descr);
+    }
+
+    /* add modulator source controller description strings to combos */
+    widg = swamigui_util_glade_lookup(glade_widg, name_com_src_ctrl[source_idx]);
+    gtk_combo_box_set_model(GTK_COMBO_BOX(widg), GTK_TREE_MODEL(*store));
+
+    renderer = gtk_cell_renderer_text_new ();
+    gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(widg), renderer, TRUE);
+    gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(widg), renderer,
+                                    "text", SRC_STORE_LABEL,
+                                    NULL);
+
+    g_signal_connect (widg, "changed",
+                      G_CALLBACK (swamigui_mod_edit_cb_combo_src_ctrl_changed), modedit);
+}
+
 static void
 swamigui_mod_edit_init(SwamiguiModEdit *modedit)
 {
     GtkWidget *glade_widg;
     GtkWidget *icon;
-    GtkWidget *pixcombo;
     GtkWidget *widg;
-    GtkCellRenderer *renderer;
-    char *descr;
-    int i;
-    int ctrlnum;
-    GtkTreeIter iter;
 
     gtk_scrolled_window_set_hadjustment(GTK_SCROLLED_WINDOW(modedit), NULL);
     gtk_scrolled_window_set_vadjustment(GTK_SCROLLED_WINDOW(modedit), NULL);
@@ -590,99 +659,11 @@ swamigui_mod_edit_init(SwamiguiModEdit *modedit)
     gtk_box_pack_start(GTK_BOX(widg), icon, FALSE, 0, 0);
     gtk_box_reorder_child(GTK_BOX(widg), icon, 0);
 
-    /* create source modulator icon combo */
-    pixcombo = icon_combo_new(modtransform_elements, 4, 4);
-    gtk_widget_show(pixcombo);
-    g_object_set_data(G_OBJECT(glade_widg), "PIXSrc", pixcombo);
-    widg = swamigui_util_glade_lookup(glade_widg, "HBXSrc");
-    gtk_box_pack_start(GTK_BOX(widg), pixcombo, FALSE, 0, 0);
-    gtk_box_reorder_child(GTK_BOX(widg), pixcombo, 0);
+    /* create widget for controller source */
+    swamigui_mod_create_ctrl_source_widget(modedit, 0);
 
-    g_signal_connect(pixcombo, "changed",
-                     G_CALLBACK(swamigui_mod_edit_cb_pixcombo_changed),
-                     modedit);
-
-    /* create amount source modulator icon combo */
-    pixcombo = icon_combo_new(modtransform_elements, 4, 4);
-    gtk_widget_show(pixcombo);
-    g_object_set_data(G_OBJECT(glade_widg), "PIXAmtSrc", pixcombo);
-    widg = swamigui_util_glade_lookup(glade_widg, "HBXAmtSrc");
-    gtk_box_pack_start(GTK_BOX(widg), pixcombo, FALSE, 0, 0);
-    gtk_box_reorder_child(GTK_BOX(widg), pixcombo, 0);
-
-    g_signal_connect(pixcombo, "changed",
-                     G_CALLBACK(swamigui_mod_edit_cb_pixcombo_changed),
-                     modedit);
-
-    modedit->src_store = gtk_list_store_new(SRC_STORE_NUM_FIELDS,
-                                            G_TYPE_STRING, G_TYPE_INT);
-
-    /* add controls to the source control list store */
-    for(i = 0; i < MODCTRL_DESCR_COUNT + 120; i++)
-    {
-        ctrlnum = i < MODCTRL_DESCR_COUNT ? modctrl_descr[i].ctrlnum
-                  : (i - MODCTRL_DESCR_COUNT) | IPATCH_SF2_MOD_CC_MIDI;
-
-        descr = swamigui_mod_edit_get_control_name(ctrlnum);
-
-        if(!descr)
-        {
-            continue;
-        }
-
-        gtk_list_store_append(modedit->src_store, &iter);
-        gtk_list_store_set(modedit->src_store, &iter,
-                           SRC_STORE_LABEL, descr,
-                           SRC_STORE_CTRLNUM, ctrlnum,
-                           -1);
-        g_free(descr);
-    }
-
-    /* add modulator source controller description strings to combos */
-    widg = swamigui_util_glade_lookup(glade_widg, "COMSrcCtrl");
-    gtk_combo_box_set_model(GTK_COMBO_BOX(widg), GTK_TREE_MODEL(modedit->src_store));
-    renderer = gtk_cell_renderer_text_new();
-    gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(widg), renderer, TRUE);
-    gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(widg), renderer,
-                                   "text", SRC_STORE_LABEL,
-                                   NULL);
-    g_signal_connect(widg, "changed",
-                     G_CALLBACK(swamigui_mod_edit_cb_combo_src_ctrl_changed), modedit);
-
-    // code redundant with src_store (will be removed later)
-    modedit->amt_store = gtk_list_store_new (SRC_STORE_NUM_FIELDS,
-                                             G_TYPE_STRING, G_TYPE_INT);
-
-    /* add controls to the amount source control list store */
-    for (i = 0; i < MODCTRL_DESCR_COUNT + 120; i++)
-    {
-        if (i == MODCTRL_LINK_DESCR)
-        {
-            continue;
-        }
-        ctrlnum = i < MODCTRL_DESCR_COUNT ? modctrl_descr[i].ctrlnum
-                  : (i - MODCTRL_DESCR_COUNT) | IPATCH_SF2_MOD_CC_MIDI;
-
-        descr = swamigui_mod_edit_get_control_name (ctrlnum);
-        if (!descr) continue;
-
-        gtk_list_store_append (modedit->amt_store, &iter);
-        gtk_list_store_set (modedit->amt_store, &iter,
-                            SRC_STORE_LABEL, descr,
-                            SRC_STORE_CTRLNUM, ctrlnum,
-                            -1);
-        g_free (descr);
-    }
-
-    widg = swamigui_util_glade_lookup(glade_widg, "COMAmtCtrl");
-    gtk_combo_box_set_model (GTK_COMBO_BOX (widg), GTK_TREE_MODEL (modedit->amt_store));
-    renderer = gtk_cell_renderer_text_new();
-    gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(widg), renderer, TRUE);
-    gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(widg), renderer,
-                                   "text", SRC_STORE_LABEL,
-                                   NULL);
-    g_signal_connect(widg, "changed",
-                     G_CALLBACK(swamigui_mod_edit_cb_combo_src_ctrl_changed), modedit);
+    /* create widget for controller amount source*/
+    swamigui_mod_create_ctrl_source_widget(modedit, 1);
 
     /* add value changed signal to amount spin button */
     widg = swamigui_util_glade_lookup(glade_widg, "SPBAmount");
@@ -1583,17 +1564,68 @@ typedef struct
     int ctrlnum;
 } SelectSrcBag;
 
+/* set widgets (transform icon, combo-box) for source controller
+  for controller source, if source_idx is 0
+  for controller amount source, if source_idx is 1
+*/
+static
+void swamigui_mod_edit_set_ctrl_source_widget(SwamiguiModEdit *modedit,
+                                              IpatchSF2Mod *mod,
+                                              guint8 source_idx)
+{
+    GtkWidget *pix, *com, *glade_widg = modedit->glade_widg;
+    SelectSrcBag selectbag;
+    int transform = 0, ctrlnum = 0;
+    GtkListStore *store;
+    guint16 srcctrl;
+
+    static const char * name_pix_src[2] = {"PIXSrc", "PIXAmtSrc"};
+    static const char * name_com_src_ctrl[2] = {"COMSrcCtrl", "COMAmtCtrl"};
+
+    store = source_idx ? modedit->amt_store : modedit->src_store;
+
+    pix = g_object_get_data(G_OBJECT(glade_widg), name_pix_src[source_idx]);
+    com = swamigui_util_glade_lookup(glade_widg, name_com_src_ctrl[source_idx]);
+
+    gtk_widget_set_sensitive(pix, mod != NULL);
+    gtk_widget_set_sensitive(com, mod != NULL);
+
+    /* set transform icon for source or amount source control */
+    if(mod)
+    {
+        srcctrl = source_idx ? mod->amtsrc : mod->src;
+        transform = srcctrl & (IPATCH_SF2_MOD_MASK_TYPE
+                               | IPATCH_SF2_MOD_MASK_POLARITY
+                               | IPATCH_SF2_MOD_MASK_DIRECTION);
+
+        ctrlnum =  srcctrl & (IPATCH_SF2_MOD_MASK_CONTROL
+                               | IPATCH_SF2_MOD_MASK_CC);
+    }
+    icon_combo_select_icon(ICON_COMBO (pix), transform);
+
+    /* set control combo for source or amount control */
+    selectbag.combo = GTK_COMBO_BOX(com);
+    selectbag.ctrlnum = ctrlnum;
+
+    gtk_tree_model_foreach(GTK_TREE_MODEL(store),
+                            swamigui_mod_edit_select_src_ctrl, &selectbag);
+
+    if(selectbag.combo)  // Set to NULL if control was found and selected
+    {
+        gtk_combo_box_set_active(selectbag.combo, -1);
+    }
+}
+
 /* set the modulator that is being edited, or NULL to disable. */
 static void
 swamigui_mod_edit_set_active_mod(SwamiguiModEdit *modedit, GtkTreeIter *iter,
                                  gboolean force)
 {
-    GtkWidget *pixsrc, *comsrc, *comdst, *lbldst, *spbamt, *pixamt, *comamt;
+    GtkWidget  *comdst, *lbldst, *spbamt;
     GtkTreeIter destiter;
     IpatchSF2Mod *mod = NULL;
     GtkWidget *gw;
-    int transform, ctrlnum, group, index;
-    SelectSrcBag selectbag;
+    int group, index;
     int pathcmp = 1;
     char *pathstr;
     char *s;
@@ -1637,43 +1669,17 @@ swamigui_mod_edit_set_active_mod(SwamiguiModEdit *modedit, GtkTreeIter *iter,
 
     gw = modedit->glade_widg;
 
-    pixsrc = g_object_get_data(G_OBJECT(gw), "PIXSrc");
-    comsrc = swamigui_util_glade_lookup(gw, "COMSrcCtrl");
     comdst = swamigui_util_glade_lookup(gw, "ComboDestination");
     lbldst = swamigui_util_glade_lookup(gw, "LabelDestination");
     spbamt = swamigui_util_glade_lookup(gw, "SPBAmount");
-    pixamt = g_object_get_data(G_OBJECT(gw), "PIXAmtSrc");
-    comamt = swamigui_util_glade_lookup(gw, "COMAmtCtrl");
 
-    gtk_widget_set_sensitive(pixsrc, mod != NULL);
-    gtk_widget_set_sensitive(comsrc, mod != NULL);
     gtk_widget_set_sensitive(comdst, mod != NULL);
     gtk_widget_set_sensitive(spbamt, mod != NULL);
-    gtk_widget_set_sensitive(pixamt, mod != NULL);
-    gtk_widget_set_sensitive(comamt, mod != NULL);
 
     modedit->block_callbacks = TRUE; /* block signal callbacks */
 
-    /* set transform icon for source control */
-    transform = mod ? mod->src & (IPATCH_SF2_MOD_MASK_TYPE
-                                  | IPATCH_SF2_MOD_MASK_POLARITY
-                                  | IPATCH_SF2_MOD_MASK_DIRECTION) : 0;
-    icon_combo_select_icon(ICON_COMBO(pixsrc), transform);
-
-    /* set control combo for source control */
-    ctrlnum = mod ? mod->src & (IPATCH_SF2_MOD_MASK_CONTROL
-                                | IPATCH_SF2_MOD_MASK_CC) : 0;
-
-    selectbag.combo = GTK_COMBO_BOX(comsrc);
-    selectbag.ctrlnum = ctrlnum;
-
-    gtk_tree_model_foreach(GTK_TREE_MODEL(modedit->src_store),
-                           swamigui_mod_edit_select_src_ctrl, &selectbag);
-
-    if(selectbag.combo)   // Set to NULL if control was found and selected
-    {
-        gtk_combo_box_set_active(GTK_COMBO_BOX(comsrc), -1);
-    }
+    /* set widgets for source controller */
+    swamigui_mod_edit_set_ctrl_source_widget(modedit, mod, 0);
 
     /* set destination generator group option menu */
     group = mod ? swamigui_mod_edit_find_gen_group (mod->dest,
@@ -1705,26 +1711,8 @@ swamigui_mod_edit_set_active_mod(SwamiguiModEdit *modedit, GtkTreeIter *iter,
     /* set amount spin button */
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(spbamt), mod ? mod->amount : 0);
 
-    /* set transform icon for amount source control */
-    transform = mod ? mod->amtsrc & (IPATCH_SF2_MOD_MASK_TYPE
-                                     | IPATCH_SF2_MOD_MASK_POLARITY
-                                     | IPATCH_SF2_MOD_MASK_DIRECTION) : 0;
-    icon_combo_select_icon(ICON_COMBO(pixamt), transform);
-
-    /* set control combo for amount source control */
-    ctrlnum = mod ? mod->amtsrc & (IPATCH_SF2_MOD_MASK_CONTROL
-                                   | IPATCH_SF2_MOD_MASK_CC) : 0;
-
-    selectbag.combo = GTK_COMBO_BOX(comamt);
-    selectbag.ctrlnum = ctrlnum;
-
-    gtk_tree_model_foreach (GTK_TREE_MODEL (modedit->amt_store),
-                            swamigui_mod_edit_select_src_ctrl, &selectbag);
-
-    if(selectbag.combo)   // Set to NULL if control was found and selected
-    {
-        gtk_combo_box_set_active(selectbag.combo, -1);
-    }
+    /* set widgets for amount source controller */
+    swamigui_mod_edit_set_ctrl_source_widget(modedit, mod, 1);
 
     modedit->block_callbacks = FALSE; /* unblock callbacks */
 }
