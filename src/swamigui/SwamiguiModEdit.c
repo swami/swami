@@ -675,7 +675,7 @@ swamigui_mod_edit_create_list_view(SwamiguiModEdit *modedit)
                                GDK_TYPE_PIXBUF,
                                G_TYPE_STRING,
                                G_TYPE_INT,
-                               IPATCH_TYPE_SF2_MOD);
+                               G_TYPE_POINTER); /* modulator pointer */
 
     /* set grid lines for rows and columns */
     gtk_tree_view_set_grid_lines (GTK_TREE_VIEW (tree),
@@ -980,14 +980,12 @@ swamigui_mod_edit_cb_new_clicked(GtkButton *btn, SwamiguiModEdit *modedit)
     }
 
     mod = ipatch_sf2_mod_new();
-    modedit->mods = ipatch_sf2_mod_list_insert(modedit->mods, mod, -1);
+    modedit->mods = g_slist_insert(modedit->mods, mod, -1);
 
     g_object_notify((GObject *)modedit, "modulators");
 
     gtk_list_store_append(modedit->list_store, &iter);
     gtk_list_store_set(modedit->list_store, &iter, MOD_PTR, mod, -1);
-
-    ipatch_sf2_mod_free(mod);
 
     /* select the new item */
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(modedit->tree_view));
@@ -1005,7 +1003,6 @@ swamigui_mod_edit_cb_delete_clicked(GtkButton *btn, SwamiguiModEdit *modedit)
     GtkTreeIter *iter;
     GList *sel_iters = NULL, *p;
     IpatchSF2Mod *mod;
-    gboolean changed;
     gboolean anychanged = FALSE;
 
     if(!modedit->selection)
@@ -1029,18 +1026,18 @@ swamigui_mod_edit_cb_delete_clicked(GtkButton *btn, SwamiguiModEdit *modedit)
 
         if(mod)
         {
-            modedit->mods = ipatch_sf2_mod_list_remove(modedit->mods, mod,
-                            &changed);
-
-            if(changed)
+            /* remove modulator out of mods list */
+            GSList *p = g_slist_find (modedit->mods, mod);
+            if(p)
             {
-                anychanged = TRUE;
+                ipatch_sf2_mod_free (mod);
+                modedit->mods = g_slist_delete_link (modedit->mods, p);
+                anychanged = TRUE; /* a notification is required */
             }
         }
 
         gtk_list_store_remove(modedit->list_store, iter);
 
-        ipatch_sf2_mod_free(mod);  /* ## FREE mod from gtk_tree_model_get */
         gtk_tree_iter_free(iter);
 
         p = g_list_next(p);
@@ -1071,7 +1068,7 @@ static void
 swamigui_mod_edit_cb_destination_changed(GtkComboBox *combo, gpointer user_data)
 {
     SwamiguiModEdit *modedit = SWAMIGUI_MOD_EDIT(user_data);
-    IpatchSF2Mod *oldmod, newmod;
+    IpatchSF2Mod *mod;
     GtkTreeIter iter, parent;
     GtkWidget *label;
     int groupid, genid;
@@ -1110,23 +1107,11 @@ swamigui_mod_edit_cb_destination_changed(GtkComboBox *combo, gpointer user_data)
                        DEST_COLUMN_ID, &genid,
                        -1);
 
-    /* get current modulator values (gtk_tree_model_get duplicates mod) */
-    gtk_tree_model_get(GTK_TREE_MODEL(modedit->list_store), &modedit->mod_iter,
-                       MOD_PTR, &oldmod, -1);
-    newmod = *oldmod;
-    newmod.dest = genid;
-
-    /* set the modulator values in the modulator list and notify property */
-    if(ipatch_sf2_mod_list_change(modedit->mods, oldmod, &newmod))
-    {
-        g_object_notify((GObject *)modedit, "modulators");
-    }
-
-    ipatch_sf2_mod_free(oldmod);  /* free oldmod from gtk_tree_model_get */
-
-    /* update the modulator in the list store */
-    gtk_list_store_set(modedit->list_store, &modedit->mod_iter,
-                       MOD_PTR, &newmod, -1);
+    /* set new gen id in modulator and notify property change */
+    gtk_tree_model_get (GTK_TREE_MODEL (modedit->list_store), &modedit->mod_iter,
+                                        MOD_PTR, &mod, -1);
+    mod->dest = genid;
+    g_object_notify ((GObject *)modedit, "modulators");
 
     swamigui_mod_edit_update_store_row(modedit, &modedit->mod_iter);
 }
@@ -1136,7 +1121,7 @@ static void
 swamigui_mod_edit_cb_pixcombo_changed(IconCombo *pixcombo, int id,
                                       SwamiguiModEdit *modedit)
 {
-    IpatchSF2Mod *oldmod, newmod;
+    IpatchSF2Mod *mod;
     guint16 *src;
 
     if(modedit->block_callbacks || !modedit->mod_selected)
@@ -1146,33 +1131,22 @@ swamigui_mod_edit_cb_pixcombo_changed(IconCombo *pixcombo, int id,
 
     /* get current modulator values (gtk_tree_model_get duplicates mod) */
     gtk_tree_model_get(GTK_TREE_MODEL(modedit->list_store), &modedit->mod_iter,
-                       MOD_PTR, &oldmod, -1);
-    newmod = *oldmod;		/* duplicate modulator values */
+                       MOD_PTR, &mod, -1);
 
     if(pixcombo == g_object_get_data(G_OBJECT(modedit->glade_widg), "PIXSrc"))
     {
-        src = &newmod.src;
+        src = &mod->src;
     }
     else
     {
-        src = &newmod.amtsrc;
+        src = &mod->amtsrc;
     }
 
+    /* set the modulator values in the modulator and notify property */
     *src &= ~(IPATCH_SF2_MOD_MASK_TYPE | IPATCH_SF2_MOD_MASK_DIRECTION
               | IPATCH_SF2_MOD_MASK_POLARITY);
     *src |= id;
-
-    /* set the modulator values in the modulator list and notify property */
-    if(ipatch_sf2_mod_list_change(modedit->mods, oldmod, &newmod))
-    {
-        g_object_notify((GObject *)modedit, "modulators");
-    }
-
-    ipatch_sf2_mod_free(oldmod);  /* free oldmod from gtk_tree_model_get */
-
-    /* update the modulator in the list store */
-    gtk_list_store_set(modedit->list_store, &modedit->mod_iter,
-                       MOD_PTR, &newmod, -1);
+    g_object_notify((GObject *)modedit, "modulators");
 
     swamigui_mod_edit_update_store_row(modedit, &modedit->mod_iter);
 }
@@ -1182,7 +1156,7 @@ static void
 swamigui_mod_edit_cb_combo_src_ctrl_changed(GtkComboBox *combo, gpointer user_data)
 {
     SwamiguiModEdit *modedit = SWAMIGUI_MOD_EDIT(user_data);
-    IpatchSF2Mod *oldmod, newmod;
+    IpatchSF2Mod *mod;
     GtkTreeIter active_iter;
     GtkWidget *widg;
     guint16 *src;
@@ -1198,41 +1172,30 @@ swamigui_mod_edit_cb_combo_src_ctrl_changed(GtkComboBox *combo, gpointer user_da
         return;
     }
 
-    /* get current modulator values (gtk_tree_model_get duplicates mod) */
+    /* get current modulator pointer */
     gtk_tree_model_get(GTK_TREE_MODEL(modedit->list_store), &modedit->mod_iter,
-                       MOD_PTR, &oldmod, -1);
-    newmod = *oldmod;		/* duplicate modulator values */
+                       MOD_PTR, &mod, -1);
 
     /* which source controller combo list? */
     widg = swamigui_util_glade_lookup(modedit->glade_widg, "COMSrcCtrl");
 
     if((void *)widg == (void *)combo)
     {
-        src = &newmod.src;
+        src = &mod->src;
     }
     else
     {
-        src = &newmod.amtsrc;
+        src = &mod->amtsrc;
     }
 
     gtk_tree_model_get(GTK_TREE_MODEL(modedit->src_store), &active_iter,
                        SRC_STORE_CTRLNUM, &ctrl,
                        -1);
 
+    /* set the modulator values in the modulator and notify property */
     *src &= ~(IPATCH_SF2_MOD_MASK_CONTROL | IPATCH_SF2_MOD_MASK_CC);
     *src |= ctrl;
-
-    /* set the modulator values in the modulator list and notify property */
-    if(ipatch_sf2_mod_list_change(modedit->mods, oldmod, &newmod))
-    {
-        g_object_notify((GObject *)modedit, "modulators");
-    }
-
-    ipatch_sf2_mod_free(oldmod);  /* free oldmod from gtk_tree_model_get */
-
-    /* update the modulator in the list store */
-    gtk_list_store_set(modedit->list_store, &modedit->mod_iter,
-                       MOD_PTR, &newmod, -1);
+    g_object_notify ((GObject *)modedit, "modulators");
 
     swamigui_mod_edit_update_store_row(modedit, &modedit->mod_iter);
 }
@@ -1242,31 +1205,18 @@ static void
 swamigui_mod_edit_cb_amtsrc_changed(GtkAdjustment *adj,
                                     SwamiguiModEdit *modedit)
 {
-    IpatchSF2Mod *oldmod, newmod;
+    IpatchSF2Mod *mod;
 
     if(modedit->block_callbacks || !modedit->mod_selected)
     {
         return;
     }
 
-    /* get current modulator values (gtk_tree_model_get duplicates mod) */
+    /* set the modulator values in the modulator and notify property */
     gtk_tree_model_get(GTK_TREE_MODEL(modedit->list_store), &modedit->mod_iter,
-                       MOD_PTR, &oldmod, -1);
-    newmod = *oldmod;		/* duplicate modulator values */
-
-    newmod.amount = (gint16)(adj->value);
-
-    /* set the modulator values in the modulator list and notify property */
-    if(ipatch_sf2_mod_list_change(modedit->mods, oldmod, &newmod))
-    {
-        g_object_notify((GObject *)modedit, "modulators");
-    }
-
-    ipatch_sf2_mod_free(oldmod);  /* free oldmod from gtk_tree_model_get */
-
-    /* update the modulator in the list store */
-    gtk_list_store_set(modedit->list_store, &modedit->mod_iter,
-                       MOD_PTR, &newmod, -1);
+                       MOD_PTR, &mod, -1);
+    mod->amount = (gint16)(adj->value);
+    g_object_notify((GObject *)modedit, "modulators");
 
     swamigui_mod_edit_update_store_row(modedit, &modedit->mod_iter);
 }
@@ -1309,7 +1259,7 @@ swamigui_mod_edit_update_store_row(SwamiguiModEdit *modedit,
     /* get ipatch_sf2_gen_info from libinstpatch library */
     const IpatchSF2GenInfo *ipatch_sf2_gen_info = ipatch_sf2_get_gen_info();
 
-    /* `mod' will be newly allocated */
+    /* get current modulator */
     gtk_tree_model_get(GTK_TREE_MODEL(modedit->list_store), iter,
                        MOD_PTR, &mod, -1);
 
@@ -1317,8 +1267,10 @@ swamigui_mod_edit_update_store_row(SwamiguiModEdit *modedit,
     group = swamigui_mod_edit_find_gen_group(mod->dest, NULL);
 
     if(group >= 0)
+    {
         s = g_strdup_printf("%s: %s", _(modgroup_names[group]),
                             _(ipatch_sf2_gen_info[mod->dest].label));
+    }
     else
     {
         s = g_strdup_printf(_("Invalid (genid = %d)"), mod->dest);
@@ -1341,9 +1293,11 @@ swamigui_mod_edit_update_store_row(SwamiguiModEdit *modedit,
     s = swamigui_mod_edit_get_control_name(mod->src);
 
     if(!s)
+    {
         s = g_strdup_printf(_("Invalid (cc = %d, index = %d)"),
                             ((mod->src & IPATCH_SF2_MOD_MASK_CC) != 0),
                             mod->src & ~IPATCH_SF2_MOD_MASK_CC);
+    }
 
     gtk_list_store_set(modedit->list_store, iter, SRC_LABEL, s, -1);
     g_free(s);
@@ -1361,17 +1315,17 @@ swamigui_mod_edit_update_store_row(SwamiguiModEdit *modedit,
     s = swamigui_mod_edit_get_control_name(mod->amtsrc);
 
     if(!s)
+    {
         s = g_strdup_printf(_("Invalid (cc = %d, index = %d)"),
                             ((mod->amtsrc & IPATCH_SF2_MOD_MASK_CC) != 0),
                             mod->amtsrc & ~IPATCH_SF2_MOD_MASK_CC);
+    }
 
     gtk_list_store_set(modedit->list_store, iter, AMT_LABEL, s, -1);
     g_free(s);
 
     /* set amount value */
     gtk_list_store_set(modedit->list_store, iter, AMT_VALUE, mod->amount, -1);
-
-    ipatch_sf2_mod_free(mod);	/* ## FREE modulator from gtk_tree_model_get */
 }
 
 /* Bag used for finding and selecting source control combo box items by ctrlnum */
@@ -1523,11 +1477,6 @@ swamigui_mod_edit_set_active_mod(SwamiguiModEdit *modedit, GtkTreeIter *iter,
     }
 
     modedit->block_callbacks = FALSE; /* unblock callbacks */
-
-    if(mod)
-    {
-        ipatch_sf2_mod_free(mod);
-    }
 }
 
 /* Function for gtk_tree_model_foreach() which will select the source control
