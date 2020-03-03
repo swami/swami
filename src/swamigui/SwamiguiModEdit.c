@@ -843,7 +843,8 @@ swamigui_mod_edit_update_dest_combo_box(SwamiguiModEdit *modedit)
             GSList *p;
             gint i_mod;
             IpatchSF2Mod * mod_sel;
-            gtk_tree_model_get (GTK_TREE_MODEL (modedit->list_store), &modedit->mod_iter,
+            guint count_mod = g_slist_length (modedit->mods);
+            gtk_tree_model_get(GTK_TREE_MODEL (modedit->list_store), &modedit->mod_iter,
                                 MOD_PTR, &mod_sel, -1);
 
             for (p = modedit->mods, i_mod = 0; p; p = p->next, i_mod++)
@@ -852,6 +853,43 @@ swamigui_mod_edit_update_dest_combo_box(SwamiguiModEdit *modedit)
                 IpatchSF2Mod * mod = (IpatchSF2Mod *)p->data;
                 if(IS_SOURCE_LINK(mod->src) && (mod != mod_sel))
                 {
+                    /* check if a final destination (i.e a generator) can be
+                       found starting from mod */
+                    gboolean valid = FALSE;
+                    IpatchSF2Mod *mod_dest = mod;
+                    guint n_mod = count_mod;
+                    while( n_mod--)
+                    {
+                        guint16 i_dest = mod_dest->dest;
+                        /* does destination is a valid generator ? */
+                        if(!(i_dest & IPATCH_SF2_MOD_DEST_LINKED))
+                        {
+                            valid = TRUE; /* valid generator */
+                            break;
+                        }
+                        /* destination is a modulator. */
+                        /* does destination is valid ?  */
+                        if(i_dest == MOD_DEST_INVALID)
+                        {
+                            break; /* invalid final destination */
+                        }
+                        /* i_dest is valid modulator destination index */
+                        /* checks if the destination modulator exits and has source linked */
+                        mod_dest = (IpatchSF2Mod *) g_slist_nth_data (modedit->mods,
+                                                              i_dest & MOD_DEST_MASK);
+                        if( ! mod_dest || ! IS_SOURCE_LINK(mod_dest->src))
+                        {
+                            break; /* invalid final destination */
+                        }
+                        /* check if circular path */
+                        if( mod_dest == mod_sel)
+                        {
+                            break; /* invalid final destination */
+                        }
+                    }
+
+                    if(valid)
+                    {
                         gtk_tree_store_append (store, &dest_iter, &group_iter);
                         name = g_strdup_printf ("mod# %d", i_mod);
 
@@ -859,7 +897,8 @@ swamigui_mod_edit_update_dest_combo_box(SwamiguiModEdit *modedit)
                                             DEST_COLUMN_TEXT, name,
                                             DEST_COLUMN_ID, IPATCH_SF2_MOD_DEST_LINKED | i_mod,
                                             -1);
-		                g_free (name);
+                        g_free (name);
+                    }
                 }
             }
         }
