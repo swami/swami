@@ -51,6 +51,7 @@ enum
     AMT_PIXBUF,
     AMT_LABEL,
     AMT_VALUE,
+    NUM_MOD,            /* modulator number  */
     MOD_PTR,			/* modulator pointer */
     NUM_FIELDS
 };
@@ -355,8 +356,9 @@ static void swamigui_mod_edit_cb_combo_src_ctrl_changed(GtkComboBox *combo,
 static void swamigui_mod_edit_cb_amtsrc_changed(GtkAdjustment *adj,
         SwamiguiModEdit *modedit);
 static void swamigui_mod_edit_update(SwamiguiModEdit *modedit);
-static void swamigui_mod_edit_update_store_row(SwamiguiModEdit *modedit,
-        GtkTreeIter *iter);
+static void swamigui_mod_edit_update_store_rows (SwamiguiModEdit *modedit);
+static void swamigui_mod_edit_update_store_row (SwamiguiModEdit *modedit,
+                                    GtkTreeIter *iter, gint i_row);
 static void swamigui_mod_edit_set_active_mod(SwamiguiModEdit *modedit,
         GtkTreeIter *iter,
         gboolean force);
@@ -675,6 +677,7 @@ swamigui_mod_edit_create_list_view(SwamiguiModEdit *modedit)
                                GDK_TYPE_PIXBUF,
                                G_TYPE_STRING,
                                G_TYPE_INT,
+                               G_TYPE_STRING,   /* modulator number  */
                                G_TYPE_POINTER); /* modulator pointer */
 
     /* set grid lines for rows and columns */
@@ -736,6 +739,14 @@ swamigui_mod_edit_create_list_view(SwamiguiModEdit *modedit)
              "text", AMT_VALUE,
              NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(tree), column);
+
+    /* modulator number column */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes (_("Mod#"),
+             renderer,
+             "text", NUM_MOD,
+             NULL);
+    gtk_tree_view_append_column (GTK_TREE_VIEW (tree), column);
 
     return (tree);
 }
@@ -992,7 +1003,7 @@ swamigui_mod_edit_cb_new_clicked(GtkButton *btn, SwamiguiModEdit *modedit)
     gtk_tree_selection_unselect_all(selection);
     gtk_tree_selection_select_iter(selection, &iter);
 
-    swamigui_mod_edit_update_store_row(modedit, &iter);
+    swamigui_mod_edit_update_store_rows(modedit);
 }
 
 /* callback for delete modulator button click */
@@ -1049,6 +1060,8 @@ swamigui_mod_edit_cb_delete_clicked(GtkButton *btn, SwamiguiModEdit *modedit)
     {
         g_object_notify((GObject *)modedit, "modulators");
     }
+
+    swamigui_mod_edit_update_store_rows(modedit);
 }
 
 /* a tree selection foreach callback to remove selected modulators */
@@ -1113,7 +1126,7 @@ swamigui_mod_edit_cb_destination_changed(GtkComboBox *combo, gpointer user_data)
     mod->dest = genid;
     g_object_notify ((GObject *)modedit, "modulators");
 
-    swamigui_mod_edit_update_store_row(modedit, &modedit->mod_iter);
+    swamigui_mod_edit_update_store_rows(modedit);
 }
 
 /* callback for modulator source controller transform icon combo change */
@@ -1148,7 +1161,7 @@ swamigui_mod_edit_cb_pixcombo_changed(IconCombo *pixcombo, int id,
     *src |= id;
     g_object_notify((GObject *)modedit, "modulators");
 
-    swamigui_mod_edit_update_store_row(modedit, &modedit->mod_iter);
+    swamigui_mod_edit_update_store_rows(modedit);
 }
 
 /* callback for modulator source controller combo changes */
@@ -1197,7 +1210,7 @@ swamigui_mod_edit_cb_combo_src_ctrl_changed(GtkComboBox *combo, gpointer user_da
     *src |= ctrl;
     g_object_notify ((GObject *)modedit, "modulators");
 
-    swamigui_mod_edit_update_store_row(modedit, &modedit->mod_iter);
+    swamigui_mod_edit_update_store_rows(modedit);
 }
 
 /* callback for modulator amount source spin button value change */
@@ -1218,7 +1231,7 @@ swamigui_mod_edit_cb_amtsrc_changed(GtkAdjustment *adj,
     mod->amount = (gint16)(adj->value);
     g_object_notify((GObject *)modedit, "modulators");
 
-    swamigui_mod_edit_update_store_row(modedit, &modedit->mod_iter);
+    swamigui_mod_edit_update_store_rows(modedit);
 }
 
 /* synchronizes modulator editor to current modulator list */
@@ -1242,14 +1255,31 @@ swamigui_mod_edit_update(SwamiguiModEdit *modedit)
         gtk_list_store_append(modedit->list_store, &iter);
         gtk_list_store_set(modedit->list_store, &iter,
                            MOD_PTR, (IpatchSF2Mod *)(p->data), -1);
-        swamigui_mod_edit_update_store_row(modedit, &iter);
+    }
+
+    swamigui_mod_edit_update_store_rows(modedit);
+}
+
+static void
+/* update all modulator rows in the list view */
+swamigui_mod_edit_update_store_rows(SwamiguiModEdit *modedit)
+{
+    GtkTreeIter iter;
+    GSList *p;
+    gint i_mod = 0;
+
+    for (p = modedit->mods; p; i_mod++, p = p->next)
+    {
+        gtk_tree_model_iter_nth_child (GTK_TREE_MODEL (modedit->list_store),
+                                       &iter, NULL, i_mod);
+        swamigui_mod_edit_update_store_row (modedit, &iter, i_mod);
     }
 }
 
 /* update a modulator in the list view */
 static void
-swamigui_mod_edit_update_store_row(SwamiguiModEdit *modedit,
-                                   GtkTreeIter *iter)
+swamigui_mod_edit_update_store_row (SwamiguiModEdit *modedit,
+                                    GtkTreeIter *iter, gint i_mod)
 {
     GdkPixbuf *pixbuf;
     char *stock_id;
@@ -1326,6 +1356,11 @@ swamigui_mod_edit_update_store_row(SwamiguiModEdit *modedit,
 
     /* set amount value */
     gtk_list_store_set(modedit->list_store, iter, AMT_VALUE, mod->amount, -1);
+
+    /* set modulator number */
+    s = g_strdup_printf (_("%d"), i_mod);
+    gtk_list_store_set (modedit->list_store, iter, NUM_MOD, s, -1);
+    g_free (s);
 }
 
 /* Bag used for finding and selecting source control combo box items by ctrlnum */
