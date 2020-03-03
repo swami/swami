@@ -79,6 +79,11 @@ enum
 /* This should be defined in libinstpatch. */
 #define IPATCH_SF2_MOD_CONTROL_LINK 127
 
+#define IPATCH_SF2_MOD_DEST_LINKED 0x8000
+#define MOD_DEST_MASK (IPATCH_SF2_MOD_DEST_LINKED - 1)
+#define MOD_DEST_INVALID (IPATCH_SF2_MOD_DEST_LINKED|MOD_DEST_MASK)
+#define IS_SOURCE_LINK(src)	((src & (IPATCH_SF2_MOD_MASK_CONTROL | IPATCH_SF2_MOD_MASK_CC)) == IPATCH_SF2_MOD_CONTROL_LINK)
+
 /* Modulator General Controller palette descriptions */
 struct
 {
@@ -169,10 +174,13 @@ char *modgroup_names[] =
     N_("Volume Envelope"),
     N_("Modulation Envelope"),
     N_("Modulation LFO"),
-    N_("Vibrato LFO")
+    N_("Vibrato LFO"),
+    N_("Linked") /* group of linked modulators. Must be the last name */
 };
 
 #define MODGROUP_COUNT   (sizeof (modgroup_names) / sizeof (modgroup_names[0]))
+
+#define MODLINKED_GROUP_ID (MODGROUP_COUNT - 1)
 
 #define MODGROUP_SEPARATOR  (-1)
 
@@ -339,6 +347,7 @@ static void swamigui_mod_edit_get_property(GObject *object, guint property_id,
 static void swamigui_mod_edit_finalize(GObject *object);
 static GtkWidget *swamigui_mod_edit_create_list_view(SwamiguiModEdit *modedit);
 static GtkTreeStore *swamigui_mod_edit_init_dest_combo_box(GtkWidget *combo_dest);
+static void swamigui_mod_edit_update_dest_combo_box(SwamiguiModEdit *modedit);
 static void swamigui_mod_edit_cb_destination_changed(GtkComboBox *combo,
         gpointer user_data);
 static gboolean swamigui_mod_edit_real_set_selection(SwamiguiModEdit *modedit,
@@ -367,7 +376,8 @@ static void swamigui_mod_edit_cb_combo_src_ctrl_changed(GtkComboBox *combo,
 static void swamigui_mod_edit_cb_amtsrc_changed(GtkAdjustment *adj,
         SwamiguiModEdit *modedit);
 static void swamigui_mod_edit_update(SwamiguiModEdit *modedit);
-static void swamigui_mod_edit_update_store_rows (SwamiguiModEdit *modedit);
+static void swamigui_mod_edit_update_store_rows (SwamiguiModEdit *modedit,
+        gboolean notify);
 static void swamigui_mod_edit_update_store_row (SwamiguiModEdit *modedit,
                                     GtkTreeIter *iter, gint i_row);
 static void swamigui_mod_edit_set_active_mod(SwamiguiModEdit *modedit,
@@ -378,7 +388,8 @@ static gboolean swamigui_mod_edit_select_src_ctrl(GtkTreeModel *model, GtkTreePa
 
 static char *swamigui_mod_edit_get_control_name(guint16 modsrc);
 static char *swamigui_mod_edit_find_transform_icon(guint16 modsrc);
-static int swamigui_mod_edit_find_gen_group(int genid, int *index);
+static int swamigui_mod_edit_find_gen_group (int genid,
+        GtkTreeModel *tree, int *index);
 
 static GObjectClass *parent_class = NULL;
 
@@ -637,7 +648,7 @@ swamigui_mod_edit_init(SwamiguiModEdit *modedit)
                                    NULL);
     g_signal_connect(widg, "changed",
                      G_CALLBACK(swamigui_mod_edit_cb_combo_src_ctrl_changed), modedit);
-    
+
     // code redundant with src_store (will be removed later)
     modedit->amt_store = gtk_list_store_new (SRC_STORE_NUM_FIELDS,
                                              G_TYPE_STRING, G_TYPE_INT);
@@ -792,38 +803,8 @@ swamigui_mod_edit_init_dest_combo_box(GtkWidget *combo_dest)
 {
     GtkCellRenderer *renderer;
     GtkTreeStore *store;
-    GtkTreeIter group_iter, gen_iter;
-    int group, gen;
-    char *name;
-    /* get ipatch_sf2_gen_info from libinstpatch library */
-    const IpatchSF2GenInfo *ipatch_sf2_gen_info = ipatch_sf2_get_gen_info();
 
     store = gtk_tree_store_new(DEST_COLUMN_COUNT, G_TYPE_STRING, G_TYPE_INT);
-
-    for(group = 0, gen = 0; group < MODGROUP_COUNT; group++)
-    {
-        /* append group name */
-        gtk_tree_store_append(store, &group_iter, NULL);
-        gtk_tree_store_set(store, &group_iter,
-                           DEST_COLUMN_TEXT, modgroup_names[group],
-                           DEST_COLUMN_ID, DEST_COLUMN_ID_IS_GROUP | group,
-                           -1);
-
-        while(modgroup_gens[gen] != MODGROUP_SEPARATOR)
-        {
-            gtk_tree_store_append(store, &gen_iter, &group_iter);
-
-            name = ipatch_sf2_gen_info[modgroup_gens[gen]].label;
-
-            gtk_tree_store_set(store, &gen_iter,
-                               DEST_COLUMN_TEXT, name,
-                               DEST_COLUMN_ID, modgroup_gens[gen],
-                               -1);
-            gen++;
-        }
-
-        gen++;
-    }
 
     renderer = gtk_cell_renderer_text_new();
     gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combo_dest), renderer, TRUE);
@@ -831,6 +812,72 @@ swamigui_mod_edit_init_dest_combo_box(GtkWidget *combo_dest)
                                    "text", DEST_COLUMN_TEXT,
                                    NULL);
     return (store);
+}
+
+static void
+swamigui_mod_edit_update_dest_combo_box(SwamiguiModEdit *modedit)
+{
+    GtkTreeStore *store;
+    GtkTreeIter group_iter, dest_iter;
+    int group, gen;
+    char *name;
+    const IpatchSF2GenInfo * ipatch_sf2_gen_info = ipatch_sf2_get_gen_info();
+
+    modedit->block_callbacks = TRUE; /* block signal callbacks */
+
+    store = modedit->dest_store;
+    gtk_tree_store_clear (store);
+
+    for (group = 0, gen = 0; group < MODGROUP_COUNT; group++, gen++)
+    { /* append group name */
+
+        gtk_tree_store_append (store, &group_iter, NULL);
+        gtk_tree_store_set (store, &group_iter,
+                DEST_COLUMN_TEXT, modgroup_names[group],
+                DEST_COLUMN_ID, DEST_COLUMN_ID_IS_GROUP | group,
+                -1);
+
+        /* add sub group for "linked" group */
+        if (group == MODLINKED_GROUP_ID)
+        {
+            GSList *p;
+            gint i_mod;
+            IpatchSF2Mod * mod_sel;
+            gtk_tree_model_get (GTK_TREE_MODEL (modedit->list_store), &modedit->mod_iter,
+                                MOD_PTR, &mod_sel, -1);
+
+            for (p = modedit->mods, i_mod = 0; p; p = p->next, i_mod++)
+            {
+                /* add only modulator with link source */
+                IpatchSF2Mod * mod = (IpatchSF2Mod *)p->data;
+                if(IS_SOURCE_LINK(mod->src) && (mod != mod_sel))
+                {
+                        gtk_tree_store_append (store, &dest_iter, &group_iter);
+                        name = g_strdup_printf ("mod# %d", i_mod);
+
+                        gtk_tree_store_set (store, &dest_iter,
+                                            DEST_COLUMN_TEXT, name,
+                                            DEST_COLUMN_ID, IPATCH_SF2_MOD_DEST_LINKED | i_mod,
+                                            -1);
+		                g_free (name);
+                }
+            }
+        }
+
+        /* add sub groups for each generator group */
+        else while (modgroup_gens[gen] != MODGROUP_SEPARATOR)
+        {
+            gtk_tree_store_append (store, &dest_iter, &group_iter);
+            name = ipatch_sf2_gen_info[modgroup_gens[gen]].label;
+
+            gtk_tree_store_set (store, &dest_iter,
+			        DEST_COLUMN_TEXT, name,
+			        DEST_COLUMN_ID, modgroup_gens[gen],
+			        -1);
+            gen++;
+        }
+    }
+    modedit->block_callbacks = FALSE; /* unblock signal callbacks */
 }
 
 /**
@@ -1029,8 +1076,6 @@ swamigui_mod_edit_cb_new_clicked(GtkButton *btn, SwamiguiModEdit *modedit)
     mod = ipatch_sf2_mod_new();
     modedit->mods = g_slist_insert(modedit->mods, mod, -1);
 
-    g_object_notify((GObject *)modedit, "modulators");
-
     gtk_list_store_append(modedit->list_store, &iter);
     gtk_list_store_set(modedit->list_store, &iter, MOD_PTR, mod, -1);
 
@@ -1039,7 +1084,8 @@ swamigui_mod_edit_cb_new_clicked(GtkButton *btn, SwamiguiModEdit *modedit)
     gtk_tree_selection_unselect_all(selection);
     gtk_tree_selection_select_iter(selection, &iter);
 
-    swamigui_mod_edit_update_store_rows(modedit);
+    /* update rows and notify */
+    swamigui_mod_edit_update_store_rows(modedit, TRUE);
 }
 
 /* callback for delete modulator button click */
@@ -1050,6 +1096,8 @@ swamigui_mod_edit_cb_delete_clicked(GtkButton *btn, SwamiguiModEdit *modedit)
     GtkTreeIter *iter;
     GList *sel_iters = NULL, *p;
     IpatchSF2Mod *mod;
+    GtkTreeIter no_sel_iter;
+    gboolean is_iter;
     gboolean anychanged = FALSE;
 
     if(!modedit->selection)
@@ -1058,6 +1106,68 @@ swamigui_mod_edit_cb_delete_clicked(GtkButton *btn, SwamiguiModEdit *modedit)
     }
 
     sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(modedit->tree_view));
+
+    /* Update destination field for linked modulators. */
+    is_iter = gtk_tree_model_get_iter_first(GTK_TREE_MODEL (modedit->list_store),
+                                            &no_sel_iter);
+    while (is_iter)
+    {
+        if( ! gtk_tree_selection_iter_is_selected (sel, &no_sel_iter))
+        {
+            gint i_dest;
+            /* get modulator */
+            gtk_tree_model_get (GTK_TREE_MODEL (modedit->list_store),
+                                &no_sel_iter, MOD_PTR, &mod, -1);
+            i_dest = mod->dest;
+            /* does destination is linked and index valid ? */
+            if( (i_dest & IPATCH_SF2_MOD_DEST_LINKED)
+                 && (i_dest != MOD_DEST_INVALID))
+            {
+                GtkTreeIter dest_iter;
+                i_dest &= MOD_DEST_MASK; /* index de destination */
+                /* does destination modulator row selected ? */
+                gtk_tree_model_iter_nth_child(GTK_TREE_MODEL (modedit->list_store),
+                                               &dest_iter, NULL, i_dest);
+                if( gtk_tree_selection_iter_is_selected (sel, &dest_iter))
+                {
+                    /* destination modulator row will be removed,
+                       mod's destination is marked invalid */
+                    mod->dest = MOD_DEST_INVALID;
+                    anychanged = TRUE;
+                }
+                /* destination modulator row isn't selected */
+                else
+                {
+                    GtkTreeIter sel_iter;
+                    gboolean is_sel_iter;
+                    gint i_row_sel = 0;
+                    is_sel_iter = gtk_tree_model_get_iter_first(
+                                           GTK_TREE_MODEL (modedit->list_store),
+                                           &sel_iter);
+                    while (is_sel_iter)
+                    {
+                        if( gtk_tree_selection_iter_is_selected (sel, &sel_iter))
+                        {
+                            if(i_dest > i_row_sel)
+                            {
+                                /* update destination to lower index */
+                                mod->dest--;
+                                anychanged = TRUE;
+                            }
+                        }
+                        /*---*/
+                        is_sel_iter = gtk_tree_model_iter_next (
+                                          GTK_TREE_MODEL (modedit->list_store),
+                                          &sel_iter);
+                        i_row_sel++;
+                    }
+                }
+            }
+        }
+        //-------------------------------------------------------------
+        is_iter = gtk_tree_model_iter_next (GTK_TREE_MODEL (modedit->list_store),
+                                            &no_sel_iter);
+    }
 
     gtk_tree_selection_selected_foreach(sel,
                                         swamigui_mod_edit_selection_foreach,
@@ -1092,12 +1202,8 @@ swamigui_mod_edit_cb_delete_clicked(GtkButton *btn, SwamiguiModEdit *modedit)
 
     g_list_free(sel_iters);
 
-    if(anychanged)
-    {
-        g_object_notify((GObject *)modedit, "modulators");
-    }
-
-    swamigui_mod_edit_update_store_rows(modedit);
+    /* update rows and notify */
+    swamigui_mod_edit_update_store_rows(modedit, anychanged);
 }
 
 /* a tree selection foreach callback to remove selected modulators */
@@ -1160,9 +1266,9 @@ swamigui_mod_edit_cb_destination_changed(GtkComboBox *combo, gpointer user_data)
     gtk_tree_model_get (GTK_TREE_MODEL (modedit->list_store), &modedit->mod_iter,
                                         MOD_PTR, &mod, -1);
     mod->dest = genid;
-    g_object_notify ((GObject *)modedit, "modulators");
 
-    swamigui_mod_edit_update_store_rows(modedit);
+    /* update rows and notify */
+    swamigui_mod_edit_update_store_rows(modedit, TRUE);
 }
 
 /* callback for modulator source controller transform icon combo change */
@@ -1195,9 +1301,9 @@ swamigui_mod_edit_cb_pixcombo_changed(IconCombo *pixcombo, int id,
     *src &= ~(IPATCH_SF2_MOD_MASK_TYPE | IPATCH_SF2_MOD_MASK_DIRECTION
               | IPATCH_SF2_MOD_MASK_POLARITY);
     *src |= id;
-    g_object_notify((GObject *)modedit, "modulators");
 
-    swamigui_mod_edit_update_store_rows(modedit);
+    /* update rows and notify */
+    swamigui_mod_edit_update_store_rows(modedit, TRUE);
 }
 
 /* callback for modulator source controller combo changes */
@@ -1246,9 +1352,9 @@ swamigui_mod_edit_cb_combo_src_ctrl_changed(GtkComboBox *combo, gpointer user_da
     /* set the modulator values in the modulator and notify property */
     *src &= ~(IPATCH_SF2_MOD_MASK_CONTROL | IPATCH_SF2_MOD_MASK_CC);
     *src |= ctrl;
-    g_object_notify ((GObject *)modedit, "modulators");
 
-    swamigui_mod_edit_update_store_rows(modedit);
+    /* update rows and notify */
+    swamigui_mod_edit_update_store_rows(modedit, TRUE);
 }
 
 /* callback for modulator amount source spin button value change */
@@ -1267,9 +1373,9 @@ swamigui_mod_edit_cb_amtsrc_changed(GtkAdjustment *adj,
     gtk_tree_model_get(GTK_TREE_MODEL(modedit->list_store), &modedit->mod_iter,
                        MOD_PTR, &mod, -1);
     mod->amount = (gint16)(adj->value);
-    g_object_notify((GObject *)modedit, "modulators");
 
-    swamigui_mod_edit_update_store_rows(modedit);
+    /* update rows and notify */
+    swamigui_mod_edit_update_store_rows(modedit, TRUE);
 }
 
 /* synchronizes modulator editor to current modulator list */
@@ -1295,12 +1401,12 @@ swamigui_mod_edit_update(SwamiguiModEdit *modedit)
                            MOD_PTR, (IpatchSF2Mod *)(p->data), -1);
     }
 
-    swamigui_mod_edit_update_store_rows(modedit);
+    swamigui_mod_edit_update_store_rows(modedit, FALSE);
 }
 
 static void
 /* update all modulator rows in the list view */
-swamigui_mod_edit_update_store_rows(SwamiguiModEdit *modedit)
+swamigui_mod_edit_update_store_rows(SwamiguiModEdit *modedit, gboolean notify)
 {
     GtkTreeIter iter;
     GSList *p;
@@ -1308,9 +1414,32 @@ swamigui_mod_edit_update_store_rows(SwamiguiModEdit *modedit)
 
     for (p = modedit->mods; p; i_mod++, p = p->next)
     {
+        /* check destination field of linked modulators */
+        IpatchSF2Mod * mod = (IpatchSF2Mod *)p->data;
+        guint16 i_dest = mod->dest;
+        if((i_dest & IPATCH_SF2_MOD_DEST_LINKED) && (i_dest != MOD_DEST_INVALID))
+        {
+            /* i_dest is valid modulator destination index */
+            /* checks if the desnation modulator exits and has source linked */
+            IpatchSF2Mod * mod_dest = (IpatchSF2Mod *) g_slist_nth_data (modedit->mods,
+                                      i_dest & MOD_DEST_MASK);
+            if( ! mod_dest || ! IS_SOURCE_LINK(mod_dest->src))
+            {
+                /* mod_dest doesn't exist or has source not linked.
+                   Marks destination invalid and notify */
+                mod->dest = MOD_DEST_INVALID;
+                notify = TRUE;
+            }
+        }
+
         gtk_tree_model_iter_nth_child (GTK_TREE_MODEL (modedit->list_store),
                                        &iter, NULL, i_mod);
         swamigui_mod_edit_update_store_row (modedit, &iter, i_mod);
+    }
+
+    if(notify)
+    {
+        g_object_notify ((GObject *)modedit, "modulators");
     }
 }
 
@@ -1332,12 +1461,19 @@ swamigui_mod_edit_update_store_row (SwamiguiModEdit *modedit,
                        MOD_PTR, &mod, -1);
 
     /* set mod destination label */
-    group = swamigui_mod_edit_find_gen_group(mod->dest, NULL);
-
-    if(group >= 0)
+    group = swamigui_mod_edit_find_gen_group (mod->dest, NULL, NULL);
+    if (group >= 0)
     {
-        s = g_strdup_printf("%s: %s", _(modgroup_names[group]),
-                            _(ipatch_sf2_gen_info[mod->dest].label));
+        if (group == MODLINKED_GROUP_ID)
+        {
+            s = g_strdup_printf ("%s: mod# %d", _(modgroup_names[group]),
+                                 mod->dest & MOD_DEST_MASK);
+        }
+        else
+        {
+            s = g_strdup_printf ("%s: %s", _(modgroup_names[group]),
+                               _(ipatch_sf2_gen_info[mod->dest].label));
+        }
     }
     else
     {
@@ -1451,6 +1587,7 @@ swamigui_mod_edit_set_active_mod(SwamiguiModEdit *modedit, GtkTreeIter *iter,
     {
         modedit->mod_selected = TRUE;
         modedit->mod_iter = *iter;
+        swamigui_mod_edit_update_dest_combo_box(modedit);
         gtk_tree_model_get(GTK_TREE_MODEL(modedit->list_store), iter,
                            MOD_PTR, &mod, -1);
     }
@@ -1500,7 +1637,8 @@ swamigui_mod_edit_set_active_mod(SwamiguiModEdit *modedit, GtkTreeIter *iter,
     }
 
     /* set destination generator group option menu */
-    group = mod ? swamigui_mod_edit_find_gen_group(mod->dest, &index) : -1;
+    group = mod ? swamigui_mod_edit_find_gen_group (mod->dest,
+                           GTK_TREE_MODEL(modedit->dest_store), &index) : -1;
 
     if(group >= 0)
     {
@@ -1652,10 +1790,42 @@ swamigui_mod_edit_find_transform_icon(guint16 modsrc)
    or -1 if generator is not a valid modulator source, if index != NULL then
    the index within the group is stored in it */
 static int
-swamigui_mod_edit_find_gen_group(int genid, int *index)
+swamigui_mod_edit_find_gen_group (int genid, GtkTreeModel *tree, int *index)
 {
     int group = 0;
     int i, groupndx = 0;
+
+    if (genid & IPATCH_SF2_MOD_DEST_LINKED)
+    {
+        /* destination field is linked */
+        group = (genid != MOD_DEST_INVALID) ? MODLINKED_GROUP_ID : -1;
+
+        if((group != -1) && tree && index )
+        {
+            GtkTreeIter linkediter;
+            char *pathstr = g_strdup_printf ("%d",group);  /* ++ alloc */
+            if (gtk_tree_model_get_iter_from_string (tree, &linkediter, pathstr))
+            {
+                gint n_child, i, i_mod;
+                n_child = gtk_tree_model_iter_n_children (tree, &linkediter);
+                for(i = 0; i < n_child; i++)
+                {
+                    GtkTreeIter childiter;
+                    gtk_tree_model_iter_nth_child (tree, &childiter, &linkediter, i);
+                    /* get the mod index */
+                    gtk_tree_model_get (tree, &childiter, DEST_COLUMN_ID, &i_mod, -1);
+                    if(i_mod == genid)
+                    {
+                        *index = i;
+                        break;
+                    }
+                }
+            }
+
+            g_free (pathstr);		/* -- free */
+        }
+        return group;
+    }
 
     for(i = 0; i < MODGROUP_GENS_SIZE; i++)
     {
