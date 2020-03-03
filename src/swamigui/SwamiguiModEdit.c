@@ -75,6 +75,10 @@ enum
 /* flag set in DEST_COLUMN_ID for group items (unset for generators) */
 #define DEST_COLUMN_ID_IS_GROUP		0x100
 
+/* General Controller link source */
+/* This should be defined in libinstpatch. */
+#define IPATCH_SF2_MOD_CONTROL_LINK 127
+
 /* Modulator General Controller palette descriptions */
 struct
 {
@@ -88,11 +92,18 @@ struct
     { IPATCH_SF2_MOD_CONTROL_POLY_PRESSURE, N_("Poly Pressure") },
     { IPATCH_SF2_MOD_CONTROL_CHAN_PRESSURE, N_("Channel Pressure") },
     { IPATCH_SF2_MOD_CONTROL_PITCH_WHEEL, N_("Pitch Wheel") },
-    { IPATCH_SF2_MOD_CONTROL_BEND_RANGE, N_("Bend Range") }
+    { IPATCH_SF2_MOD_CONTROL_BEND_RANGE, N_("Bend Range") },
+    /* link input for linked modulator. For source input only.
+       ("amount source" isn't allowed to be linked ) */
+    /* Must be the last descriptor ! */
+    { IPATCH_SF2_MOD_CONTROL_LINK, N_("Link") }
 };
 
 #define MODCTRL_DESCR_COUNT \
     (sizeof (modctrl_descr) / sizeof (modctrl_descr[0]))
+
+/* index of "Link" descriptor */
+#define MODCTRL_LINK_DESCR (MODCTRL_DESCR_COUNT -1)
 
 /* MIDI Continuous Controller descriptions */
 struct
@@ -626,9 +637,34 @@ swamigui_mod_edit_init(SwamiguiModEdit *modedit)
                                    NULL);
     g_signal_connect(widg, "changed",
                      G_CALLBACK(swamigui_mod_edit_cb_combo_src_ctrl_changed), modedit);
+    
+    // code redundant with src_store (will be removed later)
+    modedit->amt_store = gtk_list_store_new (SRC_STORE_NUM_FIELDS,
+                                             G_TYPE_STRING, G_TYPE_INT);
+
+    /* add controls to the amount source control list store */
+    for (i = 0; i < MODCTRL_DESCR_COUNT + 120; i++)
+    {
+        if (i == MODCTRL_LINK_DESCR)
+        {
+            continue;
+        }
+        ctrlnum = i < MODCTRL_DESCR_COUNT ? modctrl_descr[i].ctrlnum
+                  : (i - MODCTRL_DESCR_COUNT) | IPATCH_SF2_MOD_CC_MIDI;
+
+        descr = swamigui_mod_edit_get_control_name (ctrlnum);
+        if (!descr) continue;
+
+        gtk_list_store_append (modedit->amt_store, &iter);
+        gtk_list_store_set (modedit->amt_store, &iter,
+                            SRC_STORE_LABEL, descr,
+                            SRC_STORE_CTRLNUM, ctrlnum,
+                            -1);
+        g_free (descr);
+    }
 
     widg = swamigui_util_glade_lookup(glade_widg, "COMAmtCtrl");
-    gtk_combo_box_set_model(GTK_COMBO_BOX(widg), GTK_TREE_MODEL(modedit->src_store));
+    gtk_combo_box_set_model (GTK_COMBO_BOX (widg), GTK_TREE_MODEL (modedit->amt_store));
     renderer = gtk_cell_renderer_text_new();
     gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(widg), renderer, TRUE);
     gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(widg), renderer,
@@ -1173,6 +1209,7 @@ swamigui_mod_edit_cb_combo_src_ctrl_changed(GtkComboBox *combo, gpointer user_da
     GtkTreeIter active_iter;
     GtkWidget *widg;
     guint16 *src;
+    GtkListStore * list_store;
     int ctrl;
 
     if(!gtk_combo_box_get_active_iter(combo, &active_iter))
@@ -1192,18 +1229,19 @@ swamigui_mod_edit_cb_combo_src_ctrl_changed(GtkComboBox *combo, gpointer user_da
     /* which source controller combo list? */
     widg = swamigui_util_glade_lookup(modedit->glade_widg, "COMSrcCtrl");
 
-    if((void *)widg == (void *)combo)
+    if ((void *)widg == (void *)combo)
     {
         src = &mod->src;
+        list_store = modedit->src_store;
     }
     else
     {
         src = &mod->amtsrc;
+        list_store = modedit->amt_store;
     }
-
-    gtk_tree_model_get(GTK_TREE_MODEL(modedit->src_store), &active_iter,
-                       SRC_STORE_CTRLNUM, &ctrl,
-                       -1);
+    gtk_tree_model_get (GTK_TREE_MODEL (list_store), &active_iter,
+                        SRC_STORE_CTRLNUM, &ctrl,
+                        -1);
 
     /* set the modulator values in the modulator and notify property */
     *src &= ~(IPATCH_SF2_MOD_MASK_CONTROL | IPATCH_SF2_MOD_MASK_CC);
@@ -1503,12 +1541,12 @@ swamigui_mod_edit_set_active_mod(SwamiguiModEdit *modedit, GtkTreeIter *iter,
     selectbag.combo = GTK_COMBO_BOX(comamt);
     selectbag.ctrlnum = ctrlnum;
 
-    gtk_tree_model_foreach(GTK_TREE_MODEL(modedit->src_store),
-                           swamigui_mod_edit_select_src_ctrl, &selectbag);
+    gtk_tree_model_foreach (GTK_TREE_MODEL (modedit->amt_store),
+                            swamigui_mod_edit_select_src_ctrl, &selectbag);
 
     if(selectbag.combo)   // Set to NULL if control was found and selected
     {
-        gtk_combo_box_set_active(GTK_COMBO_BOX(comsrc), -1);
+        gtk_combo_box_set_active(selectbag.combo, -1);
     }
 
     modedit->block_callbacks = FALSE; /* unblock callbacks */
