@@ -317,6 +317,8 @@ swamigui_piano_set_property(GObject *object, guint property_id,
     case PROP_KEY_COUNT:
         piano->key_count = g_value_get_int(value);
         swamigui_piano_destroy_keys(piano);
+        /* Update drawing on key_count change */
+        piano->up2date = FALSE;
         swamigui_piano_draw(piano);
         break;
 
