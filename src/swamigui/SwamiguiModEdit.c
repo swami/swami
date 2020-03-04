@@ -1463,13 +1463,43 @@ swamigui_mod_edit_update_store_rows(SwamiguiModEdit *modedit, gboolean notify)
     }
 }
 
+/* update source controller in list view store row */
+static
+void swamigui_mod_edit_update_ctrl_source_store(SwamiguiModEdit *modedit,
+                                            GtkTreeIter *iter,
+                                            guint16 modsrc,
+                                            guint enum_pixbuf, guint enum_label)
+{
+    GdkPixbuf *pixbuf;
+    char *stock_id;
+    char *s;
+
+    /* set source pixbuf */
+    stock_id = swamigui_mod_edit_find_transform_icon (modsrc);
+    if (stock_id)
+    {
+        pixbuf = gtk_widget_render_icon(modedit->tree_view, stock_id,
+                                        GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
+        gtk_list_store_set(modedit->list_store, iter, enum_pixbuf, pixbuf, -1);
+    }
+
+    /* set source label */
+    s = swamigui_mod_edit_get_control_name (modsrc);
+    if (!s)
+    {
+        s = g_strdup_printf (_("Invalid (cc = %d, index = %d)"),
+                              ((modsrc & IPATCH_SF2_MOD_MASK_CC) != 0),
+                                modsrc & ~IPATCH_SF2_MOD_MASK_CC);
+    }
+    gtk_list_store_set (modedit->list_store, iter, enum_label, s, -1);
+    g_free (s);
+}
+
 /* update a modulator in the list view */
 static void
 swamigui_mod_edit_update_store_row (SwamiguiModEdit *modedit,
                                     GtkTreeIter *iter, gint i_mod)
 {
-    GdkPixbuf *pixbuf;
-    char *stock_id;
     int group;
     IpatchSF2Mod *mod;
     char *s;
@@ -1503,50 +1533,12 @@ swamigui_mod_edit_update_store_row (SwamiguiModEdit *modedit,
     gtk_list_store_set(modedit->list_store, iter, DEST_LABEL, s, -1);
     g_free(s);
 
-    /* set source pixbuf */
-    stock_id = swamigui_mod_edit_find_transform_icon(mod->src);
-
-    if(stock_id)
-    {
-        pixbuf = gtk_widget_render_icon(modedit->tree_view, stock_id,
-                                        GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
-        gtk_list_store_set(modedit->list_store, iter, SRC_PIXBUF, pixbuf, -1);
-    }
-
-    /* set source label */
-    s = swamigui_mod_edit_get_control_name(mod->src);
-
-    if(!s)
-    {
-        s = g_strdup_printf(_("Invalid (cc = %d, index = %d)"),
-                            ((mod->src & IPATCH_SF2_MOD_MASK_CC) != 0),
-                            mod->src & ~IPATCH_SF2_MOD_MASK_CC);
-    }
-
-    gtk_list_store_set(modedit->list_store, iter, SRC_LABEL, s, -1);
-    g_free(s);
-
-    stock_id = swamigui_mod_edit_find_transform_icon(mod->amtsrc);
-
-    if(stock_id)
-    {
-        pixbuf = gtk_widget_render_icon(modedit->tree_view, stock_id,
-                                        GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
-        gtk_list_store_set(modedit->list_store, iter, AMT_PIXBUF, pixbuf, -1);
-    }
-
-    /* set amount source label */
-    s = swamigui_mod_edit_get_control_name(mod->amtsrc);
-
-    if(!s)
-    {
-        s = g_strdup_printf(_("Invalid (cc = %d, index = %d)"),
-                            ((mod->amtsrc & IPATCH_SF2_MOD_MASK_CC) != 0),
-                            mod->amtsrc & ~IPATCH_SF2_MOD_MASK_CC);
-    }
-
-    gtk_list_store_set(modedit->list_store, iter, AMT_LABEL, s, -1);
-    g_free(s);
+    /* set controller source: pixbuf and label */
+    swamigui_mod_edit_update_ctrl_source_store(modedit, iter, mod->src,
+                                               SRC_PIXBUF, SRC_LABEL);
+    /* set controller amount source: pixbuf and label */
+    swamigui_mod_edit_update_ctrl_source_store(modedit, iter, mod->amtsrc,
+                                               AMT_PIXBUF, AMT_LABEL);
 
     /* set amount value */
     gtk_list_store_set(modedit->list_store, iter, AMT_VALUE, mod->amount, -1);
