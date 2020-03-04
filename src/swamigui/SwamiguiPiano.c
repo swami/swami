@@ -133,6 +133,11 @@ static void swamigui_piano_item_realize(GnomeCanvasItem *item);
 static void swamigui_piano_draw(SwamiguiPiano *piano);
 static void swamigui_piano_destroy_keys(SwamiguiPiano *piano);
 static void swamigui_piano_update_key_colors(SwamiguiPiano *piano);
+
+static void  swamigui_piano_update_note_status_bar(SwamiguiStatusbar *statusbar, int note,
+                                                   int velocity);
+static void  swamigui_piano_clear_note_status_bar (SwamiguiStatusbar *statusbar);
+
 static void swamigui_piano_draw_noteon(SwamiguiPiano *piano, int note,
                                        int velocity);
 static void swamigui_piano_draw_noteoff(SwamiguiPiano *piano, int note);
@@ -867,6 +872,29 @@ swamigui_piano_update_key_colors(SwamiguiPiano *piano)
     }
 }
 
+/* display note information field in status bar */
+static
+void swamigui_piano_update_note_status_bar(SwamiguiStatusbar * statusbar, int note, int velocity)
+{
+    char midiNote[5];
+    char *statusmsg;
+    /* convert midi note to name */
+    swami_util_midi_note_to_str (note, midiNote);
+
+    statusmsg = g_strdup_printf (_("Note: %-3s (%d) Velocity: %d"), midiNote,
+                                    note, velocity);
+    swamigui_statusbar_msg_set_label (swamigui_root->statusbar, 0, "Global",
+                                      statusmsg);
+    g_free (statusmsg);
+}
+
+/* clear note information in status bar */
+static
+void swamigui_piano_clear_note_status_bar(SwamiguiStatusbar * statusbar)
+{
+    swamigui_statusbar_msg_set_label (swamigui_root->statusbar, 0, "Global", NULL);
+}
+
 static void
 swamigui_piano_draw_noteon(SwamiguiPiano *piano, int note, int velocity)
 {
@@ -918,6 +946,9 @@ swamigui_piano_draw_noteon(SwamiguiPiano *piano, int note, int velocity)
                               : piano->white_key_play_color,
                               "outline-color", NULL,
                               NULL);
+
+    /* Display "note information" field in status bar */
+    swamigui_piano_update_note_status_bar(swamigui_root->statusbar, note, velocity);
 }
 
 static void
@@ -965,17 +996,17 @@ swamigui_piano_draw_noteoff(SwamiguiPiano *piano, int note)
                               "y2", piano->shadow_top,
                               NULL);
     }
+
+    /* clear "note information" field in status bar */
+    swamigui_piano_clear_note_status_bar(swamigui_root->statusbar);
 }
 
 static void
 swamigui_piano_update_mouse_note(SwamiguiPiano *piano, double x, double y)
 {
-    static guint8 last_note = -1;		/* cache note number for statusbar */
     KeyInfo *key_info;
     double indicator_y;
     int note, velocity = 127;
-    char midiNote[5];
-    char *statusmsg;
     int *velp = NULL;
     gboolean isblack;
 
@@ -1010,15 +1041,8 @@ swamigui_piano_update_mouse_note(SwamiguiPiano *piano, double x, double y)
         indicator_y = piano->white_vel_ofs + (velocity * piano->white_vel_range
                                               / 127.0);
 
-    if(last_note != note)	/* update statusbar note value */
-    {
-        swami_util_midi_note_to_str(note, midiNote);
-        statusmsg = g_strdup_printf(_("Note: %-3s (%d) Velocity: %d"), midiNote,
-                                    note, velocity);
-        swamigui_statusbar_msg_set_label(swamigui_root->statusbar, 0, "Global",
-                                         statusmsg);
-        g_free(statusmsg);
-    }
+    /* display note information field in status bar */
+    swamigui_piano_update_note_status_bar(swamigui_root->statusbar, note, velocity);
 
     if(piano->mouse_note > 127)
     {
@@ -1092,7 +1116,8 @@ swamigui_piano_cb_event(GnomeCanvasItem *item, GdkEvent *event,
         break;
 
     case GDK_LEAVE_NOTIFY:
-        swamigui_statusbar_msg_set_label(swamigui_root->statusbar, 0, "Global", NULL);
+        /* clear note information field in status bar */
+        swamigui_piano_clear_note_status_bar(swamigui_root->statusbar);
         break;
 
     default:
