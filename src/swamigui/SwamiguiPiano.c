@@ -68,52 +68,107 @@ enum
 #define DEFAULT_WHITE_KEY_PLAY_COLOR	GNOME_CANVAS_COLOR (169, 127, 255)
 #define DEFAULT_BLACK_KEY_PLAY_COLOR	GNOME_CANVAS_COLOR (169, 127, 255)
 
+/*
+ The piano starts always on C note and ends on a white key.
+ White key width is relative to piano width and key count properties.
+ All canvas item width are relative to white key width.
+ All canvas item height are relative to piano height property.
+ White keys have same width.
+ A marker shows middle C note C4 (MIDI note 60).
+*/
 /* piano vertical line width to white key width scale */
-#define PIANO_VLINE_TO_KEY_SCALE  (1.0/5.0)
+#define PIANO_VLINE_TO_WHITE_SCALE  (1.0/10.0)
 
 /* piano horizontal line width to piano height scale */
 #define PIANO_HLINE_TO_HEIGHT_SCALE (1.0/48.0)
 
-/* piano black key height to piano height */
+/* piano black key width to white key width scale */
+#define PIANO_BLACK_TO_WHITE_SCALE  (3.0/5.0)
+
+/* piano black key height to piano height scale */
 #define PIANO_BLACK_TO_HEIGHT_SCALE (26.0/48.0)
 
 /* piano white key grey edge to piano height scale */
 #define PIANO_GREY_TO_HEIGHT_SCALE (2.0/48.0)
 
-/* piano white key indicator width to key scale */
+/* piano white key velocity indicator width to white key width scale */
 #define PIANO_WHITE_INDICATOR_WIDTH_SCALE (4.0/8.0)
 
-/* piano white key indicator height to piano height scale */
-#define PIANO_WHITE_INDICATOR_HEIGHT_SCALE (2.0/48.0)
-
-/* piano white key velocity indicator range to height scale */
+/* piano white key velocity indicator range to piano height scale */
 #define PIANO_WHITE_INDICATOR_RANGE_SCALE (18.0/48.0)
 
-/* piano white key velocity offset to height scale */
+/* piano white key velocity indicator offset to piano height scale */
 #define PIANO_WHITE_INDICATOR_OFS_SCALE (28.0/48.0)
 
 
-/* piano black key indicator width to key scale */
+/* piano black key velocity indicator width to black key width scale */
 #define PIANO_BLACK_INDICATOR_WIDTH_SCALE (3.0/5.0)
 
-/* piano black key indicator height to piano height scale */
-#define PIANO_BLACK_INDICATOR_HEIGHT_SCALE (3.0/48.0)
-
-/* piano black key velocity indicator range scale */
+/* piano black key velocity indicator range to black key height scale */
 #define PIANO_BLACK_INDICATOR_RANGE_SCALE (22.0/28.0)
 
-/* piano black key velocity offset scale */
+/* piano black key velocity indicator offset to black key height scale */
 #define PIANO_BLACK_INDICATOR_OFS_SCALE (2.0/28.0)
 
 /* piano active black key shorten scale (to look pressed down) */
 #define PIANO_BLACK_SHORTEN_SCALE (1.0/26.0)
 
+/*-----------------------------------------------------------------------------
+  Convert white key index [O..white_count-1] to MIDI note [0..key_count-1]
+*/
+/* PREV_BLACK_KEY bit indicates that a white key has a black key previous it */
+#define PREV_BLACK_KEY (1 << 7)
+
+/* table white_key_infos indexed by white key index per octave [0..6]  */
+const unsigned char  white_key_infos[7] =
+{
+  /*0                  , 1                  , 2                  , 3  */
+    0                  , PREV_BLACK_KEY | 2 , PREV_BLACK_KEY | 4 , 5 ,
+
+  /*4                  , 5                  , 6                      */
+    PREV_BLACK_KEY | 7 , PREV_BLACK_KEY | 9 , PREV_BLACK_KEY | 11
+};
+
+/* Get MIDI semitone [0..11] from white key index [0..white_count-1] */
+#define WHITE_KEY_TO_SEMITONE(iw)  (white_key_infos[(iw) % 7] & ~PREV_BLACK_KEY)
+
+/* Get MIDI note [0..key_count-1] from white key index [0..white_count-1] */
+#define WHITE_KEY_TO_NOTE(iw)  ( (((iw) / 7) * 12) + WHITE_KEY_TO_SEMITONE(iw))
+
+/* Return TRUE if white key index [0..white_count-1] has previous black key
+   before it. */
+#define IS_PREV_BLACK_KEY(iw)  (white_key_infos[(iw) % 7] & PREV_BLACK_KEY)
+
+/*-----------------------------------------------------------------------------
+  Convert MIDI note [0..key_count-1] to white key index [O..white_count-1]
+*/
+/* PREV_BLACK_KEY bit indicates that a MIDI note is black */
+#define BLACK_KEY (1 << 7)
+
+/* table indexed by MIDI semitone [0..11]  */
+const unsigned char  note_key_infos[12] =
+{
+  /* 0 , 1          , 2 , 3           , 4 , 5 , 6            */
+     0 , 1|BLACK_KEY, 1 , 2|BLACK_KEY , 2 , 3 , 4|BLACK_KEY ,
+
+  /* 7 , 8          , 9 , 10          , 11                   */
+     4 , 5|BLACK_KEY, 5 , 6|BLACK_KEY , 6
+};
+
+/* Get white key index per octave [0..6] from MIDI note [0..key_count-1] */
+#define NOTE_TO_WHITE_KEY_OCT(note)  (note_key_infos[(note) % 12] & ~BLACK_KEY)
+
+/* Get white key index [0..white_count-1] from MIDI note [0..key_count-1] */
+#define NOTE_TO_WHITE_KEY(note)  ( (((note) / 12) * 7) + NOTE_TO_WHITE_KEY_OCT(note))
+
+/* Return TRUE if MIDI note [0..key_count-1] is black */
+#define IS_NOTE_BLACK(note)  (note_key_infos[(note) % 12] & BLACK_KEY)
 
 /* a structure used for each key of a piano */
 typedef struct
 {
     GnomeCanvasItem *item; /* canvas item for keys (black and white) */
-    GnomeCanvasItem *indicator; /* indicator item (if set note is active) */
+    GnomeCanvasItem *indicator; /* velocity indicator item (if set note is active) */
     GnomeCanvasItem *shadow;	/* bottom shadow edge for white keys */
 } KeyInfo;
 
@@ -475,8 +530,6 @@ swamigui_piano_get_property(GObject *object, guint property_id,
 static void
 swamigui_piano_init(SwamiguiPiano *piano)
 {
-    int i;
-
     /* create MIDI control */
     piano->midi_ctrl = SWAMI_CONTROL(swami_control_midi_new());
     swami_control_set_queue(piano->midi_ctrl, swamigui_root->ctrl_queue);
@@ -512,19 +565,6 @@ swamigui_piano_init(SwamiguiPiano *piano)
     piano->shadow_edge_color = DEFAULT_SHADOW_EDGE_COLOR;
     piano->white_key_play_color = DEFAULT_WHITE_KEY_PLAY_COLOR;
     piano->black_key_play_color = DEFAULT_BLACK_KEY_PLAY_COLOR;
-
-    /* get the white key count for the number of keys in the piano */
-    piano->white_count = piano->key_count / 12 * 7; /* 7 whites per oct */
-    i = piano->key_count % 12; /* calculate for octave remainder (if any) */
-
-    if(i < 6)
-    {
-        piano->white_count += (i + 1) / 2;
-    }
-    else
-    {
-        piano->white_count += (i | 0x1) / 2 + 1;
-    }
 
     g_signal_connect(G_OBJECT(piano),
                      "event", G_CALLBACK(swamigui_piano_cb_event), piano);
@@ -615,35 +655,65 @@ swamigui_piano_item_realize(GnomeCanvasItem *item)
 }
 
 static void
-swamigui_piano_draw(SwamiguiPiano *piano)
+swamigui_piano_draw (SwamiguiPiano *piano)
 {
-    GnomeCanvasGroup *group = GNOME_CANVAS_GROUP(piano);
+    GnomeCanvasGroup *group = GNOME_CANVAS_GROUP (piano);
     KeyInfo *keyp;
     gboolean isblack;
     double x, x1, x2;
-    int i, mod;
+    int i;
     int vlineh1, vlineh2;
 
     /* return if not added to a canvas yet */
-    if(!GNOME_CANVAS_ITEM(piano)->canvas)
+    if (!GNOME_CANVAS_ITEM (piano)->canvas)
     {
         return;
     }
 
-    if(!piano->up2date)
+    /* initialize piano elements sizes in real world unit, on property change:
+       piano->width, piano->height, piano->key_count */
+    if (!piano->up2date)
     {
+        /* adjust key_count so that the last key be always a white key */
+        int end_note = piano->start_note + piano->key_count - 1;
+        if(IS_NOTE_BLACK(end_note))
+        {
+            piano->key_count ++; /* force last piano key to white key */
+        }
+        /* limits key_count to 128 maximum */
+        if( (piano->start_note + piano->key_count ) > 128)
+        {
+            piano->key_count = 128 - piano->start_note;
+        }
+
+        /* number of white key */
+        piano->white_count = NOTE_TO_WHITE_KEY(piano->key_count);
+
         /* convert pixel width and height to world values */
-        gnome_canvas_c2w(GNOME_CANVAS_ITEM(piano)->canvas,
-                         piano->width, piano->height,
-                         &piano->world_width, &piano->world_height);
+        gnome_canvas_c2w (GNOME_CANVAS_ITEM (piano)->canvas,
+                          piano->width, piano->height, /* pixels units */
+                          &piano->world_width, &piano->world_height); /* word units */
 
-        piano->key_width = piano->world_width / piano->key_count;
-        piano->key_width_half = piano->key_width / 2;
+        /* calculates items canvas width */
+        /* white key width */
+        piano->key_white_width = piano->world_width / piano->white_count;
+        piano->key_white_width_half = piano->key_white_width / 2;
 
-        piano->vline_width = (int)(piano->key_width * PIANO_VLINE_TO_KEY_SCALE + 0.5);
+        /* width of horizontal and vertical outline */
+        /* +0.5 values ensure that minimum width will be 1 pixel */
         piano->hline_width = (int)(piano->height * PIANO_HLINE_TO_HEIGHT_SCALE + 0.5);
 
-        /* black key dimensions */
+        piano->vline_width = (int)(piano->key_white_width * PIANO_VLINE_TO_WHITE_SCALE + 0.5);
+
+        /* calculate halves of black key_width using integer to ensure that all key
+           have same width and always >=1 */
+        piano->black_width_rh = (int)(piano->key_white_width * PIANO_BLACK_TO_WHITE_SCALE + 0.5);
+        piano->black_width_half = (double)piano->black_width_rh / 2;
+        piano->black_width_lh = piano->black_width_rh / 2; /* left half width */
+        piano->black_width_rh -=  piano->black_width_lh; /* right half width */
+
+        /* calculates items canvas height */
+        /* black key height */
         piano->black_height = piano->world_height * PIANO_BLACK_TO_HEIGHT_SCALE;
 
         /* top of grey edge */
@@ -651,147 +721,140 @@ swamigui_piano_draw(SwamiguiPiano *piano)
                             - piano->world_height * PIANO_GREY_TO_HEIGHT_SCALE;
 
         /* black key velocity range and offset cache values */
-        piano->black_vel_ofs = piano->black_height
-                               * PIANO_BLACK_INDICATOR_OFS_SCALE;
-        piano->black_vel_range = piano->black_height
-                                 * PIANO_BLACK_INDICATOR_RANGE_SCALE;
+        piano->black_vel_ofs = piano->black_height * PIANO_BLACK_INDICATOR_OFS_SCALE;
+        piano->black_vel_range = piano->black_height * PIANO_BLACK_INDICATOR_RANGE_SCALE;
 
         /* white key velocity range and offset cache values */
-        piano->white_vel_ofs = piano->world_height
-                               * PIANO_WHITE_INDICATOR_OFS_SCALE;
-        piano->white_vel_range = piano->world_height
-                                 * PIANO_WHITE_INDICATOR_RANGE_SCALE;
+        piano->white_vel_ofs = piano->world_height * PIANO_WHITE_INDICATOR_OFS_SCALE;
+        piano->white_vel_range = piano->world_height * PIANO_WHITE_INDICATOR_RANGE_SCALE;
 
         piano->up2date = TRUE;
     }
 
-    if(!piano->bg)		/* one time canvas item creation */
-        piano->bg =	/* black piano background (border & separators) */
-            gnome_canvas_item_new(group, GNOME_TYPE_CANVAS_RECT,
-                                  "x1", (double)0.0,
-                                  "y1", (double)0.0,
-                                  "fill-color-rgba", piano->bg_color,
-                                  "outline-color", NULL,
-                                  NULL);
-
-    /* create black and white keys if not already done */
-    if(!piano->key_info)
+    /* create canvas items
+       1) background rectangle. It has same size then full piano
+       2) array of key rectangles.
+    */
+    if (!piano->bg)	 /* one time canvas item creation */
     {
+        /* black piano background (border & separators) */
+        piano->bg = gnome_canvas_item_new (group, GNOME_TYPE_CANVAS_RECT,
+                                            "fill-color-rgba", piano->bg_color,
+                                            "outline-color", NULL,
+                                            NULL);
+    }
+
+    /* create array of black and white keys if not already done */
+    /* The array is build on each key_count property change */
+    if (!piano->key_info)
+    {
+        /* allocate and fill with 0. */
         piano->key_info = g_new0(KeyInfo, piano->key_count);
 
-        for(i = 0, mod = 0, isblack = FALSE; i < piano->key_count; i++, mod++)
+        for (i = 0 ; i < piano->key_count; i++)
         {
-            if(mod == 12)
-            {
-                mod = 0;    /* octave modulo */
-            }
+            isblack = IS_NOTE_BLACK(i);
 
             keyp = &((KeyInfo *)(piano->key_info))[i];
 
             /* create grey edge for white keys */
-            if(!isblack)
+            if (!isblack)
             {
                 /* bottom grey edge of white keys */
-                keyp->shadow =
-                    gnome_canvas_item_new(group, GNOME_TYPE_CANVAS_RECT,
-                                          "fill-color-rgba", piano->shadow_edge_color,
-                                          "outline-color", NULL,
-                                          NULL);
+                /* rectangle without outline */
+                keyp->shadow = gnome_canvas_item_new (group, GNOME_TYPE_CANVAS_RECT,
+                                   "fill-color-rgba", piano->shadow_edge_color,
+                                   NULL);
             }
 
-            keyp->item = gnome_canvas_item_new(group, GNOME_TYPE_CANVAS_RECT,
-                                               "fill-color-rgba",
-                                               isblack ? piano->black_key_color
-                                               : piano->white_key_color,
-                                               NULL);
+            /* black or white key rectangle (without outline) */
+            keyp->item = gnome_canvas_item_new (group, GNOME_TYPE_CANVAS_RECT,
+                                  "fill-color-rgba",
+                                  isblack ? piano->black_key_color
+                                  : piano->white_key_color,
+                                  NULL);
 
             /* lower white keys one step (so previous black key is above it) */
-            if(i > 0 && !isblack)
+            if (i > 0 && !isblack)
             {
-                gnome_canvas_item_lower(keyp->item, 2);
-                gnome_canvas_item_lower(keyp->shadow, 2);
-            }
-
-            if(mod != 4 && mod != 11)
-            {
-                isblack ^= 1;
+                gnome_canvas_item_lower (keyp->item, 2);
+                gnome_canvas_item_lower (keyp->shadow, 2);
             }
         }
     }
 
-    gnome_canvas_item_set(piano->bg,  /* set background size */
+    /* C median marker rectangle (without outline) */
+    if (!piano->median_c)  /* one time canvas item creation */
+    {
+        piano->median_c = gnome_canvas_item_new (group, GNOME_TYPE_CANVAS_RECT,
+                                  "fill-color-rgba", piano->bg_color,
+                                   NULL);
+    }
+
+    /*  Draw canvas items to new x,y coordinates ----------------------------*/
+    gnome_canvas_item_set (piano->bg, /* set background size */
                           "x2", piano->world_width,
                           "y2", piano->world_height,
-                          NULL);
+                           NULL);
 
-    /* calculate halves of vline_width */
-    vlineh1 = (int)(piano->vline_width + 0.5);
-    vlineh2 = vlineh1 / 2;
-    vlineh1 -= vlineh2;
+    /* calculate halves of vline_width using integer to ensure that all lines have
+       same width */
+    vlineh1 = (int)(piano->vline_width);
+    vlineh2 = vlineh1 / 2; /* left half width vertical line (outline) */
+    vlineh1 -= vlineh2;    /* right half width vertical line (outline) */
 
-    for(i = 0, mod = 0, isblack = FALSE; i < piano->key_count; i++, mod++)
+    for (i = 0 ; i < piano->white_count; i++)
     {
-        if(mod == 12)
+        int note = WHITE_KEY_TO_NOTE(i);
+        keyp = &((KeyInfo *)(piano->key_info))[note];
+        /* current x value */
+        x = i * piano->world_width / piano->white_count;
+
+        if (IS_PREV_BLACK_KEY(i))  /* white key has a black key before it ? */
         {
-            mod = 0;    /* octave modulo */
+            keyp--;
+            gnome_canvas_item_set (keyp->item,
+                                   "x1", x - piano->black_width_lh,
+                                   "x2", x + piano->black_width_rh,
+
+                                   "y1", piano->hline_width,
+                                   "y2", piano->black_height,
+                                   NULL);
+            keyp++;
+        }
+        /* first half vertical line is shifted to the right */
+        x1 = x + vlineh1;
+        /* second half vertical line is shifted to the left */
+        x2 = x + piano->key_white_width - vlineh2;
+        if( i == piano->white_count-1)
+        {
+            x2-= 1.0;
         }
 
-        keyp = &((KeyInfo *)(piano->key_info))[i];
-        x = i * piano->world_width / piano->key_count;
+        gnome_canvas_item_set (keyp->item,
+                 "x1", x1,
+                 "x2", x2,
+                 "y1", piano->hline_width, /* shift down for upper horizontal outline */
+				 "y2", piano->shadow_top,  /* top y of shadow rectangle */
+				 NULL);
+        gnome_canvas_item_set (keyp->shadow,
+                 "x1", x1,
+                 "x2", x2,
+                 "y1", piano->shadow_top, /* top y of shadow rectangle */
+                 "y2", piano->world_height - piano->hline_width, /* bottom y of shadow rectangle */
+                 NULL);
 
-        if(isblack)	/* key is black? */
+        /*  marker C middle */
+        if( (note + piano->start_note) == 60 )
         {
-            gnome_canvas_item_set(keyp->item,
-                                  "x1", x,
-                                  "x2", x + piano->key_width,
-                                  "y1", piano->hline_width,
-                                  "y2", piano->black_height,
-                                  NULL);
-        }
-        else	/* white key */
-        {
-            if(mod == 0 || mod == 5)
-            {
-                x1 = x;
-            }
-            else
-            {
-                x1 = x - piano->key_width_half;
-            }
-
-            if(mod == 4 || mod == 11)
-            {
-                x2 = x + piano->key_width;
-            }
-            else if(i != piano->key_count - 1)
-            {
-                x2 = x + piano->key_width + piano->key_width_half;
-            }
-            else
-            {
-                x2 = x + piano->key_width - 1.0;
-            }
-
-            x1 += vlineh1;
-            x2 -= vlineh2;
-
-            gnome_canvas_item_set(keyp->item,
-                                  "x1", x1,
-                                  "x2", x2,
-                                  "y1", piano->hline_width,
-                                  "y2", piano->shadow_top,
-                                  NULL);
-            gnome_canvas_item_set(keyp->shadow,
-                                  "x1", x1,
-                                  "x2", x2,
-                                  "y1", piano->shadow_top,
-                                  "y2", piano->world_height - piano->hline_width,
-                                  NULL);
-        }
-
-        if(mod != 4 && mod != 11)
-        {
-            isblack ^= 1;
+            double w = piano->key_white_width_half * PIANO_WHITE_INDICATOR_WIDTH_SCALE;
+            x+= piano->key_white_width_half;
+            gnome_canvas_item_set (piano->median_c,
+                            "x1", x - w,
+                            "x2", x + w,
+                            "y1", piano->hline_width,  /* shift down for upper horizontal outline */
+                            "y2",  3 * piano->hline_width, /* bottom */
+                            NULL);
         }
     }
 }
@@ -833,41 +896,38 @@ swamigui_piano_destroy_keys(SwamiguiPiano *piano)
 }
 
 /* Update the color of keys.
- * keytype: 0 = white, 1 = black, 2 = grey edge */
+ * keytype: white key , black key, shadow edge
+ * Called on following  property change:
+ * PROP_WHITE_KEY_COLOR, PROP_BLACK_KEY_COLOR, PROP_SHADOW_EDGE_COLOR
+ */
 static void
-swamigui_piano_update_key_colors(SwamiguiPiano *piano)
+swamigui_piano_update_key_colors (SwamiguiPiano *piano)
 {
     KeyInfo *keyp;
-    gboolean isblack;
-    int i, mod;
+    int i;
 
-    for(i = 0, mod = 0, isblack = FALSE; i < piano->key_count; i++, mod++)
+    for (i = 0; i < piano->key_count; i++)
     {
-        if(mod == 12)
-        {
-            mod = 0;    /* octave modulo */
-        }
-
         keyp = &((KeyInfo *)(piano->key_info))[i];
 
-        if(!isblack)
+        if (!IS_NOTE_BLACK(i))
         {
-            if(keyp->item)
-                g_object_set(keyp->item, "fill-color-rgba", piano->white_key_color,
-                             NULL);
+            if (keyp->item)
+            {
+                g_object_set(keyp->item, "fill-color-rgba",
+                             piano->white_key_color, NULL);
+            }
 
-            if(keyp->shadow)
-                g_object_set(keyp->shadow, "fill-color-rgba", piano->shadow_edge_color,
-                             NULL);
+            if (keyp->shadow)
+            {
+                g_object_set(keyp->shadow, "fill-color-rgba",
+                             piano->shadow_edge_color, NULL);
+            }
         }
-        else if(keyp->item)
+        else if (keyp->item)
         {
-            g_object_set(keyp->item, "fill-color-rgba", piano->black_key_color, NULL);
-        }
-
-        if(mod != 4 && mod != 11)
-        {
-            isblack ^= 1;
+            g_object_set(keyp->item, "fill-color-rgba",
+                         piano->black_key_color, NULL);
         }
     }
 }
@@ -918,7 +978,7 @@ swamigui_piano_draw_noteon(SwamiguiPiano *piano, int note, int velocity)
                               NULL);
 
         /* calculate size and velocity position of white key indicator */
-        w = piano->key_width_half * PIANO_WHITE_INDICATOR_WIDTH_SCALE;
+        w = piano->key_white_width_half * PIANO_WHITE_INDICATOR_WIDTH_SCALE;
         vel = velocity * piano->white_vel_range / 127.0 + piano->white_vel_ofs;
     }
     else				/* black key */
@@ -931,7 +991,7 @@ swamigui_piano_draw_noteon(SwamiguiPiano *piano, int note, int velocity)
                               NULL);
 
         /* calculate size and velocity position of black key indicator */
-        w = piano->key_width_half * PIANO_BLACK_INDICATOR_WIDTH_SCALE;
+        w = piano->black_width_half * PIANO_BLACK_INDICATOR_WIDTH_SCALE;
         vel = velocity * piano->black_vel_range / 127.0 + piano->black_vel_ofs;
     }
 
@@ -955,8 +1015,7 @@ static void
 swamigui_piano_draw_noteoff(SwamiguiPiano *piano, int note)
 {
     KeyInfo *key_info;
-    int note_ofs, mod;
-    gboolean black;
+    int note_ofs;
 
     /* get key info structure for note */
     note_ofs = note - piano->start_note;
@@ -972,18 +1031,7 @@ swamigui_piano_draw_noteoff(SwamiguiPiano *piano, int note)
     key_info->indicator = NULL;
 
     /* determine if key is black or white */
-    mod = note % 12;
-
-    if(mod <= 4)
-    {
-        black = mod & 1;
-    }
-    else
-    {
-        black = !(mod & 1);
-    }
-
-    if(black)
+    if (IS_NOTE_BLACK(note_ofs))
     {
         /* reset black key back to normal length */
         gnome_canvas_item_set(GNOME_CANVAS_ITEM(key_info->item),
@@ -1005,7 +1053,6 @@ static void
 swamigui_piano_update_mouse_note(SwamiguiPiano *piano, double x, double y)
 {
     KeyInfo *key_info;
-    double indicator_y;
     int note, velocity = 127;
     int *velp = NULL;
     gboolean isblack;
@@ -1032,15 +1079,6 @@ swamigui_piano_update_mouse_note(SwamiguiPiano *piano, double x, double y)
     note = swamigui_piano_pos_to_note(piano, x, y, velp, &isblack);
     note = CLAMP(note, 0, 127);	/* force clamp note */
 
-    key_info = &((KeyInfo *)(piano->key_info))[note];
-
-    if(isblack)
-        indicator_y = piano->black_vel_ofs + (velocity * piano->black_vel_range
-                                              / 127.0);
-    else
-        indicator_y = piano->white_vel_ofs + (velocity * piano->white_vel_range
-                                              / 127.0);
-
     /* display note information field in status bar */
     swamigui_piano_update_note_status_bar(swamigui_root->statusbar, note, velocity);
 
@@ -1057,6 +1095,19 @@ swamigui_piano_update_mouse_note(SwamiguiPiano *piano, double x, double y)
     }
     else				/* same note, update indicator for velocity */
     {
+        double indicator_y;
+        key_info = &((KeyInfo *)(piano->key_info))[note];
+
+        if(isblack)
+        {
+            indicator_y = piano->black_vel_ofs + (velocity * piano->black_vel_range
+                                                  / 127.0);
+        }
+        else
+        {
+            indicator_y = piano->white_vel_ofs + (velocity * piano->white_vel_range
+                                                  / 127.0);
+        }
         gnome_canvas_item_set(key_info->indicator,
                               "y2", indicator_y, NULL);
     }
@@ -1252,84 +1303,83 @@ swamigui_piano_note_off_internal(SwamiguiPiano *piano, int note, int velocity)
  * Returns: The MIDI note number or -1 if not a valid key.
  */
 int
-swamigui_piano_pos_to_note(SwamiguiPiano *piano, double x, double y,
-                           int *velocity, gboolean *isblack)
+swamigui_piano_pos_to_note (SwamiguiPiano *piano, double x, double y,
+			    int *velocity, gboolean *isblack)
 {
-    gboolean black;
-    gdouble keyofs;
-    int note, mod;
-
-    g_return_val_if_fail(SWAMIGUI_IS_PIANO(piano), -1);
+    gboolean black = FALSE;
+    int note;
+    int iw; /* white index */
+    g_return_val_if_fail (SWAMIGUI_IS_PIANO (piano), -1);
 
     /* within piano bounds? */
-    if(x < 0.0 || x > piano->world_width || y < 0.0 || y > piano->world_height)
+    if (x < 0.0 || x > piano->world_width || y < 0.0 || y > piano->world_height)
     {
         return (-1);
     }
 
-    /* calculate note */
-    note = (int)(x / piano->key_width);
+    /* calculate index white note */
+    iw = (int)(x / piano->key_white_width);
 
-    if(note >= piano->key_count)
+    if (iw >= piano->white_count)
     {
-        note = piano->key_count - 1;
+        iw = piano->white_count - 1;
     }
 
-    mod = note % 12;
-    black = (mod == 1 || mod == 3 || mod == 6 || mod == 8 || mod == 10);
-
-    if(black && y > piano->black_height)	/* select white key, if below black keys */
+    note = WHITE_KEY_TO_NOTE(iw);
+    if (y <= piano->black_height)
     {
-        keyofs = x - (note * piano->key_width);
+        /* y is above white key zone */
+        double xw = iw * piano->key_white_width;
 
-        if(keyofs >= piano->key_width_half)
+        if(IS_PREV_BLACK_KEY(iw))
         {
-            note++;
-
-            if(note >= piano->key_count)
+            if((xw + piano->black_width_rh) >= x)
             {
-                note = piano->key_count - 1;
+                note--;
+                black = TRUE;
             }
+        }
+        if ((iw < piano->white_count - 1) &&  IS_PREV_BLACK_KEY(iw+1))
+        {
+            if((xw + piano->key_white_width - piano->black_width_lh) <= x)
+            {
+                note++;
+                black = TRUE;
+            }
+        }
+    }
+
+    /* compute velocity */
+    if (velocity)
+    {
+        double vel_ofs, vel_range;
+        if (black)
+        {
+            vel_ofs = piano->black_vel_ofs;
+            vel_range = piano->black_vel_range;
         }
         else
         {
-            note--;
+            vel_ofs = piano->white_vel_ofs;
+            vel_range = piano->white_vel_range;
         }
-
-        black = FALSE;
-    }
-
-    if(velocity)
-    {
-        if(black)
+        if (y < vel_ofs)
         {
-            if(y < piano->black_vel_ofs)
-            {
-                *velocity = 1;
-            }
-            else if(y > piano->black_vel_ofs + piano->black_vel_range)
-            {
-                *velocity = 127;
-            }
-            else *velocity = (int)(1.0 + (y - piano->black_vel_ofs)
-                                       / (piano->black_vel_range) * 126.0 + 0.5);
+            *velocity = 1;
         }
-        else			/* white key */
+        else if (y > vel_ofs + vel_range)
         {
-            if(y < piano->white_vel_ofs)
-            {
-                *velocity = 1;
-            }
-            else if(y > piano->white_vel_ofs + piano->white_vel_range)
-            {
-                *velocity = 127;
-            }
-            else *velocity = (int)(1.0 + (y - piano->white_vel_ofs)
-                                       / (piano->white_vel_range) * 126.0 + 0.5);
+            *velocity = 127;
+        }
+        else
+        {
+            *velocity = (int) (1.0 + (y - vel_ofs)
+                        / vel_range * 126.0 + 0.5);
         }
     }
 
-    if(isblack)
+    /* return black or white type  key */
+    if (isblack)
     {
         *isblack = black;
     }
@@ -1351,92 +1401,74 @@ swamigui_piano_pos_to_note(SwamiguiPiano *piano, double x, double y,
  * Returns: X canvas coordinate of @note for the specified @edge.
  */
 double
-swamigui_piano_note_to_pos(SwamiguiPiano *piano, int note, int edge,
-                           gboolean realnote, gboolean *isblack)
+swamigui_piano_note_to_pos (SwamiguiPiano *piano, int note, int edge,
+                            gboolean realnote, gboolean *isblack)
 {
-    int noteofs;
+    int noteofs, iw;
     double pos;
     gboolean black;
-    int mod;
 
-    g_return_val_if_fail(SWAMIGUI_IS_PIANO(piano), 0.0);
-    g_return_val_if_fail(note >= piano->start_note, 0.0);
+    g_return_val_if_fail (SWAMIGUI_IS_PIANO (piano), 0.0);
+    g_return_val_if_fail (note >= piano->start_note, 0.0);
 
     noteofs = note - piano->start_note;
-    g_return_val_if_fail(noteofs < piano->key_count, 0.0);
+    g_return_val_if_fail (noteofs < piano->key_count, 0.0);
 
-    /* calculate position to note */
-    pos = noteofs * piano->world_width / piano->key_count;
+    /* calculate note to position */
+    /* white key left edge  or back key center */
+    iw = NOTE_TO_WHITE_KEY(noteofs);
+    pos = iw * piano->world_width / piano->white_count;
 
-    mod = note % 12;
-    black = (mod == 1 || mod == 3 || mod == 6 || mod == 8 || mod == 10);
+    black = IS_NOTE_BLACK(noteofs);
 
-    if(!realnote || black)	/* active area request or black key? */
+    if (black) /* black key */
     {
-        /* active area is equal for all keys and black keys are equal to active area */
-        if(edge == 0)
+        /* key right edge */
+        if (edge == 1)
         {
-            pos += piano->key_width_half;
+            pos += piano->black_width_rh;
         }
-        else if(edge == 1)
+        /* key left edge */
+        else if(edge == -1)
         {
-            pos += piano->key_width;
-
-            if(noteofs == piano->key_count - 1)
+            pos -= piano->black_width_lh;
+        }
+    }
+    else /* white key */
+    {
+        /* key left edge */
+        if (edge == -1)
+        {
+            /* active area request ? */
+		    if (!realnote && IS_PREV_BLACK_KEY(iw))
+            {
+                pos += piano->black_width_rh;
+            }
+        }
+        /* key center */
+        else if (edge == 0)
+        {
+            pos +=  piano->key_white_width_half;
+        }
+        /* right edge */
+        else
+        {
+            pos +=  piano->key_white_width;
+            if (noteofs == piano->key_count - 1)
             {
                 pos -= 1.0;
             }
-        }
-    }
-    else		/* white key */
-    {
-        if(edge == -1)
-        {
-            if(mod != 0 && mod != 5)
+            /* active area request ? */
+            else if (!realnote && IS_PREV_BLACK_KEY(iw + 1))
             {
-                pos -= piano->key_width_half;
-            }
-        }
-        else if(edge == 0)
-        {
-            if(mod == 0 || mod == 5)
-            {
-                pos += (piano->key_width + piano->key_width_half) / 2.0;
-            }
-            else if(mod == 4 || mod == 11 || noteofs == piano->key_count - 1)
-            {
-                pos += piano->key_width_half / 2.0;
-            }
-            else
-            {
-                pos += piano->key_width_half;
-            }
-        }
-        else
-        {
-            if(mod == 0 || mod == 5)
-            {
-                pos += piano->key_width + piano->key_width_half;
-            }
-            else if(mod == 4 || mod == 11)
-            {
-                pos += piano->key_width;
-            }
-            else if(noteofs != piano->key_count - 1)
-            {
-                pos += piano->key_width + piano->key_width_half;
-            }
-            else
-            {
-                pos += piano->key_width - 1.0;
+                pos -= piano->black_width_lh;
             }
         }
     }
 
-    if(isblack)
+    if (isblack)
     {
         *isblack = black;
     }
-
     return (pos);
 }
