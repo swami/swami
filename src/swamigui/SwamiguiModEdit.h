@@ -62,6 +62,8 @@ struct _SwamiguiModEdit
     GtkTreeStore *dest_store;	/* destination combo box tree store */
 
     GtkListStore *src_store;      /* Source control list store */
+
+    GtkListStore *amt_store;      /* Amount source control list store */
 };
 
 struct _SwamiguiModEditClass
