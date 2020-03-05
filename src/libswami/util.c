@@ -102,6 +102,19 @@ swami_util_free_value(GValue *value)
     g_slice_free(GValue, value);
 }
 
+/*
+   MIDI_TO_MUSIC_OFFSET is the offset between music octave number and MIDI
+   Actually this offset leads to diapason note A4 (music octave 4) beeing MIDI
+   note 69 (MIDI octave 5).
+*/
+#define MIDI_TO_MUSIC_OFFSET (-1)
+
+/* MIDI_TO_MUSIC_OCT returns a "music octave number" from a "MIDI octave numer" */
+#define MIDI_TO_MUSIC_OCT(midi_oct) ((midi_oct) + MIDI_TO_MUSIC_OFFSET )
+
+/* MUSIC_TO_MIDI_OCT returns a "MIDI octave number" from a "music octave numer" */
+#define MUSIC_TO_MIDI_OCT(music_oct) ((music_oct) -  MIDI_TO_MUSIC_OFFSET)
+
 /**
  * swami_util_midi_note_to_str:
  * @note: MIDI note number (0-127)
@@ -117,7 +130,8 @@ swami_util_midi_note_to_str(int note, char *str)
     g_return_if_fail(note >= 0 && note <= 127);
 
     strcpy(str, notes[note % 12]);
-    sprintf(octavestr, "%d", note / 12 - 2);	/* C0 is actually note 24 */
+    /* C0 is actually note 12 */
+    sprintf (octavestr, "%d", MIDI_TO_MUSIC_OCT(note / 12));
     strcat(str, octavestr);
 }
 
@@ -125,21 +139,24 @@ swami_util_midi_note_to_str(int note, char *str)
  * swami_util_midi_str_to_note:
  * @str: String to parse as a MIDI note
  *
- * Parse a string in the form "[A-Ga-g][b#]n" or "0"-"127" as a MIDI note.
- * Where 'n' is the octave number between -2 and 8. '#' is used to indicate
- * "sharp".  'b' means "flat".  Examples: "C3" is middle C (note 60),
- * "F#-2" is note 5, "Db-2" is the same as "C#-2" (note 0).  Any chars
- * following a valid MIDI note string are ignored.
+ * Parse a string in the form "0"-"127" as a MIDI note or
+ * a note name in the form  "[A-G|a-g][b#]n".
+ * Where 'n' is the octave number between -1 and 9. '#' is used to indicate
+ * "sharp".  'b' means "flat".  Examples:
+ *    "C4" is middle C (note 60),
+ *    "F#-1" is note 5, "Db-1" is the same as "C#-1" (note 1).
+ *
+ * Any chars following a valid MIDI note string are ignored.
  *
  * Returns: The MIDI note # or -1 on error (str is malformed).
- */
+*/
 int
 swami_util_midi_str_to_note(const char *str)
 {
     guint8 octofs[7] = { 9, 11, 0, 2, 4, 5, 7 };	/* octave offset for A-G */
     char *endptr;
     long int l;
-    int note;
+    int note, oct_sign, music_oct;
     char c;
 
     g_return_val_if_fail(str != NULL, -1);
@@ -190,26 +207,24 @@ swami_util_midi_str_to_note(const char *str)
         return (-1);
     }
 
-    if(c == '-')
+    /* Get octave number */
+    if (c == '-')
     {
         c = *str++;
-
-        if(c == '1')
-        {
-            note += 12;
-        }
-        else if(c != '2')
-        {
-            return (-1);
-        }
-    }
-    else if((c >= '0' && c <= '8'))	/* Only 1 digit? */
-    {
-        note += (c - '0') * 12 + 24;
+        oct_sign = -1;
     }
     else
     {
-        return (-1);
+        oct_sign = +1;
+    }
+    if( c >= '0' && c <= '9') /* Only 1 digit? */
+    {
+        music_oct = (c - '0') * oct_sign;
+        note += MUSIC_TO_MIDI_OCT(music_oct) * 12;
+    }
+    else
+    {
+        return -1;
     }
 
     if(note >= 0 && note <= 127)

@@ -58,6 +58,7 @@ struct _SwamiguiPiano
     int width, height;		/* width and height in pixels */
     gpointer key_info; /* array of KeyInfo structures (see SwamiguiPiano.c) */
     GnomeCanvasItem *bg;		/* black background (outline/separators) */
+    GnomeCanvasItem *median_c;  /* median C marker */
     guint8 key_count;		/* number of keys */
     guint8 start_note;		/* note piano starts on (always note C) */
     guint8 lower_octave;		/* lower computer keyboard octave # */
@@ -65,14 +66,16 @@ struct _SwamiguiPiano
     guint8 lower_velocity;	/* lower keyboard velocity */
     guint8 upper_velocity;	/* upper keyboard velocity */
     guint8 mouse_note;		/* mouse selected note >127 = none */
-    guint8 reserved;
 
     /* cached values */
-    int white_count;
+    int white_count;        /* number of white key  */
     gboolean up2date;		/* are variables below up to date? */
     double world_width, world_height;
-    double key_width, key_width_half;
     double shadow_top;
+
+    double key_white_width, key_white_width_half;
+    double black_width_half;
+    int black_width_lh, black_width_rh;
     double black_height;
     double vline_width, hline_width;
     double black_vel_ofs, black_vel_range;
