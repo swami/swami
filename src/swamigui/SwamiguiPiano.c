@@ -189,7 +189,8 @@ static void swamigui_piano_draw(SwamiguiPiano *piano);
 static void swamigui_piano_destroy_keys(SwamiguiPiano *piano);
 static void swamigui_piano_update_key_colors(SwamiguiPiano *piano);
 
-static void  swamigui_piano_update_note_status_bar(SwamiguiStatusbar *statusbar, int note,
+static void  swamigui_piano_update_note_status_bar(SwamiguiStatusbar *statusbar,
+                                                   int note,
                                                    int velocity);
 static void  swamigui_piano_clear_note_status_bar (SwamiguiStatusbar *statusbar);
 
@@ -315,25 +316,29 @@ swamigui_piano_class_init(SwamiguiPianoClass *klass)
                                             _("MIDI channel to send events on"),
                                             0, 15, 0, G_PARAM_READWRITE));
     g_object_class_install_property(obj_class, PROP_BG_COLOR,
-                                    ipatch_param_set(g_param_spec_uint("bg-color", _("Background color"),
+                                    ipatch_param_set(g_param_spec_uint("bg-color",
+                                            _("Background color"),
                                             _("Color of border and between white keys"),
                                             0, G_MAXUINT, DEFAULT_BG_COLOR,
                                             G_PARAM_READWRITE),
                                             "unit-type", SWAMIGUI_UNIT_RGBA_COLOR, NULL));
     g_object_class_install_property(obj_class, PROP_WHITE_KEY_COLOR,
-                                    ipatch_param_set(g_param_spec_uint("white-key-color", _("White key color"),
+                                    ipatch_param_set(g_param_spec_uint("white-key-color",
+                                            _("White key color"),
                                             _("White key color"),
                                             0, G_MAXUINT, DEFAULT_WHITE_KEY_COLOR,
                                             G_PARAM_READWRITE),
                                             "unit-type", SWAMIGUI_UNIT_RGBA_COLOR, NULL));
     g_object_class_install_property(obj_class, PROP_BLACK_KEY_COLOR,
-                                    ipatch_param_set(g_param_spec_uint("black-key-color", _("Black key color"),
+                                    ipatch_param_set(g_param_spec_uint("black-key-color",
+                                            _("Black key color"),
                                             _("Black key color"),
                                             0, G_MAXUINT, DEFAULT_BLACK_KEY_COLOR,
                                             G_PARAM_READWRITE),
                                             "unit-type", SWAMIGUI_UNIT_RGBA_COLOR, NULL));
     g_object_class_install_property(obj_class, PROP_SHADOW_EDGE_COLOR,
-                                    ipatch_param_set(g_param_spec_uint("shadow-edge-color", _("Shadow edge color"),
+                                    ipatch_param_set(g_param_spec_uint("shadow-edge-color",
+                                            _("Shadow edge color"),
                                             _("Bottom shadow edge color"),
                                             0, G_MAXUINT, DEFAULT_SHADOW_EDGE_COLOR,
                                             G_PARAM_READWRITE),
@@ -739,9 +744,9 @@ swamigui_piano_draw(SwamiguiPiano *piano)
     {
         /* black piano background (border & separators) */
         piano->bg = gnome_canvas_item_new (group, GNOME_TYPE_CANVAS_RECT,
-                                            "fill-color-rgba", piano->bg_color,
-                                            "outline-color", NULL,
-                                            NULL);
+                                           "fill-color-rgba", piano->bg_color,
+                                           "outline-color", NULL,
+                                           NULL);
     }
 
     /* create array of black and white keys if not already done */
@@ -769,10 +774,10 @@ swamigui_piano_draw(SwamiguiPiano *piano)
 
             /* black or white key rectangle (without outline) */
             keyp->item = gnome_canvas_item_new(group, GNOME_TYPE_CANVAS_RECT,
-                                  "fill-color-rgba",
-                                  isblack ? piano->black_key_color
-                                  : piano->white_key_color,
-                                  NULL);
+                                               "fill-color-rgba",
+                                               isblack ? piano->black_key_color
+                                               : piano->white_key_color,
+                                               NULL);
 
             /* lower white keys one step (so previous black key is above it) */
             if (i > 0 && !isblack)
@@ -787,15 +792,15 @@ swamigui_piano_draw(SwamiguiPiano *piano)
     if(!piano->median_c)  /* one time canvas item creation */
     {
         piano->median_c = gnome_canvas_item_new(group, GNOME_TYPE_CANVAS_RECT,
-                                  "fill-color-rgba", piano->bg_color,
-                                   NULL);
+                                            "fill-color-rgba", piano->bg_color,
+                                            NULL);
     }
 
     /*  Draw canvas items to new x,y coordinates ----------------------------*/
     gnome_canvas_item_set(piano->bg, /* set background size */
                           "x2", piano->world_width,
                           "y2", piano->world_height,
-                           NULL);
+                          NULL);
 
     /* calculate halves of vline_width using integer to ensure that all lines have
        same width */
@@ -819,7 +824,7 @@ swamigui_piano_draw(SwamiguiPiano *piano)
 
                                   "y1", piano->hline_width,
                                   "y2", piano->black_height,
-                                   NULL);
+                                  NULL);
             keyp++;
         }
         /* first half vertical line is shifted to the right */
@@ -832,17 +837,21 @@ swamigui_piano_draw(SwamiguiPiano *piano)
         }
 
         gnome_canvas_item_set(keyp->item,
-                 "x1", x1,
-                 "x2", x2,
-                 "y1", piano->hline_width, /* shift down for upper horizontal outline */
-				 "y2", piano->shadow_top,  /* top y of shadow rectangle */
-				 NULL);
+                              "x1", x1,
+                              "x2", x2,
+                              /* shift down for upper horizontal outline */
+                              "y1", piano->hline_width,
+                              /* shift down for upper horizontal outline */
+                              "y2", piano->shadow_top,
+                              NULL);
         gnome_canvas_item_set(keyp->shadow,
-                 "x1", x1,
-                 "x2", x2,
-                 "y1", piano->shadow_top, /* top y of shadow rectangle */
-                 "y2", piano->world_height - piano->hline_width, /* bottom y of shadow rectangle */
-                 NULL);
+                              "x1", x1,
+                              "x2", x2,
+                              /* top y of shadow rectangle */
+                              "y1", piano->shadow_top,
+                              /* top y of shadow rectangle */
+                              "y2", piano->world_height - piano->hline_width,
+                              NULL);
 
         /*  marker C middle */
         if((note + piano->start_note) == 60)
@@ -850,11 +859,13 @@ swamigui_piano_draw(SwamiguiPiano *piano)
             double w = piano->key_white_width_half * PIANO_WHITE_INDICATOR_WIDTH_SCALE;
             x+= piano->key_white_width_half;
             gnome_canvas_item_set(piano->median_c,
-                            "x1", x - w,
-                            "x2", x + w,
-                            "y1", piano->hline_width,  /* shift down for upper horizontal outline */
-                            "y2",  3 * piano->hline_width, /* bottom */
-                            NULL);
+                                  "x1", x - w,
+                                  "x2", x + w,
+                                  /* top y of shadow rectangle */
+                                  "y1", piano->hline_width,
+                                  /* top y of shadow rectangle */
+                                  "y2",  3 * piano->hline_width, /* bottom */
+                                  NULL);
         }
     }
 }
@@ -952,7 +963,7 @@ void swamigui_piano_update_note_status_bar(SwamiguiStatusbar * statusbar, int no
 static
 void swamigui_piano_clear_note_status_bar(SwamiguiStatusbar * statusbar)
 {
-    swamigui_statusbar_msg_set_label (swamigui_root->statusbar, 0, "Global", NULL);
+    swamigui_statusbar_msg_set_label(swamigui_root->statusbar, 0, "Global", NULL);
 }
 
 static void
@@ -970,7 +981,7 @@ swamigui_piano_draw_noteon(SwamiguiPiano *piano, int note, int velocity)
 
     pos = swamigui_piano_note_to_pos(piano, note, 0, TRUE, &black);
 
-    if(!black)		/* white key? */
+    if(!black) /* white key? */
     {
         /* lengthen white key to make it look pressed down */
         gnome_canvas_item_set(GNOME_CANVAS_ITEM(key_info->item),
@@ -981,7 +992,7 @@ swamigui_piano_draw_noteon(SwamiguiPiano *piano, int note, int velocity)
         w = piano->key_white_width_half * PIANO_WHITE_INDICATOR_WIDTH_SCALE;
         vel = velocity * piano->white_vel_range / 127.0 + piano->white_vel_ofs;
     }
-    else				/* black key */
+    else /* black key */
     {
         /* shorten black key to make it look pressed down */
         gnome_canvas_item_set(GNOME_CANVAS_ITEM(key_info->item),
@@ -1080,11 +1091,12 @@ swamigui_piano_update_mouse_note(SwamiguiPiano *piano, double x, double y)
     note = CLAMP(note, 0, 127);	/* force clamp note */
 
     /* display note information field in status bar */
-    swamigui_piano_update_note_status_bar(swamigui_root->statusbar, note, velocity);
+    swamigui_piano_update_note_status_bar(swamigui_root->statusbar, note,
+                                          velocity);
 
     if(piano->mouse_note > 127)
     {
-        return;    /* if mouse note play not active, we done */
+        return; /* if mouse note play not active, we done */
     }
 
     if(note != piano->mouse_note)  /* note changed? */
@@ -1093,7 +1105,7 @@ swamigui_piano_update_mouse_note(SwamiguiPiano *piano, double x, double y)
         piano->mouse_note = note;
         swamigui_piano_note_on(piano, note, velocity);  /* new note on */
     }
-    else				/* same note, update indicator for velocity */
+    else /* same note, update indicator for velocity */
     {
         double indicator_y;
         key_info = &((KeyInfo *)(piano->key_info))[note];
