@@ -121,7 +121,9 @@ struct _SwamiPluginClass
 };
 
 /* magic string to check sanity of plugins */
-//#define SWAMI_PLUGIN_MAGIC GUINT_FROM_BE(0x53574D49)
+/* SWAMI_PLUGIN_MAGIC . Magic signature required by swami plugin system.
+   The string size must be 4 char.
+*/
 #define SWAMI_PLUGIN_MAGIC "SWMI"
 
 struct _SwamiPluginInfo
@@ -136,7 +138,7 @@ struct _SwamiPluginInfo
 #define SWAMI_PLUGIN_INFO(init, exit)	\
 SwamiPluginInfo swami_plugin_info =	\
 {					\
-  SWAMI_PLUGIN_MAGIC,			\
+  {'S','W','M','I'},			\
   SWAMI_VERSION,			\
   init,					\
   exit					\
