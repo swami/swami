@@ -128,7 +128,7 @@ struct _SwamiPluginClass
 
 struct _SwamiPluginInfo
 {
-    char magic[5];		/* magic string to ensure sanity */
+    char magic[4];		/* magic string to ensure sanity */
     char *swami_version;		/* version of Swami plugin compiled for */
     SwamiPluginInitFunc init;	/* called to initialize plugin */
     SwamiPluginExitFunc exit;	/* called before plugin is unloaded */
@@ -138,7 +138,7 @@ struct _SwamiPluginInfo
 #define SWAMI_PLUGIN_INFO(init, exit)	\
 SwamiPluginInfo swami_plugin_info =	\
 {					\
-  SWAMI_PLUGIN_MAGIC,			\
+  {'S','W','M','I'},			\
   SWAMI_VERSION,			\
   init,					\
   exit					\
