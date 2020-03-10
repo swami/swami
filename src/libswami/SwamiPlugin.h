@@ -122,7 +122,7 @@ struct _SwamiPluginClass
 
 /* magic string to check sanity of plugins */
 /* SWAMI_PLUGIN_MAGIC . Magic signature required by swami plugin system.
-   The string should be 4 char maximum.	
+   The string size must be 4 char.
 */
 #define SWAMI_PLUGIN_MAGIC "SWMI"
 
