@@ -1024,6 +1024,7 @@ swamigui_root_quit(SwamiguiRoot *root)
     int quit_confirm;
     char *s;
 
+    /* Look among "patch items" if one of them has been changed */
     list = swami_root_get_patch_items(SWAMI_ROOT(root));   /* ++ ref list */
     ipatch_list_init_iter(list, &iter);
     obj = ipatch_iter_first(&iter);
@@ -1042,15 +1043,22 @@ swamigui_root_quit(SwamiguiRoot *root)
 
     g_object_unref(list);	/* -- unref list */
 
+    /* "quit-confirm" property instructs how to ask the user for
+       quit confirmation:
+       -SWAMIGUI_QUIT_CONFIRM_NEVER, quit immediately without confirmation.
+       -SWAMIGUI_QUIT_CONFIRM_UNSAVED, quit immediately if nothing has been changed
+        otherwise a confirmation dialog is opened.
+    */
     g_object_get(root, "quit-confirm", &quit_confirm, NULL);
 
     if(quit_confirm == SWAMIGUI_QUIT_CONFIRM_NEVER
             || (quit_confirm == SWAMIGUI_QUIT_CONFIRM_UNSAVED && !changed))
     {
-        swamigui_real_quit(root);
+        swamigui_real_quit(root); /* quit immediately */
         return;
     }
 
+    /* open a confirmation dialog */
     if(changed)
     {
         s = _("Unsaved files, and you want to quit?");
@@ -1063,6 +1071,12 @@ swamigui_root_quit(SwamiguiRoot *root)
     popup = gtk_message_dialog_new(NULL, 0,
                                    GTK_MESSAGE_QUESTION,
                                    GTK_BUTTONS_NONE, "%s", s);
+    /* Set the dialogue modal */
+    gtk_window_set_modal(GTK_WINDOW(popup), TRUE);
+
+    /* Set the dialog centered above the top level swami Window  */
+    gtk_window_set_transient_for(GTK_WINDOW(popup), root->main_window);
+
     gtk_dialog_add_buttons(GTK_DIALOG(popup),
                            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
                            GTK_STOCK_QUIT, GTK_RESPONSE_OK,
