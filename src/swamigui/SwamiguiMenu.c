@@ -625,7 +625,7 @@ swamigui_menu_cb_preferences(GtkWidget *mitem, gpointer data)
     {
         pref = swamigui_pref_new();
         /* The dialog is registered and set centered on top of the main window.
-           To get this result the dialog must be hide beforehand, otherwise
+           To get this result the dialog must be hidden beforehand, otherwise
            gtk_window_set_transient_for() will be ignored.
         */
         swamigui_util_register_unique_dialog(pref, "preferences", 0);
