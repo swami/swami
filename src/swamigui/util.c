@@ -185,6 +185,11 @@ swamigui_util_register_unique_dialog(GtkWidget *dialog, gchar *strkey,
         return (FALSE);
     }
 
+    /* We want the dialog set centered on top of the main window. To get
+       this result we need to hide the dialog beforehand, otherwise
+       gtk_window_set_transient_for() will be ignored.
+    */
+    gtk_widget_hide(dialog);
     gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(swamigui_root->main_window));
 
     udkey.dialog = dialog;
