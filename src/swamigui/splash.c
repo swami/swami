@@ -28,7 +28,7 @@
 #include <png.h>
 #include "util.h"
 
-#include "SwamiGuiRoot.h"
+#include "SwamiguiRoot.h"
 
 static void cb_win_destroy(GtkWidget *win);
 static gboolean cb_button_press(GtkWidget *widg, GdkEventButton *ev);
