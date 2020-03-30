@@ -283,6 +283,55 @@ swamigui_init(int *argc, char **argv[])
     swamigui_register_prop_glade_widg(IPATCH_TYPE_SLI_ZONE, "PropSF2IZone");
     swamigui_register_prop_glade_widg(IPATCH_TYPE_SLI_SAMPLE, "PropSF2Sample");
 
+#if capture_object  // for debugging
+/* Start capture of object (for debugging) (see libswami - util.c for details) */
+//------- libswamigui
+//    start_count_obj("SwamiguiBar");           // to be checked
+//    start_count_obj("SwamiguiBarPtr");        // to be checked
+//    start_count_obj("SwamiguiControlAdj");    // to be checked
+//    start_count_obj("SwamiguiControlFlags");  // (Invalid type, Flags)
+//    start_count_obj("SwamiguiControlMidiKey"); // to be checked
+//    start_count_obj("SwamiguiControlObjectFlags"); //(Invalid type, Flags)
+//    start_count_obj("SwamiguiControlRank");   //(Invalid type, Enums)
+//    start_count_obj("SwamiguiItemMenu");      // to be checked
+//    start_count_obj("SwamiguiKnob");          // to be checked
+//    start_count_obj("SwamiguiMenu");          // to be checked
+//    start_count_obj("SwamiguiModEdit");       // to be checked
+//    start_count_obj("SwamiguiPanel");         // (Invalid type, interface)
+//    start_count_obj("SwamiguiPanelSelector"); // to be checked
+//    start_count_obj("SwamiguiPanelSF2Gen");   // to be checked
+//    start_count_obj("SwamiguiProp");          // to be checked
+//    start_count_obj("SwamiguiSampleEditor");  // to be checked
+//    start_count_obj("SwamiguiPanelSF2GenMisc"); // to be checked
+//    start_count_obj("SwamiguiPanelSF2GenEnv");  // to be checked
+//    start_count_obj("SwamiguiModEdit");       // to be checked
+//    start_count_obj("SwamiguiPasteDecision"); // (Invalid type, Flags)
+//    start_count_obj("SwamiguiPaste");         // to be checked
+//    start_count_obj("SwamiguiPasteStatus");   // (Invalid type, Enums)
+//    start_count_obj("SwamiguiPiano");         // to be checked
+//    start_count_obj("SwamiguiPref");          // to be checked
+//    start_count_obj("SwamiguiQuitConfirm");   // (Invalid type, Enums)
+//    start_count_obj("SwamiguiRoot");          // to be checked
+//    start_count_obj("SwamiguiSampleCanvas");   //to be checked
+//    start_count_obj("SwamiguiSampleEditorMarkerFlags"); // Invalide, Flags
+//    start_count_obj("SwamiguiSampleEditorMarkerId");    // (Invalid type, Enums)
+//    start_count_obj("SwamiguiSampleEditorStatus");      // (Invalid type, Enums)
+//    start_count_obj("SwamiguiSpectrumCanvas");  // to be checked
+//    start_count_obj("SwamiguiSpinScale");       // to be checked
+//    start_count_obj("SwamiguiSplits");          // to be checked
+//    start_count_obj("SwamiguiSplitsMode");      // (Invalid type, Enums)
+//    start_count_obj("SwamiguiSplitsStatus");    // (Invalid type, Enums)
+//    start_count_obj("SwamiguiStatusBar");       //(Invalid type, Enums)
+//    start_count_obj("SwamiguiStatusBarPos");    // (Invalid type, Enums)
+//    start_count_obj("SwamiguiTree");            // to be checked
+//    start_count_obj("SwamiguiTreeStore");       // to be checked
+//    start_count_obj("SwamiguiTreeStorePatch");  // to be checked
+//    start_count_obj("SwamiguiTreeStoreConfig"); // to be checked
+//      (SWAMIGUI_TYPE_CANVAS_MOD);    start_count_obj("SwamiguiCanvasMod"); to be checked
+//    start_count_obj("SwamiguiControlAdj"); //to be checked
+//    start_count_obj("GtkFileChooserButton"); //to be checked
+#endif
+
 #ifdef PYTHON_SUPPORT
 
     if(!swamigui_disable_python)

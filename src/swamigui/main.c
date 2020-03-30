@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  * 02111-1307, USA or point your web browser to http://www.gnu.org.
  */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -201,6 +202,10 @@ main(int argc, char *argv[])
     /* we destroy it all so refdbg can tell us what objects leaked */
     g_object_unref(root);	/* -- unref root */
 
+#if capture_object
+	/* Stop capture of object (for debugging) */
+    stop_count_obj();
+#endif
     exit(0);
 }
 

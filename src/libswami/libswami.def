@@ -1,6 +1,10 @@
 LIBRARY
 EXPORTS
 
+; capture functions (for debugging)
+start_count_obj
+stop_count_obj
+
 _swami_object_init
 ;_swami_param_init
 
