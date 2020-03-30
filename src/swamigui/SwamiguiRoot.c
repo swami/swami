@@ -346,6 +346,7 @@ swamigui_init(int *argc, char **argv[])
     {
         swami_plugin_load_all();    /* load plugins */
     }
+      start_count_obj("WavetblFluidSynth"); //to be checked
 }
 
 /* Function used by libglade to initialize libswamigui widgets */
