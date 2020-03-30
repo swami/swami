@@ -1124,7 +1124,7 @@ swamigui_root_quit(SwamiguiRoot *root)
     gtk_window_set_modal(GTK_WINDOW(popup), TRUE);
 
     /* Set the dialog centered above the top level swami Window  */
-    gtk_window_set_transient_for(GTK_WINDOW(popup), root->main_window);
+    gtk_window_set_transient_for(GTK_WINDOW(popup), GTK_WINDOW(root->main_window));
 
     gtk_dialog_add_buttons(GTK_DIALOG(popup),
                            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
