@@ -139,10 +139,10 @@ swami_init(void)
 #if capture_object
 /* Start capture of object (for debugging) (see util.c for details) */
 //------- libswami
-    start_count_obj("SwamiControl");       // 2 permanent control never finalized
+//    start_count_obj("SwamiControl");       // 2 permanent control never finalized
 //    start_count_obj("SwamiControlFunc");   // to be checked
 //    start_count_obj("SwamiControlHub");    // to be checked
-//     start_count_obj("SwamiControlProp");  // 1 permanent control never finalize
+     start_count_obj("SwamiControlProp");  // 1 permanent control never finalize
 //     start_count_obj("SwamiControlMidi");  // to be checked
 //     start_count_obj("SwamiControlValue"); // to be checked
 //     start_count_obj("SwamiControlQueue"); // to be checked
