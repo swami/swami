@@ -407,7 +407,7 @@ void fluid_synth_gui_control_finalize(GObject *object)
         GSList *c = fsctrl->ctrl_list;
         while(c)
         {
-//            swami_control_disconnect_unref((SwamiControl *)(c->data));
+            swami_control_disconnect_unref((SwamiControl *)(c->data));
             c = c->next;
         }
         g_slist_free (fsctrl->ctrl_list);
