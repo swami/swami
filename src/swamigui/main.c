@@ -211,10 +211,6 @@ main(int argc, char *argv[])
     /* we destroy it all so refdbg can tell us what objects leaked */
     g_object_unref(root);	/* -- unref root */
 
-#if capture_object
-	/* Stop capture of object (for debugging) */
-    stop_count_obj();
-#endif
     exit(0);
 }
 

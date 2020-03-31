@@ -136,24 +136,6 @@ swami_init(void)
     g_type_class_ref(SWAMI_TYPE_PROP_TREE);
     g_type_class_ref(SWAMI_TYPE_WAVETBL);
 
-#if capture_object
-/* Start capture of object (for debugging) (see util.c for details) */
-//------- libswami
-//    start_count_obj("SwamiControl");       // 2 permanent control never finalized
-//    start_count_obj("SwamiControlFunc");   // to be checked
-//    start_count_obj("SwamiControlHub");    // to be checked
-     start_count_obj("SwamiControlProp");  // 1 permanent control never finalize
-//     start_count_obj("SwamiControlMidi");  // to be checked
-//     start_count_obj("SwamiControlValue"); // to be checked
-//     start_count_obj("SwamiControlQueue"); // to be checked
-//     start_count_obj("SwamiLock");         // to be checked
-//     start_count_obj("SwamiControlMidiDevice"); // abstract type non instantiable
-//     start_count_obj("SwamiPlugin");       // to be checked
-//     start_count_obj("SwamiPropTree");     // to be checked
-//     start_count_obj("SwamiWavetbl");      // abstract type non instantiable
-//     start_count_obj("SwamiRoot");         // to be checked
-//     start_count_obj("SwamiContainer");    // to be checked
-#endif
     _swami_plugin_initialize();	/* initialize plugin system */
 
     /* create IpatchItem title property control */

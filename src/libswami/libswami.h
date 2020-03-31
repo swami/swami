@@ -28,12 +28,6 @@
 #include <libswami/SwamiControl.h>
 #include <libswami/SwamiEvent_ipatch.h>
 
-#define capture_object 1 // for debugging
-#if capture_object
-gboolean start_count_obj(char *type_name);
-gboolean stop_count_obj();
-#endif
-
 /* libswami.c */
 void swami_init(void);
 
