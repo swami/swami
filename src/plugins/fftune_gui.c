@@ -267,11 +267,13 @@ fftune_gui_set_property(GObject *object, guint property_id,
             swami_control_connect(samctrl, fftunegui->root_note_ctrl,
                                   SWAMI_CONTROL_CONN_BIDIR
                                   | SWAMI_CONTROL_CONN_INIT);
+            g_object_unref(samctrl);	/* --ref */
 
             samctrl = swami_get_control_prop_by_name(G_OBJECT(sample), "fine-tune");
             swami_control_connect(samctrl, fftunegui->fine_tune_ctrl,
                                   SWAMI_CONTROL_CONN_BIDIR
                                   | SWAMI_CONTROL_CONN_INIT);
+            g_object_unref(samctrl);	/* --ref */
         }
 
         /* recalculate full zoom */
