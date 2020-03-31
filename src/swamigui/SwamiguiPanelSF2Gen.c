@@ -179,6 +179,11 @@ swamigui_panel_sf2_gen_finalize(GObject *object)
         g_object_unref(genpanel->selection);
     }
 
+    /* jjc - free genwidgets table allocated at initialization
+       (in swamigui_panel_sf2_gen_set_controls())
+    */
+    g_free(genpanel->genwidgets);
+
     G_OBJECT_CLASS(swamigui_panel_sf2_gen_parent_class)->finalize(object);
 }
 
