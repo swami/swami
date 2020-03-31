@@ -213,7 +213,6 @@ swami_prop_tree_prepend(SwamiPropTree *proptree, GObject *parent,
     g_return_if_fail(G_IS_OBJECT(parent));
     g_return_if_fail(G_IS_OBJECT(obj));
 
-    speclist = object_spec_list(obj);
 
     SWAMI_LOCK_WRITE(proptree);
 
@@ -236,6 +235,8 @@ swami_prop_tree_prepend(SwamiPropTree *proptree, GObject *parent,
     /* weak ref to passively catch objects demise */
     g_object_weak_ref(obj, swami_prop_tree_object_weak_notify, proptree);
 
+    /* Build a GList of object's pspec properties */
+    speclist = object_spec_list(obj);
     /* resolve properties if any (speclist is freed) */
     if(speclist)
     {
@@ -423,7 +424,17 @@ swami_prop_tree_object_weak_notify(gpointer user_data, GObject *object)
 
     if(obj_node && proptree->tree)
     {
-        ((SwamiPropTreeNode *)(obj_node->data))->object = NULL;
+        /*
+          we are currently in the callback weak_notify (on finalization of object).
+          Now this callback doesn't exist anymore inside GObject library, so we set object to NULL
+          to indicate that swami_prop_tree_node_reset_L() should not call g_object_weak_unref().
+
+          As object is set to NULL, we need to remove object out of the hash table here because
+          this could not be done in swami_prop_tree_node_reset_L().
+        */
+        SwamiPropTreeNode *treenode = (SwamiPropTreeNode *) obj_node->data;
+        g_hash_table_remove (proptree->object_hash, treenode->object);
+        treenode->object = NULL;
         recursive_remove_nodes(obj_node, proptree);  /* recursive remove */
 
         if(obj_node == proptree->tree)
@@ -453,6 +464,17 @@ swami_prop_tree_node_reset_L(SwamiPropTree *proptree,
 
     while(p)			/* destroy values */
     {
+        /* free name and control before destroying value */
+        SwamiPropTreeValue *treeval = (SwamiPropTreeValue *)(p->data);
+
+        g_free (treeval->prop_name);
+
+        if(treeval->control)
+        {
+            g_object_unref (treeval->control); /* -- unref control */
+        }
+
+        /* free the tree value */
         swami_prop_tree_free_value_L(p->data);
         p = g_slist_delete_link(p, p);
     }
@@ -734,6 +756,8 @@ swami_prop_tree_remove_value(SwamiPropTree *proptree, GObject *obj,
     g_return_if_fail(G_IS_OBJECT(obj));
     g_return_if_fail(!prop_type || g_type_is_a(prop_type, G_TYPE_OBJECT));
     g_return_if_fail(prop_name != NULL && *prop_name != '\0');
+
+    SWAMI_LOCK_WRITE(proptree);
 
     obj_node = g_hash_table_lookup(proptree->object_hash, obj);
 
