@@ -199,6 +199,15 @@ main(int argc, char *argv[])
     gtk_main();			/* kick it in the main GTK loop */
     gdk_threads_leave();
 
+    /*
+      Removing allocated value in proptree. (This value were added in root initialization.
+      Unfortunately, this cannot be done in root finalization  because proptree is destroyed
+      in a weak ref callback called  when root is destroyed. (the callback is called before
+      finalize).
+    */
+    swami_prop_tree_remove_value(SWAMI_ROOT(root)->proptree, G_OBJECT (root), 0, "item-selection");
+    swami_prop_tree_remove_value(SWAMI_ROOT(root)->proptree, G_OBJECT (root), 0, "store-list");
+
     /* we destroy it all so refdbg can tell us what objects leaked */
     g_object_unref(root);	/* -- unref root */
 
