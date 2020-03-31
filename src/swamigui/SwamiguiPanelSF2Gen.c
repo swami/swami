@@ -349,7 +349,6 @@ swamigui_panel_sf2_gen_real_set_selection(SwamiguiPanelSF2Gen *genpanel,
         IpatchList *selection)
 {
     IpatchSF2GenItemIface *geniface;
-    IpatchSF2GenArray *genarray;
     GenWidgets *genwidgets;
     int seltype = SEL_NONE;
     SwamiControl *widgctrl, *propctrl;
@@ -407,10 +406,6 @@ swamigui_panel_sf2_gen_real_set_selection(SwamiguiPanelSF2Gen *genpanel,
     else	/* selection is active */
     {
         item = G_OBJECT(selection->items->data);
-
-        /* allocate generator array and fill with all gens from item */
-        genarray = ipatch_sf2_gen_array_new(FALSE);	/* ++ alloc */
-        ipatch_sf2_gen_item_copy_all(IPATCH_SF2_GEN_ITEM(item), genarray);
 
         genwidgets = (GenWidgets *)(genpanel->genwidgets);
         ctrlndx = 0;
