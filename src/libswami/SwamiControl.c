@@ -214,7 +214,12 @@ static void
 swami_control_finalize(GObject *object)
 {
     SwamiControl *control = SWAMI_CONTROL(object);
-    swami_control_disconnect_all(control);
+
+    /* free control queue (if any exist) */
+    if (control->queue)
+    {
+        g_object_unref (control->queue); /* -- unref old queue */
+    }
 
     G_LOCK(control_list);
     control_list = g_list_remove(control_list, object);
@@ -989,7 +994,13 @@ swami_control_get_flags(SwamiControl *control)
  * Set the queue used by a control object. When a control has a queue all
  * receive/set events are sent to the queue. This queue can then be processed
  * at a later time (a GUI thread for example).
- */
+ *
+ * queue is onwned by the control(++ref).
+ * The queue can be removed later by calling the function with NULL for queue
+ * parameter.
+ * Also, when a control is finalized, the queue is removed and finalized
+ * if it isn't owned by another control.
+*/
 void
 swami_control_set_queue(SwamiControl *control, SwamiControlQueue *queue)
 {
