@@ -134,7 +134,7 @@ swamigui_loop_finder_init(SwamiguiLoopFinder *finder)
     /* create the loop finder object (!! takes over ref) */
     finder->loop_finder = swami_loop_finder_new();
 
-    /* call back to cancel loop finder task when finder is detroyed */
+    /* call back to cancel loop finder task when finder is destroyed */
     g_signal_connect(finder, "destroy",
                      G_CALLBACK(swamigui_loop_finder_destroy), NULL);
 
