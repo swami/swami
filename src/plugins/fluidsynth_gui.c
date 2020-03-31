@@ -365,7 +365,7 @@ fluid_synth_gui_control_init(FluidSynthGuiControl *fsctrl)
     /* connect property control to widget control */
     swami_control_connect(propctrl, widgctrl, SWAMI_CONTROL_CONN_BIDIR
                           | SWAMI_CONTROL_CONN_INIT | SWAMI_CONTROL_CONN_SPEC);
-    /* memorize property control. It must be freed on finalize */
+    /* memorize property control. It must be freed on finalization */
     fsctrl->ctrl_list = g_slist_append(fsctrl->ctrl_list, propctrl);
 
     /* ++Ref  */
@@ -377,7 +377,7 @@ fluid_synth_gui_control_init(FluidSynthGuiControl *fsctrl)
     /* connect property control to widget control */
     swami_control_connect(propctrl, widgctrl, SWAMI_CONTROL_CONN_BIDIR
                           | SWAMI_CONTROL_CONN_INIT | SWAMI_CONTROL_CONN_SPEC);
-    /* memorize property control. It must be freed on finalize */
+    /* memorize property control. It must be freed on finalization */
     fsctrl->ctrl_list = g_slist_append(fsctrl->ctrl_list, propctrl);
 
     widg = swamigui_util_glade_lookup(fsctrl->ctrl_widg, "ComboChorusType");
@@ -390,7 +390,7 @@ fluid_synth_gui_control_init(FluidSynthGuiControl *fsctrl)
     /* connect property control to widget control */
     swami_control_connect(propctrl, widgctrl, SWAMI_CONTROL_CONN_BIDIR
                           | SWAMI_CONTROL_CONN_INIT | SWAMI_CONTROL_CONN_SPEC);
-    /* memorize property control. It must be freed on finalize */
+    /* memorize property control. It must be freed on finalization */
     fsctrl->ctrl_list = g_slist_append(fsctrl->ctrl_list, propctrl);
 
     g_object_unref(wavetbl);      // -- unref wavetbl
@@ -413,6 +413,6 @@ void fluid_synth_gui_control_finalize(GObject *object)
         g_slist_free (fsctrl->ctrl_list);
     }
 
-    /* chain to parent member finalize */
+    /* chain to parent finalize member */
     G_OBJECT_CLASS (fluid_synth_gui_control_parent_class)->finalize (object);
 }

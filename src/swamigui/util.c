@@ -187,7 +187,7 @@ swamigui_util_register_unique_dialog(GtkWidget *dialog, gchar *strkey,
 
     gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(swamigui_root->main_window));
 
-    /* destroy opened dialog when the main window is destroyed */
+    /* opened dialog will be destroyed when the main window is destroyed */
     gtk_window_set_destroy_with_parent((GtkWindow*)dialog, TRUE);
 
     udkey.dialog = dialog;

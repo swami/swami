@@ -200,7 +200,7 @@ main(int argc, char *argv[])
     gdk_threads_leave();
 
     /*
-      Removing allocated value in proptree. (This value were added in root initialization.
+      Removing allocated value in proptree. (This value were added in root initialization).
       Unfortunately, this cannot be done in root finalization  because proptree is destroyed
       in a weak ref callback called  when root is destroyed. (the callback is called before
       finalize).
