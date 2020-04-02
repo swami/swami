@@ -4,7 +4,7 @@
   <!-- interface-requires swamigui 3.0 -->
   <!-- interface-naming-policy toplevel-contextual -->
   <object class="GtkAboutDialog" id="About">
-    <property name="visible">True</property>
+    <property name="visible">False</property>
     <property name="can_focus">False</property>
     <property name="window_position">center-on-parent</property>
     <property name="type_hint">normal</property>
@@ -4584,7 +4584,7 @@ BALATON Zoltan &lt;balaton@users.sourceforge.net&gt; (Spectralis support, Mac OS
     </child>
   </object>
   <object class="GtkWindow" id="Tips">
-    <property name="visible">True</property>
+    <property name="visible">False</property>
     <property name="can_focus">False</property>
     <property name="title">Swami Tips</property>
     <property name="default_width">340</property>
