@@ -185,9 +185,14 @@ swamigui_util_register_unique_dialog(GtkWidget *dialog, gchar *strkey,
         return (FALSE);
     }
 
+    /* We want the dialog set centered on top of the main window. To get
+       this result we need that the dialog be not visible beforehand, otherwise
+       gtk_window_set_transient_for() will be ignored. This is done in swami.ui
+       by setting visible property to false: <property name="visible">False</property>
+    */
     gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(swamigui_root->main_window));
 
-    /* opened dialog will be destroyed when the main window is destroyed */
+    /* ensure the dialog will be destroy when the parent will be destroyed */
     gtk_window_set_destroy_with_parent((GtkWindow*)dialog, TRUE);
 
     udkey.dialog = dialog;
