@@ -28,6 +28,8 @@
 #include <png.h>
 #include "util.h"
 
+#include "SwamiguiRoot.h"
+
 static void cb_win_destroy(GtkWidget *win);
 static gboolean cb_button_press(GtkWidget *widg, GdkEventButton *ev);
 
@@ -69,7 +71,8 @@ swamigui_splash_display(guint timeout)
     }
 
     /* splash popup window */
-    splash_win = gtk_window_new(GTK_WINDOW_POPUP);
+    splash_win = gtk_dialog_new();
+    gtk_window_set_decorated ((GtkWindow *)splash_win, FALSE);
     gtk_window_set_type_hint(GTK_WINDOW(splash_win), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
     gtk_window_set_resizable(GTK_WINDOW(splash_win), FALSE);
     gtk_signal_connect(GTK_OBJECT(splash_win), "destroy",
@@ -79,10 +82,10 @@ swamigui_splash_display(guint timeout)
     gtk_widget_add_events(splash_win, GDK_BUTTON_PRESS_MASK);
 
     image = gtk_image_new_from_pixbuf(pixbuf);
-    gtk_container_add(GTK_CONTAINER(splash_win), image);
+    gtk_container_add(GTK_CONTAINER(GTK_DIALOG(splash_win)->action_area), image);
     gtk_widget_show(image);
 
-    gtk_window_set_position(GTK_WINDOW(splash_win), GTK_WIN_POS_CENTER);
+    gtk_window_set_transient_for(GTK_WINDOW(splash_win), GTK_WINDOW(swamigui_root->main_window));
     gtk_widget_show(splash_win);
 
     g_object_unref(pixbuf);	/* -- unref pixbuf creator's ref */
