@@ -32,6 +32,7 @@
 #include "builtin_enums.h"
 #include "i18n.h"
 
+
 /* inactive control event expiration interval in milliseconds */
 #define SWAMI_CONTROL_EVENT_EXPIRE_INTERVAL 10000
 

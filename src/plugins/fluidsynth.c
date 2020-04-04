@@ -1953,8 +1953,6 @@ sfloader_sfont_get_preset(fluid_sfont_t *sfont, int bank,
 
     if(bank == b && prenum == p)
     {
-        g_object_ref(G_OBJECT(sfont_data->wavetbl));   /* ++ inc wavetbl ref */
-
         preset = new_fluid_preset(sfont,
                                   sfloader_active_preset_get_name,
                                   sfloader_active_preset_get_banknum,
@@ -1983,7 +1981,6 @@ sfloader_sfont_get_preset(fluid_sfont_t *sfont, int bank,
 
         preset_data = g_malloc0(sizeof(sfloader_preset_data_t));
 
-        g_object_ref(G_OBJECT(sfont_data->wavetbl));   /* ++ inc wavetbl ref */
         preset_data->wavetbl = sfont_data->wavetbl;
 
         preset_data->item = item; /* !! item already referenced by find */
@@ -2010,9 +2007,6 @@ sfloader_preset_free(fluid_preset_t *preset)
 
     /* -- remove item reference */
     g_object_unref(IPATCH_ITEM(preset_data->item));
-
-    /* remove wavetable object reference */
-    g_object_unref(G_OBJECT(preset_data->wavetbl));
 
     g_free(preset_data);
     delete_fluid_preset(preset);

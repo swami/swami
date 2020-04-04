@@ -61,7 +61,7 @@ static void swamigui_loop_finder_get_property(GObject *object,
         GParamSpec *pspec);
 static void swamigui_loop_finder_init(SwamiguiLoopFinder *editor);
 static void swamigui_loop_finder_finalize(GObject *object);
-static void swamigui_loop_finder_destroy(GtkObject *object);
+static void swamigui_loop_finder_destroy(GtkObject *widg, gpointer b);
 static void
 swamigui_loop_finder_cb_selection_changed(GtkTreeSelection *selection,
         gpointer user_data);
@@ -85,8 +85,6 @@ swamigui_loop_finder_class_init(SwamiguiLoopFinderClass *klass)
     obj_class->set_property = swamigui_loop_finder_set_property;
     obj_class->get_property = swamigui_loop_finder_get_property;
     obj_class->finalize = swamigui_loop_finder_finalize;
-
-    gtkobj_class->destroy = swamigui_loop_finder_destroy;
 
     g_object_class_install_property(obj_class, PROP_FINDER,
                                     g_param_spec_object("finder", _("Finder"),
@@ -135,6 +133,10 @@ swamigui_loop_finder_init(SwamiguiLoopFinder *finder)
 
     /* create the loop finder object (!! takes over ref) */
     finder->loop_finder = swami_loop_finder_new();
+
+    /* call back to cancel loop finder task when finder is destroyed */
+    g_signal_connect(finder, "destroy",
+                     G_CALLBACK(swamigui_loop_finder_destroy), NULL);
 
     /* create result list store */
     finder->store = gtk_list_store_new(4, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT,
@@ -243,7 +245,7 @@ swamigui_loop_finder_finalize(GObject *object)
 
 /* loop finder widget destroy */
 static void
-swamigui_loop_finder_destroy(GtkObject *object)
+swamigui_loop_finder_destroy (GtkObject *object, gpointer data)
 {
     SwamiguiLoopFinder *finder = SWAMIGUI_LOOP_FINDER(object);
 

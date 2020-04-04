@@ -522,7 +522,8 @@ swamigui_mod_edit_finalize(GObject *object)
 {
     SwamiguiModEdit *modedit = SWAMIGUI_MOD_EDIT(object);
 
-    g_object_unref(modedit->modctrl);
+    /* disconnect and unref the control */
+	swami_control_disconnect_unref(modedit->modctrl);
 
     if(modedit->selection)
     {

@@ -841,9 +841,21 @@ swamigui_root_finalize(GObject *object)
         g_source_remove(root->update_timeout_id);
     }
 
-    g_object_unref(root->ctrl_prop);
-    g_object_unref(root->ctrl_add);
-    g_object_unref(root->ctrl_remove);
+    /* disconnect and unref controls */
+    swami_control_disconnect_unref(SWAMI_CONTROL(root->ctrl_prop));
+    swami_control_disconnect_unref(SWAMI_CONTROL(root->ctrl_add));
+    swami_control_disconnect_unref(SWAMI_CONTROL(root->ctrl_remove));
+
+    /* disconnect all (only) properties controls */
+    {
+        GSList *c = root->ctrl_list;
+        while(c)
+        {
+            swami_control_disconnect_all((SwamiControl *)(c->data));
+            c = c->next;
+        }
+        g_slist_free (root->ctrl_list);
+    }
 
     g_free(root->piano_lower_keys);
     g_free(root->piano_upper_keys);
@@ -1439,6 +1451,8 @@ swamigui_root_create_main_window(SwamiguiRoot *root)
 
     /* get root selection property control */
     rootsel_ctrl = swami_get_control_prop_by_name(G_OBJECT(root), "selection");
+    /* rootsel_ctrl must be disconnected on finalization */
+    root->ctrl_list = g_slist_append(root->ctrl_list, rootsel_ctrl);
 
     root->main_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_default_size(GTK_WINDOW(root->main_window), 1024, 768);
@@ -1630,12 +1644,16 @@ swamigui_root_create_main_window(SwamiguiRoot *root)
 
         g_object_unref(tctrl);  /* -- unref */
         g_object_unref(pctrl);  /* -- unref */
+        /* tctrl must be disconnected on root finalization */
+        root->ctrl_list = g_slist_append(root->ctrl_list, tctrl);
 
         g_signal_connect(root, "notify::selection-single",
                          G_CALLBACK(swamigui_root_cb_solo_item), NULL);
     }
 
     g_object_unref(midihub);	/* -- unref creator's reference */
+    /* midihub must be disconnected on root finalization */
+    root->ctrl_list = g_slist_append(root->ctrl_list, midihub);
 
     gtk_widget_show(root->main_window);
 #ifdef MAC_INTEGRATION

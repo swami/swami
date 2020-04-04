@@ -30,7 +30,9 @@
 
 static void recurse_types(GType type, GArray *array);
 
-
+/*----------------------------------------------------------------------------
+ Ancestry gObject type related functions
+-----------------------------------------------------------------------------*/
 /**
  * swami_util_get_child_types:
  * @type: Type to get all children from
@@ -76,6 +78,9 @@ recurse_types(GType type, GArray *array)
     g_free(child_types);
 }
 
+/*----------------------------------------------------------------------------
+ GValue allocation using slice memory pool
+-----------------------------------------------------------------------------*/
 /**
  * swami_util_new_value:
  *
@@ -102,6 +107,10 @@ swami_util_free_value(GValue *value)
     g_slice_free(GValue, value);
 }
 
+/*----------------------------------------------------------------------------
+ MIDI octave to music octave convertion.
+ MIDI note to music note convertion.
+-----------------------------------------------------------------------------*/
 /*
    MIDI_TO_MUSIC_OFFSET is the offset between music octave number and MIDI
    Actually this offset leads to diapason note A4 (music octave 4) beeing MIDI

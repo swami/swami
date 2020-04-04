@@ -32,6 +32,7 @@
 typedef struct
 {
     GtkVBox parent_instance;
+    GSList *ctrl_list;       /* properties control list */
     GtkWidget *ctrl_widg;
 } FluidSynthGuiControl;
 
@@ -50,6 +51,16 @@ static void fluid_synth_gui_midi_driver_changed(GtkComboBox *combo,
 static GType fluid_synth_gui_control_register_type(SwamiPlugin *plugin);
 static void fluid_synth_gui_control_class_init(FluidSynthGuiControlClass *klass);
 static void fluid_synth_gui_control_init(FluidSynthGuiControl *fsctrl);
+static void fluid_synth_gui_control_finalize(GObject *object);
+
+static GObjectClass *fluid_synth_gui_control_parent_class = NULL;
+
+static GType fluidsynth_gui_type = 0;
+
+#define FLUID_SYNTH_GUI_TYPE_CONTROL   (fluidsynth_gui_type)
+#define FLUID_SYNTH_GUI_CONTROL(obj) \
+       (G_TYPE_CHECK_INSTANCE_CAST((obj), FLUID_SYNTH_GUI_TYPE_CONTROL, \
+        FluidSynthGuiControl))
 
 SWAMI_PLUGIN_INFO(plugin_fluidsynth_gui_init, NULL);
 
@@ -81,7 +92,7 @@ plugin_fluidsynth_gui_init(SwamiPlugin *plugin, GError **err)
                  NULL);
 
     /* initialize types */
-    fluid_synth_gui_control_register_type(plugin);
+    fluidsynth_gui_type = fluid_synth_gui_control_register_type(plugin);
 //  fluid_synth_gui_map_register_type (plugin);
 //  fluid_synth_gui_channels_register_type (plugin);
 
@@ -280,6 +291,10 @@ fluid_synth_gui_control_register_type(SwamiPlugin *plugin)
 static void
 fluid_synth_gui_control_class_init(FluidSynthGuiControlClass *klass)
 {
+    GObjectClass *obj_class = G_OBJECT_CLASS (klass);
+    fluid_synth_gui_control_parent_class = g_type_class_peek_parent (klass);
+
+    obj_class->finalize = fluid_synth_gui_control_finalize;
 }
 
 static void
@@ -311,6 +326,7 @@ fluid_synth_gui_control_init(FluidSynthGuiControl *fsctrl)
     gtk_widget_show(fsctrl->ctrl_widg);
     gtk_box_pack_start(GTK_BOX(fsctrl), fsctrl->ctrl_widg, FALSE, FALSE, 0);
 
+    /* ++ref, must be unref */
     wavetbl = (SwamiWavetbl *)swami_object_get_by_type(G_OBJECT(swamigui_root),
               "WavetblFluidSynth");     // ++ ref wavetbl
 
@@ -326,32 +342,77 @@ fluid_synth_gui_control_init(FluidSynthGuiControl *fsctrl)
         widg = swamigui_util_glade_lookup(fsctrl->ctrl_widg, namebuf);
         adj = swamigui_knob_get_adjustment(SWAMIGUI_KNOB(widg));
 
+        /* ++ref */
         propctrl = swami_get_control_prop_by_name(G_OBJECT(wavetbl), propnames[i]);
+        /* ++ref */
         widgctrl = SWAMI_CONTROL(swamigui_control_adj_new(adj));
 
+        /* connect property control to widget control */
         swami_control_connect(propctrl, widgctrl, SWAMI_CONTROL_CONN_BIDIR
                               | SWAMI_CONTROL_CONN_INIT | SWAMI_CONTROL_CONN_SPEC);
+
+        /* memorize controls. they must be freed on finalize */
+        fsctrl->ctrl_list = g_slist_append(fsctrl->ctrl_list, propctrl);
+        fsctrl->ctrl_list = g_slist_append(fsctrl->ctrl_list, widgctrl);
     }
 
+    /* ++Ref  */
     propctrl = swami_get_control_prop_by_name(G_OBJECT(wavetbl), "synth.reverb.active");
     widg = swamigui_util_glade_lookup(fsctrl->ctrl_widg, "BtnReverb");
+    /* widget control is owned by the widget (it will be freed when the widget
+       will be destroyed) */
     widgctrl = swamigui_control_new_for_widget(G_OBJECT(widg));
+    /* connect property control to widget control */
     swami_control_connect(propctrl, widgctrl, SWAMI_CONTROL_CONN_BIDIR
                           | SWAMI_CONTROL_CONN_INIT | SWAMI_CONTROL_CONN_SPEC);
+    /* memorize property control. It must be freed on finalization */
+    fsctrl->ctrl_list = g_slist_append(fsctrl->ctrl_list, propctrl);
 
+    /* ++Ref  */
     propctrl = swami_get_control_prop_by_name(G_OBJECT(wavetbl), "synth.chorus.active");
     widg = swamigui_util_glade_lookup(fsctrl->ctrl_widg, "BtnChorus");
+    /* widget control is owned by the widget (it will be freed when the widget
+       will be destroyed) */
     widgctrl = swamigui_control_new_for_widget(G_OBJECT(widg));
+    /* connect property control to widget control */
     swami_control_connect(propctrl, widgctrl, SWAMI_CONTROL_CONN_BIDIR
                           | SWAMI_CONTROL_CONN_INIT | SWAMI_CONTROL_CONN_SPEC);
+    /* memorize property control. It must be freed on finalization */
+    fsctrl->ctrl_list = g_slist_append(fsctrl->ctrl_list, propctrl);
 
     widg = swamigui_util_glade_lookup(fsctrl->ctrl_widg, "ComboChorusType");
+    /* ++Ref  */
     propctrl = swami_get_control_prop_by_name(G_OBJECT(wavetbl), "chorus-waveform");
     type = g_type_from_name("WavetblFluidSynthChorusWaveform");
+    /* widget control is owned by the widget (it will be freed when the widget
+       will be destroyed) */
     widgctrl = swamigui_control_new_for_widget_full(G_OBJECT(widg), type, NULL, 0);
+    /* connect property control to widget control */
     swami_control_connect(propctrl, widgctrl, SWAMI_CONTROL_CONN_BIDIR
                           | SWAMI_CONTROL_CONN_INIT | SWAMI_CONTROL_CONN_SPEC);
+    /* memorize property control. It must be freed on finalization */
+    fsctrl->ctrl_list = g_slist_append(fsctrl->ctrl_list, propctrl);
 
     g_object_unref(wavetbl);      // -- unref wavetbl
 }
 
+/* finalization */
+static
+void fluid_synth_gui_control_finalize(GObject *object)
+{
+    FluidSynthGuiControl *fsctrl = FLUID_SYNTH_GUI_CONTROL(object);
+
+    /* disconnect and free properties controls */
+    {
+        GSList *c = fsctrl->ctrl_list;
+        while(c)
+        {
+            swami_control_disconnect_unref((SwamiControl *)(c->data));
+            c = c->next;
+        }
+        g_slist_free (fsctrl->ctrl_list);
+    }
+
+    /* chain to parent finalize member */
+    G_OBJECT_CLASS (fluid_synth_gui_control_parent_class)->finalize (object);
+}

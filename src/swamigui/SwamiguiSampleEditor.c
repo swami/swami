@@ -439,17 +439,20 @@ swamigui_sample_editor_finalize(GObject *object)
 
     if(editor->loop_start_hub)
     {
-        g_object_unref(editor->loop_start_hub);
+        /* disconnect and unref control */
+        swami_control_disconnect_unref(editor->loop_start_hub);
     }
 
     if(editor->loop_end_hub)
     {
-        g_object_unref(editor->loop_end_hub);
+        /* disconnect and unref control */
+        swami_control_disconnect_unref(editor->loop_end_hub);
     }
 
     if(editor->loopsel_ctrl)
     {
-        g_object_unref(editor->loopsel_ctrl);
+        /* disconnect and unref control */
+        swami_control_disconnect_unref(editor->loopsel_ctrl);
     }
 
     if(editor->loopsel_store)
@@ -465,6 +468,10 @@ swamigui_sample_editor_finalize(GObject *object)
 
     /* remove ref, necessary since pane is added/removed from container */
     g_object_unref(editor->loop_finder_pane);
+
+    /* unref SwamiguiCanvasMod objects */
+    g_object_unref(editor->sample_mod);
+    g_object_unref(editor->loop_mod);
 
     if(parent_class->finalize)
     {
@@ -537,8 +544,11 @@ swamigui_sample_editor_init(SwamiguiSampleEditor *editor)
                     GTK_WIDGET(editor->loop_finder_gui), FALSE, TRUE);
     gtk_widget_show_all(editor->loop_finder_pane);
 
-    /* we add an extra ref to finder hpane since it will be added/removed as needed */
-    g_object_ref(editor->loop_finder_pane);
+    /* when loop_finder_pane is created its reference is floating so we need to
+       convert this reference into an ordinary reference. This ensure that the
+       object will be correctly freed on SwamiguiSampleEditor finalization.
+    */
+    g_object_ref_sink(editor->loop_finder_pane);
 
     /* create main vbox for tool bar and sample canvases and pack in editor hbox */
     editor->mainvbox = gtk_vbox_new(FALSE, 0);
@@ -2680,7 +2690,11 @@ swamigui_sample_editor_remove_marker_item(SwamiguiSampleEditor *editor,
     }
 
     /* we don't want to depend on the existence of mark_info anymore */
-    ctrl = marker_info->end_ctrl;		/* FIXME - What about start_ctrl !!! */
+    /* discconnect and unref start control */
+    ctrl = marker_info->start_ctrl;
+    swami_control_disconnect_unref(ctrl);
+
+    ctrl = marker_info->end_ctrl;
 
     /* clear data in marker info */
     memset(marker_info, 0, sizeof(MarkerInfo));
@@ -2688,7 +2702,9 @@ swamigui_sample_editor_remove_marker_item(SwamiguiSampleEditor *editor,
     /* add a week references to the marker controls to free the marker_info
        structures (since we still might receive queued events) */
     g_object_weak_ref(G_OBJECT(ctrl), (GWeakNotify)g_free, marker_info);
-    g_object_unref(ctrl);	/* -- remove the editor's reference */
+
+    /* discconnect and unref end control */
+    swami_control_disconnect_unref(ctrl);
 }
 
 /* start marker control get value method */

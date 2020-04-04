@@ -79,6 +79,7 @@ struct _SwamiguiRoot
     SwamiControlFunc *ctrl_prop; /* patch item property change ctrl listener */
     SwamiControlFunc *ctrl_add;	/* patch item add control listener */
     SwamiControlFunc *ctrl_remove; /* patch item remove control listener */
+    GSList *ctrl_list; /* properties controls list created at initialization*/
 
     SwamiguiQuitConfirm quit_confirm; /* quit confirm enum */
     gboolean splash_enable;	/* show splash on startup? */
