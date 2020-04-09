@@ -16,7 +16,7 @@ set ( PACKAGE "swami" )
 # Swami package version
 set ( SWAMI_VERSION_MAJOR 2 )
 set ( SWAMI_VERSION_MINOR 2 )
-set ( SWAMI_VERSION_MICRO 0 )
+set ( SWAMI_VERSION_MICRO 1 )
 set ( VERSION "${SWAMI_VERSION_MAJOR}.${SWAMI_VERSION_MINOR}.${SWAMI_VERSION_MICRO}" )
 set ( SWAMI_VERSION "\"${VERSION}\"" )
 
@@ -31,7 +31,7 @@ set ( SWAMI_VERSION "\"${VERSION}\"" )
 # This is not exactly the same algorithm as the libtool one, but the results are the same.
 set ( LIB_VERSION_CURRENT 1 )
 set ( LIB_VERSION_AGE 0 )
-set ( LIB_VERSION_REVISION 0 )
+set ( LIB_VERSION_REVISION 1 )
 set ( LIB_VERSION_INFO 
       "${LIB_VERSION_CURRENT}.${LIB_VERSION_AGE}.${LIB_VERSION_REVISION}" )
 

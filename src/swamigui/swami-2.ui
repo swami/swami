@@ -9,8 +9,8 @@
     <property name="window_position">center-on-parent</property>
     <property name="type_hint">normal</property>
     <property name="program_name">Swami</property>
-    <property name="copyright">Copyright (C) 1999-2014
-Element Green
+    <property name="copyright">Copyright (C) 1999-2020
+Element Green and others
 &lt;element@elementsofsound.org&gt;</property>
     <property name="website">http://www.swamiproject.org</property>
     <property name="license">This program is free software; you can redistribute it and/or
