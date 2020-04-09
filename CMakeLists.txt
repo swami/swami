@@ -47,7 +47,6 @@ option ( enable-fftw "enable fftw support for the FFTune plugin (if it is availa
 
 # Default install directory names
 include ( DefaultDirs )
-include ( GNUInstallDirs )
 
 # Basic C library checks
 include ( CheckSTDC )
