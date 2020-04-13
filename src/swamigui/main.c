@@ -46,7 +46,7 @@ static void log_python_output_func(const char *output, gboolean is_stderr);
 /* global boolean feature hacks */
 extern gboolean swamigui_disable_python;
 extern gboolean swamigui_disable_plugins;
-
+extern void  swamigui_deinit(void);
 
 int
 main(int argc, char *argv[])
@@ -210,6 +210,9 @@ main(int argc, char *argv[])
 
     /* we destroy it all so refdbg can tell us what objects leaked */
     g_object_unref(root);	/* -- unref root */
+
+    /* deinitialization of swamigui library */
+    swamigui_deinit();
 
     exit(0);
 }
