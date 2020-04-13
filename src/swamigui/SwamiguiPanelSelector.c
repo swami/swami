@@ -40,6 +40,8 @@ typedef struct
     int order;		/* Sort order for this panel type */
 } PanelInfo;
 
+static void
+_swamigui_panel_selector_free_panel_infos(PanelInfo *data, gpointer user_data);
 
 static void swamigui_panel_selector_set_property(GObject *object,
         guint property_id,
@@ -63,11 +65,34 @@ static void swamigui_panel_selector_insert_panel(SwamiguiPanelSelector *selector
 
 G_DEFINE_TYPE(SwamiguiPanelSelector, swamigui_panel_selector, GTK_TYPE_NOTEBOOK);
 
-static GList *panel_list = NULL;	/* list of registered panels (PanelInfo *) */
-static guint panel_count = 0;		/* count of items in panel_list */
+static GList *panel_list = NULL;  /* list of registered panels (PanelInfo *) */
+static guint panel_count = 0;     /* count of items in panel_list */
 
 #define swamigui_panel_selector_info_new()	g_slice_new (PanelInfo)
 
+/* ----------  Initialization/deinitialization of pannel list ----------------*/
+void
+_swamigui_panel_selector_init()
+{
+    panel_list = NULL; /* list of registered panels (PanelInfo structure) */
+    panel_count = 0;   /* count of items in panel_list */
+}
+
+void
+_swamigui_panel_selector_deinit()
+{
+    g_list_foreach(panel_list,
+                   (GFunc)_swamigui_panel_selector_free_panel_infos, NULL);
+    g_list_free(panel_list);
+}
+
+static void
+_swamigui_panel_selector_free_panel_infos(PanelInfo *data, gpointer user_data)
+{
+    g_slice_free(PanelInfo, data);
+}
+
+/* --------------------------------------------------------------------------*/
 
 /**
  * swamigui_get_panel_selector_types:

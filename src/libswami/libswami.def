@@ -7,6 +7,7 @@ _swami_object_init
 ;_swami_param_init
 
 _swami_plugin_initialize
+swami_plugin_unload_all
 
 _swami_ret_g_log
 

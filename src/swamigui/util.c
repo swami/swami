@@ -90,6 +90,12 @@ swamigui_util_init(void)
     //  g_timeout_add (LOG_POPUP_CHECK_INTERVAL, (GSourceFunc)log_check_popup, NULL);
 }
 
+void
+swamigui_util_deinit(void)
+{
+    g_array_free(unique_dialog_array, TRUE);
+}
+
 guint
 swamigui_util_unit_rgba_color_get_type(void)
 {

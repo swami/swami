@@ -82,6 +82,15 @@ void _swamigui_control_init(void);  /* SwamiguiControl.c */
 void _swamigui_control_widgets_init(void);  /* SwamiguiControl_widgets.c */
 void _swamigui_item_menu_init(void);
 void _swamigui_item_menu_actions_init(void);	/* SwamiguiItemMenu_actions.c */
+void _swamigui_panel_selector_init(void);
+void _swamigui_prop_init(void);
+void swami_deinit(void); /* free libswami  */
+void swamigui_util_deinit(void);
+void _swamigui_control_deinit(void); /* free GUI control system */
+void _swamigui_item_menu_deinit(void);
+void _swamigui_panel_selector_deinit(void);
+void _swamigui_prop_deinit(void);
+void  swami_plugin_unload_all(void);
 
 #ifdef PYTHON_SUPPORT
 void _swamigui_python_init(int argc, char **argv);  /* in swami_python.c */
@@ -155,6 +164,8 @@ static GObjectClass *parent_class = NULL;
 /* used to determine if current thread is the GUI thread */
 static GStaticPrivate is_gui_thread = G_STATIC_PRIVATE_INIT;
 
+/* indicate that the library is initialized */
+static gboolean initialized = FALSE;
 
 /**
  * swamigui_init:
@@ -167,8 +178,6 @@ static GStaticPrivate is_gui_thread = G_STATIC_PRIVATE_INIT;
 void
 swamigui_init(int *argc, char **argv[])
 {
-    static gboolean initialized = FALSE;
-
     if(initialized)
     {
         return;
@@ -266,6 +275,7 @@ swamigui_init(int *argc, char **argv[])
     _swamigui_item_menu_actions_init();
 
     /* Register panel types and their order */
+    _swamigui_panel_selector_init(); /* Must be called before registering */
     swamigui_register_panel_selector_type(SWAMIGUI_TYPE_PROP, 80);
     swamigui_register_panel_selector_type(SWAMIGUI_TYPE_SAMPLE_EDITOR, 90);
     swamigui_register_panel_selector_type(SWAMIGUI_TYPE_PANEL_SF2_GEN_MISC, 100);
@@ -273,6 +283,7 @@ swamigui_init(int *argc, char **argv[])
     swamigui_register_panel_selector_type(SWAMIGUI_TYPE_MOD_EDIT, 110);
 
     /* Register prop widget types */
+    _swamigui_prop_init(); /* Must be called before registering */
     swamigui_register_prop_handler(IPATCH_TYPE_SF2, sf2_prop_handler);
     swamigui_register_prop_glade_widg(IPATCH_TYPE_SF2_PRESET, "PropSF2Preset");
     swamigui_register_prop_glade_widg(IPATCH_TYPE_SF2_INST, "PropSF2Inst");
@@ -297,6 +308,45 @@ swamigui_init(int *argc, char **argv[])
     {
         swami_plugin_load_all();    /* load plugins */
     }
+}
+
+/**
+ * swamigui_deinit:
+ *
+ * Function to deinitialize Swami User Interface. Should be called
+ * when the application is completed.
+ * This function calls swami_deinit() as well.
+ */
+void
+swamigui_deinit(void)
+{
+    if (!initialized)
+    {
+        return; /* does nothing because swamigui has not been initialized */
+    }
+    initialized = FALSE;
+
+    /* unload plugins if enabled */
+    if (!swamigui_disable_plugins)
+    {
+        swami_plugin_unload_all();
+    }
+
+    /* Free property type registry */
+    _swamigui_prop_deinit();
+
+    /* Free pannel list */
+    _swamigui_panel_selector_deinit();
+
+    _swamigui_item_menu_deinit();
+
+    /* Free GUI control system */
+    _swamigui_control_deinit();
+
+    swamigui_util_deinit();
+
+    /* Free libswami library */
+    swami_deinit();
 }
 
 /* Function used by libglade to initialize libswamigui widgets */

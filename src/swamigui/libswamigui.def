@@ -1,6 +1,8 @@
 LIBRARY
 EXPORTS
 
+swamigui_deinit
+
 swamigui_control_glade_prop_connect
 swamigui_spectrum_canvas_get_type
 swamigui_control_adj_new
