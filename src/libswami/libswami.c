@@ -218,10 +218,10 @@ swami_deinit()
     ipatch_container_add_disconnect_matched (NULL, container_add_notify, NULL);
     ipatch_container_remove_disconnect_matched (NULL, NULL, container_remove_notify, NULL);
 
-    /* free SwamiControl object */
-    g_object_unref(swami_patch_prop_title_control);
-    g_object_unref(swami_patch_add_control);
-    g_object_unref(swami_patch_remove_control);
+    /* Force control deconnections and free SwamiControl object */
+    swami_control_disconnect_unref(swami_patch_prop_title_control);
+    swami_control_disconnect_unref(swami_patch_add_control);
+    swami_control_disconnect_unref(swami_patch_remove_control);
 
     /* free plugins system */
     _swami_plugin_deinitialize();
