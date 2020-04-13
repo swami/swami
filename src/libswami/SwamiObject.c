@@ -85,6 +85,11 @@ typedef struct
     int rank;
 } TypeRank;
 
+static gboolean
+_swami_object_hash_free_value(gpointer key, gpointer value, gpointer user_data);
+static void _swami_object_free_typerank_list(GSList *list);
+static void _swami_object_free_typerank(TypeRank *data, gpointer user_data);
+
 G_LOCK_DEFINE_STATIC(typerank);  /* a lock for typerank system */
 static GHashTable *typerank_hash = NULL;
 
@@ -135,6 +140,46 @@ _swami_object_init(void)
                                           G_PARAM_READWRITE));
 }
 
+/* free for swami object properties and type rank system */
+void
+_swami_object_deinit(void)
+{
+    /* free type rank system */
+    g_hash_table_foreach_remove(typerank_hash,
+                                _swami_object_hash_free_value, NULL);
+    g_hash_table_destroy(typerank_hash);
+
+    /* free swami object properties pool */
+    g_free(object_property_pool);
+}
+
+/* free hash value entry */
+static gboolean
+_swami_object_hash_free_value(gpointer key, gpointer value, gpointer user_data)
+{
+    _swami_object_free_typerank_list((GSList *)value);
+    return TRUE;
+}
+
+/* free list */
+static void
+_swami_object_free_typerank_list(GSList *list)
+{
+    g_slist_foreach(list,
+                   (GFunc)_swami_object_free_typerank, NULL);
+    g_slist_free(list);
+
+}
+
+/* free list data entry */
+static void _swami_object_free_typerank(TypeRank *data, gpointer user_data)
+{
+   g_slice_free(TypeRank, data);
+}
+
+/*-----------------------------------------------------------------------------
+    API "type rank" system.
+-----------------------------------------------------------------------------*/
 /**
  * swami_type_set_rank:
  * @type: Type to set rank value of
@@ -623,6 +668,9 @@ swami_object_get_by_type(GObject *object, const char *type_name)
     return (match);
 }
 
+/*-----------------------------------------------------------------------------
+    API  Setting/getting SwamiRoot child object properties.
+-----------------------------------------------------------------------------*/
 /**
  * swami_object_get_valist:
  * @object: An object

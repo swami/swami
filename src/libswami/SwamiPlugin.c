@@ -105,7 +105,7 @@ _swami_plugin_initialize(void)
     }
     else
     {
-        plugin_paths = g_list_append(plugin_paths, PLUGINS_DIR);
+        plugin_paths = g_list_append(plugin_paths, g_strdup(PLUGINS_DIR));
     }
 }
 
@@ -696,3 +696,35 @@ swami_plugin_load_xml(SwamiPlugin *plugin, GNode *xmlnode, GError **err)
 
     return (plugin->load_xml(plugin, xmlnode, err));
 }
+
+/*------------------ unloading plugins---------------------------------------*/
+/**
+ * swami_plugin_unload_all:
+ *
+ * Unload all plugins registered in swami_plugins list.
+ */
+void
+swami_plugin_unload_all(void)
+{
+    GList *plugins = swami_plugins;
+    /* Unload modules */
+    while (plugins)
+    {
+        /* unload plugin module */
+        g_type_module_unuse(G_TYPE_MODULE(plugins->data));
+//      g_object_unref (plugin);
+        plugins = g_list_next(plugins);
+    }
+}
+
+void
+_swami_plugin_deinitialize(void)
+{
+    /* free plugings_path list */
+    g_list_foreach(plugin_paths, (GFunc)g_free, NULL);
+    g_list_free(plugin_paths);
+
+    /* free swami_plugins list */
+    g_list_free(swami_plugins);
+}
+

@@ -1,6 +1,8 @@
 LIBRARY
 EXPORTS
 
+swami_deinit
+
 _swami_object_init
 ;_swami_param_init
 
