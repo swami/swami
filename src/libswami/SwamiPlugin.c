@@ -67,7 +67,7 @@ static void swami_plugin_type_module_unload(GTypeModule *type_module);
 static gboolean swami_plugin_load_recurse(char *file, char *name);
 
 /* default plugins directory */
-static const char * plugin_dir = PLUGINS_DIR;
+static const char * plugins_dir = PLUGINS_DIR;
 
 /* initialize plugin system */
 void
@@ -108,7 +108,7 @@ _swami_plugin_initialize(void)
     }
     else
     {
-        plugin_paths = g_list_append (plugin_paths, (gpointer)plugin_dir);
+        plugin_paths = g_list_append (plugin_paths, (gpointer)plugins_dir);
     }
 }
 
@@ -734,7 +734,7 @@ _swami_plugin_deinitialize(void)
 /* free path */
 static void swami_plugin_free_plugin_path(char *path, gpointer user_data)
 {
-    if(path != plugin_dir)
+    if(path != plugins_dir)
     {
         g_free(path);
     }
