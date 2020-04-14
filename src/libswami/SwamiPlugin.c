@@ -55,6 +55,7 @@ static GList *plugin_paths = NULL; /* plugin search paths */
 static GObjectClass *parent_class = NULL;
 
 
+static void swami_plugin_free_plugin_path(char *path, gpointer user_data);
 static void swami_plugin_class_init(SwamiPluginClass *klass);
 static void swami_plugin_finalize(GObject *object);
 static void swami_plugin_set_property(GObject *object, guint property_id,
@@ -65,6 +66,8 @@ static gboolean swami_plugin_type_module_load(GTypeModule *type_module);
 static void swami_plugin_type_module_unload(GTypeModule *type_module);
 static gboolean swami_plugin_load_recurse(char *file, char *name);
 
+/* default plugins directory */
+static const char * plugin_dir = PLUGINS_DIR;
 
 /* initialize plugin system */
 void
@@ -105,7 +108,7 @@ _swami_plugin_initialize(void)
     }
     else
     {
-        plugin_paths = g_list_append(plugin_paths, g_strdup(PLUGINS_DIR));
+        plugin_paths = g_list_append (plugin_paths, (gpointer)plugin_dir);
     }
 }
 
@@ -721,10 +724,19 @@ void
 _swami_plugin_deinitialize(void)
 {
     /* free plugings_path list */
-    g_list_foreach(plugin_paths, (GFunc)g_free, NULL);
+    g_list_foreach(plugin_paths, (GFunc)swami_plugin_free_plugin_path, NULL);
     g_list_free(plugin_paths);
 
     /* free swami_plugins list */
     g_list_free(swami_plugins);
+}
+
+/* free path */
+static void swami_plugin_free_plugin_path(char *path, gpointer user_data)
+{
+    if(path != plugin_dir)
+    {
+        g_free(path);
+    }
 }
 
