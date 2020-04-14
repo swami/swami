@@ -48,8 +48,13 @@ static void container_remove_notify(IpatchContainer *container,
 /* local libswami prototypes (in separate source files) */
 
 void _swami_object_init(void);	/* SwamiObject.c */
+void _swami_object_deinit(void);	/* SwamiObject.c */
 void _swami_plugin_initialize(void);  /* SwamiPlugin.c */
+void _swami_plugin_deinitialize(void); /* SwamiPlugin.c */
 void _swami_value_transform_init(void);  /* value_transform.c */
+
+/* indicates that the librarie is initialized */
+static gboolean initialized = FALSE;
 
 /* Ipatch property and container add/remove event controls */
 /* public variables */
@@ -57,6 +62,8 @@ void _swami_value_transform_init(void);  /* value_transform.c */
 SwamiControl *swami_patch_prop_title_control;
 SwamiControl *swami_patch_add_control;
 SwamiControl *swami_patch_remove_control;
+
+static guint event_timeout_id;
 
 /*
  Getter function returning swami_patch_prop_title_control.
@@ -88,6 +95,18 @@ swami_patch_get_remove_control(void)
     return swami_patch_remove_control;
 }
 
+/*-----------------------------------------------------------------------------
+ Initialization / deinitialization of libswami library.
+ Any application should call swami_init() once before any other libswami
+ functions.
+ When the application is complete it must call swami_deinit.
+
+ For multi task application it is best that only one task be responsible of
+ initialization/deinitialization. Typically, the main task of the application
+ should call swami_init() before creating other tasks, then when the application
+ is complete the main task should call swami_deinit() after the other tasks are
+ completed.
+s-----------------------------------------------------------------------------*/
 /**
  * swami_init:
  *
@@ -96,7 +115,6 @@ swami_patch_get_remove_control(void)
 void
 swami_init(void)
 {
-    static gboolean initialized = FALSE;
     char *swap_dir, *swap_filename;
 
     if(initialized)
@@ -152,12 +170,13 @@ swami_init(void)
                                     NULL, NULL);
 
     /* install periodic control event expiration process */
-    g_timeout_add(SWAMI_CONTROL_EVENT_EXPIRE_INTERVAL,
-                  swami_control_event_expire_timeout, NULL);
+    event_timeout_id = g_timeout_add (SWAMI_CONTROL_EVENT_EXPIRE_INTERVAL,
+                                      swami_control_event_expire_timeout, NULL);
 
-    /* Construct Swami directory name for swap file (uses XDG cache directory - seems the most appropriate) */
     swap_dir = g_build_filename(g_get_user_cache_dir(), "swami", NULL);	/* ++ alloc */
 
+    /* Construct Swami directory name for swap file
+	(uses XDG cache directory - seems the most appropriate) */
     if(!g_file_test(swap_dir, G_FILE_TEST_EXISTS))
     {
         if(g_mkdir_with_parents(swap_dir, 0700) == -1)
@@ -169,12 +188,49 @@ swami_init(void)
         }
     }
 
-    swap_filename = g_build_filename(swap_dir, "sample_swap.dat", NULL);	/* ++ alloc */
+    /* ++ alloc */
+    swap_filename = g_build_filename(swap_dir, "sample_swap.dat", NULL);
     g_free(swap_dir);	/* -- free swap dir */
 
     /* assign libInstPatch sample store swap file name (uses XDG cache directory) */
     ipatch_set_sample_store_swap_file_name(swap_filename);
     g_free(swap_filename);        // -- free swap file name
+}
+
+/**
+ * swami_deinit:
+ *
+ * Free libSwami. Should be called when the application finished using libswami.
+ */
+void
+swami_deinit()
+{
+    if (!initialized)
+    {
+        return; /* does nothing because swami has not been initialized */
+    }
+    initialized = FALSE;
+
+    /* cancel SwamiControl event queuing timer */
+    g_source_remove (event_timeout_id);
+
+    /* disconnect notify from container */
+    ipatch_container_add_disconnect_matched (NULL, container_add_notify, NULL);
+    ipatch_container_remove_disconnect_matched (NULL, NULL, container_remove_notify, NULL);
+
+    /* Force control deconnections and free SwamiControl object */
+    swami_control_disconnect_unref(swami_patch_prop_title_control);
+    swami_control_disconnect_unref(swami_patch_add_control);
+    swami_control_disconnect_unref(swami_patch_remove_control);
+
+    /* free plugins system */
+    _swami_plugin_deinitialize();
+
+    /* free child properties and type rank systems */
+    _swami_object_deinit();
+
+    /* free libInstPatch */
+    ipatch_close();
 }
 
 static gboolean

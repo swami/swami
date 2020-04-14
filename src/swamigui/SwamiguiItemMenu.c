@@ -105,6 +105,16 @@ _swamigui_item_menu_init(void)
                              NULL, type_match_list_free);
 }
 
+/* free menu table */
+void
+_swamigui_item_menu_deinit (void)
+{
+    g_hash_table_destroy(menu_action_hash);
+    g_hash_table_destroy(item_type_include_hash);
+    g_hash_table_destroy(item_type_exclude_hash);
+    g_object_unref(swamigui_item_menu_accel_group);
+}
+
 GType
 swamigui_item_menu_get_type(void)
 {

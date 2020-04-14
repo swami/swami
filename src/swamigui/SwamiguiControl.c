@@ -72,6 +72,8 @@ typedef struct
 
 static int swamigui_control_GCompare_type(gconstpointer a, gconstpointer b);
 static int swamigui_control_GCompare_rank(gconstpointer a, gconstpointer b);
+static void
+_swami_control_free_handler_infos(HandlerInfo *data, gpointer user_data);
 
 
 G_LOCK_DEFINE_STATIC(control_handlers);
@@ -80,11 +82,30 @@ static GList *control_handlers = NULL;
 /* quark used to associate a control to a widget using g_object_set_qdata */
 GQuark swamigui_control_quark = 0;
 
+/* ------ Initialization/deinitialization of GUI control system --------------*/
+/* Ininitialize GUI control system */
 void
 _swamigui_control_init(void)
 {
+    control_handlers = NULL;
+
     swamigui_control_quark
         = g_quark_from_static_string("_SwamiguiControl");
+}
+
+/* Free GUI control system */
+void
+_swamigui_control_deinit(void)
+{
+    g_list_foreach(control_handlers,
+                   (GFunc)_swami_control_free_handler_infos, NULL);
+    g_list_free(control_handlers);
+}
+
+static void
+_swami_control_free_handler_infos(HandlerInfo *data, gpointer user_data)
+{
+    g_slice_free(HandlerInfo, data);
 }
 
 /**

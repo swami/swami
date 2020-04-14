@@ -91,6 +91,23 @@ prop_info_free(gpointer data)
     g_slice_free(PropInfo, data);
 }
 
+/* ----------  Initialization/deinitialization of property type registry ----*/
+/* Initialization of property type registry */
+void
+_swamigui_prop_init(void)
+{
+    prop_registry = g_hash_table_new_full (NULL, NULL, NULL, prop_info_free);
+}
+
+/* Freeing of property type registry */
+void
+_swamigui_prop_deinit(void)
+{
+    g_hash_table_destroy(prop_registry);
+}
+
+/* --------------------------------------------------------------------------*/
+
 /**
  * swamigui_register_prop_glade_widg:
  * @objtype: Type of object which the interface will control
@@ -162,8 +179,6 @@ swamigui_prop_get_type(void)
         obj_type = g_type_register_static(GTK_TYPE_SCROLLED_WINDOW,
                                           "SwamiguiProp", &obj_info, 0);
         g_type_add_interface_static(obj_type, SWAMIGUI_TYPE_PANEL, &panel_info);
-
-        prop_registry = g_hash_table_new_full(NULL, NULL, NULL, prop_info_free);
     }
 
     return (obj_type);

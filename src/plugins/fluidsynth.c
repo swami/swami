@@ -190,6 +190,7 @@ typedef enum
 } PropFlags;
 
 static gboolean plugin_fluidsynth_init(SwamiPlugin *plugin, GError **err);
+static void plugin_fluidsynth_exit (SwamiPlugin *plugin);
 static gboolean plugin_fluidsynth_save_xml(SwamiPlugin *plugin, GNode *xmlnode,
         GError **err);
 static gboolean plugin_fluidsynth_load_xml(SwamiPlugin *plugin, GNode *xmlnode,
@@ -321,12 +322,13 @@ static int chorus_presets_count;	/* count of chorus presets */
 #define CHORUS_PRESETS_BUILTIN	1
 
 /* set plugin information */
-SWAMI_PLUGIN_INFO(plugin_fluidsynth_init, NULL);
+SWAMI_PLUGIN_INFO (plugin_fluidsynth_init, plugin_fluidsynth_exit);
 
 /* --- functions --- */
 
 
 /* plugin init function (one time initialize of SwamiPlugin) */
+/* Called when the plugin module is loaded */
 static gboolean
 plugin_fluidsynth_init(SwamiPlugin *plugin, GError **err)
 {
@@ -415,6 +417,32 @@ plugin_fluidsynth_init(SwamiPlugin *plugin, GError **err)
     chorus_waveform_type = chorus_waveform_register_type(plugin);
 
     return (TRUE);
+}
+
+/* plugin exit function called when the plugin module is unloaded */
+static void
+plugin_fluidsynth_exit (SwamiPlugin *plugin)
+{
+    guint i;
+
+    /* free static table allocated in plugin_fluidsynth_init(). */
+    g_hash_table_destroy(voice_cache_hash);
+
+    g_free(reverb_presets);
+    g_free(chorus_presets);
+
+    /* free dynamic_prop_names, dynamic_prop_flags, allocated
+       in wavetbl_fluidsynth_class_init().
+    */
+    if(dynamic_prop_names)
+    {
+        for (i = 0; i < last_property_id - FIRST_DYNAMIC_PROP; i++)
+        {
+            g_free(dynamic_prop_names[i]);
+        }
+    }
+    g_free(dynamic_prop_names);
+    g_free(dynamic_prop_flags);
 }
 
 static gboolean
@@ -813,8 +841,11 @@ settings_foreach_func(void *data, const char *name, int type)
         spec = g_param_spec_boxed(optname, optname, optname, G_TYPE_STRV,
                                   G_PARAM_READABLE);
 
-        /* !! GParamSpec takes over allocation of options array */
-        g_param_spec_set_qdata(spec, wavetbl_fluidsynth_options_quark, options);
+        /* !! GParamSpec takes over allocation of options array. option will be
+           freed when spec will be freed.
+        */
+        g_param_spec_set_qdata_full(spec, wavetbl_fluidsynth_options_quark,
+                                    options, g_free);
         g_object_class_install_property(bag->klass, last_property_id, spec);
 
         /* !! takes over allocation */
