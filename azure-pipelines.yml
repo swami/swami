@@ -124,8 +124,8 @@ jobs:
         mv lib\libsndfile-1.lib lib\sndfile.lib || exit -1
         mv lib\libsndfile-1.def lib\sndfile.def || exit -1
         cd mingw*\ && cp -rf * .. && cd .. && rm -rf mingw* || exit -1
-        cd $(Build.ArtifactStagingDirectory)\fluidsynth-$(platform) && cp -rf * d:\deps\ && cd .. && rm -rf $(Build.ArtifactStagingDirectory)\fluidsynth-$(platform)\ || exit -1
-        cd $(Build.ArtifactStagingDirectory)\libinstpatch-$(platform) && cp -rf * d:\deps\ && cd .. && rm -rf $(Build.ArtifactStagingDirectory)\libinstpatch-$(platform)\ || exit -1
+        cd $(Build.ArtifactStagingDirectory)\fluidsynth-$(platform) && cp -rf * d:\deps\ && cp -rf * $(Build.ArtifactStagingDirectory) && cd .. && rm -rf $(Build.ArtifactStagingDirectory)\fluidsynth-$(platform)\ || exit -1
+        cd $(Build.ArtifactStagingDirectory)\libinstpatch-$(platform) && cp -rf * d:\deps\ && cp -rf * $(Build.ArtifactStagingDirectory) && cd .. && rm -rf $(Build.ArtifactStagingDirectory)\libinstpatch-$(platform)\ || exit -1
       displayName: 'Prerequisites'
     - script: |
         @ECHO ON
@@ -144,8 +144,7 @@ jobs:
         del $(Build.ArtifactStagingDirectory)\bin\concrt*.dll
         del $(Build.ArtifactStagingDirectory)\bin\vcruntime*.dll
         del $(Build.ArtifactStagingDirectory)\bin\msvcp*.dll
-        cd $(Build.ArtifactStagingDirectory)\bin
-        cp -rf d:\deps\bin .
+        where makensis
       displayName: 'Copy Artifacts'
     - task: PublishBuildArtifacts@1
       inputs:
