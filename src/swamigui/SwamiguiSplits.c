@@ -171,6 +171,26 @@ static GList *split_handlers = NULL;	/* list of SwamiguiSplitsHandlers */
 static guint8 velbar_scolor[3] = { 0, 0, 0 };
 static guint8 velbar_ecolor[3] = { 0, 0, 255 };
 
+/*--- Initialization / deinitialization -------------------------------------*/
+
+/***
+ * Initialization
+ */
+void _swamigui_splits_init(void)
+{
+    /* list of SwamiguiSplitsHandlers */
+    split_handlers = NULL;
+}
+
+/***
+ * Deinitialization: free memory
+ */
+void _swamigui_splits_deinit(void)
+{
+    g_list_free(split_handlers);
+}
+
+/*----- SwamiguiSplits object functions --------------------------------------*/
 
 GType
 swamigui_splits_get_type(void)

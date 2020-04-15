@@ -85,6 +85,7 @@ void _patch_funcs_init(void); /* General instrument patch functions */
 void _swamigui_knob_init(void);
 void _swamigui_pref_init(void); /* Preferences functions */
 void _swamigui_sample_editor_init(void);
+void _swamigui_splits_init(void);
 void _swamigui_item_menu_actions_init(void);	/* SwamiguiItemMenu_actions.c */
 void _swamigui_panel_selector_init(void);
 void _swamigui_prop_init(void);
@@ -95,6 +96,7 @@ void _swamigui_item_menu_deinit(void);
 void _patch_funcs_deinit(void); /* General instrument patch functions */
 void _swamigui_pref_deinit(void);
 void _swamigui_sample_editor_deinit(void);
+void _swamigui_splits_deinit(void);
 void _swamigui_knob_deinit(void);
 void _swamigui_panel_selector_deinit(void);
 void _swamigui_prop_deinit(void);
@@ -277,6 +279,7 @@ swamigui_init(int *argc, char **argv[])
     swamigui_sample_editor_status_get_type();
     swamigui_spectrum_canvas_get_type();
     swamigui_spin_scale_get_type();
+    _swamigui_splits_init();
     swamigui_splits_get_type();
     swamigui_splits_mode_get_type();
     swamigui_splits_status_get_type();
@@ -353,6 +356,9 @@ swamigui_deinit(void)
 
     /* Free pannel list */
     _swamigui_panel_selector_deinit();
+
+    /* Free SwamiguiSplits functions */
+    _swamigui_splits_deinit();
 
     /* Free Sample editor functions */
     _swamigui_sample_editor_deinit();
