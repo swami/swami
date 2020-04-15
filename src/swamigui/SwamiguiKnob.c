@@ -51,8 +51,32 @@ static gboolean swamigui_knob_motion_notify_event(GtkWidget *widget,
 static void swamigui_knob_adj_value_changed(GtkAdjustment *adj,
         gpointer user_data);
 
-GdkPixbuf *knob_pixbuf = NULL;
+/*
+  knob_pixbuf is global and common to all SwamiguiKnob widgets.
+  This allows to save memory.
+  It must be freed when the application is complete
+*/
+static GdkPixbuf *knob_pixbuf = NULL;
 
+/*--- Initialization / deinitialization -------------------------------------*/
+
+/***
+ * Initialization
+ */
+void _swamigui_knob_init(void)
+{
+    knob_pixbuf = NULL;
+}
+
+/***
+ * Deinitialization: free memory
+ */
+void _swamigui_knob_deinit(void)
+{
+    g_object_unref(knob_pixbuf);
+}
+
+/*----- SwamiguiKnob object functions ---------------------------------------*/
 
 static void
 swamigui_knob_class_init(SwamiguiKnobClass *class)

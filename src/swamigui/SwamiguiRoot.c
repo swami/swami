@@ -82,6 +82,7 @@ void _swamigui_control_init(void);  /* SwamiguiControl.c */
 void _swamigui_control_widgets_init(void);  /* SwamiguiControl_widgets.c */
 void _swamigui_item_menu_init(void);
 void _patch_funcs_init(void); /* General instrument patch functions */
+void _swamigui_knob_init(void);
 void _swamigui_item_menu_actions_init(void);	/* SwamiguiItemMenu_actions.c */
 void _swamigui_panel_selector_init(void);
 void _swamigui_prop_init(void);
@@ -90,6 +91,7 @@ void swamigui_util_deinit(void);
 void _swamigui_control_deinit(void); /* free GUI control system */
 void _swamigui_item_menu_deinit(void);
 void _patch_funcs_deinit(void); /* General instrument patch functions */
+void _swamigui_knob_deinit(void);
 void _swamigui_panel_selector_deinit(void);
 void _swamigui_prop_deinit(void);
 void  swami_plugin_unload_all(void);
@@ -244,6 +246,8 @@ swamigui_init(int *argc, char **argv[])
     swamigui_control_rank_get_type();
     swamigui_item_menu_flags_get_type();
     swamigui_item_menu_get_type();
+    /* knob widget */
+    _swamigui_knob_init();
     swamigui_knob_get_type();
     swamigui_menu_get_type();
     swamigui_mod_edit_get_type();
@@ -341,6 +345,9 @@ swamigui_deinit(void)
 
     /* Free pannel list */
     _swamigui_panel_selector_deinit();
+
+    /* free knob widget functions */
+    _swamigui_knob_deinit();
 
     /* free General instrument patch functions */
     _patch_funcs_deinit();
