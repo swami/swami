@@ -61,6 +61,7 @@ typedef struct
     SwamiguiPrefHandler handler;	/* Handler to create the interface */
 } PrefInfo;
 
+static void _swamigui_pref_free_pref_info(PrefInfo *data, gpointer user_data);
 static gint sort_pref_info_by_order_and_name(gconstpointer a, gconstpointer b);
 static void swamigui_pref_cb_close_clicked(GtkWidget *button, gpointer user_data);
 static void swamigui_pref_section_list_change(GtkTreeSelection *selection,
@@ -96,6 +97,33 @@ static GList *pref_list = NULL;	/* list of registered pref interfaces (PrefInfo 
 static const char *note_names[] =
 { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
 
+/*--- Initialization / deinitialization -------------------------------------*/
+
+/***
+ * Initialization
+ */
+void _swamigui_pref_init(void)
+{
+    pref_list = NULL;	/* list of registered pref interfaces (PrefInfo) */
+}
+
+/***
+ * Deinitialization: free memory
+ */
+void _swamigui_pref_deinit(void)
+{
+    g_list_foreach(pref_list, (GFunc)_swamigui_pref_free_pref_info, NULL);
+    g_list_free(pref_list);
+}
+
+static void _swamigui_pref_free_pref_info(PrefInfo *data, gpointer user_data)
+{
+    g_free(data->name);
+    g_free(data->icon);
+    g_slice_free(PrefInfo, data);
+}
+
+/*----- Swamigui Preferences dialog functions -------------------------------*/
 
 /**
  * swamigui_register_pref_handler:
