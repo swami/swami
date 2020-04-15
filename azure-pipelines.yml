@@ -147,7 +147,9 @@ jobs:
         cd $(Build.ArtifactStagingDirectory)
         mkdir docs
         cp $(Build.SourcesDirectory)\COPYING docs\distribution.txt
-        makensis $(Build.SourcesDirectory)\package\win32\swami.nsi
+        dir
+        makensis /?
+        makensis $(Build.SourcesDirectory)\package\win32\swami.nsi || cd .
       displayName: 'Copy Artifacts'
     - task: PublishBuildArtifacts@1
       inputs:
