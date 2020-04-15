@@ -87,6 +87,7 @@ void _swamigui_pref_init(void); /* Preferences functions */
 void _swamigui_sample_editor_init(void);
 void _swamigui_splits_init(void);
 void _swamigui_item_menu_actions_init(void);	/* SwamiguiItemMenu_actions.c */
+void _swamigui_tree_store_init(void);
 void _swamigui_panel_selector_init(void);
 void _swamigui_prop_init(void);
 void swami_deinit(void); /* free libswami  */
@@ -98,6 +99,7 @@ void _swamigui_pref_deinit(void);
 void _swamigui_sample_editor_deinit(void);
 void _swamigui_splits_deinit(void);
 void _swamigui_knob_deinit(void);
+void _swamigui_tree_store_deinit(void);
 void _swamigui_panel_selector_deinit(void);
 void _swamigui_prop_deinit(void);
 void  swami_plugin_unload_all(void);
@@ -286,6 +288,7 @@ swamigui_init(int *argc, char **argv[])
     swamigui_statusbar_get_type();
     swamigui_statusbar_pos_get_type();
     swamigui_tree_get_type();
+    _swamigui_tree_store_init();
     swamigui_tree_store_get_type();
     swamigui_tree_store_patch_get_type();
     swamigui_tree_store_config_get_type();
@@ -356,6 +359,9 @@ swamigui_deinit(void)
 
     /* Free pannel list */
     _swamigui_panel_selector_deinit();
+
+    /* free SwamiguiTreeStore functions */
+    _swamigui_tree_store_deinit();
 
     /* Free SwamiguiSplits functions */
     _swamigui_splits_deinit();

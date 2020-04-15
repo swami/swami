@@ -49,6 +49,28 @@ static GObjectClass *parent_class = NULL;
 /* a cache of icon names (conserve memory, no need to store for every item) */
 static GHashTable *icon_name_cache = NULL;
 
+/*--- Initialization / deinitialization -------------------------------------*/
+
+/***
+ * Initialization
+ */
+void _swamigui_tree_store_init(void)
+{
+    /* a cache of icon names */
+    icon_name_cache = g_hash_table_new_full(NULL, NULL,
+                                            (GDestroyNotify)g_free, NULL);
+}
+
+/***
+ * Deinitialization: free memory
+ */
+void _swamigui_tree_store_deinit(void)
+{
+    g_hash_table_destroy(icon_name_cache);
+}
+
+/*----- SwamiguiTreeStore object functions ----------------------------------*/
+
 GType
 swamigui_tree_store_get_type(void)
 {
