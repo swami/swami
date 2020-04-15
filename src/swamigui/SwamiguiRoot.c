@@ -81,6 +81,7 @@ void _swamigui_stock_icons_init(void);  /* icons.c */
 void _swamigui_control_init(void);  /* SwamiguiControl.c */
 void _swamigui_control_widgets_init(void);  /* SwamiguiControl_widgets.c */
 void _swamigui_item_menu_init(void);
+void _patch_funcs_init(void); /* General instrument patch functions */
 void _swamigui_item_menu_actions_init(void);	/* SwamiguiItemMenu_actions.c */
 void _swamigui_panel_selector_init(void);
 void _swamigui_prop_init(void);
@@ -88,6 +89,7 @@ void swami_deinit(void); /* free libswami  */
 void swamigui_util_deinit(void);
 void _swamigui_control_deinit(void); /* free GUI control system */
 void _swamigui_item_menu_deinit(void);
+void _patch_funcs_deinit(void); /* General instrument patch functions */
 void _swamigui_panel_selector_deinit(void);
 void _swamigui_prop_deinit(void);
 void  swami_plugin_unload_all(void);
@@ -227,6 +229,8 @@ swamigui_init(int *argc, char **argv[])
     _swamigui_control_init();
     _swamigui_control_widgets_init();
     _swamigui_item_menu_init();
+    /* General instrument patch functions */
+    _patch_funcs_init();
 
 
     /* initialize Swamigui types */
@@ -337,6 +341,9 @@ swamigui_deinit(void)
 
     /* Free pannel list */
     _swamigui_panel_selector_deinit();
+
+    /* free General instrument patch functions */
+    _patch_funcs_deinit();
 
     _swamigui_item_menu_deinit();
 
