@@ -34,8 +34,8 @@ static void cb_win_destroy(GtkWidget *win);
 static gboolean cb_button_press(GtkWidget *widg, GdkEventButton *ev);
 
 static GtkWidget *splash_win = NULL;
-static gboolean splash_timeout_active = FALSE;
-static guint splash_timeout_h;
+/* timeout handler controlling display duration of splash window */
+static guint splash_timeout_h = 0;
 
 /**
  * swamigui_splash_display:
@@ -86,13 +86,13 @@ swamigui_splash_display(guint timeout)
     gtk_widget_show(image);
 
     gtk_window_set_transient_for(GTK_WINDOW(splash_win), GTK_WINDOW(swamigui_root->main_window));
+    gtk_window_set_destroy_with_parent((GtkWindow*)splash_win, TRUE);
     gtk_widget_show(splash_win);
 
     g_object_unref(pixbuf);	/* -- unref pixbuf creator's ref */
 
     if(timeout)
     {
-        splash_timeout_active = TRUE;
         splash_timeout_h = g_timeout_add(timeout, (GSourceFunc)swamigui_splash_kill, NULL);
     }
 }
@@ -110,15 +110,8 @@ swamigui_splash_kill(void)
 {
     if(splash_win)
     {
-        if(splash_timeout_active)
-        {
-            gtk_timeout_remove(splash_timeout_h);
-        }
-
         gtk_widget_destroy(splash_win);
     }
-
-    splash_timeout_active = FALSE;
 
     return (FALSE);
 }
@@ -127,6 +120,13 @@ static void
 cb_win_destroy(GtkWidget *win)
 {
     splash_win = NULL;
+
+    /* remove timeout handler if any */
+    if(splash_timeout_h)
+    {
+        gtk_timeout_remove(splash_timeout_h);
+        splash_timeout_h = 0;
+    }
 }
 
 static gboolean
