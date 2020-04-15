@@ -106,16 +106,18 @@ jobs:
         mkdir d:\deps || exit -1
         cd d:\deps || exit -1
         curl -LfsS -o gtk-bundle-dev.zip $(gtk-bundle) || exit -1
-        curl -LfsS -o libsndfile-dev.zip $(libsndfile-url) || exit -1
         curl -LfsS -o libgnomecanvas.zip $(libgnomecanvas-url) || exit -1
         curl -LfsS -o libgnomecanvas-dev.zip $(libgnomecanvas-dev-url) || exit -1
+        7z x -aos -- gtk-bundle-dev.zip > NUL || exit -1
+        7z x -aos -- libgnomecanvas.zip > NUL || exit -1
+        7z x -aos -- libgnomecanvas-dev.zip > NUL || exit -1
+        rm *.zip
+        cp -rf * $(Build.ArtifactStagingDirectory)
+        curl -LfsS -o libsndfile-dev.zip $(libsndfile-url) || exit -1
         curl -LfsS -o libart.zip $(libart-url) || exit -1
         curl -LfsS -o libart-dev.zip $(libart-dev-url) || exit -1
         curl -LfsS -o mingw.zip $(mingw-url) || exit -1
-        7z x -aos -- gtk-bundle-dev.zip > NUL || exit -1
         7z x -aos -- libsndfile-dev.zip > NUL || exit -1
-        7z x -aos -- libgnomecanvas.zip > NUL || exit -1
-        7z x -aos -- libgnomecanvas-dev.zip > NUL || exit -1
         7z x -aos -- libart.zip > NUL || exit -1
         7z x -aos -- libart-dev.zip > NUL || exit -1
         7z x -aos -- mingw.zip > NUL || exit -1
