@@ -154,7 +154,9 @@ jobs:
         makensis $(Build.SourcesDirectory)\package\win32\swami.nsi || cd .
         rm -rf include etc docs man manifest src
         rm -f lib/*
+        mv bin/swami.exe bin/swami
         rm -f bin/*.exe
+        mv bin/swami bin/swami.exe
         rm -f bin/*.sh
       displayName: 'Copy Artifacts'
     - task: PublishBuildArtifacts@1
