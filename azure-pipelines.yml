@@ -145,6 +145,8 @@ jobs:
         del $(Build.ArtifactStagingDirectory)\bin\vcruntime*.dll
         del $(Build.ArtifactStagingDirectory)\bin\msvcp*.dll
         cd $(Build.ArtifactStagingDirectory)
+        mkdir docs/
+        cp $(Build.SourcesDirectory)\COPYING docs\distribution.txt
         makensis $(Build.SourcesDirectory)\package\win32\swami.nsi
       displayName: 'Copy Artifacts'
     - task: PublishBuildArtifacts@1
