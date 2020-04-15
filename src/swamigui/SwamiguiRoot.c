@@ -84,6 +84,7 @@ void _swamigui_item_menu_init(void);
 void _patch_funcs_init(void); /* General instrument patch functions */
 void _swamigui_knob_init(void);
 void _swamigui_pref_init(void); /* Preferences functions */
+void _swamigui_sample_editor_init(void);
 void _swamigui_item_menu_actions_init(void);	/* SwamiguiItemMenu_actions.c */
 void _swamigui_panel_selector_init(void);
 void _swamigui_prop_init(void);
@@ -93,6 +94,7 @@ void _swamigui_control_deinit(void); /* free GUI control system */
 void _swamigui_item_menu_deinit(void);
 void _patch_funcs_deinit(void); /* General instrument patch functions */
 void _swamigui_pref_deinit(void);
+void _swamigui_sample_editor_deinit(void);
 void _swamigui_knob_deinit(void);
 void _swamigui_panel_selector_deinit(void);
 void _swamigui_prop_deinit(void);
@@ -267,6 +269,8 @@ swamigui_init(int *argc, char **argv[])
     swamigui_quit_confirm_get_type();
     swamigui_root_get_type();
     swamigui_sample_canvas_get_type();
+    /* Sample editor functions */
+    _swamigui_sample_editor_init();
     swamigui_sample_editor_get_type();
     swamigui_sample_editor_marker_flags_get_type();
     swamigui_sample_editor_marker_id_get_type();
@@ -349,6 +353,9 @@ swamigui_deinit(void)
 
     /* Free pannel list */
     _swamigui_panel_selector_deinit();
+
+    /* Free Sample editor functions */
+    _swamigui_sample_editor_deinit();
 
     /* free preferences functions */
     _swamigui_pref_deinit();

@@ -274,6 +274,30 @@ enum
     LOOPSEL_COL_COUNT
 };
 
+/*--- Initialization / deinitialization -------------------------------------*/
+
+/***
+ * Initialization
+ */
+void _swamigui_sample_editor_init(void)
+{
+    /* list of SwamiguiSampleEditorHandlers */
+    sample_editor_handlers = NULL;
+
+    /* list of SwamiguiPanelCheckFunc corresponding to sample_editor_handlers */
+    sample_editor_check_funcs = NULL;
+}
+
+/***
+ * Deinitialization: free memory
+ */
+void _swamigui_sample_editor_deinit(void)
+{
+    g_list_free(sample_editor_handlers);
+    g_list_free(sample_editor_check_funcs);
+}
+
+/*----- Swamigui Sample Editor dialog functions -----------------------------*/
 
 GType
 swamigui_sample_editor_get_type(void)
