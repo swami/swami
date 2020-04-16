@@ -59,6 +59,7 @@ static void swamigui_cb_export_samples_response(GtkWidget *dialog,
         gpointer user_data);
 /* global variables */
 
+/* strings caches */
 static char *path_patch_load = NULL; /* last loaded patch path */
 //static char *path_patch_save = NULL; /* last saved patch path */
 static char *path_sample_load = NULL; /* last sample load path */
@@ -68,6 +69,45 @@ static char *last_sample_format = NULL;	/* last sample export format */
 /* clipboard for item selections */
 static IpatchList *item_clipboard = NULL;
 
+/* global Prototypes */
+void
+swamigui_copy_items (IpatchList *items);
+
+/*--- Initialization / deinitialization -------------------------------------*/
+
+/***
+ * Initialization
+ */
+void _patch_funcs_init(void)
+{
+    /* string caches */
+    path_patch_load = NULL;    /* last loaded patch path */
+    path_sample_load = NULL;   /* last sample load path */
+    path_sample_export = NULL; /* last sample export path */
+    last_sample_format = NULL; /* last sample export format */
+
+    /* clipboard for item selections */
+    item_clipboard = NULL;
+}
+
+/***
+ * Deinitialization: free caches and clipboard
+ */
+void _patch_funcs_deinit(void)
+{
+    /* free string caches */
+    g_free(path_patch_load);    /* last loaded patch path */
+    g_free(path_sample_load);   /* last sample load path */
+    g_free(path_sample_export); /* last sample export path */
+    g_free(last_sample_format); /* last sample export format */
+
+    /* free clipboard */
+    if(item_clipboard)
+    {
+        swamigui_copy_items(NULL);
+    }
+}
+/*----- patch_funcs functions -----------------------------------------------*/
 
 /**
  * swamigui_load_files:

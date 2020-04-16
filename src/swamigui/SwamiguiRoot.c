@@ -81,13 +81,25 @@ void _swamigui_stock_icons_init(void);  /* icons.c */
 void _swamigui_control_init(void);  /* SwamiguiControl.c */
 void _swamigui_control_widgets_init(void);  /* SwamiguiControl_widgets.c */
 void _swamigui_item_menu_init(void);
+void _patch_funcs_init(void); /* General instrument patch functions */
+void _swamigui_knob_init(void);
+void _swamigui_pref_init(void); /* Preferences functions */
+void _swamigui_sample_editor_init(void);
+void _swamigui_splits_init(void);
 void _swamigui_item_menu_actions_init(void);	/* SwamiguiItemMenu_actions.c */
+void _swamigui_tree_store_init(void);
 void _swamigui_panel_selector_init(void);
 void _swamigui_prop_init(void);
 void swami_deinit(void); /* free libswami  */
 void swamigui_util_deinit(void);
 void _swamigui_control_deinit(void); /* free GUI control system */
 void _swamigui_item_menu_deinit(void);
+void _patch_funcs_deinit(void); /* General instrument patch functions */
+void _swamigui_pref_deinit(void);
+void _swamigui_sample_editor_deinit(void);
+void _swamigui_splits_deinit(void);
+void _swamigui_knob_deinit(void);
+void _swamigui_tree_store_deinit(void);
 void _swamigui_panel_selector_deinit(void);
 void _swamigui_prop_deinit(void);
 void  swami_plugin_unload_all(void);
@@ -227,6 +239,8 @@ swamigui_init(int *argc, char **argv[])
     _swamigui_control_init();
     _swamigui_control_widgets_init();
     _swamigui_item_menu_init();
+    /* General instrument patch functions */
+    _patch_funcs_init();
 
 
     /* initialize Swamigui types */
@@ -240,6 +254,8 @@ swamigui_init(int *argc, char **argv[])
     swamigui_control_rank_get_type();
     swamigui_item_menu_flags_get_type();
     swamigui_item_menu_get_type();
+    /* knob widget */
+    _swamigui_knob_init();
     swamigui_knob_get_type();
     swamigui_menu_get_type();
     swamigui_mod_edit_get_type();
@@ -250,23 +266,29 @@ swamigui_init(int *argc, char **argv[])
     swamigui_paste_get_type();
     swamigui_paste_status_get_type();
     swamigui_piano_get_type();
+    /* preferences functions */
+    _swamigui_pref_init();
     swamigui_pref_get_type();
     swamigui_prop_get_type();
     swamigui_quit_confirm_get_type();
     swamigui_root_get_type();
     swamigui_sample_canvas_get_type();
+    /* Sample editor functions */
+    _swamigui_sample_editor_init();
     swamigui_sample_editor_get_type();
     swamigui_sample_editor_marker_flags_get_type();
     swamigui_sample_editor_marker_id_get_type();
     swamigui_sample_editor_status_get_type();
     swamigui_spectrum_canvas_get_type();
     swamigui_spin_scale_get_type();
+    _swamigui_splits_init();
     swamigui_splits_get_type();
     swamigui_splits_mode_get_type();
     swamigui_splits_status_get_type();
     swamigui_statusbar_get_type();
     swamigui_statusbar_pos_get_type();
     swamigui_tree_get_type();
+    _swamigui_tree_store_init();
     swamigui_tree_store_get_type();
     swamigui_tree_store_patch_get_type();
     swamigui_tree_store_config_get_type();
@@ -337,6 +359,24 @@ swamigui_deinit(void)
 
     /* Free pannel list */
     _swamigui_panel_selector_deinit();
+
+    /* free SwamiguiTreeStore functions */
+    _swamigui_tree_store_deinit();
+
+    /* Free SwamiguiSplits functions */
+    _swamigui_splits_deinit();
+
+    /* Free Sample editor functions */
+    _swamigui_sample_editor_deinit();
+
+    /* free preferences functions */
+    _swamigui_pref_deinit();
+
+    /* free knob widget functions */
+    _swamigui_knob_deinit();
+
+    /* free General instrument patch functions */
+    _patch_funcs_deinit();
 
     _swamigui_item_menu_deinit();
 
