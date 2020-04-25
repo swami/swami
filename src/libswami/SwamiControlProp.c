@@ -83,6 +83,26 @@ static GHashTable *control_prop_reverse_hash = NULL;
    IpatchItem property set, NULL when not in use */
 static GStaticPrivate prop_notify_origin = G_STATIC_PRIVATE_INIT;
 
+/* ----- Initialization/deinitialization of hash cache ----------------------*/
+/* Initialize hash table cache */
+void _swami_control_prop_init(void)
+{
+    control_prop_hash = g_hash_table_new_full(control_prop_hash_func,
+                                              control_prop_equal_func,
+                                              control_prop_key_free_func, NULL);
+
+    control_prop_reverse_hash = g_hash_table_new (NULL, NULL);
+}
+
+/* Free hash table cache */
+void _swami_control_prop_deinit(void)
+{
+    g_hash_table_destroy(control_prop_hash);
+    g_hash_table_destroy(control_prop_reverse_hash);
+}
+
+/*------ SwamiControlProp object functions  ---------------------------------*/
+
 
 /**
  * swami_get_control_prop:
@@ -360,13 +380,6 @@ swami_control_prop_get_type(void)
             sizeof(SwamiControlProp), 0,
             (GInstanceInitFunc) NULL
         };
-
-        control_prop_hash =
-            g_hash_table_new_full(control_prop_hash_func,
-                                  control_prop_equal_func,
-                                  control_prop_key_free_func, NULL);
-
-        control_prop_reverse_hash = g_hash_table_new(NULL, NULL);
 
         otype = g_type_register_static(SWAMI_TYPE_CONTROL, "SwamiControlProp",
                                        &type_info, 0);

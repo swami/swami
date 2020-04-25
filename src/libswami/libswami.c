@@ -52,6 +52,8 @@ void _swami_object_deinit(void);	/* SwamiObject.c */
 void _swami_plugin_initialize(void);  /* SwamiPlugin.c */
 void _swami_plugin_deinitialize(void); /* SwamiPlugin.c */
 void _swami_value_transform_init(void);  /* value_transform.c */
+void _swami_control_prop_init(void);   /* SwamiControlProp.c */
+void _swami_control_prop_deinit(void); /* SwamiControlProp.c */
 
 /* indicates that the librarie is initialized */
 static gboolean initialized = FALSE;
@@ -139,6 +141,9 @@ swami_init(void)
     /* Register additional value transform functions */
     _swami_value_transform_init();
 
+    /* initialize SwamiControlProp cache */
+    _swami_control_prop_init();
+
     /* initialize libswami types */
     g_type_class_ref(SWAMI_TYPE_CONTROL);
     g_type_class_ref(SWAMI_TYPE_CONTROL_FUNC);
@@ -225,6 +230,9 @@ swami_deinit()
 
     /* free plugins system */
     _swami_plugin_deinitialize();
+
+    /* free SwamiControlProp cache */
+    _swami_control_prop_deinit();
 
     /* free child properties and type rank systems */
     _swami_object_deinit();
