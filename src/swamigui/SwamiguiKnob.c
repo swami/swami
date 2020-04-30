@@ -73,7 +73,10 @@ void _swamigui_knob_init(void)
  */
 void _swamigui_knob_deinit(void)
 {
-    g_object_unref(knob_pixbuf);
+    if(knob_pixbuf != NULL)
+    {
+        g_object_unref(knob_pixbuf);
+    }
 }
 
 /*----- SwamiguiKnob object functions ---------------------------------------*/
