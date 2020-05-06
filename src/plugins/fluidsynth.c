@@ -2047,7 +2047,6 @@ sfloader_preset_free(fluid_preset_t *preset)
 static void
 sfloader_active_preset_free(fluid_preset_t *preset)
 {
-    g_object_unref(G_OBJECT(fluid_preset_get_data(preset)));   /* -- remove wavetbl obj ref */
     delete_fluid_preset(preset);
 }
 
