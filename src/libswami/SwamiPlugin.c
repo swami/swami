@@ -704,7 +704,7 @@ swami_plugin_load_xml(SwamiPlugin *plugin, GNode *xmlnode, GError **err)
 /**
  * swami_plugin_unload_all:
  *
- * Unload all plugins registered in swami_plugins list.
+ * Unload and free all plugins registered in swami_plugins list.
  */
 void
 swami_plugin_unload_all(void)
@@ -715,11 +715,15 @@ swami_plugin_unload_all(void)
     {
         /* unload plugin module */
         g_type_module_unuse(G_TYPE_MODULE(plugins->data));
-//      g_object_unref (plugin);
+
+        /* free plugin */
+        g_object_unref(plugins->data);
+
         plugins = g_list_next(plugins);
     }
 }
 
+/* deinitialize plugin system */
 void
 _swami_plugin_deinitialize(void)
 {
