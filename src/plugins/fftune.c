@@ -125,8 +125,12 @@ plugin_fftune_init(SwamiPlugin *plugin, GError **err)
                  "license", "GPL",
                  NULL);
 
-    /* register types */
-    sample_mode_enum_type = sample_mode_register_type(plugin);
+    /* register types (see comment in sample_mode_register_type) */
+    if(!sample_mode_enum_type)
+    {
+        sample_mode_enum_type = sample_mode_register_type(plugin);
+    }
+
     fftune_spectra_get_type();
 
     return (TRUE);
@@ -141,13 +145,12 @@ sample_mode_register_type(SwamiPlugin *plugin)
         { FFTUNE_MODE_LOOP, "FFTUNE_MODE_LOOP", "Loop" },
         { 0, NULL, NULL }
     };
-    static GTypeInfo enum_info = { 0, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL };
 
-    /* initialize the type info structure for the enum type */
-    g_enum_complete_type_info(G_TYPE_ENUM, &enum_info, values);
-
-    return (g_type_module_register_type(G_TYPE_MODULE(plugin), G_TYPE_ENUM,
-                                        "FFTuneSampleMode", &enum_info, 0));
+    /* The type should be registered in the context of the module using
+       g_type_module_register_type(). However the type is registered
+       static otherwhise freeing the plguin will fail.
+    */
+    return g_enum_register_static ("FFTuneSampleMode", values);
 }
 
 static void
