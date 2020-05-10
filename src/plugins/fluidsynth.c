@@ -2099,10 +2099,10 @@ sfloader_preset_get_banknum(fluid_preset_t *preset)
 static int
 sfloader_active_preset_get_banknum(fluid_preset_t *preset)
 {
-    sfloader_preset_data_t *preset_data = fluid_preset_get_data(preset);
+    WavetblFluidSynth *wavetbl = fluid_preset_get_data(preset);
     int bank;
 
-    g_object_get(preset_data->wavetbl, "active-bank", &bank, NULL);
+    g_object_get(wavetbl, "active-bank", &bank, NULL);
     return (bank);
 }
 
@@ -2121,10 +2121,10 @@ sfloader_preset_get_num(fluid_preset_t *preset)
 static int
 sfloader_active_preset_get_num(fluid_preset_t *preset)
 {
-    sfloader_preset_data_t *preset_data = fluid_preset_get_data(preset);
+    WavetblFluidSynth *wavetbl = fluid_preset_get_data(preset);
     int psetnum;
 
-    g_object_get(preset_data->wavetbl, "active-program", &psetnum, NULL);
+    g_object_get(wavetbl, "active-program", &psetnum, NULL);
     return (psetnum);
 }
 
@@ -2134,7 +2134,7 @@ sfloader_preset_noteon(fluid_preset_t *preset, fluid_synth_t *synth,
                        int chan, int key, int vel)
 {
     sfloader_preset_data_t *preset_data = fluid_preset_get_data(preset);
-    WavetblFluidSynth *wavetbl = fluid_preset_get_data(preset);
+    WavetblFluidSynth *wavetbl = preset_data->wavetbl;
 
     /* No item matches the bank:program? */
     if(!preset_data->item)
