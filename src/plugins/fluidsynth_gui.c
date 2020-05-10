@@ -91,8 +91,12 @@ plugin_fluidsynth_gui_init(SwamiPlugin *plugin, GError **err)
                  "license", "GPL",
                  NULL);
 
-    /* initialize types */
-    fluidsynth_gui_type = fluid_synth_gui_control_register_type(plugin);
+    /* register type (see comment in fluid_synth_gui_control_register_type) */
+    if(!fluidsynth_gui_type)
+    {
+        fluidsynth_gui_type = fluid_synth_gui_control_register_type(plugin);
+    }
+
 //  fluid_synth_gui_map_register_type (plugin);
 //  fluid_synth_gui_channels_register_type (plugin);
 
@@ -283,9 +287,12 @@ fluid_synth_gui_control_register_type(SwamiPlugin *plugin)
         (GInstanceInitFunc) fluid_synth_gui_control_init,
     };
 
-    return (g_type_module_register_type(G_TYPE_MODULE(plugin),
-                                        GTK_TYPE_VBOX, "FluidSynthGuiControl",
-                                        &obj_info, 0));
+    /* The type should be registered in the context of the module using
+       g_type_module_register_type(). However the type is registered
+       static otherwhise freeing the plguin will fail.
+    */
+    return g_type_register_static(GTK_TYPE_VBOX, "FluidSynthGuiControl",
+                                  &obj_info, 0);
 }
 
 static void

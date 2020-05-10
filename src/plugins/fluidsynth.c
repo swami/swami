@@ -411,10 +411,21 @@ plugin_fluidsynth_init(SwamiPlugin *plugin, GError **err)
     delete_fluid_settings(settings);
 
 
-    /* initialize types */
-    wavetbl_type = wavetbl_register_type(plugin);
-    interp_mode_type = interp_mode_register_type(plugin);
-    chorus_waveform_type = chorus_waveform_register_type(plugin);
+    /* initialize types (see comment in wavetbl_register_type) */
+    if(!wavetbl_type)
+    {
+        wavetbl_type = wavetbl_register_type(plugin);
+    }
+
+    if(!interp_mode_type)
+    {
+        interp_mode_type = interp_mode_register_type(plugin);
+    }
+
+    if(!chorus_waveform_type)
+    {
+        chorus_waveform_type = chorus_waveform_register_type(plugin);
+    }
 
     return (TRUE);
 }
@@ -511,9 +522,12 @@ wavetbl_register_type(SwamiPlugin *plugin)
         (GInstanceInitFunc) wavetbl_fluidsynth_init,
     };
 
-    return (g_type_module_register_type(G_TYPE_MODULE(plugin),
-                                        SWAMI_TYPE_WAVETBL, "WavetblFluidSynth",
-                                        &obj_info, 0));
+    /* The type should be registered in the context of the module using
+       g_type_module_register_type(). However the type is registered
+       static otherwhise freeing the plguin will fail.
+    */
+    return g_type_register_static(SWAMI_TYPE_WAVETBL, "WavetblFluidSynth",
+                                  &obj_info, 0);
 }
 
 static GType
@@ -539,14 +553,12 @@ interp_mode_register_type(SwamiPlugin *plugin)
         },
         { 0, NULL, NULL }
     };
-    static GTypeInfo enum_info = { 0, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL };
 
-    /* initialize the type info structure for the enum type */
-    g_enum_complete_type_info(G_TYPE_ENUM, &enum_info, values);
-
-    return (g_type_module_register_type(G_TYPE_MODULE(plugin), G_TYPE_ENUM,
-                                        "WavetblFluidSynthInterpType",
-                                        &enum_info, 0));
+    /* The type should be registered in the context of the module using
+       g_type_module_register_type(). However the type is registered
+       static otherwhise freeing the plguin will fail.
+    */
+    return g_enum_register_static("WavetblFluidSynthInterpType", values);
 }
 
 static GType
@@ -564,14 +576,12 @@ chorus_waveform_register_type(SwamiPlugin *plugin)
         },
         { 0, NULL, NULL }
     };
-    static GTypeInfo enum_info = { 0, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL };
 
-    /* initialize the type info structure for the enum type */
-    g_enum_complete_type_info(G_TYPE_ENUM, &enum_info, values);
-
-    return (g_type_module_register_type(G_TYPE_MODULE(plugin), G_TYPE_ENUM,
-                                        "WavetblFluidSynthChorusWaveform",
-                                        &enum_info, 0));
+    /* The type should be registered in the context of the module using
+       g_type_module_register_type(). However the type is registered
+       static otherwhise freeing the plguin will fail.
+    */
+    return g_enum_register_static("WavetblFluidSynthChorusWaveform", values);
 }
 
 /* used for passing multiple values to FluidSynth foreach function */
