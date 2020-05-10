@@ -168,8 +168,6 @@ enum
     WAVETBL_FLUID_PITCH_BEND = 0xe0
 };
 
-#define _SYNTH_OK 0		/* FLUID_OK not defined in header */
-
 /* additional data for sfloader patch base objects */
 typedef struct
 {
@@ -1952,7 +1950,7 @@ sfloader_sfont_free(fluid_sfont_t *sfont)
     g_free(sfont_data);
     delete_fluid_sfont(sfont);
 
-    return (_SYNTH_OK);
+    return (FLUID_OK);
 }
 
 /* sfloader callback to get a patch file name */
@@ -2139,14 +2137,14 @@ sfloader_preset_noteon(fluid_preset_t *preset, fluid_synth_t *synth,
     /* No item matches the bank:program? */
     if(!preset_data->item)
     {
-        return (_SYNTH_OK);
+        return (FLUID_OK);
     }
 
     SWAMI_LOCK_WRITE(wavetbl);
     cache_instrument_noteon(wavetbl, preset_data->item, synth, chan, key, vel);
     SWAMI_UNLOCK_WRITE(wavetbl);
 
-    return (_SYNTH_OK);
+    return (FLUID_OK);
 }
 
 /* handles noteon event for active item */
@@ -2161,13 +2159,13 @@ sfloader_active_preset_noteon(fluid_preset_t *preset, fluid_synth_t *synth,
     if(!wavetbl->active_item)
     {
         SWAMI_UNLOCK_WRITE(wavetbl);
-        return (_SYNTH_OK);	/* no active item? Do nothing.. */
+        return (FLUID_OK);	/* no active item? Do nothing.. */
     }
 
     cache_instrument_noteon(wavetbl, wavetbl->active_item, synth, chan, key, vel);
     SWAMI_UNLOCK_WRITE(wavetbl);
 
-    return (_SYNTH_OK);
+    return (FLUID_OK);
 }
 
 /* caches an instrument item into SoundFont voices for faster processing at
@@ -2288,7 +2286,7 @@ cache_instrument_noteon(WavetblFluidSynth *wavetbl, IpatchItem *item,
 
     if(!cache)
     {
-        return (_SYNTH_OK);    /* instrument not yet cached? */
+        return (FLUID_OK);    /* instrument not yet cached? */
     }
 
     for(i = 0; i < cache->sel_count; i++)
@@ -2423,7 +2421,7 @@ cache_instrument_noteon(WavetblFluidSynth *wavetbl, IpatchItem *item,
         wavetbl->rt_count = voice_count;
     }
 
-    return (_SYNTH_OK);
+    return (FLUID_OK);
 }
 
 /* perform a realtime update on the active audible.
