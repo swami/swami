@@ -1916,8 +1916,6 @@ sfloader_load_sfont(fluid_sfloader_t *loader, const char *filename)
         {
             return (NULL);
         }
-
-        g_object_ref(item);	/* ++ Add a reference to the patch object */
     }
     else if(filename[0] != '!')
     {
@@ -1925,10 +1923,27 @@ sfloader_load_sfont(fluid_sfloader_t *loader, const char *filename)
     }
 
     sfont_data = g_malloc0(sizeof(sfloader_sfont_data_t));
+    if(sfont_data == NULL)
+    {
+        return NULL;
+    }
+
     sfont_data->wavetbl = (WavetblFluidSynth *)(fluid_sfloader_get_data(loader));
     sfont_data->base_item = IPATCH_BASE(item);
 
     sfont = new_fluid_sfont(sfloader_sfont_get_name, sfloader_sfont_get_preset, NULL, NULL, sfloader_sfont_free);
+    if(sfont == NULL)
+    {
+        g_free(sfont_data);
+        return NULL;
+    }
+
+    if(item)
+    {
+        /* ++ Add a reference to the patch object. Item is owned by sfont */
+        g_object_ref(item);
+    }
+
     fluid_sfont_set_data(sfont, sfont_data);
 
     return (sfont);
