@@ -1784,9 +1784,11 @@ wavetbl_fluidsynth_load_active_item(SwamiWavetbl *swami_wavetbl,
         cache_instrument(wavetbl, item);	/* cache the instrument voices */
 
         SWAMI_UNLOCK_WRITE(wavetbl);
+
+        return (TRUE);
     }
 
-    return (TRUE);
+    return (FALSE);
 }
 
 /* SwamiWavetbl method to check if an item needs to update its synthesis cache */
