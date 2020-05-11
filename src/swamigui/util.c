@@ -250,6 +250,26 @@ swamigui_util_activate_unique_dialog(gchar *strkey, gint key2)
     return (FALSE);
 }
 
+/* Destroy any dialog actually open
+
+   This is usually called when the application quit.
+
+   Note: This ensures that all SwamiControl object associated to child widgets
+   inside these dialog are properly disconnected and freed when these child widget
+   are destroyed.
+*/
+void swamigui_util_destroy_unique_dialog()
+{
+    UniqueDialogKey *udkeyp;
+    gint i;
+
+    for (i = unique_dialog_array->len - 1; i >= 0; i--)
+    {
+        udkeyp = &g_array_index(unique_dialog_array, UniqueDialogKey, i);
+        gtk_widget_destroy(GTK_WIDGET(udkeyp->dialog));
+    }
+}
+
 /* run gtk_main loop until the GtkObject data property "action" is !=
    NULL, mates nicely with swamigui_util_quick_popup, returns value of
    "action".  Useful for complex routines that require a lot of user

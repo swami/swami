@@ -76,6 +76,8 @@ enum
 #define SWAMIGUI_ROOT_DEFAULT_UPPER_KEYS  "q,2,w,3,e,r,5,t,6,y,7,u,i,9,o,0,p,bracketleft,equal,bracketright"
 
 /* external private global prototypes */
+void  swamigui_util_destroy_unique_dialog(void);
+
 void _swamigui_ifaces_init(void);  /* ifaces/ifaces.c */
 void _swamigui_stock_icons_init(void);  /* icons.c */
 void _swamigui_control_init(void);  /* SwamiguiControl.c */
@@ -1125,6 +1127,9 @@ swamigui_root_quit(SwamiguiRoot *root)
     GtkWidget *popup;
     int quit_confirm;
     char *s;
+
+    /* destroy any dialog actally open */
+    swamigui_util_destroy_unique_dialog();
 
     /* Look among "patch items" if one of them has been changed */
     list = swami_root_get_patch_items(SWAMI_ROOT(root));   /* ++ ref list */
