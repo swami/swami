@@ -168,13 +168,12 @@ enum
     WAVETBL_FLUID_PITCH_BEND = 0xe0
 };
 
-#define _SYNTH_OK 0		/* FLUID_OK not defined in header */
-
 /* additional data for sfloader patch base objects */
 typedef struct
 {
     WavetblFluidSynth *wavetbl;	/* wavetable object */
     IpatchBase *base_item;	/* IpatchBase object */
+    GSList *presets;           /* presets list */
 } sfloader_sfont_data_t;
 
 typedef struct
@@ -1784,9 +1783,11 @@ wavetbl_fluidsynth_load_active_item(SwamiWavetbl *swami_wavetbl,
         cache_instrument(wavetbl, item);	/* cache the instrument voices */
 
         SWAMI_UNLOCK_WRITE(wavetbl);
+
+        return (TRUE);
     }
 
-    return (TRUE);
+    return (FALSE);
 }
 
 /* SwamiWavetbl method to check if an item needs to update its synthesis cache */
@@ -1916,8 +1917,6 @@ sfloader_load_sfont(fluid_sfloader_t *loader, const char *filename)
         {
             return (NULL);
         }
-
-        g_object_ref(item);	/* ++ Add a reference to the patch object */
     }
     else if(filename[0] != '!')
     {
@@ -1925,10 +1924,27 @@ sfloader_load_sfont(fluid_sfloader_t *loader, const char *filename)
     }
 
     sfont_data = g_malloc0(sizeof(sfloader_sfont_data_t));
+    if(sfont_data == NULL)
+    {
+        return NULL;
+    }
+
     sfont_data->wavetbl = (WavetblFluidSynth *)(fluid_sfloader_get_data(loader));
     sfont_data->base_item = IPATCH_BASE(item);
 
     sfont = new_fluid_sfont(sfloader_sfont_get_name, sfloader_sfont_get_preset, NULL, NULL, sfloader_sfont_free);
+    if(sfont == NULL)
+    {
+        g_free(sfont_data);
+        return NULL;
+    }
+
+    if(item)
+    {
+        /* ++ Add a reference to the patch object. Item is owned by sfont */
+        g_object_ref(item);
+    }
+
     fluid_sfont_set_data(sfont, sfont_data);
 
     return (sfont);
@@ -1938,6 +1954,7 @@ sfloader_load_sfont(fluid_sfloader_t *loader, const char *filename)
 static int
 sfloader_sfont_free(fluid_sfont_t *sfont)
 {
+    GSList *preset;
     sfloader_sfont_data_t *sfont_data;
 
     sfont_data = (sfloader_sfont_data_t *)(fluid_sfont_get_data(sfont));
@@ -1947,10 +1964,19 @@ sfloader_sfont_free(fluid_sfont_t *sfont)
         g_object_unref(IPATCH_ITEM(sfont_data->base_item));
     }
 
+    /* free preset list */
+    preset = sfont_data->presets;
+    while(preset)
+    {
+        sfloader_preset_free(preset->data);
+        preset = preset->next;
+    }
+    g_slist_free(sfont_data->presets);
+
     g_free(sfont_data);
     delete_fluid_sfont(sfont);
 
-    return (_SYNTH_OK);
+    return (FLUID_OK);
 }
 
 /* sfloader callback to get a patch file name */
@@ -1977,109 +2003,133 @@ sfloader_sfont_get_name(fluid_sfont_t *sfont)
     return (buf);
 }
 
-/* sfloader callback to get a preset (instrument) by bank and preset number */
+/*
+  soundfont callback to get a preset (instrument) by bank and preset number
+
+  @sfont, soundfont to get a preset from.
+  @bank, bank number.
+  @prenum, preset number.
+
+  @return preset found corresponding to bank:prenum number or NULL if preset not found.
+
+  Preset data of returned preset are allocated and set as this:
+    preset_data->wavetbl,  synthesizer
+    preset_data->item,
+    - If item is not null, regular IpatchItem instrument to play.
+    - if item is null, the active item (wavetbl->active_item) will be played.
+*/
 static fluid_preset_t *
-sfloader_sfont_get_preset(fluid_sfont_t *sfont, int bank,
-                          int prenum)
+sfloader_sfont_get_preset (fluid_sfont_t *sfont, int bank,  int prenum)
 {
     sfloader_sfont_data_t *sfont_data;
     sfloader_preset_data_t *preset_data;
-    fluid_preset_t *preset;
+    fluid_preset_t* preset;
+    IpatchItem *search_item; /* item to search */
     int b, p;
 
     sfont_data = (sfloader_sfont_data_t *)(fluid_sfont_get_data(sfont));
 
+    /* search an item corresponding to to the bank:prenum number requested.
+       - for active item, search_item is set to NULL.
+       - for a regular item, search_item is searched in the IpatchBase object
+    */
     /* active item bank:preset requested? */
-    swami_wavetbl_get_active_item_locale(SWAMI_WAVETBL(sfont_data->wavetbl), &b, &p);
+    search_item = NULL; /* assume search_item is the active item */
+    swami_wavetbl_get_active_item_locale(SWAMI_WAVETBL (sfont_data->wavetbl), &b, &p);
 
-    if(bank == b && prenum == p)
+    if((bank != b) || (prenum != p))  /* active item ? */
     {
-        preset = new_fluid_preset(sfont,
-                                  sfloader_active_preset_get_name,
-                                  sfloader_active_preset_get_banknum,
-                                  sfloader_active_preset_get_num,
-                                  sfloader_active_preset_noteon,
-                                  sfloader_active_preset_free);
-        fluid_preset_set_data(preset, sfont_data->wavetbl);
-    }
-    else				/* regular preset request */
-    {
-        IpatchItem *item;
-
-        if(!sfont_data->base_item)   /* for active preset SoundFont HACK */
+        /* There is no active item corresponding to bank:prenum.
+           Search an item in IpatchBase soundfont objetc
+        */
+        if(sfont_data->base_item)  /* for active preset SoundFont HACK */
+        {
+            /* ++ ref found MIDI instrument object */
+            search_item = ipatch_base_find_item_by_midi_locale(sfont_data->base_item,
+                                                        bank, prenum);
+        }
+        if(!search_item)
         {
             return (NULL);
         }
-
-        /* ++ ref found MIDI instrument object */
-        item = ipatch_base_find_item_by_midi_locale(sfont_data->base_item,
-                bank, prenum);
-
-        if(!item)
-        {
-            return (NULL);
-        }
-
-        preset_data = g_malloc0(sizeof(sfloader_preset_data_t));
-
-        preset_data->wavetbl = sfont_data->wavetbl;
-
-        preset_data->item = item; /* !! item already referenced by find */
-
-        preset = new_fluid_preset(sfont,
-                                  sfloader_preset_get_name,
-                                  sfloader_preset_get_banknum,
-                                  sfloader_preset_get_num,
-                                  sfloader_preset_noteon,
-                                  sfloader_preset_free);
-        fluid_preset_set_data(preset, preset_data);
     }
+
+    /* allocate preset_data and preset structures */
+    preset_data = g_malloc0(sizeof (sfloader_preset_data_t));
+    if(preset_data == NULL)
+    {
+        if(search_item)
+        {
+            g_object_unref(search_item);
+        }
+        return NULL;
+    }
+
+    preset = new_fluid_preset(sfont,
+                              sfloader_preset_get_name,
+                              sfloader_preset_get_banknum,
+                              sfloader_preset_get_num,
+                              sfloader_preset_noteon,
+                              sfloader_preset_free);
+
+    if(!preset)
+    {
+        if(search_item)
+        {
+            g_object_unref(search_item);
+        }
+        g_free(preset_data);
+        return(NULL);
+    }
+
+    /* Initialize sfloader_preset_data_t */
+    preset_data->wavetbl = sfont_data->wavetbl;
+    preset_data->item = search_item; /* !! item already referenced by find */
+
+    fluid_preset_set_data(preset, preset_data);
+
+    /* add preset in soundfont presets list */
+    sfont_data->presets = g_slist_append(sfont_data->presets, preset);
 
     return (preset);
 }
 
 /* sfloader callback to clean up an fluid_preset_t structure */
 static void
-sfloader_preset_free(fluid_preset_t *preset)
+sfloader_preset_free (fluid_preset_t *preset)
 {
-    sfloader_preset_data_t *preset_data;
+    sfloader_preset_data_t *preset_data = fluid_preset_get_data(preset);
 
-    preset_data = fluid_preset_get_data(preset);
+    if(preset_data->item)
+    {
+        /* -- remove item reference */
+        g_object_unref (IPATCH_ITEM (preset_data->item));
+    }
 
-    /* -- remove item reference */
-    g_object_unref(IPATCH_ITEM(preset_data->item));
-
-    g_free(preset_data);
-    delete_fluid_preset(preset);
-}
-
-/* sfloader callback to clean up a active item preset structure */
-static void
-sfloader_active_preset_free(fluid_preset_t *preset)
-{
-    delete_fluid_preset(preset);
+    g_free (preset_data);
+    delete_fluid_preset (preset);
 }
 
 /* sfloader callback to get the name of a preset */
 static const char *
-sfloader_preset_get_name(fluid_preset_t *preset)
+sfloader_preset_get_name (fluid_preset_t *preset)
 {
     sfloader_preset_data_t *preset_data = fluid_preset_get_data(preset);
     static char buf[256]; /* return string is static */
     char *name;
 
-    g_object_get(preset_data->item, "name", &name, NULL);
-    g_strlcpy(buf, name, sizeof(buf));
-    g_free(name);
-
-    return (buf);
-}
-
-/* sfloader callback to get name of active preset */
-static const char *
-sfloader_active_preset_get_name(fluid_preset_t *preset)
-{
-    return (_("<active>"));
+    if(preset_data->item)
+    {
+        /* get preset name from item's property "name" */
+        g_object_get (preset_data->item, "name", &name, NULL);
+        g_strlcpy (buf, name, sizeof (buf));
+        g_free (name);
+        return (buf);
+    }
+    else
+    {
+        return (_("<active>"));
+    }
 }
 
 /* sfloader callback to get the bank number of a preset */
@@ -2089,83 +2139,63 @@ sfloader_preset_get_banknum(fluid_preset_t *preset)
     sfloader_preset_data_t *preset_data = fluid_preset_get_data(preset);
     int bank;
 
-    g_object_get(preset_data->item, "bank", &bank, NULL);
-    return (bank);
-}
-
-/* sfloader callback to get the bank number of active preset */
-static int
-sfloader_active_preset_get_banknum(fluid_preset_t *preset)
-{
-    sfloader_preset_data_t *preset_data = fluid_preset_get_data(preset);
-    int bank;
-
-    g_object_get(preset_data->wavetbl, "active-bank", &bank, NULL);
+    if(preset_data->item)
+    {
+        /* get preset bank number from item's property "bank" */
+        g_object_get(preset_data->item, "bank", &bank, NULL);
+    }
+    else /* active item */
+    {
+        /* get preset bank number from wavetbl's property "active-bank" */
+        g_object_get(preset_data->wavetbl, "active-bank", &bank, NULL);
+    }
     return (bank);
 }
 
 /* sfloader callback to get the preset number of a preset */
 static int
-sfloader_preset_get_num(fluid_preset_t *preset)
+sfloader_preset_get_num (fluid_preset_t *preset)
 {
     sfloader_preset_data_t *preset_data = fluid_preset_get_data(preset);
     int program;
 
-    g_object_get(preset_data->item, "program", &program, NULL);
+    if(preset_data->item)
+    {
+        /* get preset program number from item's property "program" */
+        g_object_get(preset_data->item, "program", &program, NULL);
+    }
+    else  /* active item */
+    {
+        /* get preset program number from wavetbl's property "active-program" */
+        g_object_get(preset_data->wavetbl, "active-program", &program, NULL);
+    }
+
     return (program);
-}
-
-/* sfloader callback to get the preset number of active preset */
-static int
-sfloader_active_preset_get_num(fluid_preset_t *preset)
-{
-    sfloader_preset_data_t *preset_data = fluid_preset_get_data(preset);
-    int psetnum;
-
-    g_object_get(preset_data->wavetbl, "active-program", &psetnum, NULL);
-    return (psetnum);
 }
 
 /* sfloader callback for a noteon event */
 static int
-sfloader_preset_noteon(fluid_preset_t *preset, fluid_synth_t *synth,
-                       int chan, int key, int vel)
+sfloader_preset_noteon (fluid_preset_t *preset, fluid_synth_t *synth,
+                        int chan, int key, int vel)
 {
     sfloader_preset_data_t *preset_data = fluid_preset_get_data(preset);
-    WavetblFluidSynth *wavetbl = fluid_preset_get_data(preset);
+    WavetblFluidSynth *wavetbl = preset_data->wavetbl;
+    IpatchItem *item = preset_data->item;
 
-    /* No item matches the bank:program? */
-    if(!preset_data->item)
+    SWAMI_LOCK_WRITE (wavetbl);
+    if (!item)
     {
-        return (_SYNTH_OK);
+        item = wavetbl->active_item; /* take active item */
     }
 
-    SWAMI_LOCK_WRITE(wavetbl);
-    cache_instrument_noteon(wavetbl, preset_data->item, synth, chan, key, vel);
-    SWAMI_UNLOCK_WRITE(wavetbl);
-
-    return (_SYNTH_OK);
-}
-
-/* handles noteon event for active item */
-static int
-sfloader_active_preset_noteon(fluid_preset_t *preset, fluid_synth_t *synth,
-                              int chan, int key, int vel)
-{
-    WavetblFluidSynth *wavetbl = fluid_preset_get_data(preset);
-
-    SWAMI_LOCK_WRITE(wavetbl);
-
-    if(!wavetbl->active_item)
+	/* play note if an item exists */
+    if (item)
     {
-        SWAMI_UNLOCK_WRITE(wavetbl);
-        return (_SYNTH_OK);	/* no active item? Do nothing.. */
+        cache_instrument_noteon(wavetbl, item, synth, chan, key, vel);
     }
+    SWAMI_UNLOCK_WRITE (wavetbl);
 
-    cache_instrument_noteon(wavetbl, wavetbl->active_item, synth, chan, key, vel);
-    SWAMI_UNLOCK_WRITE(wavetbl);
-
-    return (_SYNTH_OK);
+    return (FLUID_OK);
 }
 
 /* caches an instrument item into SoundFont voices for faster processing at
@@ -2286,7 +2316,7 @@ cache_instrument_noteon(WavetblFluidSynth *wavetbl, IpatchItem *item,
 
     if(!cache)
     {
-        return (_SYNTH_OK);    /* instrument not yet cached? */
+        return (FLUID_OK);    /* instrument not yet cached? */
     }
 
     for(i = 0; i < cache->sel_count; i++)
@@ -2421,7 +2451,7 @@ cache_instrument_noteon(WavetblFluidSynth *wavetbl, IpatchItem *item,
         wavetbl->rt_count = voice_count;
     }
 
-    return (_SYNTH_OK);
+    return (FLUID_OK);
 }
 
 /* perform a realtime update on the active audible.
