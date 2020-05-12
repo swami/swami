@@ -713,7 +713,7 @@ swami_prop_tree_add_value(SwamiPropTree *proptree, GObject *obj,
         if(treeval->prop_type == prop_type
                 && strcmp(treeval->prop_name, prop_name) == 0)
         {
-            g_object_unref(control);  /* -- unref old control */
+            g_object_unref(treeval->control);  /* -- unref old control */
             break;
         }
 
