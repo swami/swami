@@ -356,12 +356,15 @@ swami_prop_tree_remove(SwamiPropTree *proptree, GObject *obj)
     {
         temp = n;
         n = n->prev;
+
+        /* children node temp is parented to newparent */
         g_node_prepend(newparent, temp);
 
         /* recursive refresh */
         if(treenode->values)
         {
-            refresh_value_nodes_list_L(n, treenode->values);
+            /* update temp node (and all its descendant children) */
+            refresh_value_nodes_list_L(temp, treenode->values);
         }
     }
 
