@@ -553,8 +553,6 @@ swami_prop_tree_replace(SwamiPropTree *proptree, GObject *old, GObject *new)
     g_return_if_fail(G_IS_OBJECT(old));
     g_return_if_fail(G_IS_OBJECT(new));
 
-    speclist = object_spec_list(new);  /* get GParamSpec list for new object */
-
     SWAMI_LOCK_WRITE(proptree);
 
     obj_node = g_hash_table_lookup(proptree->object_hash, old);
@@ -562,7 +560,6 @@ swami_prop_tree_replace(SwamiPropTree *proptree, GObject *old, GObject *new)
     if(swami_log_if_fail(obj_node != NULL))
     {
         SWAMI_UNLOCK_WRITE(proptree);
-        g_list_free(speclist);
         return;
     }
 
@@ -576,6 +573,9 @@ swami_prop_tree_replace(SwamiPropTree *proptree, GObject *old, GObject *new)
 
     /* weak ref to passively catch objects demise */
     g_object_weak_ref(new, swami_prop_tree_object_weak_notify, proptree);
+
+    /* get GParamSpec list for new object. speclist is allocated (if any spec) */
+    speclist = object_spec_list(new);
 
     /* re-resolve properties if any (speclist is freed) */
     if(speclist)
