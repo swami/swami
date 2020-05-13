@@ -454,9 +454,17 @@ swami_root_add_object(SwamiRoot *root, GObject *object)
     g_return_if_fail(SWAMI_IS_ROOT(root));
     g_return_if_fail(G_IS_OBJECT(object));
 
+    /* Set "root" property value of object as root.
+     That means that when "name", "rank", "flags" object's properties will
+     change, root object will receive a notification signal "swami-prop-notify"
+     (see SwamiObject.c)
+    */
     swami_object_set(object, "root", root, NULL);
+
+    /* prepend object to the property tree */
     swami_prop_tree_prepend(root->proptree, G_OBJECT(root), object);
 
+    /* emit signal "object-add" to SwamiRoot root object */
     g_signal_emit(root, root_signals[OBJECT_ADD], 0, object);
 }
 
