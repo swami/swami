@@ -256,6 +256,7 @@ swami_prop_tree_prepend(SwamiPropTree *proptree, GObject *parent,
  *
  * Inserts an object to a property tree before @sibling and parented to
  * @parent.
+ * (object isn't owned by root proptree.)
  */
 void
 swami_prop_tree_insert_before(SwamiPropTree *proptree, GObject *parent,
