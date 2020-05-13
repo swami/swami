@@ -562,7 +562,7 @@ swami_root_insert_object_before(SwamiRoot *root, GObject *parent,
  *   (not necessary of course if %NULL was passed).
  * @err: Location to store error info or %NULL
  *
- * Load an instrument patch file and append to Swami object tree. The caller
+ * Load an instrument patch file and append to Swami object container. The caller
  * owns a reference to the returned patch object and should unref it when
  * done with the object.
  *
