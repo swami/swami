@@ -512,6 +512,7 @@ swami_root_new_object(SwamiRoot *root, const char *type_name)
  * Prepends an object to an object property tree in a @root object as
  * a child of @parent. Like swami_root_add_object() but allows parent
  * to specified (rather than using the @root as the parent).
+ * (object isn't owned by root proptree.)
  */
 void
 swami_root_prepend_object(SwamiRoot *root, GObject *parent, GObject *object)
