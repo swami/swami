@@ -269,8 +269,6 @@ swami_prop_tree_insert_before(SwamiPropTree *proptree, GObject *parent,
     g_return_if_fail(!sibling || G_IS_OBJECT(sibling));
     g_return_if_fail(G_IS_OBJECT(obj));
 
-    speclist = object_spec_list(obj);
-
     SWAMI_LOCK_WRITE(proptree);
 
     parent_node = g_hash_table_lookup(proptree->object_hash, parent);
@@ -302,6 +300,9 @@ swami_prop_tree_insert_before(SwamiPropTree *proptree, GObject *parent,
 
     /* weak ref to passively catch objects demise */
     g_object_weak_ref(obj, swami_prop_tree_object_weak_notify, proptree);
+
+    /* Build a GList of object's pspec properties */
+    speclist = object_spec_list(obj);
 
     /* resolve properties if any (speclist is freed) */
     if(speclist)
@@ -356,12 +357,15 @@ swami_prop_tree_remove(SwamiPropTree *proptree, GObject *obj)
     {
         temp = n;
         n = n->prev;
+
+        /* children node temp is parented to newparent */
         g_node_prepend(newparent, temp);
 
         /* recursive refresh */
         if(treenode->values)
         {
-            refresh_value_nodes_list_L(n, treenode->values);
+            /* update temp node (and all its descendant children) */
+            refresh_value_nodes_list_L(temp, treenode->values);
         }
     }
 
@@ -550,8 +554,6 @@ swami_prop_tree_replace(SwamiPropTree *proptree, GObject *old, GObject *new)
     g_return_if_fail(G_IS_OBJECT(old));
     g_return_if_fail(G_IS_OBJECT(new));
 
-    speclist = object_spec_list(new);  /* get GParamSpec list for new object */
-
     SWAMI_LOCK_WRITE(proptree);
 
     obj_node = g_hash_table_lookup(proptree->object_hash, old);
@@ -559,7 +561,6 @@ swami_prop_tree_replace(SwamiPropTree *proptree, GObject *old, GObject *new)
     if(swami_log_if_fail(obj_node != NULL))
     {
         SWAMI_UNLOCK_WRITE(proptree);
-        g_list_free(speclist);
         return;
     }
 
@@ -573,6 +574,9 @@ swami_prop_tree_replace(SwamiPropTree *proptree, GObject *old, GObject *new)
 
     /* weak ref to passively catch objects demise */
     g_object_weak_ref(new, swami_prop_tree_object_weak_notify, proptree);
+
+    /* get GParamSpec list for new object. speclist is allocated (if any spec) */
+    speclist = object_spec_list(new);
 
     /* re-resolve properties if any (speclist is freed) */
     if(speclist)
@@ -710,7 +714,7 @@ swami_prop_tree_add_value(SwamiPropTree *proptree, GObject *obj,
         if(treeval->prop_type == prop_type
                 && strcmp(treeval->prop_name, prop_name) == 0)
         {
-            g_object_unref(control);  /* -- unref old control */
+            g_object_unref(treeval->control);  /* -- unref old control */
             break;
         }
 
