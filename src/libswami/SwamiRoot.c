@@ -444,8 +444,9 @@ swami_root_get_objects(SwamiRoot *root)
  * @root: Swami root object
  * @object: Object to add
  *
- * Add an object to a Swami root property tree. A reference is held on
- * the object for the @root object.
+ * Add an object to a Swami root property tree.
+ * Note that there is no reference held by proptree tree on object.
+ * (object isn't owned by root proptree.)
  */
 void
 swami_root_add_object(SwamiRoot *root, GObject *object)
@@ -453,9 +454,17 @@ swami_root_add_object(SwamiRoot *root, GObject *object)
     g_return_if_fail(SWAMI_IS_ROOT(root));
     g_return_if_fail(G_IS_OBJECT(object));
 
+    /* Set "root" property value of object as root.
+     That means that when "name", "rank", "flags" object's properties will
+     change, root object will receive a notification signal "swami-prop-notify"
+     (see SwamiObject.c)
+    */
     swami_object_set(object, "root", root, NULL);
+
+    /* prepend object to the property tree */
     swami_prop_tree_prepend(root->proptree, G_OBJECT(root), object);
 
+    /* emit signal "object-add" to SwamiRoot root object */
     g_signal_emit(root, root_signals[OBJECT_ADD], 0, object);
 }
 
@@ -469,8 +478,8 @@ swami_root_add_object(SwamiRoot *root, GObject *object)
  * an existing one.
  *
  * Returns: The new GObject created or NULL on error. The caller owns a
- * reference on the new object and should unref it when done. The @root
- * also owns a reference, until swami_root_remove_object() is called on it.
+ * reference on the new object and should unref it when done.
+ * (The new object isn't owned by root proptree.)
  */
 GObject *
 swami_root_new_object(SwamiRoot *root, const char *type_name)
@@ -503,6 +512,7 @@ swami_root_new_object(SwamiRoot *root, const char *type_name)
  * Prepends an object to an object property tree in a @root object as
  * a child of @parent. Like swami_root_add_object() but allows parent
  * to specified (rather than using the @root as the parent).
+ * (object isn't owned by root proptree.)
  */
 void
 swami_root_prepend_object(SwamiRoot *root, GObject *parent, GObject *object)
@@ -526,6 +536,7 @@ swami_root_prepend_object(SwamiRoot *root, GObject *parent, GObject *object)
  *
  * Inserts an object into an object property tree in a @root object as
  * a child of @parent and before @sibling.
+ * (object isn't owned by root proptree.)
  */
 void
 swami_root_insert_object_before(SwamiRoot *root, GObject *parent,
@@ -551,7 +562,7 @@ swami_root_insert_object_before(SwamiRoot *root, GObject *parent,
  *   (not necessary of course if %NULL was passed).
  * @err: Location to store error info or %NULL
  *
- * Load an instrument patch file and append to Swami object tree. The caller
+ * Load an instrument patch file and append to Swami object container. The caller
  * owns a reference to the returned patch object and should unref it when
  * done with the object.
  *

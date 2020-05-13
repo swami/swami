@@ -200,6 +200,7 @@ swami_prop_tree_set_root(SwamiPropTree *proptree, GObject *root)
  * @obj: Object to prepend to @proptree
  *
  * Prepends an object to a property tree.
+ * (object isn't owned by root proptree.)
  */
 void
 swami_prop_tree_prepend(SwamiPropTree *proptree, GObject *parent,
@@ -255,6 +256,7 @@ swami_prop_tree_prepend(SwamiPropTree *proptree, GObject *parent,
  *
  * Inserts an object to a property tree before @sibling and parented to
  * @parent.
+ * (object isn't owned by root proptree.)
  */
 void
 swami_prop_tree_insert_before(SwamiPropTree *proptree, GObject *parent,
