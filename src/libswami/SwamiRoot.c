@@ -478,8 +478,8 @@ swami_root_add_object(SwamiRoot *root, GObject *object)
  * an existing one.
  *
  * Returns: The new GObject created or NULL on error. The caller owns a
- * reference on the new object and should unref it when done. The @root
- * also owns a reference, until swami_root_remove_object() is called on it.
+ * reference on the new object and should unref it when done.
+ * (The new object isn't owned by root proptree.)
  */
 GObject *
 swami_root_new_object(SwamiRoot *root, const char *type_name)
