@@ -536,6 +536,7 @@ swami_root_prepend_object(SwamiRoot *root, GObject *parent, GObject *object)
  *
  * Inserts an object into an object property tree in a @root object as
  * a child of @parent and before @sibling.
+ * (object isn't owned by root proptree.)
  */
 void
 swami_root_insert_object_before(SwamiRoot *root, GObject *parent,
