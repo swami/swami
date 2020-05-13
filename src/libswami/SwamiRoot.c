@@ -444,8 +444,9 @@ swami_root_get_objects(SwamiRoot *root)
  * @root: Swami root object
  * @object: Object to add
  *
- * Add an object to a Swami root property tree. A reference is held on
- * the object for the @root object.
+ * Add an object to a Swami root property tree.
+ * Note that there is no reference held by proptree tree on object.
+ * (object isn't owned by root proptree.)
  */
 void
 swami_root_add_object(SwamiRoot *root, GObject *object)
