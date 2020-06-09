@@ -56,7 +56,7 @@ static GtkWidget *log_view_widg = NULL;	/* currently active error view widg */
 typedef struct
 {
     GtkWidget *dialog;
-    gchar *strkey;
+    const gchar *strkey;
     int key2;
 } UniqueDialogKey;
 
@@ -156,7 +156,7 @@ swamigui_util_canvas_line_set(GnomeCanvasItem *item, double x1, double y1,
 
 /* looks up a unique dialog widget by its keys, returns the widget or NULL */
 GtkWidget *
-swamigui_util_lookup_unique_dialog(gchar *strkey, gint key2)
+swamigui_util_lookup_unique_dialog(const gchar *strkey, gint key2)
 {
     UniqueDialogKey *udkeyp;
     gint i;
@@ -179,7 +179,7 @@ swamigui_util_lookup_unique_dialog(gchar *strkey, gint key2)
    then activate the existing dialog and return FALSE, otherwise register the
    new dialog and return TRUE */
 gboolean
-swamigui_util_register_unique_dialog(GtkWidget *dialog, gchar *strkey,
+swamigui_util_register_unique_dialog(GtkWidget *dialog, const gchar *strkey,
                                      gint key2)
 {
     UniqueDialogKey udkey;
@@ -237,7 +237,7 @@ swamigui_util_unregister_unique_dialog(GtkWidget *dialog)
 
 /* activate (or raise) a unique dialog into view */
 gboolean
-swamigui_util_activate_unique_dialog(gchar *strkey, gint key2)
+swamigui_util_activate_unique_dialog(const gchar *strkey, gint key2)
 {
     GtkWidget *dialog;
 

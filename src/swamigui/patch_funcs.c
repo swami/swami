@@ -123,6 +123,15 @@ swamigui_load_files(GObject *parent_hint, gboolean load_samples)
     GtkWidget *dialog;
     GtkWindow *main_window;
     char *path;
+    static const char *strkey = "Load files";
+
+    /* Check if the dialog is already open and activate it.
+       This ensures that the dialog is created only one time.
+    */
+    if(swamigui_util_activate_unique_dialog(strkey, 0))
+    {
+        return;
+    }
 
     /* ++ ref main window */
     g_object_get(swamigui_root, "main-window", &main_window, NULL);
@@ -135,6 +144,9 @@ swamigui_load_files(GObject *parent_hint, gboolean load_samples)
                                          NULL);
 
     g_object_unref(main_window);	   /* -- unref main window */
+
+    /* register the dialog as unique. */
+    swamigui_util_register_unique_dialog(dialog, strkey, 0);
 
     /* enable multiple selection mode */
     gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), TRUE);

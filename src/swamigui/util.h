@@ -44,11 +44,11 @@ guint swamigui_util_unit_rgba_color_get_type(void);
 void swamigui_util_canvas_line_set(GnomeCanvasItem *item, double x1, double y1,
                                    double x2, double y2);
 GtkWidget *swamigui_util_quick_popup(gchar *msg, gchar *btn1, ...);
-GtkWidget *swamigui_util_lookup_unique_dialog(gchar *strkey, gint key2);
-gboolean swamigui_util_register_unique_dialog(GtkWidget *dialog, gchar *strkey,
+GtkWidget *swamigui_util_lookup_unique_dialog(const gchar *strkey, gint key2);
+gboolean swamigui_util_register_unique_dialog(GtkWidget *dialog, const gchar *strkey,
         gint key2);
 void swamigui_util_unregister_unique_dialog(GtkWidget *dialog);
-gboolean swamigui_util_activate_unique_dialog(gchar *strkey, gint key2);
+gboolean swamigui_util_activate_unique_dialog(const gchar *strkey, gint key2);
 
 gpointer swamigui_util_waitfor_widget_action(GtkWidget *widg);
 void swamigui_util_widget_action(GtkWidget *cbwidg, gpointer value);
