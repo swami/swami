@@ -554,6 +554,52 @@ swami_root_insert_object_before(SwamiRoot *root, GObject *parent,
 }
 
 /**
+ * swami_root_patch_is_loaded: looking if a file is already loaded.
+ *
+ * @root: Swami root object in which the function look into
+ *        Must be a SwamiRoot object.
+ * @filename: filename to look for. Must be not NULL.
+ *
+ * @return TRUE if filename file is already loaded, FALSE otherwise.
+ *
+ * The function look in the root's container in which file are
+ * loaded by swami_root_patch_load().
+ */
+gboolean
+swami_root_patch_is_loaded(SwamiRoot *root, const char *filename)
+{
+    GList *list, *l; /* list in root's container */
+    GObject *base;   /* IpatchBase object in root's container */
+    char *path;      /* base's filename path */
+    boolean ret = FALSE; /* return value */
+
+    g_return_val_if_fail(SWAMI_IS_ROOT (root), FALSE);
+    g_return_val_if_fail(filename != NULL, FALSE);
+
+    /* get the list of IpatchBase from SwamiRoot container (++ alloc list) */
+    list = ipatch_container_get_children_list(IPATCH_CONTAINER(root->patch_root));
+
+    /* for each base object looking if its file's path is equal to filename*/
+    l = list;
+    while(l)
+    {
+        base = (GObject *)l->data;  /* IpatchBase object */
+        g_object_get(base, "file-name", &path, NULL);   /* ++ alloc path */
+        ret = path && (strcmp(path, filename) == 0);
+        g_free(path);  /* free path */
+        if(ret)
+        {
+            break; /* found */
+        }
+        l = l->next;
+    }
+
+    ipatch_glist_unref_free(list); /* free children list */
+
+    return ret;
+}
+
+/**
  * swami_root_patch_load:
  * @root: Swami root object to load into
  * @filename: Name and path of file to load
@@ -562,9 +608,13 @@ swami_root_insert_object_before(SwamiRoot *root, GObject *parent,
  *   (not necessary of course if %NULL was passed).
  * @err: Location to store error info or %NULL
  *
- * Load an instrument patch file and append to Swami object container. The caller
- * owns a reference to the returned patch object and should unref it when
- * done with the object.
+ * Load an instrument patch file and append to Swami object container.
+ * If item is not NULL, the caller owns a reference to the returned patch
+ * object and should unref it when done with the object.
+ *
+ * Before loading the file, the function checks that the file isn't already
+ * loaded. If it is the case the function skip loading and return FALSE with
+ * SWAMI_ERROR_ALREADY_LOADED code in err.
  *
  * Returns: %TRUE on success, %FALSE otherwise
  */
@@ -578,6 +628,14 @@ swami_root_patch_load(SwamiRoot *root, const char *filename, IpatchItem **item,
     g_return_val_if_fail(SWAMI_IS_ROOT(root), FALSE);
     g_return_val_if_fail(filename != NULL, FALSE);
     g_return_val_if_fail(!err || !*err, FALSE);
+
+    /* check if the file is already loaded */
+    if(swami_root_patch_is_loaded(root, filename))
+    {
+        g_set_error(err, SWAMI_ERROR, SWAMI_ERROR_ALREADY_LOADED,
+                    _("file is already loaded"));
+        return FALSE;
+    }
 
     handle = ipatch_file_identify_open(filename, err);    /* ++ open file handle */
 

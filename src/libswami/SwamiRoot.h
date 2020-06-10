@@ -88,6 +88,7 @@ void swami_root_prepend_object(SwamiRoot *root, GObject *parent,
 void swami_root_insert_object_before(SwamiRoot *root, GObject *parent,
                                      GObject *sibling, GObject *object);
 
+gboolean swami_root_patch_is_loaded(SwamiRoot *root, const char *filename);
 gboolean swami_root_patch_load(SwamiRoot *root, const char *filename,
                                IpatchItem **item, GError **err);
 gboolean swami_root_patch_save(IpatchItem *item, const char *filename,

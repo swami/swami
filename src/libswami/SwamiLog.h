@@ -30,11 +30,12 @@
 
 typedef enum
 {
-    SWAMI_ERROR_FAIL,		/* general failure */
-    SWAMI_ERROR_INVALID,		/* invalid parameter/setting/etc */
-    SWAMI_ERROR_CANCELED,		/* an operation was canceled (SwamiLoopFinder) */
-    SWAMI_ERROR_UNSUPPORTED,	/* an unsupported feature or unhandled operation */
-    SWAMI_ERROR_IO		/* I/O related error */
+    SWAMI_ERROR_FAIL,           /* general failure */
+    SWAMI_ERROR_INVALID,        /* invalid parameter/setting/etc */
+    SWAMI_ERROR_CANCELED,       /* an operation was canceled (SwamiLoopFinder) */
+    SWAMI_ERROR_UNSUPPORTED,    /* an unsupported feature or unhandled operation */
+    SWAMI_ERROR_IO,             /* I/O related error */
+    SWAMI_ERROR_ALREADY_LOADED  /* file already loaded */
 } SwamiError;
 
 GQuark swami_error_quark(void);
