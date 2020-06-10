@@ -1015,12 +1015,9 @@ swamigui_tree_cb_drag_data_received(GtkWidget *widget, GdkDragContext *context,
 
             if(fname)
             {
-                if(!swami_root_patch_load(swami_root, fname, NULL, &err))
-                {
-                    g_critical(_("Failed to load DnD file '%s': %s"), fname,
-                               ipatch_gerror_message(err));
-                    g_clear_error(&err);
-                }
+                /* loading patch file and log error on Gtk message dialog */
+                swamigui_root_patch_load(swami_root, fname, NULL,
+                                         GTK_WINDOW(swamigui_root->main_window));
 
                 g_free(fname);
             }
