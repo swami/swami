@@ -351,8 +351,6 @@ swamigui_menu_recent_chooser_item_activated(GtkRecentChooser *chooser,
         gpointer user_data)
 {
     char *file_uri, *fname;
-    GError *err = NULL;
-    GtkWidget *msgdialog;
 
     file_uri = gtk_recent_chooser_get_current_uri(chooser);
 
@@ -370,17 +368,9 @@ swamigui_menu_recent_chooser_item_activated(GtkRecentChooser *chooser,
         return;
     }
 
-    if(!swami_root_patch_load(SWAMI_ROOT(swamigui_root), fname, NULL, &err))
-    {
-        msgdialog = gtk_message_dialog_new(NULL, 0, GTK_MESSAGE_ERROR,
-                                           GTK_BUTTONS_OK,
-                                           _("Failed to load '%s': %s"),
-                                           fname, ipatch_gerror_message(err));
-        g_clear_error(&err);
-
-        gtk_dialog_run(GTK_DIALOG(msgdialog));
-        gtk_widget_destroy(msgdialog);
-    }
+    /* loading patch file and log error on Gtk message dialog */
+    swamigui_root_patch_load(SWAMI_ROOT(swamigui_root), fname, NULL,
+                             GTK_WINDOW(swamigui_root->main_window));
 
     g_free(fname);
 }
