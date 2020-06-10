@@ -123,6 +123,8 @@ void swamigui_root_quit(SwamiguiRoot *root);
 SwamiguiRoot *swamigui_get_root(gpointer gobject);
 gboolean swamigui_root_save_prefs(SwamiguiRoot *root);
 gboolean swamigui_root_load_prefs(SwamiguiRoot *root);
+gboolean swamigui_root_patch_load(SwamiRoot *root, const char *filename,
+                                  IpatchItem **item, GtkWindow *parent);
 gboolean swamigui_root_is_middle_click(SwamiguiRoot *root, GdkEventButton *event);
 
 #endif
