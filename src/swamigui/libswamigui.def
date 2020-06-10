@@ -17,6 +17,7 @@ swamigui_get_swamigui_root
 
 swamigui_root_activate
 swamigui_root_load_prefs
+swamigui_root_patch_load
 swamigui_root_new
 
 swamigui_knob_get_adjustment

@@ -127,7 +127,8 @@ main(int argc, char *argv[])
                 fname = g_strdup(*sptr);
             }
 
-            if(swami_root_patch_load(SWAMI_ROOT(root), fname, NULL, &err))
+            /* loading patch file and log error on console */
+            if(swamigui_root_patch_load(SWAMI_ROOT(root), fname, NULL, NULL))
             {
                 /* Add file to recent chooser list */
                 if((file_uri = g_filename_to_uri(fname, NULL, NULL)))
@@ -141,12 +142,6 @@ main(int argc, char *argv[])
 
                     g_free(file_uri);
                 }
-            }
-            else
-            {
-                g_critical(_("Failed to open file '%s' given as program argument: %s"),
-                           fname, ipatch_gerror_message(err));
-                g_clear_error(&err);
             }
 
             g_free(fname);
