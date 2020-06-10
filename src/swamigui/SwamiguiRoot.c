@@ -1486,9 +1486,9 @@ swamigui_root_load_prefs(SwamiguiRoot *root)
  * The log message is displayed on the console and optionally on a Gtk message
  * dialog.
  *
- * In the case of a file is really loaded with error, the message displayed
+ * In the case of a file loaded with error, the message displayed
  * is critical.
- * Because the function can ignore file already loaded, in this case
+ * Because the function can ignore a file already loaded, for this case
  * the error returned is not critical and the message displayed is an
  * information only.
  *
