@@ -2816,7 +2816,7 @@ marker_control_update(MarkerInfo *marker_info)
     GnomeCanvasPoints *points;
     int startx, endx, sview = -1, eview = -1;
     int width, height;
-    int visible_count, pos;
+    int visible_count, pos = 0;
     int y1 = 0, y2 = 0;
     GList *p;
 
