@@ -1000,7 +1000,6 @@ swamigui_tree_cb_drag_data_received(GtkWidget *widget, GdkDragContext *context,
         char *uri_list;
         char **uris;
         char *fname;
-        GError *err = NULL;
         int i;
 
         uri_list = g_strndup((char *)(selection_data->data),
