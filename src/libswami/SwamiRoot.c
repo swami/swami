@@ -571,7 +571,7 @@ swami_root_patch_is_loaded(SwamiRoot *root, const char *filename)
     GList *list, *l; /* list in root's container */
     GObject *base;   /* IpatchBase object in root's container */
     char *path;      /* base's filename path */
-    boolean ret = FALSE; /* return value */
+    gboolean ret = FALSE; /* return value */
 
     g_return_val_if_fail(SWAMI_IS_ROOT (root), FALSE);
     g_return_val_if_fail(filename != NULL, FALSE);
