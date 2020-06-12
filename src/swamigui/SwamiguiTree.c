@@ -773,7 +773,7 @@ swamigui_tree_treeview_query_tooltip(GtkWidget *widget,
 
         g_free (path_file);                    /* -- free path file */
         ret = TRUE;  /* show the tooltip */
-	}
+    }
 
     g_object_unref(obj);                       /* -- unref obj */
     return ret;
