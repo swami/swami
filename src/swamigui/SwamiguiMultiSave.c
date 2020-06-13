@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <gtk/gtk.h>
+#include <glib/gstdio.h>
 #include <libinstpatch/libinstpatch.h>
 
 #include <libswami/SwamiRoot.h>
@@ -44,11 +45,11 @@ enum
 
 static void swamigui_multi_save_finalize(GObject *object);
 static void browse_clicked(GtkButton *button, gpointer user_data);
+static GtkFileChooserConfirmation
+warning_overwrite_callback(GtkFileChooser *chooser, gpointer data);
 static void save_toggled(GtkCellRendererToggle *cell, char *path_str,
                          gpointer data);
 static void save_column_clicked(GtkTreeViewColumn *column, gpointer data);
-static void path_edited(GtkCellRendererText *cell, const char *path_string,
-                        const char *new_text, gpointer data);
 static gboolean
 swamigui_multi_save_treeview_query_tooltip(GtkWidget *widget,
         gint x, gint y, gboolean keyboard_mode,
@@ -96,7 +97,7 @@ swamigui_multi_save_init(SwamiguiMultiSave *multi)
     gtk_box_pack_start(GTK_BOX(hbox), multi->message, FALSE, FALSE, 0);
 
     /* browse button */
-    btn = gtk_button_new_with_label(_("Browse"));
+    btn = gtk_button_new_with_label (_("\"Save file as\" browser"));
     image = gtk_image_new_from_stock(GTK_STOCK_OPEN, GTK_ICON_SIZE_BUTTON);
     gtk_button_set_image(GTK_BUTTON(btn), image);
     gtk_box_pack_end(GTK_BOX(hbox), btn, FALSE, FALSE, 0);
@@ -159,13 +160,13 @@ swamigui_multi_save_init(SwamiguiMultiSave *multi)
                  NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(multi->treeview), column);
 
+    /* create column with path text: not editable */
     renderer = gtk_cell_renderer_text_new();
     g_object_set(renderer,
-                 "editable", TRUE,
                  "ellipsize", PANGO_ELLIPSIZE_START,
                  "ellipsize-set", TRUE,
                  NULL);
-    g_signal_connect(renderer, "edited", G_CALLBACK(path_edited), multi->store);
+
     column = gtk_tree_view_column_new_with_attributes("Path", renderer,
              "text", PATH_COLUMN,
              NULL);
@@ -229,6 +230,15 @@ browse_clicked(GtkButton *button, gpointer user_data)
                                     GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
                                     NULL);
 
+    /* Enable GtkFileChooserDialog to verify when the user choose a file that
+       already exits */
+    gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER (filesel), TRUE);
+
+    /* Connect a custom callback when the user choose a file that already exists. */
+    /* The callback will receive the initial file fname in parameter. */
+    g_signal_connect(filesel, "confirm-overwrite",
+                     G_CALLBACK (warning_overwrite_callback), fname);
+
     if(!fname)
     {
         g_object_get(swami_root, "patch-path", &fname, NULL);     // ++ alloc patch path
@@ -242,8 +252,6 @@ browse_clicked(GtkButton *button, gpointer user_data)
     {
         gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(filesel), fname);
     }
-
-    g_free(fname);		/* -- free file name string */
 
     /* make the dialog modal by waiting for the user response */
     if(gtk_dialog_run(GTK_DIALOG (filesel)) == GTK_RESPONSE_ACCEPT)
@@ -299,8 +307,87 @@ browse_clicked(GtkButton *button, gpointer user_data)
         g_object_unref(item);  /* -- unref item */
     }
 
+    g_free(fname);		/* -- free file name string */
+
     /* close "save file as" dialog */
     gtk_widget_destroy(filesel);
+}
+
+/**
+ * The new file name choosed by the user is a file that already exists.
+ * The function checks if this file is allowed to be overwritten.
+ * The rule of precedence is (1) else (2) else (3):
+ *  (1) new file name identical to initial file name is allowed.
+ *
+ *  (2) new file name corresponding to a file in use in swami is
+ *      not allowed to be overwritten.
+ *      The user is requested to choose another file name.
+ *
+ *  (3) new file name is not in use by swami, the user is requested to
+ *      confirm that the file could be overwritten.
+ */
+static GtkFileChooserConfirmation
+warning_overwrite_callback(GtkFileChooser *chooser, gpointer data)
+{
+    char *init_fname = (char*)data; /* initial filename */
+
+    /* return value */
+    GtkFileChooserConfirmation ret = GTK_FILE_CHOOSER_CONFIRMATION_SELECT_AGAIN;
+    GtkWidget *msgdialog;
+    GtkButtonsType gtk_button_type;
+    const char *message;
+    char *new_fname;
+    gint resp;
+
+    /* get new file name from "save as" dialog */
+    new_fname = gtk_file_chooser_get_filename(chooser); /* ++ alloc */
+
+    /* check if new_fname is identical to initial file name */
+    if(init_fname && strcmp(init_fname, new_fname) == 0)
+    {
+        g_free(new_fname);
+        return GTK_FILE_CHOOSER_CONFIRMATION_ACCEPT_FILENAME;
+    }
+
+    /* check if new_fname corresponds to a file already loaded */
+    if( swami_root_patch_is_loaded(SWAMI_ROOT(swamigui_root), new_fname))
+    {
+        const static char *not_allowed_msg =
+        "Overwritten file in use '%s' is not allowed.\nPlease choose a new name.";
+
+        message = not_allowed_msg;
+        gtk_button_type = GTK_BUTTONS_OK;
+    }
+    else
+    {
+        /* the user is requested to confirm that the file should be overwritten.*/
+        const static char *overwriting_msg =
+        "File %s already exists. Do you want to overwrite this file ?";
+
+        message = overwriting_msg;
+        gtk_button_type = GTK_BUTTONS_YES_NO;
+    }
+
+    /* warn the user about overwriting existing file */
+    msgdialog = gtk_message_dialog_new(GTK_WINDOW (chooser), 0,
+                                       GTK_MESSAGE_WARNING,
+                                       gtk_button_type,
+                                       message,
+                                       new_fname);
+
+    /* Waiting for user response */
+    resp = gtk_dialog_run(GTK_DIALOG(msgdialog));
+    if((gtk_button_type == GTK_BUTTONS_YES_NO) && (resp == GTK_RESPONSE_YES))
+    {
+        g_unlink(new_fname);  /* delete existing file before saving */
+        ret = GTK_FILE_CHOOSER_CONFIRMATION_ACCEPT_FILENAME;
+    }
+
+    gtk_widget_destroy(msgdialog);
+
+    /* free file name string */
+    g_free(new_fname); /* free */
+    return ret;
 }
 
 static void
@@ -364,20 +451,6 @@ save_column_clicked(GtkTreeViewColumn *column, gpointer data)
                            -1);
     }
     while(gtk_tree_model_iter_next(model, &iter));
-}
-
-static void
-path_edited(GtkCellRendererText *cell, const char *path_string,
-            const char *new_text, gpointer data)
-{
-    GtkTreeModel *model = (GtkTreeModel *)data;
-    GtkTreePath *path;
-    GtkTreeIter iter;
-
-    path = gtk_tree_path_new_from_string(path_string);
-    gtk_tree_model_get_iter(model, &iter, path);
-    gtk_list_store_set(GTK_LIST_STORE(model), &iter, PATH_COLUMN, new_text, -1);
-    gtk_tree_path_free(path);
 }
 
 // Signal handler for query-tooltip on tree view

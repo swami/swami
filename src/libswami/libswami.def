@@ -332,6 +332,7 @@ swami_param_type_transformable
 swami_get_control_prop
 swami_container_get_type
 swami_object_set_origin
+swami_root_patch_is_loaded
 swami_root_patch_load
 swami_control_prop_connect_to_control
 ;swami_patch_add_control
