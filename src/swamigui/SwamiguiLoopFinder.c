@@ -80,7 +80,6 @@ static void
 swamigui_loop_finder_class_init(SwamiguiLoopFinderClass *klass)
 {
     GObjectClass *obj_class = G_OBJECT_CLASS(klass);
-    GtkObjectClass *gtkobj_class = GTK_OBJECT_CLASS(klass);
 
     obj_class->set_property = swamigui_loop_finder_set_property;
     obj_class->get_property = swamigui_loop_finder_get_property;
