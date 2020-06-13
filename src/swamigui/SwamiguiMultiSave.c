@@ -44,7 +44,6 @@ enum
 };
 
 static void swamigui_multi_save_finalize(GObject *object);
-static void browse_clicked(GtkButton *button, gpointer user_data);
 static GtkFileChooserConfirmation
 warning_overwrite_callback(GtkFileChooser *chooser, gpointer data);
 static void save_toggled(GtkCellRendererToggle *cell, char *path_str,
@@ -101,7 +100,7 @@ swamigui_multi_save_init(SwamiguiMultiSave *multi)
     image = gtk_image_new_from_stock(GTK_STOCK_OPEN, GTK_ICON_SIZE_BUTTON);
     gtk_button_set_image(GTK_BUTTON(btn), image);
     gtk_box_pack_end(GTK_BOX(hbox), btn, FALSE, FALSE, 0);
-    g_signal_connect(btn, "clicked", G_CALLBACK(browse_clicked), multi);
+    g_signal_connect(btn, "clicked", G_CALLBACK (swamigui_save_as_browser), multi);
 
     gtk_widget_show_all(hbox);
 
@@ -202,8 +201,7 @@ swamigui_multi_save_finalize(GObject *object)
 }
 
 /* browse button clicked callback */
-static void
-browse_clicked(GtkButton *button, gpointer user_data)
+void swamigui_save_as_browser(GtkButton *button, gpointer user_data)
 {
     SwamiguiMultiSave *multi = SWAMIGUI_MULTI_SAVE(user_data);
     GtkWidget *filesel;

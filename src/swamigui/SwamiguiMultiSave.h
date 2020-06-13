@@ -74,6 +74,7 @@ typedef enum
 
 GType swamigui_multi_save_get_type(void);
 GtkWidget *swamigui_multi_save_new(char *title, char *message, guint flags);
+void swamigui_save_as_browser(GtkButton *button, gpointer user_data);
 void swamigui_multi_save_set_selection(SwamiguiMultiSave *multi,
                                        IpatchList *selection);
 
