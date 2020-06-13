@@ -549,6 +549,13 @@ swamigui_multi_save_new(char *title, char *message, guint flags)
         gtk_button_set_label(GTK_BUTTON(multi->accept_btn), GTK_STOCK_CLOSE);
     }
 
+    /* here we are in "Save files" dialog. To retain user attention and disable
+       access to menu in other window, the dialog must be modal */
+    gtk_window_set_modal(GTK_WINDOW(multi), TRUE);
+
+    /* the dialog is centered on the main window */
+    gtk_window_set_transient_for(GTK_WINDOW(multi), GTK_WINDOW(swamigui_root->main_window));
+
     return (GTK_WIDGET(multi));
 }
 
