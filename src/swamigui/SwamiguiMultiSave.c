@@ -44,8 +44,6 @@ enum
 
 static void swamigui_multi_save_finalize(GObject *object);
 static void browse_clicked(GtkButton *button, gpointer user_data);
-static void browse_file_chooser_response(GtkDialog *dialog, int response,
-        gpointer user_data);
 static void save_toggled(GtkCellRendererToggle *cell, char *path_str,
                          gpointer data);
 static void save_column_clicked(GtkTreeViewColumn *column, gpointer data);
@@ -209,7 +207,6 @@ browse_clicked(GtkButton *button, gpointer user_data)
     SwamiguiMultiSave *multi = SWAMIGUI_MULTI_SAVE(user_data);
     GtkWidget *filesel;
     GtkTreeModel *model;
-    GtkTreePath *path;
     GtkTreeSelection *selection;
     GtkTreeIter iter;
     char *fname;
@@ -246,46 +243,64 @@ browse_clicked(GtkButton *button, gpointer user_data)
         gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(filesel), fname);
     }
 
-    g_signal_connect(filesel, "response",
-                     G_CALLBACK(browse_file_chooser_response), multi);
-
-    path = gtk_tree_model_get_path(model, &iter);	/* ++ alloc new path */
-    g_object_set_data_full(G_OBJECT(filesel), "path", path,   /* !! takes over alloc */
-                           (GDestroyNotify)gtk_tree_path_free);
-
-    gtk_widget_show(filesel);
-
     g_free(fname);		/* -- free file name string */
-}
 
-/* dialog response callback for file chooser dialog */
-static void
-browse_file_chooser_response(GtkDialog *dialog, int response,
-                             gpointer user_data)
-{
-    SwamiguiMultiSave *multi = SWAMIGUI_MULTI_SAVE(user_data);
-    GtkTreePath *path;
-    GtkTreeIter iter;
-    char *fname;
-
-    if(response != GTK_RESPONSE_ACCEPT)
+    /* make the dialog modal by waiting for the user response */
+    if(gtk_dialog_run(GTK_DIALOG (filesel)) == GTK_RESPONSE_ACCEPT)
     {
-        gtk_object_destroy(GTK_OBJECT(dialog));
-        return;
+        char *new_fname;
+        IpatchItem *item;
+        gboolean changed, saved;
+        GError *err = NULL;
+
+        /* get the new filename chosen by the user, save the file and put
+           new file name in multisave dialog */
+        /* ++ alloc file name from file chooser */
+        new_fname = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(filesel));
+
+        /* Get the item to save */
+        gtk_tree_model_get(model, &iter,
+                           ITEM_COLUMN, &item,     /* ++ ref item */
+                           -1);
+
+        /* save the item under new file name */
+        if(!swami_root_patch_save(item, new_fname, &err))
+        {
+            /* bad luck, an error occured */
+            GtkWidget *msgdialog;
+            msgdialog = gtk_message_dialog_new(GTK_WINDOW (filesel), 0,
+                                               GTK_MESSAGE_ERROR,
+                                               GTK_BUTTONS_OK,
+                                               _("Error saving '%s': %s"),
+                                               new_fname, ipatch_gerror_message(err));
+            g_clear_error(&err);
+
+            /* Waiting for user response */
+            gtk_dialog_run(GTK_DIALOG(msgdialog));
+            gtk_widget_destroy(msgdialog);
+        }
+        else
+        {
+            /* file has been saved, update row in multi save GtkListStore */
+            /* Get new item states: "changed" , "saved" */
+            g_object_get(item,
+                         "changed", &changed,  /* changed state */
+                         "saved", &saved,      /* saved state */
+                         NULL);
+
+            /* set saved, changed and new filename in respective column */
+            gtk_list_store_set(multi->store, &iter,
+                               SAVE_COLUMN, saved,
+                               CHANGED_COLUMN, changed ? _("Yes") : _("No"),
+                               PATH_COLUMN, new_fname,
+                               -1);
+        }
+        g_free(new_fname);         /* free file name string */
+        g_object_unref(item);  /* -- unref item */
     }
 
-    /* ++ alloc file name from file chooser */
-    fname = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-
-    path = g_object_get_data(G_OBJECT(dialog), "path");
-    gtk_tree_model_get_iter(GTK_TREE_MODEL(multi->store), &iter, path);
-
-    gtk_list_store_set(multi->store, &iter,
-                       PATH_COLUMN, fname,
-                       -1);
-    g_free(fname);	/* -- free file name string */
-
-    gtk_object_destroy(GTK_OBJECT(dialog));
+    /* close "save file as" dialog */
+    gtk_widget_destroy(filesel);
 }
 
 static void
