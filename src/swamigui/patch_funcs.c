@@ -256,13 +256,13 @@ swamigui_cb_load_files_response(GtkWidget *dialog, gint response,
         {
             patch_loaded = TRUE;      // Set patch path regardless if successful
 
-            if(!swami_root_patch_load(root, fname, &patch, &err))     // ++ ref patch object
+            /* loading patch file and log error on Gtk message dialog */
+            if(!swamigui_root_patch_load(root, fname, &patch, GTK_WINDOW(dialog)))
             {
-                /* error occurred - log it */
-                g_critical(_("Failed to load file '%s': %s"), fname, ipatch_gerror_message(err));
-                g_clear_error(&err);
                 continue;
             }
+
+            /* loading is success, ++ ref on patch object */
 
             if((file_uri = g_filename_to_uri(fname, NULL, NULL)))     // ++ alloc
             {

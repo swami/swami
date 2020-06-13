@@ -1480,6 +1480,71 @@ swamigui_root_load_prefs(SwamiguiRoot *root)
 }
 
 /**
+ * swamigui_root_patch_load:
+ *
+ * Load an instrument patch file and displays a log error message if it fails.
+ * The log message is displayed on the console and optionally on a Gtk message
+ * dialog.
+ *
+ * In the case of a file loaded with error, the message displayed
+ * is critical.
+ * Because the function can ignore a file already loaded, for this case
+ * the error returned is not critical and the message displayed is an
+ * information only.
+ *
+ * @root: Swami root object to load into.
+ * @filename, Name and path of file to load.
+ * @item: Location to store pointer to object that has been loaded into Swami
+ *   root object (or NULL). Remember to unref the object when done with it
+ *   (not necessary of course if NULL was passed).
+ * @parent: window parent of the Gtk message dialog created to display the log
+ *  message. If NULL no message dialog is created.
+ * @return: TRUE on success, FALSE otherwise
+ */
+gboolean swamigui_root_patch_load(SwamiRoot *root, const char *filename,
+                                  IpatchItem **item, GtkWindow *parent)
+{
+    GError *err = NULL;
+
+    g_return_val_if_fail((parent == NULL ) || GTK_IS_WINDOW(parent), FALSE);
+
+    if (!swami_root_patch_load (root, filename, item, &err))
+    {
+        /* prepare a CRITICAL log message */
+        GLogLevelFlags log_level = G_LOG_LEVEL_CRITICAL;
+        static const char *log_msg = "Failed to load file '%s': %s";
+        GtkMessageType gtk_type = GTK_MESSAGE_ERROR;
+
+        if(err->code == SWAMI_ERROR_ALREADY_LOADED)
+        {
+            /* prepare an INFO log message */
+            log_level = G_LOG_LEVEL_INFO;
+            log_msg = "Ignore file '%s': %s";
+            gtk_type = GTK_MESSAGE_INFO;
+        }
+
+        /* displaying log message on the console */
+        g_log(G_LOG_DOMAIN, log_level, log_msg, filename,
+              ipatch_gerror_message(err));
+
+        /* optionally displaying log message on a GUI dialog */
+        if(parent)
+        {
+            GtkWidget *msgdialog;
+            msgdialog = gtk_message_dialog_new(GTK_WINDOW(parent), 0, gtk_type,
+                                               GTK_BUTTONS_OK, log_msg, filename,
+                                               ipatch_gerror_message(err));
+            gtk_dialog_run(GTK_DIALOG(msgdialog));
+            gtk_widget_destroy(msgdialog);
+        }
+
+        g_clear_error(&err);
+        return FALSE;
+    }
+    return TRUE;
+}
+
+/**
  * swamigui_get_root:
  * @gobject: An object registered to a #SwamiguiRoot object
  *
