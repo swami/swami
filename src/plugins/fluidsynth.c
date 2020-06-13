@@ -251,19 +251,12 @@ static fluid_preset_t *sfloader_sfont_get_preset(fluid_sfont_t *sfont,
         int bank,
         int prenum);
 static void sfloader_preset_free(fluid_preset_t *preset);
-static void sfloader_active_preset_free(fluid_preset_t *preset);
 static const char *sfloader_preset_get_name(fluid_preset_t *preset);
-static const char *sfloader_active_preset_get_name(fluid_preset_t *preset);
 static int sfloader_preset_get_banknum(fluid_preset_t *preset);
-static int sfloader_active_preset_get_banknum(fluid_preset_t *preset);
 static int sfloader_preset_get_num(fluid_preset_t *preset);
-static int sfloader_active_preset_get_num(fluid_preset_t *preset);
 static int sfloader_preset_noteon(fluid_preset_t *preset,
                                   fluid_synth_t *synth,
                                   int chan, int key, int vel);
-static int sfloader_active_preset_noteon(fluid_preset_t *preset,
-        fluid_synth_t *synth,
-        int chan, int key, int vel);
 static void cache_instrument(WavetblFluidSynth *wavetbl, IpatchItem *item);
 static int cache_instrument_noteon(WavetblFluidSynth *wavetbl, IpatchItem *item,
                                    fluid_synth_t *synth, int chan, int key,
