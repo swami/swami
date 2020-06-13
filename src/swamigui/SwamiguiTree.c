@@ -85,6 +85,10 @@ static GtkWidget *
 swamigui_tree_create_scrolled_tree_view(SwamiguiTree *tree,
                                         SwamiguiTreeStore *store,
                                         GtkTreeView **out_treeview);
+static gboolean
+swamigui_tree_treeview_query_tooltip(GtkWidget *widget,
+                                     gint x, gint y, gboolean keyboard_mode,
+                                     GtkTooltip *tooltip, gpointer user_data);
 static void swamigui_tree_item_icon_cell_data(GtkTreeViewColumn *tree_column,
         GtkCellRenderer *cell,
         GtkTreeModel *tree_model,
@@ -647,7 +651,11 @@ swamigui_tree_create_scrolled_tree_view(SwamiguiTree *tree,
                                    GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
     gtk_widget_show(scrollwin);
 
+    /* create tree wiew and set tooltip handler */
     treeview = GTK_TREE_VIEW(gtk_tree_view_new());
+    gtk_widget_set_has_tooltip ((GtkWidget *)treeview, TRUE);
+    g_signal_connect(treeview, "query-tooltip",
+                     G_CALLBACK(swamigui_tree_treeview_query_tooltip), NULL);
 
     /* all rows have same height, enable fixed height mode for increased speed
        FIXME - Breaks scroll bar, why??? */
@@ -712,6 +720,63 @@ swamigui_tree_create_scrolled_tree_view(SwamiguiTree *tree,
     *out_treeview = treeview;
 
     return (scrollwin);
+}
+
+/**
+ * Show tooltip on the "Patches" tree.
+ * Actually the tooltip displays the path file of the loaded soundfont(s).
+ */
+static gboolean
+swamigui_tree_treeview_query_tooltip(GtkWidget *widget,
+                                     gint x, gint y, gboolean keyboard_mode,
+                                     GtkTooltip *tooltip, gpointer user_data)
+{
+    gboolean ret = FALSE;  /* return code. Don't show tooltip */
+    GtkTreeModel *model;
+    GtkTreePath *path;
+    GtkTreeIter iter;
+    GObject *obj;
+
+    /* Get GtkTreeView informations:
+       - tooltips (x,y) , GtkTreeView model, path and iter of the row.
+    */
+    if(!gtk_tree_view_get_tooltip_context(GTK_TREE_VIEW(widget), &x, &y,
+                                          keyboard_mode, &model, &path, &iter))
+    {
+        return (FALSE);
+    }
+
+    /* Get item object for the row at iter. */ /* ++ ref obj */
+    gtk_tree_model_get(model, &iter, SWAMIGUI_TREE_STORE_OBJECT_COLUMN, &obj, -1);
+
+    /* Display tootip for IpatchBase object only */
+    if(IPATCH_IS_BASE(obj))
+    {
+        char *path_file;  /* path of the file */
+        gboolean changed; /* indicate that the file has been changed */
+
+        /* Get path file and changed flag */   /* ++ alloc path file */
+        g_object_get(obj, "file-name", &path_file, "changed", &changed, NULL);
+
+        /* Display file path in tooltip for this row */
+        if(changed)
+        {
+            /* concat "(*)" to path_file to indicate the file was changed */
+            char *path_file_changed;
+            path_file_changed = g_strconcat(path_file,"(*)",NULL); /* ++alloc */
+            g_free(path_file);
+            path_file = path_file_changed;
+        }
+        gtk_tooltip_set_text(tooltip, path_file);
+        gtk_tree_view_set_tooltip_cell(GTK_TREE_VIEW (widget), tooltip, path,
+                                       NULL, NULL);
+
+        g_free (path_file);                    /* -- free path file */
+        ret = TRUE;  /* show the tooltip */
+    }
+
+    g_object_unref(obj);                       /* -- unref obj */
+    return ret;
 }
 
 /* cell renderer for tree pixmap icons */
