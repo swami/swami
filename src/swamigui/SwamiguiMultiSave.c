@@ -323,6 +323,9 @@ void swamigui_save_as_browser(GtkButton *button, gpointer user_data)
  *
  *  (3) new file name is not in use by swami, the user is requested to
  *      confirm that the file could be overwritten.
+ *
+ * Note: Swami consider file name "case insensitive" regardless of the host OS.
+ * That means that f.sf2 should be considered the same file as F.sf2.
  */
 static GtkFileChooserConfirmation
 warning_overwrite_callback(GtkFileChooser *chooser, gpointer data)
@@ -341,7 +344,8 @@ warning_overwrite_callback(GtkFileChooser *chooser, gpointer data)
     new_fname = gtk_file_chooser_get_filename(chooser); /* ++ alloc */
 
     /* check if new_fname is identical to initial file name */
-    if(init_fname && strcmp(init_fname, new_fname) == 0)
+    /* note that the comparison is "case insensitive" */
+    if(init_fname && g_ascii_strcasecmp(init_fname, new_fname) == 0)
     {
         g_free(new_fname);
         return GTK_FILE_CHOOSER_CONFIRMATION_ACCEPT_FILENAME;
