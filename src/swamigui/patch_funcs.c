@@ -626,7 +626,20 @@ swamigui_save_files(IpatchList *item_list, gboolean saveas)
     dialog = swamigui_multi_save_new(_("Save files"),
                                      _("Select files to save"), 0);
     swamigui_multi_save_set_selection(SWAMIGUI_MULTI_SAVE(dialog), item_list);
-    gtk_widget_show(dialog);
+
+    /* if "save as" is requested and the selection is simple opens the
+       "File save as" dialog directly otherwise the "Save files dialog" is show.
+    */
+    if(saveas && (item_list && item_list->items  && !item_list->items->next))
+    {
+        /* opens "file save as" dialog */
+        swamigui_save_as_browser(NULL, SWAMIGUI_MULTI_SAVE(dialog));
+        gtk_widget_destroy(dialog);
+    }
+    else
+    {
+        gtk_widget_show(dialog); /* show "Save files" dialog */
+    }
 }
 
 /**

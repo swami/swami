@@ -564,6 +564,9 @@ swami_root_insert_object_before(SwamiRoot *root, GObject *parent,
  *
  * The function look in the root's container in which file are
  * loaded by swami_root_patch_load().
+ *
+ * Note: Swami considers file name "case insensitive" regardless of the host OS.
+ * That means that f.sf2 is considered the same file as F.sf2.
  */
 gboolean
 swami_root_patch_is_loaded(SwamiRoot *root, const char *filename)
@@ -585,7 +588,8 @@ swami_root_patch_is_loaded(SwamiRoot *root, const char *filename)
     {
         base = (GObject *)l->data;  /* IpatchBase object */
         g_object_get(base, "file-name", &path, NULL);   /* ++ alloc path */
-        ret = path && (strcmp(path, filename) == 0);
+        /* note that the comparison is "case insensitive" */
+        ret = path && (g_ascii_strcasecmp(path, filename) == 0);
         g_free(path);  /* free path */
         if(ret)
         {
