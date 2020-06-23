@@ -1515,7 +1515,7 @@ gboolean swamigui_root_patch_load(SwamiRoot *root, const char *filename,
         static const char *log_msg = "Failed to load file '%s': %s";
         GtkMessageType gtk_type = GTK_MESSAGE_ERROR;
 
-        if(err->code == SWAMI_ERROR_ALREADY_LOADED)
+        if(err && err->code == SWAMI_ERROR_ALREADY_LOADED)
         {
             /* prepare an INFO log message */
             log_level = G_LOG_LEVEL_INFO;
