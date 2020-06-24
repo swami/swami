@@ -2086,7 +2086,7 @@ sli_inst_prop_handler(GtkWidget *widg, GObject *obj)
         /* ++ ref new store */
         model = GTK_TREE_MODEL(gtk_tree_store_new(1, G_TYPE_STRING));
         cat_map_to_tree_store(GTK_TREE_STORE(model),
-                              ipatch_sli_inst_cat_map, NULL);
+                              ipatch_sli_inst_get_cat_map(), NULL);
         gtk_combo_box_set_model(GTK_COMBO_BOX(combo), model);
         g_object_unref(model);  /* -- unref store */
         /* set cell renderer */
@@ -2128,6 +2128,7 @@ cat_map_to_tree_store(GtkTreeStore *store, const IpatchSLIInstCatMapEntry *catma
     GtkTreeIter child;
     guint i;
     gchar *label, *prefix;
+    const gchar **inst_cat_strings = ipatch_sli_inst_get_cat_strings();
 
     g_return_if_fail(store != NULL && catmap != NULL);
 
@@ -2137,12 +2138,12 @@ cat_map_to_tree_store(GtkTreeStore *store, const IpatchSLIInstCatMapEntry *catma
         {
             gtk_tree_model_get(GTK_TREE_MODEL(store), parent, 0, &prefix, -1);
             label = g_strjoin(" | ", prefix,
-                              ipatch_sli_inst_cat_strings[catmap[i].name_idx], NULL);
+                              inst_cat_strings[catmap[i].name_idx], NULL);
             g_free(prefix);
         }
         else
         {
-            label = g_strdup(ipatch_sli_inst_cat_strings[catmap[i].name_idx]);
+            label = g_strdup (inst_cat_strings[catmap[i].name_idx]);
         }
 
         gtk_tree_store_append(store, &child, parent);
@@ -2160,7 +2161,7 @@ cat_map_to_tree_store(GtkTreeStore *store, const IpatchSLIInstCatMapEntry *catma
     {
         gtk_tree_store_append(store, &child, parent);
         gtk_tree_store_set(store, &child, 0,
-                           ipatch_sli_inst_cat_strings[catmap[i].name_idx], -1);
+                           inst_cat_strings[catmap[i].name_idx], -1);
     }
 }
 
@@ -2168,7 +2169,7 @@ cat_map_to_tree_store(GtkTreeStore *store, const IpatchSLIInstCatMapEntry *catma
 static void
 category_changed_cb(GtkComboBox *combo, gpointer user_data)
 {
-    const IpatchSLIInstCatMapEntry *catmap = ipatch_sli_inst_cat_map;
+    const IpatchSLIInstCatMapEntry *catmap = ipatch_sli_inst_get_cat_map();
     IpatchSLIInst *inst;
     gboolean ret;
     GtkTreeModel *model;
