@@ -136,7 +136,7 @@ fluid_synth_pref_handler(void)
                                        "text", 0,
                                        NULL);
 
-        g_object_get(swamigui_root->wavetbl, "audio.driver-options", &options, NULL);	/* ++ alloc */
+        g_object_get(swamigui_root->wavetbl, "audio-driver-options", &options, NULL);	/* ++ alloc */
 
         for(optionp = options; *optionp; optionp++)
         {
@@ -149,9 +149,9 @@ fluid_synth_pref_handler(void)
         g_signal_connect(widg, "changed",
                          G_CALLBACK(fluid_synth_gui_audio_driver_changed), fluid_widg);
 
-        /* Connect the audio combo box to the "audio.driver" property */
+        /* Connect the audio combo box to the "audio.driver" FluidSynth setting */
         swamigui_control_prop_connect_widget(G_OBJECT(swamigui_root->wavetbl),
-                                             "audio.driver", G_OBJECT(widg));
+                                             "audio-driver", G_OBJECT(widg));
 
         /* Initialize MIDI driver list */
         widg = swamigui_util_glade_lookup(fluid_widg, "ComboMidiDriver");
@@ -166,7 +166,7 @@ fluid_synth_pref_handler(void)
                                        "text", 0,
                                        NULL);
 
-        g_object_get(swamigui_root->wavetbl, "midi.driver-options", &options, NULL);	/* ++ alloc */
+        g_object_get(swamigui_root->wavetbl, "midi-driver-options", &options, NULL);	/* ++ alloc */
 
         for(optionp = options; *optionp; optionp++)
         {
@@ -179,9 +179,9 @@ fluid_synth_pref_handler(void)
         g_signal_connect(widg, "changed",
                          G_CALLBACK(fluid_synth_gui_midi_driver_changed), fluid_widg);
 
-        /* Connect the MIDI combo box to the "midi.driver" property */
+        /* Connect the MIDI combo box to the "midi.driver" FluidSynth setting */
         swamigui_control_prop_connect_widget(G_OBJECT(swamigui_root->wavetbl),
-                                             "midi.driver", G_OBJECT(widg));
+                                             "midi-driver", G_OBJECT(widg));
 
         /* Connect widgets to FluidSynth properties */
         swamigui_control_glade_prop_connect(fluid_widg, G_OBJECT(swamigui_root->wavetbl));
@@ -364,7 +364,7 @@ fluid_synth_gui_control_init(FluidSynthGuiControl *fsctrl)
     }
 
     /* ++Ref  */
-    propctrl = swami_get_control_prop_by_name(G_OBJECT(wavetbl), "synth.reverb.active");
+    propctrl = swami_get_control_prop_by_name(G_OBJECT(wavetbl), "synth-reverb-active");
     widg = swamigui_util_glade_lookup(fsctrl->ctrl_widg, "BtnReverb");
     /* widget control is owned by the widget (it will be freed when the widget
        will be destroyed) */
@@ -376,7 +376,7 @@ fluid_synth_gui_control_init(FluidSynthGuiControl *fsctrl)
     fsctrl->ctrl_list = g_slist_append(fsctrl->ctrl_list, propctrl);
 
     /* ++Ref  */
-    propctrl = swami_get_control_prop_by_name(G_OBJECT(wavetbl), "synth.chorus.active");
+    propctrl = swami_get_control_prop_by_name(G_OBJECT(wavetbl), "synth-chorus-active");
     widg = swamigui_util_glade_lookup(fsctrl->ctrl_widg, "BtnChorus");
     /* widget control is owned by the widget (it will be freed when the widget
        will be destroyed) */
