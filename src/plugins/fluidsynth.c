@@ -754,6 +754,9 @@ settings_foreach_func(void *data, const char *name, int type)
     int optcount = 0;
     char *optname;
 
+    /* GObject property names don't allow '.' */
+    char *prop_name = g_strdelimit(g_strdup(name), ".", '-');
+
     /* check if this property is on the string boolean list */
     for(sp = settings_str_bool; *sp; sp++)
         if(type == FLUID_STR_TYPE && strcmp(name, *sp) == 0)
@@ -764,7 +767,7 @@ settings_foreach_func(void *data, const char *name, int type)
     if(*sp)	/* string boolean value? */
     {
         bdef = fluid_settings_str_equal(bag->settings, name, "yes");
-        spec = g_param_spec_boolean(name, name, name, bdef, G_PARAM_READWRITE);
+        spec = g_param_spec_boolean(prop_name, name, name, bdef, G_PARAM_READWRITE);
 
         /* set PROP_STRING_BOOL property flag */
         dynamic_prop_flags[last_property_id - FIRST_DYNAMIC_PROP] |= PROP_STRING_BOOL;
@@ -776,7 +779,7 @@ settings_foreach_func(void *data, const char *name, int type)
         case FLUID_NUM_TYPE:
             fluid_settings_getnum_range(bag->settings, name, &dmin, &dmax);
             fluid_settings_getnum_default(bag->settings, name, &ddef);
-            spec = g_param_spec_double(name, name, name, dmin, dmax, ddef,
+            spec = g_param_spec_double(prop_name, name, name, dmin, dmax, ddef,
                                        G_PARAM_READWRITE);
             break;
 
@@ -787,18 +790,18 @@ settings_foreach_func(void *data, const char *name, int type)
 
             if((hint & FLUID_HINT_TOGGLED) != 0)	/* boolean parameter? */
             {
-                spec = g_param_spec_boolean(name, name, name, idef != 0, G_PARAM_READWRITE);
+                spec = g_param_spec_boolean(prop_name, name, name, idef != 0, G_PARAM_READWRITE);
             }
             else
             {
-                spec = g_param_spec_int(name, name, name, imin, imax, idef, G_PARAM_READWRITE);
+                spec = g_param_spec_int(prop_name, name, name, imin, imax, idef, G_PARAM_READWRITE);
             }
 
             break;
 
         case FLUID_STR_TYPE:
             fluid_settings_getstr_default(bag->settings, name, &defstr);
-            spec = g_param_spec_string(name, name, name, defstr, G_PARAM_READWRITE);
+            spec = g_param_spec_string(prop_name, name, name, defstr, G_PARAM_READWRITE);
 
             /* count options for this string parameter (if any) */
             fluid_settings_foreach_option(bag->settings, name, &optcount,
@@ -839,7 +842,7 @@ settings_foreach_func(void *data, const char *name, int type)
     /* install an options parameter if there are any string options */
     if(options)
     {
-        optname = g_strconcat(name, "-options", NULL);	/* ++ alloc */
+        optname = g_strconcat(prop_name, "-options", NULL);	/* ++ alloc */
         spec = g_param_spec_boxed(optname, optname, optname, G_TYPE_STRV,
                                   G_PARAM_READABLE);
 
@@ -855,6 +858,8 @@ settings_foreach_func(void *data, const char *name, int type)
 
         last_property_id++;	/* advance the last dynamic property ID */
     }
+
+    g_free(prop_name);
 }
 
 /* function to iterate over FluidSynth string options for string parameters

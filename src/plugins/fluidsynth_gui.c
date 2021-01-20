@@ -136,7 +136,7 @@ fluid_synth_pref_handler(void)
                                        "text", 0,
                                        NULL);
 
-        g_object_get(swamigui_root->wavetbl, "audio.driver-options", &options, NULL);	/* ++ alloc */
+        g_object_get(swamigui_root->wavetbl, "audio-driver-options", &options, NULL);	/* ++ alloc */
 
         for(optionp = options; *optionp; optionp++)
         {
@@ -151,7 +151,7 @@ fluid_synth_pref_handler(void)
 
         /* Connect the audio combo box to the "audio.driver" property */
         swamigui_control_prop_connect_widget(G_OBJECT(swamigui_root->wavetbl),
-                                             "audio.driver", G_OBJECT(widg));
+                                             "audio-driver", G_OBJECT(widg));
 
         /* Initialize MIDI driver list */
         widg = swamigui_util_glade_lookup(fluid_widg, "ComboMidiDriver");
@@ -166,7 +166,7 @@ fluid_synth_pref_handler(void)
                                        "text", 0,
                                        NULL);
 
-        g_object_get(swamigui_root->wavetbl, "midi.driver-options", &options, NULL);	/* ++ alloc */
+        g_object_get(swamigui_root->wavetbl, "midi-driver-options", &options, NULL);	/* ++ alloc */
 
         for(optionp = options; *optionp; optionp++)
         {
