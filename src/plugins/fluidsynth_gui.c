@@ -149,7 +149,7 @@ fluid_synth_pref_handler(void)
         g_signal_connect(widg, "changed",
                          G_CALLBACK(fluid_synth_gui_audio_driver_changed), fluid_widg);
 
-        /* Connect the audio combo box to the "audio.driver" FluidSynth setting */
+        /* Connect the audio combo box to the "audio-driver" wavetbl property */
         swamigui_control_prop_connect_widget(G_OBJECT(swamigui_root->wavetbl),
                                              "audio-driver", G_OBJECT(widg));
 
@@ -179,7 +179,7 @@ fluid_synth_pref_handler(void)
         g_signal_connect(widg, "changed",
                          G_CALLBACK(fluid_synth_gui_midi_driver_changed), fluid_widg);
 
-        /* Connect the MIDI combo box to the "midi.driver" FluidSynth setting */
+        /* Connect the MIDI combo box to the "midi-driver" wavetbl property */
         swamigui_control_prop_connect_widget(G_OBJECT(swamigui_root->wavetbl),
                                              "midi-driver", G_OBJECT(widg));
 
