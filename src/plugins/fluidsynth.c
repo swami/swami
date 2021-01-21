@@ -669,7 +669,7 @@ wavetbl_fluidsynth_class_init(WavetblFluidSynthClass *klass)
     g_object_class_install_property(obj_class, WTBL_PROP_CHORUS_COUNT,
                                     g_param_spec_int("chorus-count", _("Chorus count"),
                                             _("Number of chorus delay lines"),
-                                            1, 99, chorus_presets[0].count,
+                                            0, 99, chorus_presets[0].count,
                                             G_PARAM_READWRITE));
     g_object_class_install_property(obj_class, WTBL_PROP_CHORUS_LEVEL,
                                     g_param_spec_double("chorus-level", _("Chorus level"),
@@ -679,12 +679,12 @@ wavetbl_fluidsynth_class_init(WavetblFluidSynthClass *klass)
     g_object_class_install_property(obj_class, WTBL_PROP_CHORUS_FREQ,
                                     g_param_spec_double("chorus-freq", _("Chorus freq"),
                                             _("Chorus modulation frequency (Hz)"),
-                                            0.3, 5.0, chorus_presets[0].freq,
+                                            0.1, 5.0, chorus_presets[0].freq,
                                             G_PARAM_READWRITE));
     g_object_class_install_property(obj_class, WTBL_PROP_CHORUS_DEPTH,
                                     g_param_spec_double("chorus-depth", _("Chorus depth"),
                                             _("Chorus depth"),
-                                            0.0, 20.0, chorus_presets[0].depth,
+                                            0.0, 46.0, chorus_presets[0].depth,
                                             G_PARAM_READWRITE));
     g_object_class_install_property(obj_class, WTBL_PROP_CHORUS_WAVEFORM,
                                     g_param_spec_enum("chorus-waveform", _("Chorus waveform"),
