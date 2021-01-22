@@ -1,5 +1,5 @@
 # Swami - README
-### Copyright (C) 1999-2020 Element Green and others
+### Copyright (C) 1999-2021 Element Green and others
 
 http://www.swamiproject.org
 
