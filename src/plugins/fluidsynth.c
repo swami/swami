@@ -681,10 +681,13 @@ wavetbl_fluidsynth_class_init(WavetblFluidSynthClass *klass)
                                             _("Chorus modulation frequency (Hz)"),
                                             0.1, 5.0, chorus_presets[0].freq,
                                             G_PARAM_READWRITE));
+    /* As swami allows the user doing sample rate change (via the preferences dialog), we must
+       set maximum chorus-depth property based on the maximum sample rate accepted by fluidsynth:
+       maximum chorus-depth = ((2048 * 1000)/ max_sample_rate) = ((2048 * 1000)/ 96000 = 20 */
     g_object_class_install_property(obj_class, WTBL_PROP_CHORUS_DEPTH,
                                     g_param_spec_double("chorus-depth", _("Chorus depth"),
                                             _("Chorus depth"),
-                                            0.0, 46.0, chorus_presets[0].depth,
+                                            0.0, 20.0, chorus_presets[0].depth,
                                             G_PARAM_READWRITE));
     g_object_class_install_property(obj_class, WTBL_PROP_CHORUS_WAVEFORM,
                                     g_param_spec_enum("chorus-waveform", _("Chorus waveform"),
