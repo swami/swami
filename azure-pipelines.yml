@@ -45,8 +45,8 @@ jobs:
     vmImage: 'macOS-10.15'
   steps:
     - script: |
-        brew update || brew update
-        brew upgrade
+        #brew update || brew update
+        #brew upgrade
         brew install glib gobject-introspection libsndfile pkg-config fluidsynth gtk+ libgnomecanvas
       displayName: 'Prerequisites'
     - script: |
