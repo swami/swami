@@ -33,6 +33,8 @@
 
 #include "fluidsynth_i18n.h"
 
+#define FLUID_VERSION_ATLEAST(major, minor, patch) (((FLUIDSYNTH_VERSION_MAJOR<<16)|(FLUIDSYNTH_VERSION_MINOR<<8)|(FLUIDSYNTH_VERSION_MICRO)) >= ((major<<16)|(minor<<8)|(patch)))
+
 /* max voices per instrument (voices exceeding this will not sound) */
 #define MAX_INST_VOICES   128
 
@@ -1833,11 +1835,20 @@ wavetbl_fluidsynth_update_reverb(WavetblFluidSynth *wavetbl)
 
     wavetbl->reverb_update = FALSE;
 
+#if FLUID_VERSION_ATLEAST(2,1,6)
+    /* Avoid calling deprecated API */
+    int fx_group = -1;
+    fluid_synth_set_reverb_group_roomsize(wavetbl->synth, fx_group, wavetbl->reverb_params.room_size);
+    fluid_synth_set_reverb_group_damp(wavetbl->synth, fx_group, wavetbl->reverb_params.damp);
+    fluid_synth_set_reverb_group_width(wavetbl->synth, fx_group, wavetbl->reverb_params.width);
+    fluid_synth_set_reverb_group_level(wavetbl->synth, fx_group, wavetbl->reverb_params.level);
+#else
     fluid_synth_set_reverb(wavetbl->synth,
                            wavetbl->reverb_params.room_size,
                            wavetbl->reverb_params.damp,
                            wavetbl->reverb_params.width,
                            wavetbl->reverb_params.level);
+#endif
 }
 
 /* Lock preset_tables before calling this function */
@@ -1869,12 +1880,22 @@ wavetbl_fluidsynth_update_chorus(WavetblFluidSynth *wavetbl)
 
     wavetbl->chorus_update = FALSE;
 
+#if FLUID_VERSION_ATLEAST(2,1,6)
+    /* Avoid calling deprecated API */
+    int fx_group = -1;
+    fluid_synth_set_chorus_group_nr(wavetbl->synth, fx_group, wavetbl->chorus_params.count);
+    fluid_synth_set_chorus_group_level(wavetbl->synth, fx_group, wavetbl->chorus_params.level);
+    fluid_synth_set_chorus_group_speed(wavetbl->synth, fx_group, wavetbl->chorus_params.freq);
+    fluid_synth_set_chorus_group_depth(wavetbl->synth, fx_group, wavetbl->chorus_params.depth);
+    fluid_synth_set_chorus_group_type(wavetbl->synth, fx_group, wavetbl->chorus_params.waveform);
+#else
     fluid_synth_set_chorus(wavetbl->synth,
                            wavetbl->chorus_params.count,
                            wavetbl->chorus_params.level,
                            wavetbl->chorus_params.freq,
                            wavetbl->chorus_params.depth,
                            wavetbl->chorus_params.waveform);
+#endif
 }
 
 /* Lock preset_tables before calling this function */
